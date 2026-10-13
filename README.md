@@ -35,6 +35,18 @@ Galereya (eng yaxshi ishlar) · mentor–talaba juftligi · Demo Day
 
 ---
 
+## Jonli havola
+
+**https://ai-leaders-platform.pages.dev** — Cloudflare Pages'da (production).
+
+```bash
+# kodni o'zgartirgandan keyin qayta deploy (Cloudflare API token kerak):
+npm run build
+npx wrangler pages deploy dist --project-name=ai-leaders-platform --branch=main
+```
+
+GitHub: https://github.com/Asilbek-ops-afk/ai-leaders-platform
+
 ## Ishga tushirish
 
 ```bash
