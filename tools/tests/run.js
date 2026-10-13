@@ -19,7 +19,9 @@ try {
 }
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const HTML = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+/* TEST_URL berilgan bo'lsa — jonli saytni tekshiradi (masalan CI'da smoke test) */
+const REMOTE = process.env.TEST_URL || '';
+const HTML = REMOTE ? '' : fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 
 /* ---- test muhiti uchun kichik hook (ishlab chiqarish kodiga ta'sir qilmaydi) ---- */
 const HOOK = `

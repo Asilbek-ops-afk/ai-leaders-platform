@@ -10,7 +10,8 @@
     "test:verbose": "node tools/tests/run.js --verbose",
     "assets": "python3 tools/make-assets.py",
     "deploy": "npm run build && npx wrangler@3 pages deploy dist --project-name=ai-leaders-platform --branch=main",
-    "screens": "node tools/tests/screens.js"
+    "screens": "node tools/tests/screens.js",
+    "test:live": "node tools/tests/live.js"
   },
   "author": "AI Leaders",
   "license": "UNLICENSED",
