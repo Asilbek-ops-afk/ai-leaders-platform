@@ -12,7 +12,8 @@
     "deploy": "npm run build && npx wrangler@3 pages deploy dist --project-name=ai-leaders-platform --branch=main",
     "screens": "node tools/tests/screens.js",
     "test:live": "node tools/tests/live.js",
-    "test:screens": "node tools/tests/screens.js"
+    "test:screens": "node tools/tests/screens.js",
+    "test:remote": "TEST_URL=https://ai-leaders-platform.pages.dev node tools/tests/run.js"
   },
   "author": "AI Leaders",
   "license": "UNLICENSED",

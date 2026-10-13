@@ -21,7 +21,15 @@ try {
 const ROOT = path.resolve(__dirname, '..', '..');
 /* TEST_URL berilgan bo'lsa — jonli saytni tekshiradi (masalan CI'da smoke test) */
 const REMOTE = process.env.TEST_URL || '';
-const HTML = REMOTE ? '' : fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+let HTML = REMOTE ? '' : fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+/* TEST_URL berilgan bo'lsa — jonli saytdagi HTML'ni yuklab, o'sha ustida tekshiramiz */
+async function loadRemote() {
+  if (!REMOTE) return;
+  const res = await fetch(REMOTE);
+  if (!res.ok) throw new Error('Jonli sayt javob bermadi: ' + res.status);
+  HTML = await res.text();
+  console.log('\n\x1b[36mJonli manba:\x1b[0m ' + REMOTE + '  (' + Math.round(HTML.length / 1024) + ' KB)');
+}
 
 /* ---- test muhiti uchun kichik hook (ishlab chiqarish kodiga ta'sir qilmaydi) ---- */
 const HOOK = `
@@ -95,6 +103,7 @@ function tIs(name, fn, expected) {
 const noCrash = x => { let bad = /NaN|undefined|\[object Object\]|Infinity/.test(x); return !bad; };
 
 async function main() {
+await loadRemote();
 /* ============================ 1. KIRISH EKRANI ============================ */
 group('1. Kirish ekrani va brend');
 {

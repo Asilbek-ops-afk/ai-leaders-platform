@@ -179,6 +179,10 @@ sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'d
 **3) `node tools/tests/live.js [url]` — jonli sayt tekshiruvi**
 18 ta tekshiruv: sahifa yuklanishi, brend, SEO/PWA teglari, manifest, service worker, rasm va sarlavha (header) sozlamalari.
 
+**4) `npm run test:remote` — jonli saytda to'liq funksional testlar**
+Xuddi `npm test` kabi 195 ta tekshiruv, lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
+(`TEST_URL=<url> node tools/tests/run.js`). Deploydan keyin «haqiqatan shu versiya chiqdimi?» degan savolga javob beradi.
+
 ---
 
 ## Real bazaga o'tish
