@@ -172,7 +172,7 @@ fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, e
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**37 ta skrinshot**: 14 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati va **10 noutbuk ko'rinishi**
+**39 ta skrinshot**: 15 desktop sahifa (3 tasi kirish ekrani), 6 mobil ko'rinish, 7 modal/light-tema holati va **10 noutbuk ko'rinishi**
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 

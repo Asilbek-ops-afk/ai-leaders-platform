@@ -16,7 +16,7 @@ function vAuth() {
     '<div><div style="font-size:19px;font-weight:850;letter-spacing:.12em">AI LEADERS</div><div class="xs" style="letter-spacing:.34em;color:#8C9CC8;font-weight:750">STARTUP CLUB</div></div></div>' +
     '<div class="spark-orb float-slow" style="width:260px;height:260px;background:#7C5CFF;top:16%;right:-60px"></div>' +
     '<div class="spark-orb float-slow" style="width:200px;height:200px;background:#22D3EE;bottom:6%;left:-40px;animation-delay:1.4s"></div>' +
-    '<div style="max-width:520px">' +
+    '<div class="auth-copy">' +
     '<span class="tag p" style="margin-bottom:14px">' + ico('rocket', 'sm') + '0 dan startapgacha</span>' +
     '<h1 style="font-size:clamp(28px,4vw,44px);line-height:1.08;letter-spacing:-.03em;margin:14px 0 12px;font-weight:880">G‘oyadan ishlaydigan mahsulotgacha — jamoada, kuzatuv ostida.</h1>' +
     '<p class="t2" style="margin:0;max-width:46ch">AI Leaders — 0 dan boshlovchilarni startuplarga tayyorlaydigan klub. Platformada: yo‘l xaritasi, vazifa → deadline → jamoa → reyting tizimi.</p>' +
@@ -29,7 +29,7 @@ function vAuth() {
       '<div style="width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(124,92,255,.18);border:1px solid rgba(124,92,255,.34);color:#C4B4FF">' + ico(x[0], 'sm') + '</div>' +
       '<div><div class="small" style="font-weight:750">' + esc(x[1]) + '</div><div class="xs muted">' + esc(x[2]) + '</div></div></div>').join('') +
     '</div></div>' +
-    '<div class="grid g4" style="gap:10px;max-width:560px">' + [['18', 'talaba'], ['6', 'jamoa'], ['29', 'dars'], ['4', 'loyiha jonli']].map(x =>
+    '<div class="grid g4 auth-stats">' + [['18', 'talaba'], ['6', 'jamoa'], ['29', 'dars'], ['4', 'loyiha jonli']].map(x =>
       '<div class="card tight soft tc"><div class="big">' + x[0] + '</div><div class="xs muted">' + x[1] + '</div></div>').join('') + '</div></div>' +
 
     '<div class="auth-form"><div class="inner">' +
@@ -174,7 +174,7 @@ function renderApp() {
 }
 function paint(keepScroll) {
   const el = document.getElementById('app');
-  el.className = 'app' + (UI.collapsed ? ' collapsed' : '');
+  el.className = UI.authShow ? 'app authscreen' : 'app' + (UI.collapsed ? ' collapsed' : '');
   el.innerHTML = renderApp();
   if (!keepScroll) { try { if (window.scrollY) window.scrollTo({ top: 0, behavior: 'auto' }); } catch (e) { } }
   const gs = document.getElementById('gsearch');

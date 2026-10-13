@@ -9,6 +9,8 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
   const browser = await chromium.launch();
   const shots = [
     { name: '01-kirish-desktop', vp: { width: 1440, height: 900 }, steps: [] },
+    { name: '01b-kirish-noutbuk-1920', vp: { width: 1920, height: 1080 }, steps: [] },
+    { name: '01c-kirish-planshet-1024', vp: { width: 1024, height: 800 }, steps: [] },
     { name: '02-talaba-bosh-desktop', vp: { width: 1440, height: 1100 }, steps: ['login-student'] },
     { name: '03-talaba-darslar', vp: { width: 1440, height: 1050 }, steps: ['login-student', 'go-lessons'] },
     { name: '04-talaba-vazifa', vp: { width: 1440, height: 1050 }, steps: ['login-student', 'go-tasks'] },

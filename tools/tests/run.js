@@ -668,8 +668,38 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 1.3.0', B.w.AIL.version() === '1.3.0');
+t('versiya 1.3.1', B.w.AIL.version() === '1.3.1');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
+
+/* ================= 17. KIRISH EKRANI TUZILISHI (noutbuk/planshet) ================= */
+group('17. Kirish ekrani: keng ekranda to‘g‘ri tuzilish');
+const C = boot();
+const appCls = () => C.d.getElementById('app').className;
+t('kirish ekranida #app yon-panel gridi emas', appCls() === 'app authscreen');
+t('CSS qoidasi joyida (authscreen → block)', C.d.documentElement.innerHTML.includes('.app.authscreen{display:block'));
+t('.auth ikki ustunli tuzilma saqlangan', !!C.d.querySelector('#app > .auth > .auth-art') && !!C.d.querySelector('#app > .auth > .auth-form'));
+t('brend va sarlavha kirish ekranida', C.has('AI LEADERS') && C.has('Tizimga kirish'));
+t('rol tanlash (Admin) formalar bilan bog‘liq', (() => {
+  const b2 = C.d.querySelector('[data-act="pick-role"][data-r="admin"]');
+  if (!b2) return false;
+  b2.dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
+  return C.w.AIL.UI.authRole === 'admin' && C.has('Admin');
+})());
+C.click('[data-act="quick"][data-r="admin"]');
+t('kirishdan keyin grid qaytadi (#app)', appCls() === 'app' && C.w.AIL.UI.authShow === false);
+t('kirish ekrani DOMdan olib tashlandi', C.d.querySelector('#app > .auth') === null);
+C.click('[data-act="collapse"]');
+t('yig‘ilgan holat klassi kirish mantiqiga xalal bermaydi', appCls() === 'app collapsed');
+C.click('[data-act="logout"]');
+t('chiqishda kirish ekrani yana to‘liq en oladi', appCls() === 'app authscreen' && !!C.d.querySelector('#app > .auth'));
+t('orblar absolute — flex oqimini cho‘zmaydi', C.w.getComputedStyle(C.d.querySelector('.spark-orb')).position === 'absolute');
+t('CSS kaskadi: orb qoidasi .auth-art>* dan keyin',
+  C.d.documentElement.innerHTML.indexOf('.auth-art>.spark-orb{position:absolute') >
+  C.d.documentElement.innerHTML.indexOf('.auth-art>*{position:relative'));
+t('kirish bloki uchun klasslar (auth-copy, auth-stats)', !!C.d.querySelector('.auth-copy') && !!C.d.querySelector('.auth-stats'));
+t('kirish ekranida oqimdagi bloklar soni 3 ta (brend, matn, statistika)',
+  [...C.d.querySelector('.auth-art').children].filter(k => !k.classList.contains('spark-orb') && !k.classList.contains('float-slow')).length === 3);
+t('JS xatosi yo‘q (kirish ekrani)', C.errors.length === 0);
 }
 
 /* ============================ XULOSA ====================================== */

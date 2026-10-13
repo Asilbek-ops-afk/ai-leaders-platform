@@ -150,3 +150,30 @@ Real ko'p foydalanuvchili rejimga o'tish uchun `schema/supabase.sql` ishga tushi
 - Ma'lumotlar hali ham `localStorage`da (demo) — ko'p qurilmali ishlash uchun Supabase'ga o'tish kerak.
 - Mentor roli faqat ma'lumot sifatida (login yo'q) — bu ongli qaror, admin panel mentor ishini bajaradi.
 - Buyruq paneli va klaviatura yorliqlari telefon ekranida ham ochiladi, lekin ular noutbuk uchun mo'ljallangan.
+
+---
+
+## v1.3.1 — kirish ekrani tuzatildi (regressiya)
+
+**Shikoyat:** noutbukda kirish (login) qismi "sochilib ketgan" — forma siqilgan, bloklar kesilgan.
+
+**Ikki sabab topildi va tuzatildi:**
+
+| # | Sabab | Tuzatish |
+|---|---|---|
+| 1 | `#app` elementida doimiy `app` klassi bor edi: `display:grid; grid-template-columns: var(--nav-w) 1fr` (yon panel + kontent). Kirish ekranida `.auth` shu gridning **birinchi ustuni (268 px)** ichiga tushib qolardi — ≤980 px da bir ustunli qoida buni yashirgan, noutbukda esa hammasi siqilib ketgan. | Kirish rejimida `#app` ga `authscreen` klassi qo'shiladi: `.app.authscreen{display:block}`. Chiqishda/kirishda avtomatik almashinadi. |
+| 2 | `.auth-art>*{position:relative}` qoidasi `.spark-orb{position:absolute}` ni **bosib ketgan** — 260 px va 200 px'lik dekorativ "yorug'lik sharlari" flex oqimiga tushib, kirish ekranini **~460 px ga cho'zib yuborgan** (natijada pastdagi bloklar viewport'dan chiqib ketgan va oraliqlar buzilgan). | `.auth-art>.spark-orb{position:absolute;z-index:0}` qoidasi qo'shildi (kaskadda keyin turadi). |
+
+**Qo'shimcha yaxshilanishlar (noutbukda kirish ekrani bitta ekranga sig'adi):**
+- `@media (min-width:1024px)`: matn 2 ustunli xususiyatlar to'riga o'tadi, sarlavha `clamp(23–32px)`, oraliqlar ixchamlashadi.
+- `@media (min-width:1024px) and (max-height:820px)`: 1366×768 kabi ekranlarda statistika kartalari yashiriladi — balandlik 100% viewport ichida qoladi.
+- `.auth-copy` / `.auth-stats` klasslari qo'shildi; `#app` grid tuzilishi kirish rejimida o'chadi.
+
+**Tekshiruv natijasi:**
+
+| Daraja | Natija |
+|---|---|
+| O'lchov (playwright) | 1920×1080 / 1440×900 / 1366×768 / 1024×800 — kontent viewport ichida, sahifa **bitta ekran**, kesilish yo'q |
+| Funksional testlar | ✔ **209 ta tekshiruv, 0 xato** (17-guruh: kirish ekrani tuzilishi — 9 yangi tekshiruv, shu jumladan orb regressiya testi) |
+| Skrinshotlar | 3 ta yangi kirish surati: `01-kirish-desktop` (1440), `01b-kirish-noutbuk-1920`, `01c-kirish-planshet-1024` |
+| Telefon | O'zgarmagan (390 px: bir ustun, statistika 2×2) |

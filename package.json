@@ -1,6 +1,6 @@
 {
   "name": "ai-leaders-platform",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "AI Leaders Startup Club — telefon va noutbukda ishlaydigan platforma: talaba kabineti va admin panel, 6 modul, deadline-jamoa-reyting tizimi, buyruq paneli (Ctrl+K)",
   "private": true,
   "scripts": {
