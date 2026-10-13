@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 88" width="340" height="88" role="img" aria-label="AI Leaders — Startup Club">
+  <defs>
+    <linearGradient id="fg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+    <linearGradient id="fg2" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+    <style>
+      .word{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;font-weight:800;letter-spacing:.14em}
+      .tag{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;font-weight:600;letter-spacing:.34em}
+    </style>
+  </defs>
+  <g transform="translate(4,12) scale(0.98)">
+    <path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="#0A0F1E" stroke="url(#fg1)" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#fg2)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>
+    <circle cx="32" cy="17.8" r="3.7" fill="#C6FF4F"/>
+    <circle cx="21" cy="46.5" r="3" fill="#22D3EE"/>
+    <circle cx="43" cy="46.5" r="3" fill="#7C5CFF"/>
+  </g>
+  <g transform="translate(84,0)">
+    <text class="word" x="0" y="40" font-size="27" fill="url(#fg1)">AI</text>
+    <text class="word" x="42" y="40" font-size="27" fill="#E9EDF9">LEADERS</text>
+    <text class="tag" x="2" y="60" font-size="9.5" fill="#6C799B">STARTUP CLUB</text>
+    <rect x="1.5" y="64.5" width="196" height="1.2" fill="url(#fg2)" opacity=".55"/>
+  </g>
+</svg>

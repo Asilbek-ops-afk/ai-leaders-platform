@@ -1,0 +1,12 @@
+{
+  "name": "ai-leaders-platform",
+  "version": "1.0.0",
+  "description": "AI Leaders Startup Club — 0 dan startapgacha o'quv platformasi (talaba + admin)",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "check": "node --check src/app-1-core.js && node --check src/app-2-student.js && node --check src/app-3-admin.js && node --check src/app-4-app.js"
+  },
+  "author": "AI Leaders",
+  "license": "UNLICENSED"
+}
