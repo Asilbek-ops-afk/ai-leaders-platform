@@ -24,7 +24,13 @@ function adminStudentModal(st) {
     (st.goal ? '<div class="card soft" style="margin-top:12px"><div class="up muted" style="margin-bottom:6px">Maqsadi</div><div class="small t2">' + esc(st.goal) + '</div></div>' : '') +
     '<div class="row" style="margin-top:14px;gap:9px"><button class="btn btn-primary grow" data-act="nudge" data-id="' + st.id + '">' + ico('bell', 'sm') + 'Eslatma yuborish</button>' +
     '<button class="btn btn-soft" data-act="msg" data-id="' + st.id + '">' + ico('chat', 'sm') + 'Xabar</button>' +
-    '<button class="btn btn-ghost" data-act="deadline-open" data-id="' + (g ? g.id : '') + '">' + ico('clock', 'sm') + 'Deadline</button></div>', 'wide');
+    '<button class="btn btn-ghost" data-act="deadline-open" data-id="' + (g ? g.id : '') + '">' + ico('clock', 'sm') + 'Deadline</button></div>' +
+    '<div class="divider"></div><div class="up muted" style="margin-bottom:8px">Talaba amallari</div>' +
+    '<div class="row wrap" style="gap:9px">' +
+    '<select class="inp" style="width:auto" data-act="change-group" data-id="' + st.id + '" aria-label="Jamoa o‘zgartirish"><option value="">Jamoa o‘zgartirish…</option>' +
+    S.groups.map(x => '<option value="' + x.id + '"' + (g && g.id === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select>' +
+    '<button class="btn btn-soft btn-sm" data-act="reset-student" data-id="' + st.id + '">' + ico('refresh', 'sm') + 'Progressni tiklash</button>' +
+    '<button class="btn btn-danger btn-sm" data-act="delete-student" data-id="' + st.id + '">' + ico('trash', 'sm') + 'Klubdan chiqarish</button></div>', 'wide');
 }
 function createTaskModal() {
   openModal(mhead('Yangi vazifa berish', 'Vazifa modulga bog‘lanadi va barcha jamoalarga tushadi') +
@@ -183,8 +189,12 @@ function vAdmin() {
 
 /* ---------- Talabalar ---------- */
 function vStudents() {
-  const f = UI.taskFilter;
-  const list = S.students.filter(s => f === 'all' ? true : f === 'inactive' ? !s.act : f === 'late' ? lateStudents().some(x => x.st.id === s.id) : myGroup(s) && myGroup(s).id === f);
+  const f = UI.studentsFilter || 'all';
+  const lateIds = lateStudents().map(x => x.st.id);
+  const list = S.students.filter(s => f === 'all' ? true
+    : f === 'inactive' ? !onl(s)
+    : f === 'late' ? lateIds.includes(s.id)
+    : myGroup(s) && myGroup(s).id === f);
   let h = '<div class="page-head"><div><h1 class="h1">Talabalar</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Guruh, daraja va faollik bo‘yicha kuzatuv. Profilni ochib vazifa, deadline va baholarni ko‘rish mumkin.</p></div>' +
     '<button class="btn btn-primary btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button></div>';
@@ -193,14 +203,17 @@ function vStudents() {
     kpi('users', S.students.length, 'Jami talaba', S.groups.length + ' jamoada', '') +
     kpi('bolt', activeCount(), 'Faol', activityPct() + '% haftalik faollik', 'a') +
     kpi('clock', lateStudents().length, 'Kechikkanlar', 'Yordam kerak', 'r') +
-    kpi('star', (S.students.reduce((a, s) => a + s.score, 0) / S.students.length).toFixed(1), 'O‘rtacha ball', '100 ballik tizim', 'c') + '</div>';
+    kpi('star', (S.students.reduce((a, s) => a + (Number(s.score) || 0), 0) / Math.max(1, S.students.length)).toFixed(1), 'O‘rtacha ball', '100 ballik tizim', 'c') + '</div>';
 
-  h += '<div class="row wrap between" style="gap:10px"><div class="seg">' +
-    [['all', 'Barchasi (' + S.students.length + ')'], ['inactive', 'Jim (' + (S.students.length - activeCount()) + ')'], ['late', 'Kechikkan (' + lateStudents().length + ')']]
-      .concat(S.groups.map(g => [g.id, g.name + ' (' + g.members.length + ')']))
-      .map(([k, l]) => '<button class="' + (f === k ? 'on' : '') + '" data-act="filter" data-f="' + k + '">' + esc(l) + '</button>').join('') + '</div></div>';
+  h += '<div class="row wrap between" style="gap:10px">' +
+    '<div class="seg">' +
+    [['all', 'Barchasi (' + S.students.length + ')'], ['late', 'Kechikkan (' + [...new Set(lateIds)].length + ')'], ['inactive', 'Jim (' + S.students.filter(x => !onl(x)).length + ')']]
+      .map(([k, l]) => '<button class="' + (f === k ? ' on' : '') + '" data-act="filter-s" data-f="' + k + '">' + esc(l) + '</button>').join('') +
+    '</div><div class="seg">' + S.groups.map(g => [g.id, g.name + ' (' + g.members.length + ')'])
+      .map(([k, l]) => '<button class="' + (f === k ? ' on' : '') + '" data-act="filter-s" data-f="' + k + '">' + esc(l) + '</button>').join('') +
+    '</div></div>';
 
-  h += '<div class="card" style="padding:14px 12px"><div class="trows">' +
+  h += '<div class="card" style="padding:14px 12px"><div class="table-scroll"><div class="trows">' +
     '<div class="trow head"><span>Talaba</span><span>Jamoa</span><span>Progress</span><span>Faollik / baho</span><span>Amallar</span></div>' +
     list.map(s => { const p = progress(s); const g = myGroup(s); const late = lateStudents().some(x => x.st.id === s.id);
       return '<div class="trow"><div class="row" style="gap:10px;min-width:0">' + avatar(s, 'sm') +
@@ -211,15 +224,17 @@ function vStudents() {
         '<span class="cell-hide"><div class="row wrap" style="gap:7px">' + (late ? '<span class="tag r">kechikkan</span>' : onl(s) ? '<span class="tag g">onlayn</span>' : '<span class="tag">' + s.last + ' kun</span>') +
         '<span class="tag a">' + ico('star', 'sm') + s.score + '</span><span class="tag c">' + ico('bolt', 'sm') + nf(s.wxp) + '</span></div></span>' +
         '<span class="row" style="gap:7px;justify-content:flex-end"><button class="btn btn-xs btn-soft" data-act="student-open" data-id="' + s.id + '">Profil</button>' +
-        '<button class="btn btn-xs btn-ghost" data-act="nudge" data-id="' + s.id + '">' + ico('bell', 'sm') + '</button></span></div>'; }).join('') +
-    '</div>' + (list.length ? '' : '<div class="empty">Filtr bo‘yicha talaba topilmadi</div>') + '</div>';
+        '<button class="btn btn-xs btn-ghost" data-act="nudge" data-id="' + s.id + '" aria-label="Eslatma yuborish">' + ico('bell', 'sm') + '</button></span></div>'; }).join('') +
+    '</div></div>' + (list.length ? '' : '<div class="empty">Filtr bo‘yicha talaba topilmadi</div>') + '</div>';
   return h;
 }
 
 /* ---------- Vazifalar (admin) ---------- */
 function vAdminTasks() {
   const f = UI.reviewFilter;
-  const subs = f === 'all' ? S.submissions : S.submissions.filter(p => p.status === f);
+  /* eng yangi topshiriqlar birinchi (sanaga qarab) */
+  const sorted = [...S.submissions].sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
+  const subs = f === 'all' ? sorted : sorted.filter(p => p.status === f);
   let h = '<div class="page-head"><div><h1 class="h1">Vazifalar</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Vazifa bering, tekshiring, baho va izoh yozing. Deadline’larni jamoa bo‘yicha boshqaring.</p></div>' +
     '<div class="row wrap" style="gap:9px"><button class="btn btn-primary btn-sm" data-act="new-task">' + ico('plus', 'sm') + 'Yangi vazifa</button>' +
@@ -233,7 +248,7 @@ function vAdminTasks() {
 
   h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('book') + 'Modul vazifalari va deadline’lar</h2>' +
     '<span class="small muted">' + S.tasks.length + ' vazifa</span></div>' +
-    '<div class="trows">' + S.tasks.map(t => {
+    '<div class="table-scroll"><div class="trows">' + S.tasks.map(t => {
       const mm = modOf(t.m);
       const rel = S.submissions.filter(p => p.task === t.id);
       const acc = rel.filter(p => p.status === 'accepted').length;
@@ -248,7 +263,7 @@ function vAdminTasks() {
         '<span class="cell-hide"><div class="row wrap" style="gap:7px"><span class="tag g">qabul ' + acc + '</span><span class="tag c">navbat ' + rev + '</span>' + (lateN ? '<span class="tag r">kechikkan ' + lateN + '</span>' : '') + '</div></span>' +
         '<span class="row" style="gap:7px;justify-content:flex-end"><button class="btn btn-xs btn-soft" data-act="task-review" data-id="' + t.id + '">Tekshirish</button>' +
         '<button class="btn btn-xs btn-ghost" data-act="deadline-open" data-id="">' + ico('clock', 'sm') + '</button></span></div>';
-    }).join('') + '</div></div>';
+    }).join('') + '</div></div></div>';
 
   h += '<div class="row wrap between" style="gap:10px"><h2 class="h2">Topshiriqlar oqimi</h2><div class="seg">' +
     [['all', 'Barchasi'], ['in_review', 'Tekshirilmoqda'], ['accepted', 'Qabul'], ['revise', 'Qayta ishlash'], ['late', 'Kechikkan']]
@@ -291,8 +306,9 @@ function vAdminLessons() {
           '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:700">' + esc(l.t) + '</div>' +
           '<div class="xs muted ellip">' + esc(l.brief) + '</div></div>' +
           '<span class="tag ' + ty.tag + '">' + ico(ty.i, 'sm') + esc(ty.l) + '</span>' +
-          '<span class="xs muted nowrap">' + l.dur + ' daq</span>' +
-          '<button class="btn btn-xs btn-ghost" data-act="del-lesson" data-id="' + l.id + '">' + ico('trash', 'sm') + '</button></div>';
+          '<span class="xs muted nowrap hide-sm">' + l.dur + ' daq</span>' +
+          '<button class="btn btn-xs btn-ghost" data-act="lesson-edit" data-id="' + l.id + '" aria-label="Tahrirlash">' + ico('edit', 'sm') + '</button>' +
+          '<button class="btn btn-xs btn-ghost" data-act="del-lesson" data-id="' + l.id + '" aria-label="O‘chirish">' + ico('trash', 'sm') + '</button></div>';
       }).join('') + '</div></div>';
   }).join('') + '</div>';
   return h;
@@ -444,5 +460,124 @@ function vStats() {
       ['cal', 'Offline kun', 'Oyiga bir marta offline demo-kun — keyingisi 28-noyabr']
     ].map(x => '<div class="card tight soft"><div class="row" style="gap:9px">' + ico(x[0], 'sm') + '<b class="small">' + esc(x[1]) + '</b></div>' +
       '<div class="xs muted" style="margin-top:8px">' + esc(x[2]) + '</div></div>').join('') + '</div></div>';
+  return h;
+}
+
+
+/* ---------- Bahoni tahrirlash ---------- */
+function reviewEditModal(subId) {
+  const p = get(S.submissions, subId), st = get(S.students, p.st), t = taskOf(p.task);
+  openModal(mhead('Bahoni tahrirlash', st.name + ' • ' + t.title) +
+    '<form data-form="review" data-sub="' + p.id + '" class="col" style="gap:12px">' +
+    '<div class="row" style="gap:12px"><div class="field grow"><label>Baho (0–100)</label><input class="inp" name="score" type="number" min="0" max="100" value="' + (p.score != null ? p.score : 85) + '" required></div>' +
+    '<div class="field grow"><label>Qaror</label><select class="inp" name="status">' +
+    [['accepted', 'Qabul qilish'], ['revise', 'Qayta ishlashga'], ['late', 'Kechikkan deb belgilash'], ['in_review', 'Yana tekshirilmoqda']]
+      .map(([k, l]) => '<option value="' + k + '"' + (p.status === k ? ' selected' : '') + '>' + l + '</option>').join('') +
+    '</select></div></div>' +
+    '<div class="field"><label>Izoh</label><textarea class="inp" name="fb">' + esc(p.fb || '') + '</textarea></div>' +
+    '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('check-c', 'sm') + 'Saqlash</button>' +
+    '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>' +
+    '<div class="divider"></div><a class="row small" style="gap:8px;word-break:break-all" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + ico('link', 'sm') + esc(p.link) + '</a>', 'narrow');
+}
+
+/* ---------- Darsni tahrirlash ---------- */
+function editLessonModal(id) {
+  const l = lessonOf(id); if (!l) return;
+  openModal(mhead('Darsni tahrirlash', modOf(l.m).n + '-modul') +
+    '<form data-form="new-lesson" data-id="' + l.id + '" class="col" style="gap:13px">' +
+    '<div class="field"><label>Modul</label><select class="inp" name="m">' + S.modules.map(m => '<option value="' + m.id + '"' + (m.id === l.m ? ' selected' : '') + '>' + m.n + '-modul — ' + esc(m.title) + '</option>').join('') + '</select></div>' +
+    '<div class="field"><label>Dars nomi</label><input class="inp" name="t" value="' + esc(l.t) + '" required></div>' +
+    '<div class="grid g2" style="gap:12px"><div class="field"><label>Turi</label><select class="inp" name="type">' +
+    Object.keys(TYPES).map(k => '<option value="' + k + '"' + (l.type === k ? ' selected' : '') + '>' + TYPES[k].l + '</option>').join('') + '</select></div>' +
+    '<div class="field"><label>Davomiyligi (daqiqa)</label><input class="inp" type="number" name="dur" value="' + l.dur + '" min="3" max="90"></div></div>' +
+    '<div class="field"><label>Material havolasi</label><input class="inp" name="link" value="' + esc(l.link || '') + '"></div>' +
+    '<div class="field"><label>Qisqa tavsif</label><textarea class="inp" name="brief">' + esc(l.brief || '') + '</textarea></div>' +
+    '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('check', 'sm') + 'Saqlash</button>' +
+    '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>', 'narrow');
+}
+
+/* ---------- Galereyaga loyiha qo'shish ---------- */
+function addGalleryModal() {
+  openModal(mhead('Galereyaga loyiha qo‘shish', 'Eng yaxshi ishlar hammaga ko‘rinadi') +
+    '<form data-form="new-gallery" class="col" style="gap:13px">' +
+    '<div class="field"><label>Loyiha nomi</label><input class="inp" name="t" required placeholder="Masalan: EduBot"></div>' +
+    '<div class="field"><label>Tavsif</label><textarea class="inp" name="desc" placeholder="Muammo → yechim, natija…"></textarea></div>' +
+    '<div class="grid g2" style="gap:12px"><div class="field"><label>Egasi</label><select class="inp" name="by">' +
+    S.students.map(s => '<option value="' + s.id + '">' + esc(s.name) + '</option>').join('') + '</select></div>' +
+    '<div class="field"><label>Rang</label><select class="inp" name="k"><option value="g1">Binafsha</option><option value="g2">Moviy</option><option value="g3">To‘q sariq</option><option value="g4">Yashil</option></select></div></div>' +
+    '<div class="field"><label>Jonli havola</label><input class="inp" name="link" required placeholder="https://loyiha.vercel.app"></div>' +
+    '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('plus', 'sm') + 'Qo‘shish</button>' +
+    '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>', 'narrow');
+}
+
+/* ---------- Mentor qo'shish ---------- */
+function addMentorModal() {
+  openModal(mhead('Yangi mentor', 'Mentor jamoalarga biriktiriladi') +
+    '<form data-form="new-mentor" class="col" style="gap:13px">' +
+    '<div class="field"><label>To‘liq ism</label><input class="inp" name="name" required></div>' +
+    '<div class="field"><label>Yo‘nalish</label><input class="inp" name="role" placeholder="AI mentor / Product mentor / Design mentor"></div>' +
+    '<div class="field"><label>Telegram</label><input class="inp" name="tg" placeholder="@username"></div>' +
+    '<div class="field"><label>Qisqa tavsif</label><textarea class="inp" name="bio" placeholder="Tajribasi va qaysi mavzuda yordam beradi…"></textarea></div>' +
+    '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('plus', 'sm') + 'Mentor qo‘shish</button>' +
+    '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>', 'narrow');
+}
+
+/* ---------- Sozlamalar (admin) ---------- */
+function vAdminSettings() {
+  const k = kpisAdmin();
+  const size = (() => { try { return (new Blob([JSON.stringify(S)]).size / 1024).toFixed(1); } catch (e) { return '—'; } })();
+  let h = '<div class="page-head"><div><h1 class="h1">Sozlamalar</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">Zaxira nusxa, mentorlar, galereya va platforma ma’lumotlari.</p></div>' +
+    '<span class="tag c">' + ico('shield', 'sm') + 'v' + APP_VERSION + '</span></div>';
+
+  h += '<div class="grid g4">' +
+    kpi('users', k.total, 'Talaba', k.groups + ' jamoa', '') +
+    kpi('book', S.lessons.length, 'Dars', S.modules.length + ' modul', 'c') +
+    kpi('user', S.mentors.length, 'Mentor', 'Talaba–mentor juftligi', 'a') +
+    kpi('dash', size + ' KB', 'Ma’lumot hajmi', 'Brauzer xotirasida', '') + '</div>';
+
+  h += '<div class="grid g2">' +
+    /* zaxira */
+    '<div class="card"><div class="card-h"><h2 class="h2">' + ico('download') + 'Zaxira nusxa va tiklash</h2></div>' +
+    '<p class="small muted" style="margin:-4px 0 12px">Barcha ma’lumot (talabalar, jamoalar, vazifalar, baholar) bitta JSON faylda saqlanadi. Har hafta zaxira olish tavsiya etiladi.</p>' +
+    '<div class="col" style="gap:9px">' +
+    '<button class="btn btn-primary btn-block" data-act="export-json">' + ico('download', 'sm') + 'Zaxira nusxa yuklab olish (JSON)</button>' +
+    '<button class="btn btn-soft btn-block" data-act="export">' + ico('doc', 'sm') + 'Statistika hisoboti (CSV, Excel uchun)</button>' +
+    '<div class="field"><label>Zaxiradan tiklash (.json)</label><input class="inp" type="file" id="import-json" accept="application/json,.json"></div>' +
+    '<div class="divider"></div>' +
+    '<button class="btn btn-danger btn-block" data-act="reset-confirm">' + ico('refresh', 'sm') + 'Demo ma’lumotlarga qaytarish</button>' +
+    '</div></div>' +
+
+    /* mentorlar */
+    '<div class="card"><div class="card-h"><h2 class="h2">' + ico('user') + 'Mentorlar</h2>' +
+    '<button class="btn btn-xs btn-soft" data-act="new-mentor">' + ico('plus', 'sm') + 'Mentor</button></div>' +
+    '<div class="col" style="gap:9px">' + S.mentors.map(m => '<div class="lrow"><div class="row grow" style="gap:11px;min-width:0">' +
+      avatar({ name: m.name, act: true, last: 0 }, 'sm') +
+      '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(m.name) + '</div>' +
+      '<div class="xs muted">' + esc(m.role) + ' • ' + esc(m.tg) + ' • ' + S.groups.filter(g => g.mentor === m.id).length + ' jamoa</div></div></div>' +
+      '<button class="btn btn-xs btn-soft" data-act="msg" data-id="' + m.id + '">' + ico('chat', 'sm') + '</button>' +
+      '<button class="btn btn-xs btn-ghost" data-act="del-mentor" data-id="' + m.id + '">' + ico('trash', 'sm') + '</button></div>').join('') + '</div></div></div>';
+
+  h += '<div class="grid g2">' +
+    '<div class="card"><div class="card-h"><h2 class="h2">' + ico('star') + 'Galereya</h2>' +
+    '<button class="btn btn-xs btn-soft" data-act="new-gallery">' + ico('plus', 'sm') + 'Loyiha</button></div>' +
+    '<p class="small muted" style="margin:-4px 0 12px">Talaba Bosh sahifasida ko‘rinadi — eng yaxshi ishlarni shu yerga chiqaring.</p>' +
+    '<div class="col" style="gap:9px">' + S.gallery.map(it => '<div class="lrow"><div class="lead">' + ico('rocket', 'sm') + '</div>' +
+      '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(it.t) + '</div>' +
+      '<div class="xs muted ellip">' + esc(it.kind) + ' • ' + esc(it.desc) + '</div></div>' +
+      '<button class="btn btn-xs btn-ghost" data-act="del-gallery" data-id="' + it.id + '">' + ico('trash', 'sm') + '</button></div>').join('') + '</div></div>' +
+
+    '<div class="card"><div class="card-h"><h2 class="h2">' + ico('flag') + 'Platforma haqida</h2></div>' +
+    '<div class="col" style="gap:10px">' +
+    '<div class="row between small"><span class="muted">Versiya</span><b>v' + APP_VERSION + '</b></div>' +
+    '<div class="row between small"><span class="muted">Ma’lumot manbai</span><b>Brauzer xotirasi (demo)</b></div>' +
+    '<div class="row between small"><span class="muted">Hosting</span><b>Cloudflare Pages</b></div>' +
+    '<div class="row between small"><span class="muted">Kod</span><b>github.com/Asilbek-ops-afk/ai-leaders-platform</b></div>' +
+    '<div class="divider"></div>' +
+    '<div class="card tight soft"><div class="up muted" style="margin-bottom:6px">Keyingi qadam</div>' +
+    '<div class="xs t2">Real bazaga o‘tish uchun Supabase jadvallari tayyor: <b>schema/supabase.sql</b>. Ulash faqat <b>loadState()</b> va <b>save()</b> funksiyalarini almashtirishni talab qiladi.</div></div>' +
+    '<div class="card tight soft"><div class="up muted" style="margin-bottom:6px">Bildirishnomalar</div>' +
+    '<div class="xs t2">Telegram-bot orqali deadline eslatmalarini ulash mumkin (kuniga 21:00 standup xabari).</div></div>' +
+    '</div></div></div>';
   return h;
 }

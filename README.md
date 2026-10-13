@@ -1,85 +1,206 @@
 # AI Leaders — Startup Club platformasi
 
-**AI Leaders** — 0 dan boshlovchilarni startuplarga tayyorlaydigan klub uchun to'liq ishlaydigan o'quv platformasi.
-Bitta HTML fayl (`index.html`), tashqi kutubxonasiz — istalgan hostingga qo'yish mumkin.
+> **0 dan startapgacha** — boshlovchilarni startuplarga tayyorlaydigan klub uchun to'liq ishlaydigan o'quv platformasi.
+> Talaba kabineti (7 bo'lim) + Admin/Mentor paneli (8 bo'lim), gamification, vazifa–deadline tizimi va jamoaviy ishlash.
 
-> Jonli demo: AUTH ekranida **Student** yoki **Admin** rolini tanlab kiring (parol talab qilinmaydi).
+| | |
+|---|---|
+| 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
+| 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
+| 🧪 **Testlar** | `npm test` → **152 ta tekshiruv, 0 xato** |
+| 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
+| 📦 **Hajm** | Bitta `index.html` (~266 KB), tashqi kutubxonasiz |
+
+---
+
+## Mundarija
+1. [Nima bor?](#nima-bor)
+2. [Talaba kabineti](#1-talaba-kabineti-7-boʻlim)
+3. [Admin paneli](#2-admin--mentor-paneli-8-boʻlim)
+4. [Gamification](#3-gamification-oʻquvchini-ushlab-turish)
+5. [Texnik tuzilma](#texnik-tuzilma)
+6. [Ishga tushirish va buyruqlar](#ishga-tushirish)
+7. [Testlar va skrinshotlar](#testlar)
+8. [Real bazaga o'tish (Supabase)](#real-bazaga-otish)
+9. [Demo ma'lumotlar](#demo-maʼlumotlar)
+10. [Yo'l xaritasi](#yol-xaritasi)
 
 ---
 
 ## Nima bor?
 
-### Talaba (Student) — 7 bo'lim
-| Bo'lim | Mazmuni |
-|---|---|
-| **Bosh sahifa** | Salomlashish, bugungi reja (kunlik questlar), progress foizi, eng yaqin deadline, yo'l xaritasi, haftalik faollik, jamoa va Galereya |
-| **Darslar** | 6 modul: AI asoslari → Prompt yozish → Vibe coding → Claude Code/GitHub/deploy → Mini-loyiha → Jamoaviy startap. Modul ochilishi oldingi modul vazifasi qabul qilinishiga bog'liq |
-| **Vazifa** | Havola/fayl topshirish, holat (topshirilmagan → tekshirilmoqda → qabul / qayta ishlash / kechikkan), mentor bahosi (0–100) va izohi |
-| **Team** | O'z jamoasi, a'zolar va rollari, jamoa devori (standup), mentor, jamoaviy loyiha holati |
-| **Deadline** | Haftalik lenta + oylik kalendar, kechikishlar, jamoa uchun alohida sanalar |
-| **Friends** | Do'stlar, so'rovlar, klub a'zolarini topish, haftalik reyting, jamoalar musobaqasi, mentor–talaba juftliklari |
-| **Ma'lumot** | Profil, yutuqlar (8 badge), sertifikatlar (chop etish mumkin), sozlamalar, aloqa |
+Platforma **uchta asosiy g'oyani** hal qiladi:
+- **Yo'l xaritasi** — 0 dan boshlovchi "keyingi qadamim nima?" degan savolga javob topadi.
+- **Intizom** — vazifa → deadline → tekshirish → baho → keyingi modul zanjiri.
+- **Jamoa** — yolg'iz o'qish emas, startap mashqi: jamoa, devor, mentor, Demo Day.
 
-### Admin / Mentor — 7 panel
-**Dashboard** (KPI: faol talabalar, topshirish intizomi, tekshirish navbati, kechikkanlar) ·
-**Talabalar** (filtrlar, profil, vazifa holati, eslatma) ·
-**Vazifalar** (vazifa berish, tekshirish, baho + izoh, deadline o'zgartirish) ·
-**Darslar** (dars/modul qo'shish va o'chirish) ·
-**Jamoalar** (jamoa tuzish, a'zo qo'shish/ko'chirish, mentor juftlash) ·
-**Deadline'lar** (kalendar, kechikkanlar, jamoa istisnolari) ·
-**Statistika** (modul tugatish, retention, jamoa reytingi, CSV hisobot)
-
-### Gamification (o'quvchini ushlab turish)
-Kunlik streak 🔥 · XP va coin · 8 ta yutuq · haftalik reyting · jamoalar musobaqasi ·
-Galereya (eng yaxshi ishlar) · mentor–talaba juftligi · Demo Day
+Barcha sahifalar **mobil-birinchi** (talabalar asosan telefondan kiradi) va **ikki rejimli** (dark / light).
 
 ---
 
-## Jonli havola
+### 1. Talaba kabineti (7 bo'lim)
 
-**https://ai-leaders-platform.pages.dev** — Cloudflare Pages'da (production).
+| Bo'lim | Nima qiladi |
+|---|---|
+| 🏠 **Bosh sahifa** | Salomlashish, bugungi reja (kunlik questlar +XP), kurs progressi, eng yaqin deadline, "Boshlash yo'riqnomasi" (5 qadam), haftalik faollik grafigi, jamoa, Galereya |
+| 📚 **Darslar** | 6 modul: AI asoslari → Prompt yozish → Vibe coding → Claude Code/GitHub/deploy → Mini-loyiha → Jamoaviy startap. Qisqa darslar (10–20 daq), **qisqa tekshiruv (quiz)**, modul qulfi: oldingi vazifa qabul qilinmaguncha keyingisi yopiq |
+| ✅ **Vazifa** | Havola + fayl (900 KB gacha) topshirish, 6 xil holat filtri, mentor bahosi (0–100) va izohi, qayta yuborish |
+| 👥 **Team** | O'z jamoasi va a'zolar (rollar), jamoa devori (standup), mentor, jamoaviy loyiha holati, **jamoaviy topshirish** (bir ish 3 a'zo nomidan) |
+| ⏰ **Deadline** | Haftalik lenta + oylik kalendar (rangli belgilar), kun/soat/daqiqa sanoq taymeri, jamoa uchun alohida sanalar |
+| 🤝 **Friends** | Do'stlar, so'rovlar (qabul/rad), klub a'zolarini topish, haftalik reyting, jamoalar musobaqasi, mentor–talaba juftliklari |
+| 🛡 **Ma'lumot** | Profil tahriri, 8 yutuq (badge), sertifikatlar (**chop etish/PDF**), sozlamalar (saqlanadi), natijalarni CSV yuklab olish, ilovani o'rnatish |
 
-```bash
-# kodni o'zgartirgandan keyin qayta deploy (Cloudflare API token kerak):
-npm run build
-npx wrangler pages deploy dist --project-name=ai-leaders-platform --branch=main
+### 2. Admin / Mentor paneli (8 bo'lim)
+
+| Bo'lim | Nima qiladi |
+|---|---|
+| 📊 **Dashboard** | 5 KPI (talabalar, haftalik faollik, tekshirish navbati, kechikkanlar, o'rtacha baho), haftalik grafik, Top-5, navbat va kechikkanlar ro'yxati |
+| 👥 **Talabalar** | Jadval (progress, faollik, ball, streak), filtrlar (guruh / kechikkan / jim), profil modali, **jamoa almashtirish**, progressni tiklash, klubdan chiqarish, eslatma yuborish |
+| ✅ **Vazifalar** | Vazifa berish (modul, deadline, kimga), **tekshirish va baholash** (0–100 + izoh), bahoni tahrirlash, topshiriqlar oqimi |
+| 📚 **Darslar** | Modul/dars qo'shish, tahrirlash, o'chirish (tasdiq bilan), kontent statistikasi |
+| 🏁 **Jamoalar** | Jamoa tuzish, a'zo qo'shish/ko'chirish/chiqarish, mentor biriktirish, loyiha holati |
+| ⏰ **Deadline'lar** | Kalendar (umumiy + jamoa istisnolari), kechikkanlar ro'yxati, jamoalar kesimi, eslatmalar |
+| 📈 **Statistika** | Modul tugatish foizi, retention grafigi, jamoalar reytingi, eng yaxshi loyihalar, xulosa va tavsiyalar, **CSV hisobot** |
+| ⚙️ **Sozlamalar** | **JSON zaxira nusxa** (yuklab olish + tiklash), CSV hisobot, mentorlar boshqaruvi, Galereya boshqaruvi, platforma haqida |
+
+### 3. Gamification (o'quvchini ushlab turish)
+
+🔥 **Streak** (kunlik) · ⚡ **XP va coin** · 🎯 **Kunlik questlar** (dars tugatish, yordam, vazifa — XP avtomatik yoziladi) ·
+🏅 **8 yutuq** (Birinchi qadam, Prompt ustasi, Builder, 7 kun streak, Jamoa a'zosi, Deploy qilgan, Mentor do'sti, Demo Day yulduzi) ·
+🎓 **Sertifikatlar** (modul 100% → chop etiladigan hujjat + kod) · 🏆 **Haftalik reyting va jamoalar musobaqasi** ·
+🖼 **Galereya** · 🧑‍🏫 **Mentor–talaba juftligi** · 🎤 **Offline Demo Day**
+
+---
+
+## Texnik tuzilma
+
+```
+ai-leaders/
+├── index.html                 # ← build natijasi: yagona mustaqil fayl (deploy uchun shu yetarli)
+├── manifest.webmanifest       # PWA manifest (ikonlar, yorliqlar)
+├── sw.js                      # Service worker: oflayn rejim
+├── build.js                   # src → index.html + dist/ yig'uvchi
+├── package.json               # npm run build / test / assets / deploy
+├── src/                       # manba (o'qish va tahrirlash uchun qulay)
+│   ├── template.html          # HTML karkas + 68 ta original SVG ikona (sprite)
+│   ├── style.css              # dizayn tizimi: dark + light, mobil-birinchi, print
+│   ├── app-1-core.js          # yordamchilar, o'quv dasturi, holat, hisob-kitoblar, shell, modallar
+│   ├── app-2-student.js       # talaba bo'limlari
+│   ├── app-3-admin.js         # admin bo'limlari
+│   └── app-4-app.js           # auth, router, 80+ interaksiya, qidiruv, eksport
+├── assets/                    # brend: icon-192/512, maskable, apple-touch, og.png (1200×630)
+├── brand/                     # logo-mark.svg, logo-full.svg (vektor brend)
+├── schema/supabase.sql        # Real bazaga o'tish uchun to'liq PostgreSQL sxemasi (19 jadval, RLS, view'lar)
+├── tools/
+│   ├── make-assets.py         # ikon va OG rasmni generatsiya qiladi (Pillow)
+│   └── tests/
+│       ├── run.js             # 152 ta avtomatik test (jsdom)
+│       └── screens.js         # 28 ta skrinshot (playwright) → docs/screens/
+├── docs/
+│   ├── ishga-tushirish-rejasi.md   # 30 kunlik klub ishga tushirish rejasi + metrikalar
+│   └── screens/                    # desktop + mobil skrinshotlar
+└── dist/                      # deploy papkasi (build avtomatik yaratadi)
 ```
 
-GitHub: https://github.com/Asilbek-ops-afk/ai-leaders-platform
+**Texnologiya:** vanilla JavaScript + CSS (yagona fayl), tashqi CDN/kutubxonasiz —
+shu sababli juda tez yuklanadi va istalgan hostingda ishlaydi (Cloudflare Pages, Netlify, GitHub Pages, hatto `file://`).
+
+**Xavfsizlik:** `_headers` (nosniff, referrer-policy, permissions-policy), `esc()` orqali XSS himoyasi,
+sertifikat/CSV chop etishda xavfsiz `downloadBlob()`, JS render uchun error boundary.
+
+**Qulayliklar:** `/` tugmasi bilan qidiruvga o'tish · `Esc` modalni yopadi · modalda fokus tuzog'i ·
+`aria-label`/`role="switch"` · `prefers-reduced-motion` · skip-link · noscript zaxirasi · print (sertifikat uchun).
+
+---
 
 ## Ishga tushirish
 
 ```bash
-# 1) shunchaki brauzerda ochish
-open index.html           # yoki faylni brauzerga tashlang
+git clone https://github.com/Asilbek-ops-afk/ai-leaders-platform.git
+cd ai-leaders-platform
 
-# 2) manba fayllardan qayta yig'ish (src/*.js + style.css -> index.html)
-npm run build
+npm run build       # src → index.html + dist/
+npm test            # 152 ta avtomatik test (jsdom kerak: npm install)
+npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
+npm run check       # sintaksis tekshiruvi
+
+# shunchaki brauzerda ochish:
+open index.html     # yoki faylni brauzerga tashlang
 ```
 
-## Loyiha tuzilishi
+### Deploy (Cloudflare Pages)
 
-```
-ai-leaders/
-├── index.html            # ← build natijasi: bitta mustaqil fayl (deploy uchun shu yetarli)
-├── build.js              # src fayllarni index.html ga yig'adi
-├── brand/                # original brend: logo-mark.svg, logo-full.svg
-├── src/
-│   ├── template.html     # HTML karkas + ikona sprite (68 ta original SVG ikona)
-│   ├── style.css         # dizayn tizimi (dark + light, mobil-birinchi)
-│   ├── app-1-core.js     # yordamchilar, o'quv dasturi, holat, hisob-kitoblar, shell, modallar
-│   ├── app-2-student.js   # talaba sahifalari
-│   ├── app-3-admin.js     # admin sahifalari
-│   └── app-4-app.js       # auth, router, eventlar, qidiruv, CSV eksport
-└── docs/ishga-tushirish-rejasi.md
+```bash
+export CLOUDFLARE_API_TOKEN=xxx      # Pages:Edit huquqi bilan
+export CLOUDFLARE_ACCOUNT_ID=xxx
+npm run deploy                       # build + wrangler pages deploy dist/
 ```
 
-## Texnik jihatlar
-- **Tashqi kutubxona yo'q** — React/Vue/Tailwind ishlatilmagan, hammasi vanilla JS + CSS.
-- **Ma'lumot** brauzer xotirasida (`localStorage`, kalit: `ai-leaders-platform-v1`) saqlanadi — demo uchun 18 talaba, 6 jamoa, 29 dars, 6 vazifa seed qilingan.
-- **Demoni tiklash**: chap paneldagi ↻ tugmasi (yoki konsolda `localStorage.removeItem('ai-leaders-platform-v1')`).
-- **Real backendga o'tish**: barcha ma'lumot `S` obyektida va `save()` orqali saqlanadi — Supabase/Firebase'ga ulash uchun faqat shu ikki joyni almashtirish kifoya.
-- **Brend**: hexagon + "A" + yashil uchqun (o'z brendimiz); ranglar `#7C5CFF → #5B8CFF → #22D3EE`, aksent `#C6FF4F`.
+---
 
-## O'lchov ko'rsatkichlari (Statistika bo'limida)
-Haftalik faol talabalar · o'z vaqtida topshirish % · modulni tugatganlar · loyihasini chiqarganlar · retention.
+## Testlar
+
+Loyihada ikki darajali sifat nazorati bor:
+
+**1) `npm test` — funksional testlar (jsdom, haqiqiy DOM)**
+15 guruh, **152 ta tekshiruv**: kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
+vazifa topshirish → tekshirish → baholash zanjiri, modul qulfi, quiz, kunlik questlar,
+fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, eksport/zaxira,
+sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
+
+**2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
+28 ta skrinshot: 14 desktop sahifa, 6 mobil ko'rinish, modallar, light tema → `docs/screens/`.
+
+---
+
+## Real bazaga o'tish
+
+Demo rejimda barcha ma'lumot brauzer xotirasida (`localStorage`, kalit `ai-leaders-platform-v1`) saqlanadi.
+Real ko'p foydalanuvchili ish uchun:
+
+1. **Supabase** loyihasi oching → SQL Editor → `schema/supabase.sql` ni to'liq ishga tushiring.
+   Sxemada tayyor: **19 jadval**, 3 ta view (statistika, reyting, kechikkanlar), **RLS siyosatlari**
+   (talaba faqat o'zini ko'radi, mentor hammasini), PL/pgSQL funksiyalar (`fn_complete_lesson`, `fn_module_unlocked`),
+   Storage siyosatlari va demo seed ma'lumot.
+2. `src/app-1-core.js` dagi **`loadState()`** va **`save()`** funksiyalarini Supabase chaqiruvlariga almashtiring —
+   qolgan kod (butun UI) o'zgarishsiz qoladi, chunki butun holat bitta `S` obyektida.
+3. Fayllar uchun Supabase Storage (`submissions` bucket) ishlatilsin — hozir kichik fayllar dataURL sifatida saqlanadi.
+4. **Telegram-bot** ulash: deadline eslatmalari va kunlik standup (21:00).
+
+---
+
+## Demo ma'lumotlar
+
+| Nima | Soni |
+|---|---|
+| Talabalar | 18 (5 jamoada + 3 jamoasiz) |
+| Mentorlar | 3 (AI / Product / Design) |
+| Modullar / darslar | 6 / 29 |
+| Vazifalar / topshiriqlar | 6 / 38 |
+| Jamoalar / loyihalar | 6 / 4 galereyada |
+
+Demo sanalari **bugunga nisbatan siljitilgan** — ya'ni sayt har doim "tirik" ko'rinadi:
+yaqin deadline'lar, kechikkanlar va haftalik reyting doim mavjud.
+Demoni tiklash: yon paneldagi ↻ tugmasi yoki `localStorage.removeItem('ai-leaders-platform-v1')`.
+
+**Demo hisoblar:** AUTH ekranida "Talaba" yoki "Admin" rolini tanlang (parol talab qilinmaydi).
+Tezkirish tugmalari: Dilshod (student), Jasur (faol student), Bekzod (admin).
+
+---
+
+## Yo'l xaritasi
+
+- [x] Talaba kabineti (7 bo'lim) va Admin paneli (8 bo'lim)
+- [x] Gamification: streak, XP, questlar, badge, sertifikat, reyting
+- [x] PWA (oflayn), SEO (OG/Twitter/JSON-LD), a11y, dark/light
+- [x] Zaxira nusxa (JSON), CSV hisobotlar, vizual testlar
+- [x] Supabase sxemasi (19 jadval + RLS) — real bazaga tayyor
+- [ ] Supabase'ga ulash (real login: talaba/mentor/admin)
+- [ ] Telegram-bot: deadline eslatmalari + standup
+- [ ] Video darslarni yuklash (Storage + pleyer)
+- [ ] Offline Demo Day moduli (stend, pitch taymeri, mehmon ro'yxati)
+- [ ] To'lov moduli (obuna / ishga joylashgach to'lov)
+
+---
+
+© 2026 **AI Leaders Startup Club** — Toshkent. Demo loyiha; brend, dizayn va kod ushbu klub uchun yaratilgan.

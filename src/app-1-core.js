@@ -7,6 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
+const APP_VERSION = '1.2.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -16,6 +17,8 @@ const UZ_M = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun', 'Iyul', 'Avgus
 const UZ_D = ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sh', 'Ya'];
 const TYPES = { video: { l: 'Video', i: 'video', tag: 'p' }, text: { l: 'Matn', i: 'doc', tag: 'c' }, practice: { l: 'Amaliyot', i: 'bolt', tag: 'a' } };
 
+/* demo sanalari har doim "tirik" ko'rinishi uchun bugunga nisbatan siljitiladi */
+const dayShift = n => { const d = new Date(); d.setDate(d.getDate() + n); return isoDate(d); };
 const isoDate = d => { const x = new Date(d); return new Date(x.getTime() - x.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
 const todayISO = () => isoDate(new Date());
 const fmtD = s => { const d = new Date(s + 'T12:00:00'); return d.getDate() + ' ' + UZ_M[d.getMonth()]; };
@@ -40,51 +43,68 @@ const MODULES = [
   { id: 'm6', n: 6, title: 'Jamoaviy startap va Demo Day', desc: 'Jamoa rollari, PR bilan ishlash, pitch, Demo Day.', icon: 'flag' }
 ];
 const LESSONS = [
-  { id: 'l1', m: 'm1', t: 'AI nima? Neyron tarmoq oddiy tilda', type: 'video', dur: 12, d: '2026-09-02', brief: 'AI, ML va neyron tarmoq tushunchalari. Model qanday “o‘ylaydi” — hech qanday matematikadan qo‘rqmasdan.' },
-  { id: 'l2', m: 'm1', t: 'ChatGPT, Claude, Gemini: farqi nimada', type: 'text', dur: 10, d: '2026-09-03', brief: 'Qaysi model qaysi vazifaga mos: kod, matn, rasm, tahlil.' },
-  { id: 'l3', m: 'm1', t: 'AI bilan birinchi suhbat', type: 'video', dur: 14, d: '2026-09-04', brief: 'Akkaunt ochish, interfeys, birinchi savollaringiz.' },
-  { id: 'l4', m: 'm1', t: 'AI nima qila olmaydi: halyusinatsiya', type: 'text', dur: 11, d: '2026-09-05', brief: 'AI xato qiladi — tekshirish odatlari va ishonch chegaralari.' },
-  { id: 'l5', m: 'm1', t: 'Amaliyot: kundalik ishni AI-ga topshirish', type: 'practice', dur: 15, d: '2026-09-06', brief: 'O‘qish, ish yoki uy ishlarida 3 ta vazifani AI bilan tezlashtiring.' },
+  { id: 'l1', m: 'm1', t: 'AI nima? Neyron tarmoq oddiy tilda', type: 'video', dur: 12, d: dayShift(-41), brief: 'AI, ML va neyron tarmoq tushunchalari. Model qanday “o‘ylaydi” — hech qanday matematikadan qo‘rqmasdan.' },
+  { id: 'l2', m: 'm1', t: 'ChatGPT, Claude, Gemini: farqi nimada', type: 'text', dur: 10, d: dayShift(-40), brief: 'Qaysi model qaysi vazifaga mos: kod, matn, rasm, tahlil.' },
+  { id: 'l3', m: 'm1', t: 'AI bilan birinchi suhbat', type: 'video', dur: 14, d: dayShift(-39), brief: 'Akkaunt ochish, interfeys, birinchi savollaringiz.' },
+  { id: 'l4', m: 'm1', t: 'AI nima qila olmaydi: halyusinatsiya', type: 'text', dur: 11, d: dayShift(-38), brief: 'AI xato qiladi — tekshirish odatlari va ishonch chegaralari.' },
+  { id: 'l5', m: 'm1', t: 'Amaliyot: kundalik ishni AI-ga topshirish', type: 'practice', dur: 15, d: dayShift(-37), brief: 'O‘qish, ish yoki uy ishlarida 3 ta vazifani AI bilan tezlashtiring.' },
 
-  { id: 'l6', m: 'm2', t: 'Prompt anatomiyasi: rol, kontekst, vazifa, format', type: 'video', dur: 13, d: '2026-09-16', brief: 'Ishlaydigan promptning 4 qismi va tayyor shablon.' },
-  { id: 'l7', m: 'm2', t: 'Few-shot va zanjirli fikrlash', type: 'text', dur: 12, d: '2026-09-17', brief: 'Misol berib o‘rgatish, “qadam-baqadam o‘yla” texnikasi.' },
-  { id: 'l8', m: 'm2', t: 'AI bilan kontent: matn, rasm, prezentatsiya', type: 'video', dur: 15, d: '2026-09-18', brief: 'Kontent ishlab chiqarish oqimi: g‘oya → matn → vizual.' },
-  { id: 'l9', m: 'm2', t: 'Amaliyot: 10 ta prompt kutubxonasi', type: 'practice', dur: 20, d: '2026-09-19', brief: 'O‘zingizga kerak bo‘lgan 10 ta promptni yozib, sinab ko‘ring.' },
+  { id: 'l6', m: 'm2', t: 'Prompt anatomiyasi: rol, kontekst, vazifa, format', type: 'video', dur: 13, d: dayShift(-27), brief: 'Ishlaydigan promptning 4 qismi va tayyor shablon.' },
+  { id: 'l7', m: 'm2', t: 'Few-shot va zanjirli fikrlash', type: 'text', dur: 12, d: dayShift(-26), brief: 'Misol berib o‘rgatish, “qadam-baqadam o‘yla” texnikasi.' },
+  { id: 'l8', m: 'm2', t: 'AI bilan kontent: matn, rasm, prezentatsiya', type: 'video', dur: 15, d: dayShift(-25), brief: 'Kontent ishlab chiqarish oqimi: g‘oya → matn → vizual.' },
+  { id: 'l9', m: 'm2', t: 'Amaliyot: 10 ta prompt kutubxonasi', type: 'practice', dur: 20, d: dayShift(-24), brief: 'O‘zingizga kerak bo‘lgan 10 ta promptni yozib, sinab ko‘ring.' },
 
-  { id: 'l10', m: 'm3', t: 'Vibe coding nima va nega ishlaydi', type: 'video', dur: 12, d: '2026-10-01', brief: 'Kod yozmasdan mahsulot qurish yondashuvi va chegaralari.' },
-  { id: 'l11', m: 'm3', t: 'Stack tanlash: Next.js, Supabase, Vercel', type: 'text', dur: 14, d: '2026-10-02', brief: 'Nima uchun aynan shu uchtalik: frontend, baza, hosting.' },
-  { id: 'l12', m: 'm3', t: 'Birinchi landing: g‘oyadan sahifagacha', type: 'video', dur: 18, d: '2026-10-03', brief: 'AI bilan landing sahifa qurish — jonli ekran yozuvi.' },
-  { id: 'l13', m: 'm3', t: 'Dizayn asoslari: rang, shrift, bo‘sh joy', type: 'text', dur: 12, d: '2026-10-04', brief: 'Professional ko‘rinish uchun 7 ta qoida.' },
-  { id: 'l14', m: 'm3', t: 'Forma va ma’lumot: Supabase-ga ulash', type: 'video', dur: 20, d: '2026-10-05', brief: 'Foydalanuvchi ma’lumotini saqlash: jadval, so‘rov, xavfsizlik.' },
-  { id: 'l15', m: 'm3', t: 'Amaliyot: o‘z landing sahifangiz', type: 'practice', dur: 30, d: '2026-10-06', brief: 'G‘oyangiz uchun bitta sahifa: sarlavha, muammo, yechim, aloqa.' },
+  { id: 'l10', m: 'm3', t: 'Vibe coding nima va nega ishlaydi', type: 'video', dur: 12, d: dayShift(-12), brief: 'Kod yozmasdan mahsulot qurish yondashuvi va chegaralari.' },
+  { id: 'l11', m: 'm3', t: 'Stack tanlash: Next.js, Supabase, Vercel', type: 'text', dur: 14, d: dayShift(-11), brief: 'Nima uchun aynan shu uchtalik: frontend, baza, hosting.' },
+  { id: 'l12', m: 'm3', t: 'Birinchi landing: g‘oyadan sahifagacha', type: 'video', dur: 18, d: dayShift(-10), brief: 'AI bilan landing sahifa qurish — jonli ekran yozuvi.' },
+  { id: 'l13', m: 'm3', t: 'Dizayn asoslari: rang, shrift, bo‘sh joy', type: 'text', dur: 12, d: dayShift(-9), brief: 'Professional ko‘rinish uchun 7 ta qoida.' },
+  { id: 'l14', m: 'm3', t: 'Forma va ma’lumot: Supabase-ga ulash', type: 'video', dur: 20, d: dayShift(-8), brief: 'Foydalanuvchi ma’lumotini saqlash: jadval, so‘rov, xavfsizlik.' },
+  { id: 'l15', m: 'm3', t: 'Amaliyot: o‘z landing sahifangiz', type: 'practice', dur: 30, d: dayShift(-7), brief: 'G‘oyangiz uchun bitta sahifa: sarlavha, muammo, yechim, aloqa.' },
 
-  { id: 'l16', m: 'm4', t: 'Terminaldan qo‘rqmaslik: 12 ta buyruq', type: 'text', dur: 13, d: '2026-10-17', brief: 'cd, ls, npm, git — kundalik ish uchun yetarli buyruqlar.' },
-  { id: 'l17', m: 'm4', t: 'Claude Code bilan kod yozish', type: 'video', dur: 17, d: '2026-10-18', brief: 'Terminaldagi AI yordamchi: vazifa berish, tekshirish, tuzatish.' },
-  { id: 'l18', m: 'm4', t: 'GitHub: repo, commit, branch', type: 'video', dur: 15, d: '2026-10-19', brief: 'Loyihangizni saqlash va tarixini yuritish.' },
-  { id: 'l19', m: 'm4', t: 'Vercel-ga deploy: jonli havola', type: 'video', dur: 12, d: '2026-10-20', brief: 'Loyihani internetga chiqarish va domen ulash.' },
-  { id: 'l20', m: 'm4', t: 'Amaliyot: GitHub + Vercel-ga chiqarish', type: 'practice', dur: 25, d: '2026-10-21', brief: 'Loyihangizni repoga joylang va jonli havola oling.' },
+  { id: 'l16', m: 'm4', t: 'Terminaldan qo‘rqmaslik: 12 ta buyruq', type: 'text', dur: 13, d: dayShift(4), brief: 'cd, ls, npm, git — kundalik ish uchun yetarli buyruqlar.' },
+  { id: 'l17', m: 'm4', t: 'Claude Code bilan kod yozish', type: 'video', dur: 17, d: dayShift(5), brief: 'Terminaldagi AI yordamchi: vazifa berish, tekshirish, tuzatish.' },
+  { id: 'l18', m: 'm4', t: 'GitHub: repo, commit, branch', type: 'video', dur: 15, d: dayShift(6), brief: 'Loyihangizni saqlash va tarixini yuritish.' },
+  { id: 'l19', m: 'm4', t: 'Vercel-ga deploy: jonli havola', type: 'video', dur: 12, d: dayShift(7), brief: 'Loyihani internetga chiqarish va domen ulash.' },
+  { id: 'l20', m: 'm4', t: 'Amaliyot: GitHub + Vercel-ga chiqarish', type: 'practice', dur: 25, d: dayShift(8), brief: 'Loyihangizni repoga joylang va jonli havola oling.' },
 
-  { id: 'l21', m: 'm5', t: 'G‘oyani tanlash: muammo → yechim', type: 'video', dur: 12, d: '2026-10-29', brief: 'Atrofdagi haqiqiy muammodan startap g‘oyasi chiqarish.' },
-  { id: 'l22', m: 'm5', t: 'MVP: 1 haftada nima qilsa bo‘ladi', type: 'text', dur: 11, d: '2026-10-30', brief: 'Eng kichik ishlaydigan mahsulot — va nima MVP emas.' },
-  { id: 'l23', m: 'm5', t: 'Foydalanuvchi bilan suhbat: 5 savol', type: 'video', dur: 13, d: '2026-10-31', brief: 'Haqiqiy odamdan haqiqiy fikr olish.' },
-  { id: 'l24', m: 'm5', t: 'Amaliyot: MVP + demo video', type: 'practice', dur: 40, d: '2026-11-01', brief: 'Ishlaydigan prototip va 90 sekundlik demo video.' },
+  { id: 'l21', m: 'm5', t: 'G‘oyani tanlash: muammo → yechim', type: 'video', dur: 12, d: dayShift(16), brief: 'Atrofdagi haqiqiy muammodan startap g‘oyasi chiqarish.' },
+  { id: 'l22', m: 'm5', t: 'MVP: 1 haftada nima qilsa bo‘ladi', type: 'text', dur: 11, d: dayShift(17), brief: 'Eng kichik ishlaydigan mahsulot — va nima MVP emas.' },
+  { id: 'l23', m: 'm5', t: 'Foydalanuvchi bilan suhbat: 5 savol', type: 'video', dur: 13, d: dayShift(18), brief: 'Haqiqiy odamdan haqiqiy fikr olish.' },
+  { id: 'l24', m: 'm5', t: 'Amaliyot: MVP + demo video', type: 'practice', dur: 40, d: dayShift(19), brief: 'Ishlaydigan prototip va 90 sekundlik demo video.' },
 
-  { id: 'l25', m: 'm6', t: 'Jamoa rollari: founder, builder, designer', type: 'text', dur: 12, d: '2026-11-07', brief: 'Kichik jamoada kim nima qiladi va nega bu muhim.' },
-  { id: 'l26', m: 'm6', t: 'Git bilan jamoaviy ish: branch va PR', type: 'video', dur: 16, d: '2026-11-08', brief: 'Bir loyihada 4 kishi qanday to‘qnashmasdan ishlaydi.' },
-  { id: 'l27', m: 'm6', t: 'Pitch: 60 sekundda g‘oyani sotish', type: 'video', dur: 14, d: '2026-11-09', brief: 'Pitch strukturasi: muammo, yechim, bozor, jamoa, so‘rov.' },
-  { id: 'l28', m: 'm6', t: 'Demo Day tayyorgarligi', type: 'text', dur: 10, d: '2026-11-10', brief: 'Stend, ekran yozuvi, savollarga tayyorgarlik.' },
-  { id: 'l29', m: 'm6', t: 'Amaliyot: startap MVP-ni chiqarish', type: 'practice', dur: 60, d: '2026-11-14', brief: 'Jamoa bilan 2 haftada ishlaydigan mahsulot chiqarish.' }
+  { id: 'l25', m: 'm6', t: 'Jamoa rollari: founder, builder, designer', type: 'text', dur: 12, d: dayShift(25), brief: 'Kichik jamoada kim nima qiladi va nega bu muhim.' },
+  { id: 'l26', m: 'm6', t: 'Git bilan jamoaviy ish: branch va PR', type: 'video', dur: 16, d: dayShift(26), brief: 'Bir loyihada 4 kishi qanday to‘qnashmasdan ishlaydi.' },
+  { id: 'l27', m: 'm6', t: 'Pitch: 60 sekundda g‘oyani sotish', type: 'video', dur: 14, d: dayShift(27), brief: 'Pitch strukturasi: muammo, yechim, bozor, jamoa, so‘rov.' },
+  { id: 'l28', m: 'm6', t: 'Demo Day tayyorgarligi', type: 'text', dur: 10, d: dayShift(28), brief: 'Stend, ekran yozuvi, savollarga tayyorgarlik.' },
+  { id: 'l29', m: 'm6', t: 'Amaliyot: startap MVP-ni chiqarish', type: 'practice', dur: 60, d: dayShift(32), brief: 'Jamoa bilan 2 haftada ishlaydigan mahsulot chiqarish.' }
 ];
 const TASKS = [
-  { id: 't1', m: 'm1', title: 'AI bilan tanishuv: 5 ta amaliy topshiriq', brief: 'ChatGPT yoki Claude bilan 5 xil turdagi vazifani bajaring va skrinshotlar bilan hisobot yuboring.', dl: '2026-09-15' },
-  { id: 't2', m: 'm2', title: 'Prompt kutubxonasi: 10 ta prompt', brief: 'O‘zingiz ishlatadigan 10 ta promptni yozing: maqsad, namuna, natija. Notion yoki GitHub-ga joylang.', dl: '2026-09-29' },
-  { id: 't3', m: 'm3', title: 'Shaxsiy landing sahifa', brief: 'O‘zingiz yoki g‘oyangiz uchun bitta sahifa: sarlavha, muammo, yechim, aloqa formasi. Jonli havola yuboring.', dl: '2026-10-16' },
-  { id: 't4', m: 'm4', title: 'Loyihani GitHub + Vercel-ga joylash', brief: 'Kodni GitHub repoga yuklang, Vercel-ga deploy qiling. Repo va jonli havola kerak.', dl: '2026-10-27' },
-  { id: 't5', m: 'm5', title: 'Mini-loyiha: demo video + havola', brief: 'MVP + 90 sekundlik demo video + foydalanuvchi bilan suhbat xulosasi.', dl: '2026-11-13' },
-  { id: 't6', m: 'm6', title: 'Jamoaviy startap MVP + pitch', brief: 'Jamoa bilan ishlaydigan MVP, 60 sekundlik pitch va Demo Day taqdimoti.', dl: '2026-11-27' }
+  { id: 't1', m: 'm1', title: 'AI bilan tanishuv: 5 ta amaliy topshiriq', brief: 'ChatGPT yoki Claude bilan 5 xil turdagi vazifani bajaring va skrinshotlar bilan hisobot yuboring.', dl: dayShift(-28) },
+  { id: 't2', m: 'm2', title: 'Prompt kutubxonasi: 10 ta prompt', brief: 'O‘zingiz ishlatadigan 10 ta promptni yozing: maqsad, namuna, natija. Notion yoki GitHub-ga joylang.', dl: dayShift(-14) },
+  { id: 't3', m: 'm3', title: 'Shaxsiy landing sahifa', brief: 'O‘zingiz yoki g‘oyangiz uchun bitta sahifa: sarlavha, muammo, yechim, aloqa formasi. Jonli havola yuboring.', dl: dayShift(3) },
+  { id: 't4', m: 'm4', title: 'Loyihani GitHub + Vercel-ga joylash', brief: 'Kodni GitHub repoga yuklang, Vercel-ga deploy qiling. Repo va jonli havola kerak.', dl: dayShift(14) },
+  { id: 't5', m: 'm5', title: 'Mini-loyiha: demo video + havola', brief: 'MVP + 90 sekundlik demo video + foydalanuvchi bilan suhbat xulosasi.', dl: dayShift(31) },
+  { id: 't6', m: 'm6', title: 'Jamoaviy startap MVP + pitch', brief: 'Jamoa bilan ishlaydigan MVP, 60 sekundlik pitch va Demo Day taqdimoti.', dl: dayShift(45) }
 ];
+const QUIZZES = {
+  l1: [
+    { q: 'Neyron tarmoq nima qiladi?', o: ['Ma’lumotdan naqsh (pattern) topadi', 'Faqat rasm chizadi', 'Internetni tezlashtiradi'], a: 0 },
+    { q: 'ChatGPT qaysi turdagi modelga asoslangan?', o: ['Qoidalar bazasi', 'Katta til modeli (LLM)', 'Ekspert tizimi'], a: 1 },
+    { q: 'AI javobini har doim qanday qabul qilish kerak?', o: ['To‘g‘ri deb ishonish', 'Tekshirib, manba bilan solishtirish', 'E’tiborsiz qoldirish'], a: 1 }
+  ],
+  l6: [
+    { q: 'Yaxshi promptning to‘rt qismi qaysilar?', o: ['Rol, kontekst, vazifa, format', 'Salom, savol, rahmat', 'Kod, rasm, video'], a: 0 },
+    { q: 'Few-shot nima?', o: ['Modelga 2–3 misol ko‘rsatish', 'Modelni o‘chirish', 'Faqat raqam bilan yozish'], a: 0 },
+    { q: '“Qadam-baqadam o‘yla” qanday natija beradi?', o: ['Tezroq javob', 'Aniqroq va tekshiriladigan javob', 'Hech qanday farq yo‘q'], a: 1 }
+  ],
+  l10: [
+    { q: 'Vibe coding nima?', o: ['AI yordamida kod yozib mahsulot qurish', 'Musiqa yozish usuli', 'Faqat dizayn chizish'], a: 0 },
+    { q: 'MVP nima?', o: ['Eng kichik ishlaydigan mahsulot', 'Marketing rejasi', 'Katta jamoa'], a: 0 },
+    { q: 'Loyihani internetga chiqarish (deploy) uchun nima kerak?', o: ['Faqat qog‘oz', 'GitHub + Vercel kabi hosting', 'Server sotib olish shart'], a: 1 }
+  ]
+};
 const GROUPS = [
-  { id: 'g1', name: 'Nova', project: 'EduBot — maktab o‘quvchilari uchun AI repetitor', mentor: 'mt1', members: ['s1', 's2', 's9'], xp: 4820, dl: { t3: '2026-10-15' } },
+  { id: 'g1', name: 'Nova', project: 'EduBot — maktab o‘quvchilari uchun AI repetitor', mentor: 'mt1', members: ['s1', 's2', 's9'], xp: 4820, dl: { t3: dayShift(2) } },
   { id: 'g2', name: 'Orbit', project: 'AgroScan — paxta kasalligini rasm orqali aniqlash', mentor: 'mt2', members: ['s3', 's4', 's10'], xp: 4390, dl: {} },
   { id: 'g3', name: 'Vertex', project: 'Sog‘liqAI — klinikalarda navbatsiz yozilish', mentor: 'mt1', members: ['s5', 's6', 's11'], xp: 3960, dl: {} },
   { id: 'g4', name: 'Pulse', project: 'ScooterGo — mikro-mobillik uchun marshrut', mentor: 'mt3', members: ['s7', 's8', 's12'], xp: 3610, dl: {} },
@@ -107,81 +127,81 @@ const BADGES = [
   { id: 'b8', n: 'Demo Day yulduzi', d: 'Demo Day’da qatnashdingiz', i: 'trophy' }
 ];
 const buildStudents = () => ([
-  { id: 's1', name: 'Dilshod Rahimov', tg: '@dilshod_r', phone: '+998 90 111 22 33', group: 'g1', xp: 1840, wxp: 870, streak: 7, coins: 640, level: 'middle', act: true, score: 8.9, joined: '2026-09-01', bio: 'Toshkentda yashayman. AI bilan biznes g‘oyalarimni sinab ko‘rmoqchiman.', goal: 'Dekabrgacha o‘z SaaS loyihamni ishga tushirish', medals: true, done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'], last: 0 },
-  { id: 's2', name: 'Aziza Karimova', tg: '@aziza_k', phone: '+998 90 222 33 44', group: 'g1', xp: 2120, wxp: 760, streak: 12, coins: 810, level: 'middle', act: true, score: 9.2, joined: '2026-09-01', bio: 'Marketing bo‘yicha ishlayman, AI bilan kontent qilaman.', goal: 'Kontent bilan pul topishni yo‘lga qo‘yish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'], last: 0 },
-  { id: 's3', name: 'Jasur Toshmatov', tg: '@jasur_t', phone: '+998 91 333 44 55', group: 'g2', xp: 2310, wxp: 980, streak: 16, coins: 900, level: 'middle', act: true, score: 9.5, joined: '2026-09-01', bio: '2 kurs talabasiman, algoritmlarga qiziqaman.', goal: 'Birinchi ishga joylashish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10', 'l11'], last: 0 },
-  { id: 's4', name: 'Malika Sobirova', tg: '@malika_s', phone: '+998 93 444 55 66', group: 'g2', xp: 1740, wxp: 640, streak: 4, coins: 520, level: 'junior', act: true, score: 8.4, joined: '2026-09-01', bio: 'Dizayn bilan shug‘ullanaman.', goal: 'Portfolio yig‘ish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7'], last: 1 },
-  { id: 's5', name: 'Bekzod Nazarov', tg: '@bek_n', phone: '+998 94 555 66 77', group: 'g3', xp: 1290, wxp: 520, streak: 3, coins: 380, level: 'junior', act: true, score: 7.8, joined: '2026-09-01', bio: 'Savdo sohasida ishlayman.', goal: 'Ish jarayonini avtomatlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 2 },
-  { id: 's6', name: 'Zilola Yusupova', tg: '@zilola_y', phone: '+998 95 666 77 88', group: 'g3', xp: 980, wxp: 300, streak: 0, coins: 240, level: 'junior', act: false, score: 7.1, joined: '2026-09-01', bio: 'O‘qituvchiman, dars materiallarini AI bilan tayyorlayman.', goal: 'Onlayn kurs yaratish', done: ['l1', 'l2', 'l3', 'l4'], last: 9 },
-  { id: 's7', name: 'Umid Murodov', tg: '@umid_m', phone: '+998 97 777 88 99', group: 'g4', xp: 1120, wxp: 690, streak: 5, coins: 340, level: 'junior', act: true, score: 8.0, joined: '2026-09-05', bio: 'Logistika kompaniyasida ishlayman.', goal: 'Ichki tizimlarni avtomatlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5'], last: 1 },
-  { id: 's8', name: 'Shahzoda Ergasheva', tg: '@shahzoda', phone: '+998 99 888 99 00', group: 'g4', xp: 1310, wxp: 460, streak: 6, coins: 410, level: 'junior', act: true, score: 8.3, joined: '2026-09-05', bio: 'Frilans dizayner.', goal: 'AI bilan dizayn tezligini oshirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 0 },
-  { id: 's9', name: 'Otabek Ruzimov', tg: '@otabek_r', phone: '+998 90 121 23 34', group: 'g1', xp: 1980, wxp: 940, streak: 9, coins: 720, level: 'middle', act: true, score: 9.0, joined: '2026-09-01', bio: 'Backend dasturchiman, AI ni ishimga qo‘shyapman.', goal: 'AI-startupga texnik asoschi bo‘lish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'], last: 0 },
-  { id: 's10', name: 'Nodira Ismoilova', tg: '@nodira_i', phone: '+998 91 232 34 45', group: 'g2', xp: 1560, wxp: 430, streak: 2, coins: 460, level: 'junior', act: true, score: 8.1, joined: '2026-09-01', bio: 'Agronomiya fakultetida o‘qiyman.', goal: 'Agrotech loyihasi', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7'], last: 2 },
-  { id: 's11', name: 'Rustam Qodirov', tg: '@rustam_q', phone: '+998 93 343 45 56', group: 'g3', xp: 870, wxp: 260, streak: 0, coins: 190, level: 'junior', act: false, score: 6.9, joined: '2026-09-08', bio: 'Tibbiyot sohasida ishlayman.', goal: 'Klinika uchun yordamchi vosita', done: ['l1', 'l2', 'l3'], last: 12 },
-  { id: 's12', name: 'Gulnora Sharipova', tg: '@gulnora_s', phone: '+998 94 454 56 67', group: 'g4', xp: 1440, wxp: 760, streak: 8, coins: 500, level: 'junior', act: true, score: 8.5, joined: '2026-09-05', bio: 'Maktabda informatika o‘qituvchisiman.', goal: 'Darslarni AI bilan yangilash', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 0 },
-  { id: 's13', name: 'Farrux Abdullayev', tg: '@farrux_a', phone: '+998 95 565 67 78', group: 'g5', xp: 1020, wxp: 380, streak: 1, coins: 280, level: 'junior', act: true, score: 7.4, joined: '2026-09-10', bio: 'Frilanser dasturchiman.', goal: 'To‘lov tizimlari bilan loyiha', done: ['l1', 'l2', 'l3', 'l4'], last: 3 },
-  { id: 's14', name: 'Sevara Mamadaliyeva', tg: '@sevara_m', phone: '+998 97 676 78 89', group: 'g5', xp: 890, wxp: 300, streak: 0, coins: 210, level: 'junior', act: false, score: 6.8, joined: '2026-09-10', bio: 'Talaba, marketingdan dars beraman.', goal: 'Birinchi mini-loyiha', done: ['l1', 'l2', 'l3'], last: 8 },
-  { id: 's15', name: 'Temur Sultonov', tg: '@temur_s', phone: '+998 99 787 89 90', group: 'g5', xp: 1180, wxp: 640, streak: 4, coins: 330, level: 'junior', act: true, score: 7.9, joined: '2026-09-10', bio: 'Nazorat organida ishlayman.', goal: 'Hujjat ishlarini avtomatlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5'], last: 1 },
-  { id: 's16', name: 'Kamola Nurmatova', tg: '@kamola_n', phone: '+998 90 898 90 01', group: 'g6', xp: 1370, wxp: 520, streak: 6, coins: 470, level: 'junior', act: true, score: 8.2, joined: '2026-09-12', bio: 'Kutubxona xodimiman.', goal: 'Ta’lim jarayonini raqamlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 1 },
-  { id: 's17', name: 'Anvar Yoqubov', tg: '@anvar_y', phone: '+998 91 909 01 12', group: 'g6', xp: 760, wxp: 180, streak: 0, coins: 150, level: 'junior', act: false, score: 6.6, joined: '2026-09-12', bio: 'Bankda ishlayman.', goal: 'Ichki hisobotlarni avtomatlashtirish', done: ['l1', 'l2'], last: 14 },
-  { id: 's18', name: 'Lola Tosheva', tg: '@lola_t', phone: '+998 93 010 12 23', group: 'g6', xp: 1490, wxp: 600, streak: 7, coins: 540, level: 'junior', act: true, score: 8.6, joined: '2026-09-12', bio: 'Nashriyotda ishlayman.', goal: 'Kitob tayyorlash oqimini tezlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 0 }
+  { id: 's1', name: 'Dilshod Rahimov', tg: '@dilshod_r', phone: '+998 90 111 22 33', group: 'g1', xp: 1840, wxp: 870, streak: 7, coins: 640, level: 'middle', act: true, score: 8.9, joined: dayShift(-42), bio: 'Toshkentda yashayman. AI bilan biznes g‘oyalarimni sinab ko‘rmoqchiman.', goal: 'Dekabrgacha o‘z SaaS loyihamni ishga tushirish', medals: true, done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'], last: 0 },
+  { id: 's2', name: 'Aziza Karimova', tg: '@aziza_k', phone: '+998 90 222 33 44', group: 'g1', xp: 2120, wxp: 760, streak: 12, coins: 810, level: 'middle', act: true, score: 9.2, joined: dayShift(-42), bio: 'Marketing bo‘yicha ishlayman, AI bilan kontent qilaman.', goal: 'Kontent bilan pul topishni yo‘lga qo‘yish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'], last: 0 },
+  { id: 's3', name: 'Jasur Toshmatov', tg: '@jasur_t', phone: '+998 91 333 44 55', group: 'g2', xp: 2310, wxp: 980, streak: 16, coins: 900, level: 'middle', act: true, score: 9.5, joined: dayShift(-42), bio: '2 kurs talabasiman, algoritmlarga qiziqaman.', goal: 'Birinchi ishga joylashish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10', 'l11'], last: 0 },
+  { id: 's4', name: 'Malika Sobirova', tg: '@malika_s', phone: '+998 93 444 55 66', group: 'g2', xp: 1740, wxp: 640, streak: 4, coins: 520, level: 'junior', act: true, score: 8.4, joined: dayShift(-42), bio: 'Dizayn bilan shug‘ullanaman.', goal: 'Portfolio yig‘ish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7'], last: 1 },
+  { id: 's5', name: 'Bekzod Nazarov', tg: '@bek_n', phone: '+998 94 555 66 77', group: 'g3', xp: 1290, wxp: 520, streak: 3, coins: 380, level: 'junior', act: true, score: 7.8, joined: dayShift(-42), bio: 'Savdo sohasida ishlayman.', goal: 'Ish jarayonini avtomatlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 2 },
+  { id: 's6', name: 'Zilola Yusupova', tg: '@zilola_y', phone: '+998 95 666 77 88', group: 'g3', xp: 980, wxp: 300, streak: 0, coins: 240, level: 'junior', act: false, score: 7.1, joined: dayShift(-42), bio: 'O‘qituvchiman, dars materiallarini AI bilan tayyorlayman.', goal: 'Onlayn kurs yaratish', done: ['l1', 'l2', 'l3', 'l4'], last: 6 },
+  { id: 's7', name: 'Umid Murodov', tg: '@umid_m', phone: '+998 97 777 88 99', group: 'g4', xp: 1120, wxp: 690, streak: 5, coins: 340, level: 'junior', act: true, score: 8.0, joined: dayShift(-38), bio: 'Logistika kompaniyasida ishlayman.', goal: 'Ichki tizimlarni avtomatlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5'], last: 1 },
+  { id: 's8', name: 'Shahzoda Ergasheva', tg: '@shahzoda', phone: '+998 99 888 99 00', group: 'g4', xp: 1310, wxp: 460, streak: 6, coins: 410, level: 'junior', act: true, score: 8.3, joined: dayShift(-38), bio: 'Frilans dizayner.', goal: 'AI bilan dizayn tezligini oshirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 0 },
+  { id: 's9', name: 'Otabek Ruzimov', tg: '@otabek_r', phone: '+998 90 121 23 34', group: 'g1', xp: 1980, wxp: 940, streak: 9, coins: 720, level: 'middle', act: true, score: 9.0, joined: dayShift(-42), bio: 'Backend dasturchiman, AI ni ishimga qo‘shyapman.', goal: 'AI-startupga texnik asoschi bo‘lish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'], last: 0 },
+  { id: 's10', name: 'Nodira Ismoilova', tg: '@nodira_i', phone: '+998 91 232 34 45', group: 'g2', xp: 1560, wxp: 430, streak: 2, coins: 460, level: 'junior', act: true, score: 8.1, joined: dayShift(-42), bio: 'Agronomiya fakultetida o‘qiyman.', goal: 'Agrotech loyihasi', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7'], last: 2 },
+  { id: 's11', name: 'Rustam Qodirov', tg: '@rustam_q', phone: '+998 93 343 45 56', group: 'g3', xp: 870, wxp: 260, streak: 0, coins: 190, level: 'junior', act: false, score: 6.9, joined: dayShift(-35), bio: 'Tibbiyot sohasida ishlayman.', goal: 'Klinika uchun yordamchi vosita', done: ['l1', 'l2', 'l3'], last: 9 },
+  { id: 's12', name: 'Gulnora Sharipova', tg: '@gulnora_s', phone: '+998 94 454 56 67', group: 'g4', xp: 1440, wxp: 760, streak: 8, coins: 500, level: 'junior', act: true, score: 8.5, joined: dayShift(-38), bio: 'Maktabda informatika o‘qituvchisiman.', goal: 'Darslarni AI bilan yangilash', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 0 },
+  { id: 's13', name: 'Farrux Abdullayev', tg: '@farrux_a', phone: '+998 95 565 67 78', group: 'g5', xp: 1020, wxp: 380, streak: 1, coins: 280, level: 'junior', act: true, score: 7.4, joined: dayShift(-33), bio: 'Frilanser dasturchiman.', goal: 'To‘lov tizimlari bilan loyiha', done: ['l1', 'l2', 'l3', 'l4'], last: 3 },
+  { id: 's14', name: 'Sevara Mamadaliyeva', tg: '@sevara_m', phone: '+998 97 676 78 89', group: 'g5', xp: 890, wxp: 300, streak: 0, coins: 210, level: 'junior', act: false, score: 6.8, joined: dayShift(-33), bio: 'Talaba, marketingdan dars beraman.', goal: 'Birinchi mini-loyiha', done: ['l1', 'l2', 'l3'], last: 7 },
+  { id: 's15', name: 'Temur Sultonov', tg: '@temur_s', phone: '+998 99 787 89 90', group: 'g5', xp: 1180, wxp: 640, streak: 4, coins: 330, level: 'junior', act: true, score: 7.9, joined: dayShift(-33), bio: 'Nazorat organida ishlayman.', goal: 'Hujjat ishlarini avtomatlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5'], last: 1 },
+  { id: 's16', name: 'Kamola Nurmatova', tg: '@kamola_n', phone: '+998 90 898 90 01', group: 'g6', xp: 1370, wxp: 520, streak: 6, coins: 470, level: 'junior', act: true, score: 8.2, joined: dayShift(-31), bio: 'Kutubxona xodimiman.', goal: 'Ta’lim jarayonini raqamlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 1 },
+  { id: 's17', name: 'Anvar Yoqubov', tg: '@anvar_y', phone: '+998 91 909 01 12', group: 'g6', xp: 760, wxp: 180, streak: 0, coins: 150, level: 'junior', act: false, score: 6.6, joined: dayShift(-31), bio: 'Bankda ishlayman.', goal: 'Ichki hisobotlarni avtomatlashtirish', done: ['l1', 'l2'], last: 11 },
+  { id: 's18', name: 'Lola Tosheva', tg: '@lola_t', phone: '+998 93 010 12 23', group: 'g6', xp: 1490, wxp: 600, streak: 7, coins: 540, level: 'junior', act: true, score: 8.6, joined: dayShift(-31), bio: 'Nashriyotda ishlayman.', goal: 'Kitob tayyorlash oqimini tezlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 0 }
 ]);
 const buildSubmissions = () => ([
   /* s1 */
-  { id: 'p1', task: 't1', st: 's1', link: 'https://github.com/dilshod/ai-basics', note: '5 ta vazifa, skrinshotlar repoda.', at: '2026-09-13', status: 'accepted', score: 92, fb: 'Juda yaxshi hisobot! Keyingi safar 3-topshiriqda xulosa qismini qo‘shing.', rev: 'Malika Abdurahmonova' },
-  { id: 'p2', task: 't2', st: 's1', link: 'https://github.com/dilshod/prompt-library', note: '10 ta prompt, Notion bilan ham bog‘ladim.', at: '2026-09-27', status: 'accepted', score: 88, fb: 'Kutubxona tayyor. 6-promptni yanada aniqroq formatlash mumkin.', rev: 'Malika Abdurahmonova' },
-  { id: 'p3', task: 't3', st: 's1', link: 'https://edu-bot-xi.vercel.app', note: 'Landing tayyor, kontakt forma Supabase-ga ulanadi.', at: '2026-10-12', status: 'in_review', score: null, fb: '', rev: '' },
+  { id: 'p1', task: 't1', st: 's1', link: 'https://github.com/dilshod/ai-basics', note: '5 ta vazifa, skrinshotlar repoda.', at: dayShift(-30), status: 'accepted', score: 92, fb: 'Juda yaxshi hisobot! Keyingi safar 3-topshiriqda xulosa qismini qo‘shing.', rev: 'Malika Abdurahmonova' },
+  { id: 'p2', task: 't2', st: 's1', link: 'https://github.com/dilshod/prompt-library', note: '10 ta prompt, Notion bilan ham bog‘ladim.', at: dayShift(-16), status: 'accepted', score: 88, fb: 'Kutubxona tayyor. 6-promptni yanada aniqroq formatlash mumkin.', rev: 'Malika Abdurahmonova' },
+  { id: 'p3', task: 't3', st: 's1', link: 'https://edu-bot-xi.vercel.app', note: 'Landing tayyor, kontakt forma Supabase-ga ulanadi.', at: dayShift(-1), status: 'in_review', score: null, fb: '', rev: '' },
   /* s2 */
-  { id: 'p4', task: 't1', st: 's2', link: 'https://notion.so/aziza-ai-basics', note: 'Hisobot Notion’da.', at: '2026-09-12', status: 'accepted', score: 95, fb: 'Namunali hisobot, boshqalarga ko‘rsatish mumkin!', rev: 'Malika Abdurahmonova' },
-  { id: 'p5', task: 't2', st: 's2', link: 'https://notion.so/aziza-prompts', note: 'Kontent promptlari to‘plami.', at: '2026-09-26', status: 'accepted', score: 90, fb: 'Yaxshi. Rasm promptlarini ham qo‘shsangiz zo‘r bo‘ladi.', rev: 'Malika Abdurahmonova' },
-  { id: 'p6', task: 't3', st: 's2', link: 'https://aziza-portfolio.vercel.app', note: 'Shaxsiy portfolio sahifa.', at: '2026-10-13', status: 'in_review', score: null, fb: '', rev: '' },
+  { id: 'p4', task: 't1', st: 's2', link: 'https://notion.so/aziza-ai-basics', note: 'Hisobot Notion’da.', at: dayShift(-31), status: 'accepted', score: 95, fb: 'Namunali hisobot, boshqalarga ko‘rsatish mumkin!', rev: 'Malika Abdurahmonova' },
+  { id: 'p5', task: 't2', st: 's2', link: 'https://notion.so/aziza-prompts', note: 'Kontent promptlari to‘plami.', at: dayShift(-17), status: 'accepted', score: 90, fb: 'Yaxshi. Rasm promptlarini ham qo‘shsangiz zo‘r bo‘ladi.', rev: 'Malika Abdurahmonova' },
+  { id: 'p6', task: 't3', st: 's2', link: 'https://aziza-portfolio.vercel.app', note: 'Shaxsiy portfolio sahifa.', at: dayShift(0), status: 'in_review', score: null, fb: '', rev: '' },
   /* s3 */
-  { id: 'p7', task: 't1', st: 's3', link: 'https://github.com/jasur/ai-first-steps', note: 'Barcha topshiriqlar bajarildi.', at: '2026-09-10', status: 'accepted', score: 98, fb: 'Ajoyib. Guruhda yordam berganingiz uchun rahmat!', rev: 'Sardor Yo‘ldoshev' },
-  { id: 'p8', task: 't2', st: 's3', link: 'https://github.com/jasur/prompts', note: 'Promptlar + test natijalari.', at: '2026-09-24', status: 'accepted', score: 94, fb: 'Kuchli ish.', rev: 'Sardor Yo‘ldoshev' },
-  { id: 'p9', task: 't3', st: 's3', link: 'https://agroscan-demo.vercel.app', note: 'Landing tayyor, model demosi tez orada.', at: '2026-10-11', status: 'in_review', score: null, fb: '', rev: '' },
+  { id: 'p7', task: 't1', st: 's3', link: 'https://github.com/jasur/ai-first-steps', note: 'Barcha topshiriqlar bajarildi.', at: dayShift(-33), status: 'accepted', score: 98, fb: 'Ajoyib. Guruhda yordam berganingiz uchun rahmat!', rev: 'Sardor Yo‘ldoshev' },
+  { id: 'p8', task: 't2', st: 's3', link: 'https://github.com/jasur/prompts', note: 'Promptlar + test natijalari.', at: dayShift(-19), status: 'accepted', score: 94, fb: 'Kuchli ish.', rev: 'Sardor Yo‘ldoshev' },
+  { id: 'p9', task: 't3', st: 's3', link: 'https://agroscan-demo.vercel.app', note: 'Landing tayyor, model demosi tez orada.', at: dayShift(-2), status: 'in_review', score: null, fb: '', rev: '' },
   /* s4 */
-  { id: 'p10', task: 't1', st: 's4', link: 'https://drive.google.com/malika-hisobot', note: 'Hisobot Google Docs’da.', at: '2026-09-18', status: 'revise', score: 62, fb: '3 ta topshiriq yetishmayapti. Skrinshotlarni qo‘shib qayta yuboring.', rev: 'Sardor Yo‘ldoshev' },
-  { id: 'p11', task: 't2', st: 's4', link: 'https://drive.google.com/malika-prompts', note: '6 ta prompt tayyor.', at: '2026-09-30', status: 'accepted', score: 78, fb: 'Yaxshi boshlanish. Keyingi safar to‘liq 10 ta bo‘lsin.', rev: 'Sardor Yo‘ldoshev' },
+  { id: 'p10', task: 't1', st: 's4', link: 'https://drive.google.com/malika-hisobot', note: 'Hisobot Google Docs’da.', at: dayShift(-25), status: 'revise', score: 62, fb: '3 ta topshiriq yetishmayapti. Skrinshotlarni qo‘shib qayta yuboring.', rev: 'Sardor Yo‘ldoshev' },
+  { id: 'p11', task: 't2', st: 's4', link: 'https://drive.google.com/malika-prompts', note: '6 ta prompt tayyor.', at: dayShift(-13), status: 'accepted', score: 78, fb: 'Yaxshi boshlanish. Keyingi safar to‘liq 10 ta bo‘lsin.', rev: 'Sardor Yo‘ldoshev' },
   /* s5 */
-  { id: 'p12', task: 't1', st: 's5', link: 'https://github.com/bekzod/ai-homework', note: 'Topshiriq bajarildi.', at: '2026-09-16', status: 'accepted', score: 80, fb: 'Yaxshi, ammo xulosalar yuzaki. Chuqurroq yozing.', rev: 'Malika Abdurahmonova' },
-  { id: 'p13', task: 't2', st: 's5', link: 'https://notion.so/bek-prompts', note: 'Savdo uchun promptlar.', at: '2026-10-01', status: 'accepted', score: 84, fb: 'Amaliy promptlar. Rahmat!', rev: 'Malika Abdurahmonova' },
-  { id: 'p14', task: 't3', st: 's5', link: 'https://sogliq-ai.vercel.app', note: 'Landing, forma ishlamoqda.', at: '2026-10-13', status: 'in_review', score: null, fb: '', rev: '' },
+  { id: 'p12', task: 't1', st: 's5', link: 'https://github.com/bekzod/ai-homework', note: 'Topshiriq bajarildi.', at: dayShift(-27), status: 'accepted', score: 80, fb: 'Yaxshi, ammo xulosalar yuzaki. Chuqurroq yozing.', rev: 'Malika Abdurahmonova' },
+  { id: 'p13', task: 't2', st: 's5', link: 'https://notion.so/bek-prompts', note: 'Savdo uchun promptlar.', at: dayShift(-12), status: 'accepted', score: 84, fb: 'Amaliy promptlar. Rahmat!', rev: 'Malika Abdurahmonova' },
+  { id: 'p14', task: 't3', st: 's5', link: 'https://sogliq-ai.vercel.app', note: 'Landing, forma ishlamoqda.', at: dayShift(0), status: 'in_review', score: null, fb: '', rev: '' },
   /* s6 — kechikkan, topshirmagan */
-  { id: 'p15', task: 't1', st: 's6', link: 'https://github.com/zilola/ai-tasks', note: 'Kechirasiz, biroz kechikdim.', at: '2026-09-22', status: 'late', score: 74, fb: 'Kechikkan, lekin bajarilgan. Vaqtni rejalashtirishga e’tibor bering.', rev: 'Malika Abdurahmonova' },
+  { id: 'p15', task: 't1', st: 's6', link: 'https://github.com/zilola/ai-tasks', note: 'Kechirasiz, biroz kechikdim.', at: dayShift(-21), status: 'late', score: 74, fb: 'Kechikkan, lekin bajarilgan. Vaqtni rejalashtirishga e’tibor bering.', rev: 'Malika Abdurahmonova' },
   /* s7 */
-  { id: 'p16', task: 't1', st: 's7', link: 'https://github.com/umid/ai-1', note: 'Tayyor.', at: '2026-09-14', status: 'accepted', score: 86, fb: 'Yaxshi ish!', rev: 'Nigora Karimova' },
-  { id: 'p17', task: 't2', st: 's7', link: 'https://github.com/umid/prompts', note: 'Logistika promptlari.', at: '2026-09-28', status: 'accepted', score: 89, fb: 'Sohaga mos promptlar — juda yaxshi.', rev: 'Sardor Yo‘ldoshev' },
+  { id: 'p16', task: 't1', st: 's7', link: 'https://github.com/umid/ai-1', note: 'Tayyor.', at: dayShift(-29), status: 'accepted', score: 86, fb: 'Yaxshi ish!', rev: 'Nigora Karimova' },
+  { id: 'p17', task: 't2', st: 's7', link: 'https://github.com/umid/prompts', note: 'Logistika promptlari.', at: dayShift(-15), status: 'accepted', score: 89, fb: 'Sohaga mos promptlar — juda yaxshi.', rev: 'Sardor Yo‘ldoshev' },
   /* s8 */
-  { id: 'p18', task: 't1', st: 's8', link: 'https://figma.com/shahzoda-ai', note: 'Figma prezentatsiya.', at: '2026-09-17', status: 'accepted', score: 91, fb: 'Vizual jihatdan juda chiroyli.', rev: 'Nigora Karimova' },
-  { id: 'p19', task: 't2', st: 's8', link: 'https://figma.com/shahzoda-prompts', note: 'Dizayn promptlari.', at: '2026-10-02', status: 'in_review', score: null, fb: '', rev: '' },
+  { id: 'p18', task: 't1', st: 's8', link: 'https://figma.com/shahzoda-ai', note: 'Figma prezentatsiya.', at: dayShift(-26), status: 'accepted', score: 91, fb: 'Vizual jihatdan juda chiroyli.', rev: 'Nigora Karimova' },
+  { id: 'p19', task: 't2', st: 's8', link: 'https://figma.com/shahzoda-prompts', note: 'Dizayn promptlari.', at: dayShift(-11), status: 'in_review', score: null, fb: '', rev: '' },
   /* s9 */
-  { id: 'p20', task: 't1', st: 's9', link: 'https://github.com/otabek/ai-first', note: 'Kod bilan birga.', at: '2026-09-11', status: 'accepted', score: 96, fb: 'Ajoyib. Mentor yordamchisi bo‘lishni taklif qilaman.', rev: 'Malika Abdurahmonova' },
-  { id: 'p21', task: 't2', st: 's9', link: 'https://github.com/otabek/prompts-api', note: 'Promptlarni API orqali sinovdan o‘tkazdim.', at: '2026-09-25', status: 'accepted', score: 97, fb: 'Aqlga sig‘maydigan darajada yaxshi ish.', rev: 'Malika Abdurahmonova' },
-  { id: 'p22', task: 't3', st: 's9', link: 'https://otabek-dev.vercel.app', note: 'Landing + blog sahifa.', at: '2026-10-09', status: 'accepted', score: 93, fb: 'Tez va toza ishlangan. Deploy ham to‘g‘ri.', rev: 'Malika Abdurahmonova' },
+  { id: 'p20', task: 't1', st: 's9', link: 'https://github.com/otabek/ai-first', note: 'Kod bilan birga.', at: dayShift(-32), status: 'accepted', score: 96, fb: 'Ajoyib. Mentor yordamchisi bo‘lishni taklif qilaman.', rev: 'Malika Abdurahmonova' },
+  { id: 'p21', task: 't2', st: 's9', link: 'https://github.com/otabek/prompts-api', note: 'Promptlarni API orqali sinovdan o‘tkazdim.', at: dayShift(-18), status: 'accepted', score: 97, fb: 'Aqlga sig‘maydigan darajada yaxshi ish.', rev: 'Malika Abdurahmonova' },
+  { id: 'p22', task: 't3', st: 's9', link: 'https://otabek-dev.vercel.app', note: 'Landing + blog sahifa.', at: dayShift(-4), status: 'accepted', score: 93, fb: 'Tez va toza ishlangan. Deploy ham to‘g‘ri.', rev: 'Malika Abdurahmonova' },
   /* s10 */
-  { id: 'p23', task: 't1', st: 's10', link: 'https://drive.google.com/nodira-1', note: 'Tayyor.', at: '2026-09-20', status: 'accepted', score: 79, fb: 'Yaxshi, ilova qilingan fayllar aniq.', rev: 'Sardor Yo‘ldoshev' },
+  { id: 'p23', task: 't1', st: 's10', link: 'https://drive.google.com/nodira-1', note: 'Tayyor.', at: dayShift(-23), status: 'accepted', score: 79, fb: 'Yaxshi, ilova qilingan fayllar aniq.', rev: 'Sardor Yo‘ldoshev' },
   /* s11 */
-  { id: 'p24', task: 't1', st: 's11', link: 'https://github.com/rustam/ai-tasks', note: 'Bajardim.', at: '2026-09-29', status: 'late', score: 70, fb: 'Ikki hafta kechikdi. Qo‘llab-quvvatlash kerak bo‘lsa yozing.', rev: 'Malika Abdurahmonova' },
+  { id: 'p24', task: 't1', st: 's11', link: 'https://github.com/rustam/ai-tasks', note: 'Bajardim.', at: dayShift(-14), status: 'late', score: 70, fb: 'Ikki hafta kechikdi. Qo‘llab-quvvatlash kerak bo‘lsa yozing.', rev: 'Malika Abdurahmonova' },
   /* s12 */
-  { id: 'p25', task: 't1', st: 's12', link: 'https://github.com/gulnora/ai-lesson', note: 'Dars materiallari bilan.', at: '2026-09-15', status: 'accepted', score: 90, fb: 'Darsga tatbiq etilgani ajoyib.', rev: 'Nigora Karimova' },
-  { id: 'p26', task: 't2', st: 's12', link: 'https://github.com/gulnora/prompts', note: 'O‘qituvchi uchun promptlar.', at: '2026-09-30', status: 'accepted', score: 92, fb: 'Juda foydali to‘plam.', rev: 'Nigora Karimova' },
+  { id: 'p25', task: 't1', st: 's12', link: 'https://github.com/gulnora/ai-lesson', note: 'Dars materiallari bilan.', at: dayShift(-28), status: 'accepted', score: 90, fb: 'Darsga tatbiq etilgani ajoyib.', rev: 'Nigora Karimova' },
+  { id: 'p26', task: 't2', st: 's12', link: 'https://github.com/gulnora/prompts', note: 'O‘qituvchi uchun promptlar.', at: dayShift(-13), status: 'accepted', score: 92, fb: 'Juda foydali to‘plam.', rev: 'Nigora Karimova' },
   /* s13 */
-  { id: 'p27', task: 't1', st: 's13', link: 'https://github.com/farrux/ai-1', note: 'Tayyor.', at: '2026-09-19', status: 'accepted', score: 82, fb: 'Yaxshi.', rev: 'Sardor Yo‘ldoshev' },
+  { id: 'p27', task: 't1', st: 's13', link: 'https://github.com/farrux/ai-1', note: 'Tayyor.', at: dayShift(-24), status: 'accepted', score: 82, fb: 'Yaxshi.', rev: 'Sardor Yo‘ldoshev' },
   /* s14 — topshirmagan */
   /* s15 */
-  { id: 'p28', task: 't1', st: 's15', link: 'https://github.com/temur/ai-hw', note: 'Hujjat ishlari bilan bog‘ladim.', at: '2026-09-21', status: 'accepted', score: 85, fb: 'Amaliy yondashuv yaxshi.', rev: 'Sardor Yo‘ldoshev' },
-  { id: 'p29', task: 't2', st: 's15', link: 'https://notion.so/temur-prompts', note: 'Nazorat uchun promptlar.', at: '2026-10-05', status: 'in_review', score: null, fb: '', rev: '' },
+  { id: 'p28', task: 't1', st: 's15', link: 'https://github.com/temur/ai-hw', note: 'Hujjat ishlari bilan bog‘ladim.', at: dayShift(-22), status: 'accepted', score: 85, fb: 'Amaliy yondashuv yaxshi.', rev: 'Sardor Yo‘ldoshev' },
+  { id: 'p29', task: 't2', st: 's15', link: 'https://notion.so/temur-prompts', note: 'Nazorat uchun promptlar.', at: dayShift(-8), status: 'in_review', score: null, fb: '', rev: '' },
   /* s16 */
-  { id: 'p30', task: 't1', st: 's16', link: 'https://drive.google.com/kamola-1', note: 'Kutubxona misolida.', at: '2026-09-17', status: 'accepted', score: 87, fb: 'Yaxshi ish.', rev: 'Nigora Karimova' },
-  { id: 'p31', task: 't2', st: 's16', link: 'https://drive.google.com/kamola-prompts', note: 'Kitob tavsifi promptlari.', at: '2026-10-03', status: 'accepted', score: 88, fb: 'Aniq va toza.', rev: 'Nigora Karimova' },
+  { id: 'p30', task: 't1', st: 's16', link: 'https://drive.google.com/kamola-1', note: 'Kutubxona misolida.', at: dayShift(-26), status: 'accepted', score: 87, fb: 'Yaxshi ish.', rev: 'Nigora Karimova' },
+  { id: 'p31', task: 't2', st: 's16', link: 'https://drive.google.com/kamola-prompts', note: 'Kitob tavsifi promptlari.', at: dayShift(-10), status: 'accepted', score: 88, fb: 'Aniq va toza.', rev: 'Nigora Karimova' },
   /* s17 — jim */
-  { id: 'p32', task: 't1', st: 's17', link: 'https://github.com/anvar/ai', note: '', at: '2026-09-28', status: 'late', score: 68, fb: 'Kechikdi va hisobot yuzaki. Aloqaga chiqing.', rev: 'Nigora Karimova' },
+  { id: 'p32', task: 't1', st: 's17', link: 'https://github.com/anvar/ai', note: '', at: dayShift(-15), status: 'late', score: 68, fb: 'Kechikdi va hisobot yuzaki. Aloqaga chiqing.', rev: 'Nigora Karimova' },
   /* s18 */
-  { id: 'p33', task: 't1', st: 's18', link: 'https://github.com/lola/ai-1', note: 'Nashriyot misolida.', at: '2026-09-16', status: 'accepted', score: 89, fb: 'Amaliy va aniq.', rev: 'Nigora Karimova' },
-  { id: 'p34', task: 't2', st: 's18', link: 'https://github.com/lola/prompts', note: 'Tahrir promptlari.', at: '2026-10-04', status: 'accepted', score: 91, fb: 'Juda yaxshi tuzilgan.', rev: 'Nigora Karimova' },
-  { id: 'p35', task: 't3', st: 's18', link: 'https://kitobmr.vercel.app', note: 'Landing sahifa tayyor.', at: '2026-10-12', status: 'in_review', score: null, fb: '', rev: '' },
+  { id: 'p33', task: 't1', st: 's18', link: 'https://github.com/lola/ai-1', note: 'Nashriyot misolida.', at: dayShift(-27), status: 'accepted', score: 89, fb: 'Amaliy va aniq.', rev: 'Nigora Karimova' },
+  { id: 'p34', task: 't2', st: 's18', link: 'https://github.com/lola/prompts', note: 'Tahrir promptlari.', at: dayShift(-9), status: 'accepted', score: 91, fb: 'Juda yaxshi tuzilgan.', rev: 'Nigora Karimova' },
+  { id: 'p35', task: 't3', st: 's18', link: 'https://kitobmr.vercel.app', note: 'Landing sahifa tayyor.', at: dayShift(-1), status: 'in_review', score: null, fb: '', rev: '' },
   /* s9 ikkinchi jamoaviy belgi */
-  { id: 'p36', task: 't1', st: 's10', link: 'https://drive.google.com/nodira-ai', note: 'Ilova.', at: '2026-09-21', status: 'revise', score: 65, fb: 'Fayl ochilmadi, ruxsatni tekshiring.', rev: 'Sardor Yo‘ldoshev' }
+  { id: 'p36', task: 't1', st: 's10', link: 'https://drive.google.com/nodira-ai', note: 'Ilova.', at: dayShift(-22), status: 'revise', score: 65, fb: 'Fayl ochilmadi, ruxsatni tekshiring.', rev: 'Sardor Yo‘ldoshev' }
 ]);
 const buildWalls = () => ({
   g1: [
@@ -208,7 +228,9 @@ function blankState() {
   return {
     role: 'student', user: 's1', theme: 'dark',
     students: STUDENTS, submissions: buildSubmissions(), walls: buildWalls(), gallery: buildGallery(),
-    badges: BADGES.map(b => ({ ...b })), quests: {},
+    badges: BADGES.map(b => ({ ...b })), quests: {}, quizDone: {},
+    settings: { notif: true, weekly: true, publicProfile: true, friendBoard: false },
+    meta: { version: APP_VERSION, created: todayISO() },
     groups: GROUPS.map(g => JSON.parse(JSON.stringify(g))),
     modules: MODULES.map(m => ({ ...m })),
     lessons: LESSONS.map(l => ({ ...l })),
@@ -313,7 +335,7 @@ function myBadges(st) {
 }
 function certsOf(st) {
   const out = [];
-  S.modules.forEach(m => { if (modulePct(st, m.id).pct === 100) out.push({ m, code: 'AIL-' + m.id.toUpperCase() + '-' + st.id.toUpperCase() + '-2026', date: '2026-10-01' }); });
+  S.modules.forEach(m => { if (modulePct(st, m.id).pct === 100) out.push({ m, code: 'AIL-' + m.id.toUpperCase() + '-' + st.id.toUpperCase() + '-2026', date: dayShift(-7) }); });
   return out;
 }
 function nextLesson(st) { const ls = openLessons(st); return ls.find(l => !st.done.includes(l.id)) || null; }
@@ -342,7 +364,9 @@ function kpisAdmin() {
 function activityPct() { return Math.round(activeCount() / S.students.length * 100); }
 
 /* ---------- 5. UI holati ---------- */
-const UI = { route: 'home', authShow: false, authRole: 'student', theme: 'dark', cal: 0, taskFilter: 'all', friendTab: 'friends', search: '', reviewFilter: 'all', lastLesson: null };
+const UI = { route: 'home', authShow: false, authRole: 'student', theme: 'dark', cal: 0, calMonthly: false,
+  taskFilter: 'all', studentsFilter: 'all', friendTab: 'friends', search: '', reviewFilter: 'all',
+  module: null, installEvt: null, lastLesson: null };
 
 function toast(kind, title, text) {
   const map = { ok: 'check-c', warn: 'alert', err: 'x', info: 'spark' };
@@ -358,6 +382,29 @@ function pushNotif(stId, t, x, ic) {
 function openModal(html, cls2) {
   document.getElementById('modal-root').innerHTML = '<div class="mback" data-close="1"><div class="mbox ' + (cls2 || '') + '" role="dialog" aria-modal="true">' + html + '</div></div>';
   document.body.style.overflow = 'hidden';
+  const box = document.querySelector('.mbox');
+  if (box) {
+    const f = box.querySelector('input:not([readonly]),textarea,select,button:not([data-act="close-modal"])');
+    if (f) setTimeout(() => { try { f.focus({ preventScroll: true }); } catch (e) { } }, 60);
+  }
+}
+/* modal ichida Tab fokusini ushlab turish */
+function trapFocus(e) {
+  if (e.key !== 'Tab') return;
+  const box = document.querySelector('.mbox');
+  if (!box) return;
+  const items = [...box.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])')]
+    .filter(x => x.offsetParent !== null || x === document.activeElement);
+  if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+/* tasdiqlash modali — xavfli amallar uchun */
+function confirmModal(title, text, act, dataId, danger) {
+  openModal(mhead(title, text) +
+    '<div class="row" style="gap:10px;margin-top:6px"><button class="btn ' + (danger ? 'btn-danger' : 'btn-primary') + ' grow" data-act="' + act + '" data-id="' + (dataId || '') + '">Ha, davom etish</button>' +
+    '<button class="btn btn-ghost" data-act="close-modal">Bekor qilish</button></div>', 'narrow');
 }
 function closeModal() { document.getElementById('modal-root').innerHTML = ''; document.body.style.overflow = ''; }
 const mhead = (t, s) => '<div class="mhead"><div><h3 class="h2">' + esc(t) + '</h3>' + (s ? '<p class="small muted" style="margin:4px 0 0">' + esc(s) + '</p>' : '') + '</div><button class="btn-icon" data-act="close-modal" aria-label="Yopish">' + ico('x') + '</button></div>';
@@ -402,10 +449,21 @@ const navDefs = {
   home: { l: 'Bosh sahifa', i: 'home' }, lessons: { l: 'Darslar', i: 'book' }, tasks: { l: 'Vazifa', i: 'task' },
   team: { l: 'Team', i: 'users' }, deadlines: { l: 'Deadline', i: 'clock' }, friends: { l: 'Friends', i: 'user' }, info: { l: 'Ma’lumot', i: 'shield' },
   admin: { l: 'Dashboard', i: 'dash' }, students: { l: 'Talabalar', i: 'users' }, adminTasks: { l: 'Vazifalar', i: 'task' },
-  adminLessons: { l: 'Darslar', i: 'book' }, adminGroups: { l: 'Jamoalar', i: 'flag' }, adminDeadlines: { l: 'Deadline’lar', i: 'cal' }, stats: { l: 'Statistika', i: 'trend' }
+  adminLessons: { l: 'Darslar', i: 'book' }, adminGroups: { l: 'Jamoalar', i: 'flag' }, adminDeadlines: { l: 'Deadline’lar', i: 'cal' },
+  stats: { l: 'Statistika', i: 'trend' }, settings: { l: 'Sozlamalar', i: 'settings' }
 };
-const STUDENT_NAV = [['home'], ['lessons', 'tasks'], ['team', 'deadlines'], ['friends', 'info']];
-const ADMIN_NAV = [['admin', 'students', 'adminTasks'], ['adminLessons', 'adminGroups', 'adminDeadlines'], ['stats']];
+const NAV_SEC = {
+  student: [
+    ['Ta’lim', ['home', 'lessons', 'tasks']],
+    ['Jamoa', ['team', 'deadlines']],
+    ['Ijtimoiy', ['friends', 'info']]
+  ],
+  admin: [
+    ['Boshqaruv', ['admin', 'students', 'adminTasks']],
+    ['Kontent', ['adminLessons', 'adminGroups', 'adminDeadlines']],
+    ['Tahlil', ['stats', 'settings']]
+  ]
+};
 const MOBILE_STUDENT = ['home', 'lessons', 'tasks', 'deadlines', 'info'];
 const MOBILE_ADMIN = ['admin', 'students', 'adminTasks', 'adminGroups', 'stats'];
 
@@ -420,24 +478,29 @@ function brandBlock(big) {
     '<div class="brand-txt"><strong>AI LEADERS</strong><em>STARTUP CLUB</em></div></div>';
 }
 function sidebar() {
-  const nav = isAdmin() ? ADMIN_NAV : STUDENT_NAV;
+  const nav = NAV_SEC[isAdmin() ? 'admin' : 'student'];
   const st = me();
   let h = '<aside class="sidebar">' + brandBlock(false);
   nav.forEach(sec => {
-    h += '<div class="nav-lbl">' + (isAdmin() ? 'Boshqaruv' : 'O‘quv') + '</div>';
-    sec.forEach(r => {
+    h += '<div class="nav-lbl">' + sec[0] + '</div>';
+    sec[1].forEach(r => {
       const d = navDefs[r]; const on = UI.route === r;
-      h += '<a class="nav-item' + (on ? ' on' : '') + '" href="#" data-act="go" data-route="' + r + '">' + ico(d.i) + '<span>' + esc(d.l) + '</span>' +
-        (r === 'tasks' && !isAdmin() ? '<span class="cnt">1</span>' : '') + (r === 'adminTasks' && isAdmin() ? '<span class="cnt">' + reviewQueue().length + '</span>' : '') + '</a>';
+      let badge = '';
+      if (r === 'tasks') { const n = deadlinesOf(st).filter(x => !x.s || x.s.status === 'revise').length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
+      if (r === 'adminTasks') { const n = reviewQueue().length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
+      if (r === 'deadlines') { const n = deadlinesOf(st).filter(x => !x.s && x.tl.late).length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
+      if (r === 'friends') { const n = incomingOf(st).length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
+      h += '<a class="nav-item' + (on ? ' on' : '') + '" href="#" data-act="go" data-route="' + r + '">' + ico(d.i) + '<span>' + esc(d.l) + '</span>' + badge + '</a>';
     });
   });
   h += '<div class="side-foot">';
   h += '<div class="userbox">' + avatar(isAdmin() ? { id: 'adm', name: 'Bekzod Aliyev', act: true, last: 0 } : st, 'sm') +
     '<div class="grow" style="min-width:0"><div class="small help ellip" style="font-weight:750">' + esc(isAdmin() ? 'Bekzod Aliyev' : st.name) + '</div>' +
     '<small>' + esc(isAdmin() ? 'Founder • Admin' : (myGroup(st) ? myGroup(st).name + ' jamoasi' : 'Jamoa biriktirilmagan')) + '</small></div>' +
-    '<button class="btn-icon" style="width:34px;height:34px" data-act="theme" title="Rejim">' + ico('moon', 'sm') + '</button></div>';
+    '<button class="btn-icon" style="width:34px;height:34px" data-act="theme" title="Rejim" aria-label="Mavzu">' + ico('moon', 'sm') + '</button></div>';
   h += '<div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm grow" data-act="logout">' + ico('out', 'sm') + 'Chiqish</button>' +
-    '<button class="btn btn-ghost btn-sm" data-act="reset" title="Demoni tiklash">' + ico('refresh', 'sm') + '</button></div></div></aside>';
+    '<button class="btn btn-ghost btn-sm" data-act="reset-confirm" title="Demoni tiklash" aria-label="Demo ma’lumotlarni tiklash">' + ico('refresh', 'sm') + '</button></div>' +
+    '<div class="xs muted" style="text-align:center;padding-top:2px">v' + APP_VERSION + ' • demo rejim</div></div></aside>';
   return h;
 }
 function topbar() {
@@ -450,7 +513,9 @@ function topbar() {
     (!isAdmin() && st ? '<span class="hide-sm streak">' + ico('flame', 'sm') + st.streak + '</span>' : '') +
     '<button class="btn-icon" data-act="notifs" aria-label="Bildirishnomalar">' + ico('bell', 'sm') + (un ? '<i class="dot"></i>' : '') + '</button>' +
     '<button class="btn-icon" data-act="theme" aria-label="Mavzu">' + ico(UI.theme === 'dark' ? 'sun' : 'moon', 'sm') + '</button>' +
-    '<button class="btn-icon hide-sm" data-act="switch" title="Rolni almashtirish">' + ico('refresh', 'sm') + '</button>' +
+    (UI.installEvt ? '<button class="btn-icon hide-sm" data-act="install" title="Ilovani o‘rnatish">' + ico('download', 'sm') + '</button>' : '') +
+    (isAdmin() ? '<button class="btn-icon" data-act="go-settings" title="Sozlamalar" aria-label="Sozlamalar">' + ico('settings', 'sm') + '</button>' : '') +
+    '<button class="btn-icon hide-sm" data-act="switch" title="Demo: rolni almashtirish">' + ico('refresh', 'sm') + '</button>' +
     '</header>';
 }
 function bottomnav() {
@@ -470,9 +535,17 @@ function ensureQuests(st) {
   if (!q || q.d !== todayISO()) S.quests[st.id] = { d: todayISO(), done: [] };
   return S.quests[st.id];
 }
-function addXp(st, xp, coins) {
+function addXp(st, xp, coins, questCode) { return awardXP(st, xp, coins, questCode); }
+/* XP berish + kunlik topshiriqni avtomatik bajarish */
+function awardXP(st, xp, coins, questCode) {
   st.xp += xp; st.coins += (coins || 0);
-  if (st.id === (me() || {}).id) toast('ok', '+' + xp + ' XP', 'Ball va tajriba hisobingizga qo‘shildi.');
+  let bonus = 0;
+  if (questCode && QUESTS.some(q => q.id === questCode)) {
+    const q = ensureQuests(st);
+    if (!q.done.includes(questCode)) { q.done.push(questCode); bonus = (QUESTS.find(z => z.id === questCode) || {}).xp || 0; st.xp += bonus; }
+  }
+  if (st.id === (me() || {}).id) toast('ok', '+' + (xp + bonus) + ' XP', bonus ? 'Kunlik topshiriq ham bajarildi (+' + bonus + ').' : 'Hisobingizga qo‘shildi.');
+  return xp + bonus;
 }
 
 /* ---------- 9. Modallar (talaba) ---------- */
@@ -492,6 +565,11 @@ function lessonModal(l) {
     [['target', 'Dars oxirida buni qila olasiz'], ['bolt', 'Amaliy topshiriq: ' + (l.type === 'practice' ? 'to‘liq bajarish shart' : 'qisqa mashq')], ['link', 'Qo‘shimcha materiallar dars ichida']]
       .map(x => '<div class="row small t2">' + ico(x[0], 'sm') + esc(x[1]) + '</div>').join('') +
     '</div></div>' +
+    (QUIZZES[l.id] ? '<div class="card" style="margin-top:14px"><div class="card-h"><h2 class="h2">' + ico('help') + 'Qisqa tekshiruv</h2>' +
+      '<span class="tag ' + ((S.quizDone[st.id] || []).includes(l.id) ? 'g' : 'c') + '">' + ((S.quizDone[st.id] || []).includes(l.id) ? 'topshirilgan' : '3 savol • +15 XP') + '</span></div>' +
+      '<div class="col" style="gap:12px">' + QUIZZES[l.id].map((q, qi) => '<div><div class="small" style="font-weight:750;margin-bottom:7px">' + (qi + 1) + '. ' + esc(q.q) + '</div>' +
+        '<div class="col" style="gap:6px">' + q.o.map((o, oi) => '<label class="row small t2" style="gap:9px;cursor:pointer"><input type="radio" name="q' + qi + '" value="' + oi + '" style="accent-color:#7C5CFF;width:16px;height:16px">' + esc(o) + '</label>').join('') + '</div></div>').join('') + '</div>' +
+      '<button class="btn btn-soft btn-sm btn-block" style="margin-top:12px" data-act="quiz-submit" data-id="' + l.id + '">' + ico('check-c', 'sm') + 'Javoblarni tekshirish</button></div>' : '') +
     '<div class="row" style="margin-top:14px;gap:10px">' +
     (done ? '<button class="btn btn-soft grow" disabled>' + ico('check-c', 'sm') + 'Tugatilgan</button>'
       : '<button class="btn btn-primary grow" data-act="lesson-done" data-id="' + l.id + '">' + ico('check', 'sm') + 'Tugatdim (+20 XP)</button>') +
@@ -522,6 +600,10 @@ function subViewModal(p) {
     (p.note ? '<div class="card soft"><div class="up muted" style="margin-bottom:6px">Talaba izohi</div><p style="margin:0" class="t2">' + esc(p.note) + '</p></div>' : '') +
     '<div class="card soft" style="margin-top:12px"><div class="up muted" style="margin-bottom:6px">Havola</div>' +
     '<a class="row small" style="gap:8px;word-break:break-all" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + ico('link', 'sm') + esc(p.link) + '</a></div>' +
+    (p.file ? '<div class="card soft tight" style="margin-top:10px"><div class="row between" style="gap:10px"><div class="row" style="gap:9px;min-width:0">' + ico('upload', 'sm') +
+      '<span class="small ellip">' + esc(p.file) + '</span></div>' +
+      (p.fileData ? '<button class="btn btn-xs btn-soft" data-act="open-file" data-sub="' + p.id + '">' + ico('download', 'sm') + 'Yuklab olish</button>'
+        : '<span class="xs muted">faqat nom saqlangan</span>') + '</div></div>' : '') +
     (p.fb ? '<div class="card soft" style="margin-top:12px;border-color:rgba(124,92,255,.3)"><div class="up muted" style="margin-bottom:6px">Mentor izohi</div><p style="margin:0" class="t2">' + esc(p.fb) + '</p>' +
       (p.rev ? '<div class="xs muted" style="margin-top:8px">— ' + esc(p.rev) + '</div>' : '') + '</div>' : '') +
     (adm && p.status === 'in_review' ? '<hr class="hr"><form data-form="review" data-sub="' + p.id + '" class="col" style="gap:12px">' +
@@ -529,7 +611,7 @@ function subViewModal(p) {
       '<div class="field grow"><label>Qaror</label><select class="inp" name="status"><option value="accepted">Qabul qilish</option><option value="revise">Qayta ishlashga</option><option value="late">Kechikkan deb belgilash</option></select></div></div>' +
       '<div class="field"><label>Izoh</label><textarea class="inp" name="fb" placeholder="Kuchli tomonlar, yaxshilash kerak bo‘lgan joylar…"></textarea></div>' +
       '<button class="btn btn-primary" type="submit">' + ico('check-c', 'sm') + 'Bahoni saqlash</button></form>'
-      : adm ? '<hr class="hr"><div class="row" style="gap:10px"><button class="btn btn-soft grow" data-act="review-open" data-sub="' + p.id + '">' + ico('edit', 'sm') + 'Qayta baholash</button>' +
+      : adm ? '<hr class="hr"><div class="row" style="gap:10px"><button class="btn btn-soft grow" data-act="review-edit" data-sub="' + p.id + '">' + ico('edit', 'sm') + 'Bahoni tahrirlash</button>' +
         '<button class="btn btn-ghost" data-act="nudge" data-id="' + st.id + '">' + ico('bell', 'sm') + 'Eslatma</button></div>' : ''),
     'wide');
 }
@@ -546,6 +628,20 @@ function teamModal(g) {
     '<div class="h3">' + esc(task.title) + '</div><div class="small muted" style="margin:4px 0 10px">Deadline: ' + fmtFull(g.dl[task.id] || task.dl) + '</div>' +
     '<div class="col" style="gap:9px">' + g.members.map(id => { const st = get(S.students, id); const p = subOf(st, task.id); const s = p ? STATUS[p.status] : STATUS.none; return '<div class="row small"><span class="grow ellip">' + esc(st.name) + '</span><span class="tag ' + (p && p.status === 'accepted' ? 'g' : '') + '">' + ico('user', 'sm') + esc(s.l) + '</span></div>'; }).join('') + '</div></div>' +
     '<div class="row" style="margin-top:14px"><button class="btn btn-primary grow" data-act="go-team">' + ico('users', 'sm') + 'Jamoa sahifasiga o‘tish</button></div>', 'wide');
+}
+function teamSubmitModal(task) {
+  const st = me(), g = myGroup(st);
+  if (!g) { toast('warn', 'Jamoa yo‘q', 'Jamoaviy topshiriq uchun avval jamoaga qo‘shilishingiz kerak.'); return; }
+  openModal(mhead('Jamoaviy topshirish', g.name + ' jamoasi • ' + task.title) +
+    '<form data-form="team-submit" data-task="' + task.id + '" class="col" style="gap:13px">' +
+    '<div class="field"><label>Jamoaviy havola (repo / jonli loyiha)</label>' +
+    '<input class="inp" name="link" required placeholder="https://github.com/jamoa/loyiha" value="' + esc((subOf(st, task.id) || {}).link || '') + '"></div>' +
+    '<div class="field"><label>Jamoaviy izoh</label><textarea class="inp" name="note" placeholder="Kim nima qildi, loyiha hozirgi holati, demo havolasi…"></textarea></div>' +
+    '<div class="card soft tight"><div class="up muted" style="margin-bottom:7px">Topshiriq quyidagilar nomidan yuboriladi</div>' +
+    '<div class="row wrap" style="gap:6px">' + g.members.map(id => '<span class="tag c">' + esc(get(S.students, id).name) + '</span>').join('') + '</div>' +
+    '<div class="xs muted" style="margin-top:8px">Mentor bitta ishni tekshirib, butun jamoaga baho qo‘yadi.</div></div>' +
+    '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('upload', 'sm') + 'Jamoaviy yuborish (+50 XP)</button>' +
+    '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor qilish</button></div></form>', 'narrow');
 }
 function certModal(c) {
   const st = me();

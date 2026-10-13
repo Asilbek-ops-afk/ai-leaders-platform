@@ -1,12 +1,21 @@
 {
   "name": "ai-leaders-platform",
-  "version": "1.0.0",
-  "description": "AI Leaders Startup Club — 0 dan startapgacha o'quv platformasi (talaba + admin)",
+  "version": "1.2.0",
+  "description": "AI Leaders Startup Club — 0 dan startapgacha: talaba kabineti va admin paneli, 6 modul o'quv dasturi, deadline-jamoa-reyting tizimi",
   "private": true,
   "scripts": {
     "build": "node build.js",
-    "check": "node --check src/app-1-core.js && node --check src/app-2-student.js && node --check src/app-3-admin.js && node --check src/app-4-app.js"
+    "check": "node --check src/app-1-core.js && node --check src/app-2-student.js && node --check src/app-3-admin.js && node --check src/app-4-app.js",
+    "test": "node tools/tests/run.js",
+    "test:verbose": "node tools/tests/run.js --verbose",
+    "assets": "python3 tools/make-assets.py",
+    "deploy": "npm run build && npx wrangler@3 pages deploy dist --project-name=ai-leaders-platform --branch=main",
+    "screens": "node tools/tests/screens.js"
   },
   "author": "AI Leaders",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "playwright": "^1.64.0"
+  }
 }

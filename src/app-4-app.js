@@ -108,21 +108,64 @@ function searchModal(q) {
     (g.length ? '<div class="up muted" style="margin-bottom:8px">Jamoalar</div><div class="col" style="gap:7px">' + g.map(x => '<div class="lrow"><div class="lead">' + ico('flag', 'sm') + '</div><div class="grow"><div class="small" style="font-weight:750">' + esc(x.name) + '</div><div class="xs muted ellip">' + esc(x.project) + '</div></div></div>').join('') + '</div>' : '') +
     (!l.length && !t.length && !s.length && !g.length ? '<div class="empty">Hech narsa topilmadi. Boshqa so‘z bilan urinib ko‘ring.</div>' : ''), 'wide');
 }
+function downloadBlob(content, filename, mime) {
+  try {
+    const blob = new Blob(['\ufeff' + content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) { } }, 4000);
+    return true;
+  } catch (e) { return false; }
+}
 function exportCSV() {
   const rows = [['Ism', 'Jamoa', 'XP', 'Haftalik XP', 'Progress %', 'Qabul qilingan', 'Ortacha ball', 'Streak', 'Faollik']];
   S.students.forEach(s => rows.push([s.name, (myGroup(s) || {}).name || '-', s.xp, s.wxp, progress(s).pct, acceptedOf(s), s.score, s.streak, s.act ? 'faol' : 'jim']));
   const csv = rows.map(r => r.join(';')).join('\n');
-  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'ai-leaders-statistika.csv';
-  document.body.appendChild(a); a.click(); a.remove();
-  toast('ok', 'Hisobot tayyor', 'ai-leaders-statistika.csv yuklab olindi.');
+  if (downloadBlob(csv, 'ai-leaders-statistika.csv', 'text/csv;charset=utf-8')) toast('ok', 'Hisobot tayyor', 'ai-leaders-statistika.csv yuklab olindi.');
+  else toast('err', 'Yuklab bo‘lmadi', 'Brauzer ruxsat bermadi. Boshqa brauzerda urinib ko‘ring.');
+}
+
+function downloadState() {
+  if (downloadBlob(JSON.stringify(S, null, 1), 'ai-leaders-zaxira-' + todayISO() + '.json', 'application/json'))
+    toast('ok', 'Zaxira nusxa yuklandi', 'Faylni xavfsiz joyda saqlang (Google Drive / Telegram).');
+  else toast('err', 'Zaxira olinmadi', 'Brauzer ruxsat bermadi.');
+}
+function importState(file) {
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d || !Array.isArray(d.students) || !Array.isArray(d.lessons)) throw new Error('format');
+      S = d; save();
+      toast('ok', 'Zaxiradan tiklandi', d.students.length + ' talaba, ' + d.lessons.length + ' dars yuklandi.');
+      UI.authShow = true; paint();
+    } catch (e) { toast('err', 'Fayl o‘qilmadi', 'To‘g‘ri zaxira faylini tanlang (.json).'); }
+  };
+  r.readAsText(file);
+}
+function exportMyCSV() {
+  const st = me();
+  const rows = [['Vazifa', 'Modul', 'Deadline', 'Holat', 'Baho', 'Yuborilgan', 'Mentor izohi']];
+  deadlinesOf(st).forEach(d => rows.push([d.t.title, modOf(d.t.m).n + '-modul', d.due, (STATUS[d.s ? d.s.status : 'none']).l, d.s && d.s.score != null ? d.s.score : '-', d.s ? d.s.at : '-', (d.s && d.s.fb) || '-']));
+  const csv = rows.map(r => r.map(v => String(v).replace(/;/g, ',')).join(';')).join('\n');
+  if (downloadBlob(csv, 'ai-leaders-' + st.name.toLowerCase().replace(/\s+/g, '-') + '-natijalar.csv', 'text/csv;charset=utf-8'))
+    toast('ok', 'Natijalar yuklandi', 'CSV faylni Excel yoki Google Sheets’da ochish mumkin.');
+  else toast('err', 'Yuklab bo‘lmadi', 'Brauzer ruxsat bermadi.');
 }
 
 /* ---------- Render ---------- */
-const ROUTES = { home: vHome, lessons: vLessons, tasks: vTasks, team: vTeam, deadlines: vDeadlines, friends: vFriends, info: vInfo, admin: vAdmin, students: vStudents, adminTasks: vAdminTasks, adminLessons: vAdminLessons, adminGroups: vAdminGroups, adminDeadlines: vAdminDeadlines, stats: vStats };
+const ROUTES = { home: vHome, lessons: vLessons, tasks: vTasks, team: vTeam, deadlines: vDeadlines, friends: vFriends, info: vInfo,
+  admin: vAdmin, students: vStudents, adminTasks: vAdminTasks, adminLessons: vAdminLessons, adminGroups: vAdminGroups, adminDeadlines: vAdminDeadlines, stats: vStats, settings: vAdminSettings };
+const STUDENT_ONLY = ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friends', 'info'];
+const ADMIN_ONLY = ['admin', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings'];
 function currentView() {
-  const fn = ROUTES[UI.route] || (isAdmin() ? vAdmin : vHome);
+  /* rol himoyasi: noto‘g‘ri bo‘limga kirilganda o‘z paneliga qaytarish */
+  let route = UI.route;
+  if (isAdmin() && STUDENT_ONLY.includes(route)) route = 'admin';
+  if (!isAdmin() && ADMIN_ONLY.includes(route)) route = 'home';
+  const fn = ROUTES[route] || ROUTES[isAdmin() ? 'admin' : 'home'];
   return fn();
 }
 function renderApp() {
@@ -136,10 +179,18 @@ function paint(keepScroll) {
   const gs = document.getElementById('gsearch');
   if (gs) { gs.value = UI.search; gs.onkeydown = e => { if (e.key === 'Enter') { UI.search = gs.value.trim(); if (UI.search) searchModal(UI.search); } }; }
 }
-function go(route) { UI.route = route; if (route !== 'lessons') UI.module = null; closeModal(); paint(); }
+function go(route) {
+  if (isAdmin() && STUDENT_ONLY.includes(route)) route = 'admin';
+  if (!isAdmin() && ADMIN_ONLY.includes(route)) route = 'home';
+  UI.route = route; UI.module = null; closeModal(); paint();
+}
 function login(role, stId) {
   S.role = role; if (stId) S.user = stId;
-  UI.authShow = false; UI.route = role === 'admin' ? 'admin' : 'home';
+  UI.authShow = false;
+  const want = UI.pendingGo;
+  const okWant = want && (role === 'admin' ? ADMIN_ONLY : STUDENT_ONLY).includes(want);
+  UI.route = okWant ? want : (role === 'admin' ? 'admin' : 'home');
+  UI.pendingGo = null;
   save(); paint();
   toast('ok', role === 'admin' ? 'Admin panel ochildi' : 'Xush kelibsiz, ' + me().name.split(' ')[0] + '!', role === 'admin' ? 'Talabalar, vazifalar va statistikani boshqarasiz.' : 'Bugungi reja Bosh sahifada.');
 }
@@ -153,8 +204,61 @@ document.addEventListener('click', e => {
   const a = t.dataset.act, id = t.dataset.id, st = () => me();
   switch (a) {
     case 'go': e.preventDefault(); go(t.dataset.route); break;
-    case 'go-team': go('team'); break;
-    case 'noop': toast('info', 'Bu bo‘lim hozircha yopiq', 'Avvalgi modul vazifasini topshiring.'); break;
+    case 'go-team': go(isAdmin() ? 'adminGroups' : 'team'); break;
+    case 'go-settings': go('settings'); break;
+    case 'reset-confirm': confirmModal('Demo ma’lumotlarni tiklash?', 'Topshiriqlar, baholar va yangi qo‘shilgan a’zolar o‘chib, boshlang‘ich demo holat qaytadi. Bu amalni qaytarib bo‘lmaydi.', 'reset-do', '', true); break;
+    case 'reset-do': resetAll(); break;
+    case 'install': {
+      const ev = UI.installEvt;
+      if (ev) { ev.prompt(); ev.userChoice && ev.userChoice.then(c => { if (c.outcome === 'accepted') toast('ok', 'Ilova o‘rnatildi', 'Endi AI Leaders telefon ekranidan ochiladi.'); UI.installEvt = null; paint(true); }); }
+      else toast('info', 'O‘rnatish yo‘riqnomasi', 'Brauzer menyusidan “Bosh ekranga qo‘shish” (Add to Home Screen) ni tanlang.');
+      break;
+    }
+    case 'export-json': downloadState(); break;
+    case 'export-my': exportMyCSV(); break;
+    case 'lesson-edit': editLessonModal(id); break;
+    case 'review-edit': reviewEditModal(t.dataset.sub); break;
+    case 'new-gallery': addGalleryModal(); break;
+    case 'new-mentor': addMentorModal(); break;
+    case 'del-gallery': { const i = S.gallery.findIndex(x => x.id === id); if (i > -1) { confirmModal('Loyihani galereyadan olib tashlash?', S.gallery[i].t, 'del-gallery-do', id, true); } break; }
+    case 'del-gallery-do': { const i = S.gallery.findIndex(x => x.id === id); if (i > -1) S.gallery.splice(i, 1); toast('info', 'Galereyadan olib tashlandi'); save(); closeModal(); paint(true); break; }
+    case 'del-mentor': {
+      const m = get(S.mentors, id);
+      const gs = S.groups.filter(g => g.mentor === id).length;
+      confirmModal('Mentorni o‘chirish?', (m ? m.name : '') + (gs ? ' • ' + gs + ' jamoa boshqa mentorga o‘tadi' : ''), 'del-mentor-do', id, true);
+      break;
+    }
+    case 'del-mentor-do': {
+      const i = S.mentors.findIndex(m => m.id === id);
+      if (i > -1 && S.mentors.length > 1) {
+        S.mentors.splice(i, 1);
+        const fallback = S.mentors[0].id;
+        S.groups.forEach(g => { if (g.mentor === id) g.mentor = fallback; });
+        toast('info', 'Mentor o‘chirildi');
+      } else toast('warn', 'O‘chirilmadi', 'Kamida bitta mentor qolishi kerak.');
+      save(); closeModal(); paint(true); break;
+    }
+    case 'reset-student': { const stx = get(S.students, id); confirmModal('Progressni tiklash?', stx.name + ' — barcha tugatilgan darslar va topshiriqlar holati tozalanadi.', 'reset-student-do', id, true); break; }
+    case 'reset-student-do': {
+      const stx = get(S.students, id);
+      stx.done = []; stx.xp = 0; stx.wxp = 0; stx.coins = 0; stx.streak = 0; stx.score = 0;
+      S.submissions = S.submissions.filter(p => p.st !== id);
+      pushNotif(id, 'Progress tiklandi', 'Mentor hisobingizni yangiladi — 1-moduldan qayta boshlaysiz.', 'refresh');
+      toast('ok', 'Progress tiklandi', stx.name + ' noldan boshlaydi.'); save(); closeModal(); paint(true); break;
+    }
+    case 'delete-student': { const stx = get(S.students, id); confirmModal('Talabani klubdan chiqarish?', stx.name + ' — profili, topshiriqlari va do‘stlik aloqalari o‘chiriladi.', 'delete-student-do', id, true); break; }
+    case 'delete-student-do': {
+      const stx = get(S.students, id);
+      S.students = S.students.filter(x => x.id !== id);
+      S.submissions = S.submissions.filter(p => p.st !== id);
+      S.groups.forEach(g => g.members = g.members.filter(x => x !== id));
+      Object.keys(S.friends).forEach(k => { S.friends[k] = (S.friends[k] || []).filter(x => x !== id); });
+      if (S.user === id) S.user = S.students[0].id;
+      toast('warn', 'Talaba chiqarildi', stx.name); save(); closeModal(); paint(true); break;
+    }
+    case 'noop': toast('info', 'Bu bo‘lim hozircha yopiq', 'Tez orada ochiladi.'); break;
+    case 'locked': toast('warn', 'Dars yopiq', 'Oldingi modul vazifasi qabul qilingach ochiladi.'); break;
+    case 'filter-s': UI.studentsFilter = t.dataset.f; paint(true); break;
     case 'close-modal': closeModal(); break;
     case 'play-mock': toast('info', 'Demo pleyer', 'Haqiqiy versiyada bu yerda video dars ochiladi.'); break;
     case 'theme': {
@@ -180,7 +284,7 @@ document.addEventListener('click', e => {
     }
     case 'lesson-done': {
       const l = lessonOf(id), s0 = st(), before = modulePct(s0, l.m).pct;
-      if (!s0.done.includes(id)) { s0.done.push(id); addXp(s0, 20, 10); }
+      if (!s0.done.includes(id)) { s0.done.push(id); addXp(s0, 20, 10, 'q1'); }
       const after = modulePct(s0, l.m);
       if (before < 100 && after.pct === 100) {
         pushNotif(s0.id, 'Sertifikat ochildi 🎓', 'Modul ' + modOf(l.m).n + ' to‘liq tugatildi. Ma’lumot bo‘limida ko‘ring.', 'cert');
@@ -203,6 +307,31 @@ document.addEventListener('click', e => {
       break;
     }
     case 'review-open': subViewModal(get(S.submissions, t.dataset.sub)); break;
+    case 'team-submit': teamSubmitModal(taskOf(id)); break;
+    case 'quiz-submit': {
+      const l = lessonOf(id), qs = QUIZZES[id] || [];
+      if (!qs.length) break;
+      let ok = 0;
+      qs.forEach((q, i) => { const sel = document.querySelector('.mbox input[name="q' + i + '"]:checked'); if (sel && parseInt(sel.value, 10) === q.a) ok++; });
+      S.quizDone = S.quizDone || {};
+      const list = S.quizDone[st().id] = S.quizDone[st().id] || [];
+      const first = !list.includes(id);
+      if (first) list.push(id);
+      const passed = ok >= Math.ceil(qs.length * 0.67);
+      if (passed && first) addXp(st(), 15, 5);
+      toast(passed ? 'ok' : 'warn', 'Natija: ' + ok + '/' + qs.length, passed ? (first ? 'A’lo! +15 XP qo‘shildi.' : 'Yana bir bor mustahkamlash yaxshi.') : 'Darsni qayta ko‘rib chiqish tavsiya etiladi.');
+      save(); lessonModal(l); break;
+    }
+    case 'open-file': {
+      const p = get(S.submissions, t.dataset.sub);
+      if (p && p.fileData) {
+        const a = document.createElement('a');
+        a.href = p.fileData; a.download = p.file || 'ai-leaders-fayl';
+        document.body.appendChild(a); a.click(); a.remove();
+        toast('ok', 'Fayl yuklanmoqda', p.file);
+      } else toast('info', 'Fayl mavjud emas', 'Talaba faqat fayl nomini kiritgan.');
+      break;
+    }
     case 'nudge': {
       const s = get(S.students, id) || st();
       pushNotif(s.id, 'Mentor eslatmasi', 'Deadline yaqinlashdi — iltimos, vazifani tekshirishga yuboring yoki sababini yozing.', 'bell');
@@ -243,11 +372,18 @@ document.addEventListener('click', e => {
       const ta = document.getElementById('wall-input'); const g = myGroup(st());
       if (!ta || !ta.value.trim()) { toast('warn', 'Bo‘sh yozuv', 'Biror narsa yozing.'); break; }
       if (g) { (S.walls[g.id] = S.walls[g.id] || []).unshift({ id: uid('w'), who: st().id, text: ta.value.trim(), at: 'hozir' }); }
-      addXp(st(), 15, 5); save(); paint(true); toast('ok', 'Devorga yozildi', '+15 XP');
+      addXp(st(), 15, 5, 'q2'); save(); paint(true); toast('ok', 'Devorga yozildi', '+15 XP');
       break;
     }
     case 'edit-profile': profileModal(); break;
-    case 'toggle-set': { t.classList.toggle('on'); toast('info', 'Sozlama saqlandi', t.classList.contains('on') ? 'Yoqilgan' : 'O‘chirilgan'); break; }
+    case 'toggle-set': {
+      const kk = t.dataset.k || 'notif';
+      S.settings[kk] = !S.settings[kk];
+      t.classList.toggle('on', S.settings[kk]);
+      t.setAttribute('aria-checked', String(!!S.settings[kk]));
+      toast('info', S.settings[kk] ? 'Yoqildi' : 'O‘chirildi', 'Sozlama saqlandi.');
+      save(); break;
+    }
     case 'cal-mode': UI.calMonthly = t.dataset.m === '-1'; UI.cal = 0; paint(true); break;
     case 'cal-prev': UI.cal = (UI.cal || 0) - 1; paint(true); break;
     case 'cal-next': UI.cal = (UI.cal || 0) + 1; paint(true); break;
@@ -291,9 +427,24 @@ document.addEventListener('click', e => {
       if (s) s.group = '';
       toast('info', 'A’zo chiqarildi', s ? s.name : ''); save(); paint(true); break;
     }
-    case 'del-group': { const i = S.groups.findIndex(g => g.id === id); if (i > -1) { S.groups.splice(i, 1); toast('warn', 'Jamoa o‘chirildi'); save(); paint(true); } break; }
-    case 'del-lesson': { const i = S.lessons.findIndex(l => l.id === id); if (i > -1) { S.lessons.splice(i, 1); toast('warn', 'Dars o‘chirildi'); save(); paint(true); } break; }
-    case 'del-module': { const i = S.modules.findIndex(m => m.id === id); if (i > -1) { S.modules.splice(i, 1); S.modules.forEach((m, k) => m.n = k + 1); toast('warn', 'Modul o‘chirildi'); save(); paint(true); } break; }
+    case 'del-group': { const g = groupOf(id);
+      if (g) confirmModal('Jamoani tarqatish?', g.name + ' — a’zolar jamoasiz qoladi (loyiha va devor o‘chadi).', 'del-group-do', id, true);
+      break; }
+    case 'del-group-do': {
+      const i = S.groups.findIndex(g => g.id === id);
+      if (i > -1) {
+        const gid = S.groups[i].id;
+        S.groups[i].members.forEach(sid => { const sx = get(S.students, sid); if (sx) sx.group = ''; });
+        delete S.walls[gid];
+        S.groups.splice(i, 1);
+        toast('warn', 'Jamoa tarqatildi');
+      }
+      save(); closeModal(); paint(true); break;
+    }
+    case 'del-lesson': { const l = lessonOf(id); confirmModal('Darsni o‘chirish?', l ? l.t : '', 'del-lesson-do', id, true); break; }
+    case 'del-lesson-do': { const i = S.lessons.findIndex(l => l.id === id); if (i > -1) { S.lessons.splice(i, 1); toast('warn', 'Dars o‘chirildi'); S.students.forEach(x => x.done = x.done.filter(did => did !== id)); } save(); closeModal(); paint(true); break; }
+    case 'del-module': { const m = modOf(id); confirmModal('Modulni o‘chirish?', (m ? m.title : '') + ' — darslar ham o‘chadi.', 'del-module-do', id, true); break; }
+    case 'del-module-do': { const i = S.modules.findIndex(m => m.id === id); if (i > -1) { const mid = S.modules[i].id; S.lessons = S.lessons.filter(l => l.m !== mid); S.tasks = S.tasks.filter(t2 => t2.m !== mid); S.modules.splice(i, 1); S.modules.forEach((m, k) => m.n = k + 1); toast('warn', 'Modul va darslari o‘chirildi'); } save(); closeModal(); paint(true); break; }
     case 'task-review': {
       const rel = S.submissions.filter(p => p.task === id);
       openModal(mhead('Tekshirish: ' + taskOf(id).title, rel.length + ' ta topshiriq') +
@@ -330,21 +481,56 @@ document.addEventListener('submit', e => {
   if (kind === 'submit') {
     const s0 = me(), tid = f.dataset.task, task = taskOf(tid);
     let p = subOf(s0, tid);
-    const data = { link: fd.get('link'), note: fd.get('note') || '', at: todayISO(), status: 'in_review', score: null, fb: '', rev: '' };
-    if (p && p.status !== 'accepted') Object.assign(p, data);
-    else { p = { id: uid('p'), task: tid, st: s0.id, ...data }; S.submissions.push(p); }
-    addXp(s0, 40, 15);
-    S.activity.unshift({ who: s0.name, what: '“' + task.title + '”ni topshirdi', at: 'hozir' });
-    toast('ok', 'Topshiriq yuborildi', 'Holat: tekshirilmoqda. +40 XP');
+    const fileIn = f.querySelector('input[type="file"]');
+    const fl = (fileIn && fileIn.files && fileIn.files.length) ? fileIn.files[0] : null;
+    const finish = fileData => {
+      const data = { link: fd.get('link'), note: fd.get('note') || '', file: fl ? fl.name : '', fileData: fileData || '',
+        at: todayISO(), status: 'in_review', score: null, fb: '', rev: '' };
+      if (p && p.status !== 'accepted') Object.assign(p, data);
+      else { p = { id: uid('p'), task: tid, st: s0.id, ...data }; S.submissions.push(p); }
+      addXp(s0, 40, 15, 'q3');
+      S.activity.unshift({ who: s0.name, what: '“' + task.title + '”ni topshirdi', at: 'hozir' });
+      toast('ok', 'Topshiriq yuborildi', 'Holat: tekshirilmoqda. +40 XP');
+      closeModal(); save(); paint(true);
+    };
+    /* 900 KB'gacha fayl to‘g‘ridan-to‘g‘ri saqlanadi (demo rejim) */
+    if (fl && fl.size <= 900 * 1024) {
+      const r = new FileReader();
+      r.onload = () => finish(r.result);
+      r.onerror = () => finish('');
+      r.readAsDataURL(fl);
+      return;
+    }
+    if (fl && fl.size > 900 * 1024) toast('warn', 'Fayl juda katta', 'Demo rejimda 900 KB gacha saqlanadi — faqat nom yozildi. Real versiyada Supabase Storage ishlatiladi.');
+    finish('');
+    return;
+  }
+  if (kind === 'team-submit') {
+    const tid = f.dataset.task, g = myGroup(me()), task = taskOf(tid);
+    if (!g) { toast('warn', 'Jamoa yo‘q'); closeModal(); return; }
+    const link = fd.get('link'), note = (fd.get('note') || '').trim();
+    g.members.forEach(mid => {
+      const stx = get(S.students, mid);
+      let p = subOf(stx, tid);
+      const data = { link, note: (note ? '[Jamoaviy] ' + note : '[Jamoaviy topshiriq]'), at: todayISO(), status: 'in_review', score: null, fb: '', rev: '' };
+      if (p && p.status !== 'accepted') Object.assign(p, data);
+      else if (!p) S.submissions.push({ id: uid('p'), task: tid, st: mid, ...data });
+      if (mid !== me().id) pushNotif(mid, 'Jamoaviy topshiriq yuborildi', g.name + ' — ' + task.title, 'users');
+    });
+    addXp(me(), 25, 10);
+    S.activity.unshift({ who: me().name, what: '“' + task.title + '” jamoaviy topshiriqni yubordi', at: 'hozir' });
+    toast('ok', 'Jamoaviy topshiriq yuborildi', g.members.length + ' a’zo nomidan • +25 XP');
     closeModal(); save(); paint(true); return;
   }
+
   if (kind === 'review') {
     const p = get(S.submissions, f.dataset.sub);
-    p.score = parseInt(fd.get('score'), 10) || 0;
+    const wasAccepted = p.status === 'accepted';
+    p.score = Math.max(0, Math.min(100, parseInt(fd.get('score'), 10) || 0));
     p.status = fd.get('status'); p.fb = fd.get('fb') || 'Ko‘rib chiqildi.'; p.rev = isAdmin() ? 'Bekzod Aliyev (mentor)' : me().name;
     const s0 = get(S.students, p.st);
     pushNotif(p.st, 'Vazifa baholandi', taskOf(p.task).title + ' — ' + p.score + '/100. Izohni o‘qing.', 'star');
-    if (p.status === 'accepted') { s0.xp += 60; toast('ok', 'Qabul qilindi', s0.name + 'ga +60 XP va izoh yuborildi.'); }
+    if (p.status === 'accepted' && !wasAccepted) { s0.xp += 60; toast('ok', 'Qabul qilindi', s0.name + 'ga +60 XP va izoh yuborildi.'); }
     else toast('warn', 'Qayta ishlashga yuborildi', s0.name + 'ga izoh bilan qaytarildi.');
     S.activity.unshift({ who: 'Bekzod Aliyev', what: '“' + taskOf(p.task).title + '”ni baholadi (' + p.score + ')', at: 'hozir' });
     closeModal(); save(); paint(true); return;
@@ -359,10 +545,29 @@ document.addEventListener('submit', e => {
     toast('ok', 'Vazifa yuborildi', t2.title + ' • deadline ' + fmtFull(t2.dl)); closeModal(); save(); paint(true); return;
   }
   if (kind === 'new-lesson') {
-    const l = { id: uid('l'), m: fd.get('m'), t: fd.get('t'), type: fd.get('type'), dur: parseInt(fd.get('dur'), 10) || 12, d: todayISO(), brief: fd.get('brief') || '', link: fd.get('link') || '' };
-    S.lessons.push(l);
-    const g = myGroup(me()) || S.groups[0];
-    toast('ok', 'Dars qo‘shildi', l.t + ' • ' + l.dur + ' daqiqa'); closeModal(); save(); paint(true); return;
+    const data = { m: fd.get('m'), t: fd.get('t'), type: fd.get('type'), dur: parseInt(fd.get('dur'), 10) || 12, brief: fd.get('brief') || '', link: fd.get('link') || '' };
+    if (f.dataset.id) {
+      const l = lessonOf(f.dataset.id); Object.assign(l, data);
+      toast('ok', 'Dars yangilandi', l.t);
+    } else {
+      const l = { id: uid('l'), d: todayISO(), ...data };
+      S.lessons.push(l);
+      toast('ok', 'Dars qo‘shildi', l.t + ' • ' + l.dur + ' daqiqa');
+    }
+    closeModal(); save(); paint(true); return;
+  }
+
+  if (kind === 'new-gallery') {
+    const ow = fd.get('by');
+    const g2x = myGroup(get(S.students, ow));
+    S.gallery.unshift({ id: uid('gl'), t: fd.get('t'), desc: fd.get('desc') || '', by: ow, kind: g2x ? g2x.name + ' jamoasi' : 'Shaxsiy loyiha', link: fd.get('link'), k: fd.get('k') || 'g1' });
+    toast('ok', 'Galereyaga qo‘shildi', fd.get('t')); closeModal(); save(); paint(true); return;
+  }
+
+  if (kind === 'new-mentor') {
+    const m2 = { id: uid('mt'), name: fd.get('name'), role: fd.get('role') || 'Mentor', tg: fd.get('tg') || '@mentor', rating: 5.0, groups: [], bio: fd.get('bio') || 'Yangi mentor.' };
+    S.mentors.push(m2);
+    toast('ok', 'Mentor qo‘shildi', m2.name + ' — jamoalarga biriktirishingiz mumkin.'); closeModal(); save(); paint(true); return;
   }
   if (kind === 'new-module') {
     const m = { id: uid('m'), n: S.modules.length + 1, title: fd.get('title'), desc: fd.get('desc') || '', icon: 'spark' };
@@ -388,6 +593,17 @@ document.addEventListener('submit', e => {
   }
 });
 document.addEventListener('change', e => {
+  const cg = e.target.closest('[data-act="change-group"]');
+  if (cg && cg.value) {
+    const stx = get(S.students, cg.dataset.id), g = groupOf(cg.value);
+    S.groups.forEach(x => x.members = x.members.filter(m => m !== stx.id));
+    g.members.push(stx.id); stx.group = g.id;
+    pushNotif(stx.id, 'Jamoa o‘zgardi', g.name + ' jamoasiga o‘tkazildingiz.', 'users');
+    toast('ok', 'Jamoa yangilandi', stx.name + ' → ' + g.name);
+    save(); closeModal(); paint(true); return;
+  }
+  const imp = e.target.closest('#import-json');
+  if (imp && imp.files && imp.files[0]) { importState(imp.files[0]); return; }
   const t = e.target.closest('[data-act="move-student"]');
   if (t && t.value) {
     const fromId = t.dataset.g, toId = t.value, to = groupOf(toId);
@@ -398,13 +614,34 @@ document.addEventListener('change', e => {
     save(); closeModal(); paint(true);
   }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); return; }
+  trapFocus(e);
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (e.key === '/' && tag !== 'input' && tag !== 'textarea' && !e.target.isContentEditable) {
+    const gs = document.getElementById('gsearch');
+    if (gs) { e.preventDefault(); gs.focus(); }
+  }
+});
 
 /* ---------- Ishga tushirish ---------- */
 S = loadState();
+/* PWA yorliqlari: /?go=lessons kabi parametrlar */
+try {
+  const goWant = new URLSearchParams(location.search).get('go');
+  if (goWant && ROUTES[goWant]) UI.pendingGo = goWant;
+} catch (e) { }
 UI.theme = S.theme || 'dark';
 document.documentElement.dataset.theme = UI.theme;
 UI.route = S.role === 'admin' ? 'admin' : 'home';
 UI.authShow = true;
-window.addEventListener('beforeprint', () => { });
+
+/* Service worker (PWA) — faqat https'da ishlaydi */
+window.addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); UI.installEvt = ev; paint(true); });
+window.addEventListener('appinstalled', () => { UI.installEvt = null; toast('ok', 'AI Leaders o‘rnatildi', 'Endi ilova telefon ekranidan ochiladi.'); paint(true); });
+window.addEventListener('online', () => toast('ok', 'Internet tiklandi', 'Ma’lumotlar saqlanmoqda.'));
+window.addEventListener('offline', () => toast('warn', 'Internet yo‘q', 'Ilova oflayn rejimda ishlayapti — o‘zgarishlar saqlanadi.'));
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => { }));
+}
 paint();

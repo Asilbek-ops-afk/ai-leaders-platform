@@ -27,7 +27,7 @@ function vHome() {
     (nt ? '<button class="btn btn-soft" data-act="submit-open" data-id="' + nt.id + '">' + ico('upload', 'sm') + 'Vazifa topshirish</button>' : '') +
     '<button class="btn btn-ghost" data-act="go" data-route="team">' + ico('users', 'sm') + 'Jamoa</button></div>' +
     '<div class="row wrap" style="gap:14px;margin-top:4px">' +
-    '<div class="row small t2" style="gap:7px">' + ico('check-c', 'sm') + p.done + '/' + p.total + ' dars tugatilgan</div>' +
+    '<div class="row small t2" style="gap:7px">' + ico('check-c', 'sm') + p.done + '/' + p.total + ' dars tugatilgan (ochilgan modullar)</div>' +
     '<div class="row small t2" style="gap:7px">' + ico('task', 'sm') + acceptedOf(st) + ' vazifa qabul qilingan</div>' +
     '<div class="row small t2" style="gap:7px">' + ico('trophy', 'sm') + nf(st.xp) + ' umumiy XP</div></div>' +
     '</div>' +
@@ -39,6 +39,16 @@ function vHome() {
     '<div class="card tight soft grow tc"><div class="big">' + wxpRank(st.id) + '</div><div class="xs muted">haftalik o‘rin</div></div></div>' +
     '</div></div></section>';
 
+  /* Yangi talaba uchun boshlash yo'riqnomasi */
+  const steps = [
+    { d: !!p.done, t: 'Birinchi darsni tugatish', s: 'Darslar bo‘limidan 1-modulni oching', a: 'lesson-open', id: (S.lessons[0] || {}).id },
+    { d: !!st.tg && !!st.goal, t: 'Profilni to‘ldirish', s: 'Maqsad va aloqa ma’lumotlarini yozing', a: 'edit-profile', id: '' },
+    { d: !!g, t: 'Jamoaga qo‘shilish', s: 'Jamoada 3 kishi bilan startap mashqi', a: 'go', id: '' },
+    { d: acceptedOf(st) > 0, t: 'Birinchi vazifani topshirish', s: 'Havola yuboring va mentor izohini oling', a: 'submit-open', id: (nt || {}).id },
+    { d: acceptedOf(st) >= 3, t: '3 ta vazifani yakunlash', s: 'Klubda faollik darajangizni oshiring', a: 'go', id: '' , route: 'tasks' }
+  ];
+  const doneSteps = steps.filter(x => x.d).length;
+
   /* KPI */
   h += '<div class="grid g4">' +
     kpi('trend', p.pct + '%', 'O‘quv progressi', '+' + p.done + ' dars', '') +
@@ -46,6 +56,19 @@ function vHome() {
     kpi('coin', nf(st.coins), 'Coin balansi', 'Do‘konga yaroqli', 'a') +
     kpi('clock', near ? (near.tl.late ? '!' + near.tl.d + ' kun' : near.tl.txt) : '—', 'Eng yaqin deadline', near ? near.t.title.slice(0, 26) : '', near && near.tl.late ? 'r' : '') +
     '</div>';
+
+  /* Boshlash checklisti (hammasi bajarilgach yashiriladi) */
+  if (doneSteps < steps.length) h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('flag') + 'Boshlash yo‘riqnomasi</h2>' +
+    '<span class="tag ' + (doneSteps === steps.length ? 'g' : 'p') + '">' + doneSteps + '/' + steps.length + ' bajarildi</span></div>' +
+    '<p class="small muted" style="margin:-4px 0 12px">' + steps.length + ' qadam — klubda to‘liq moslashish uchun. Har biri 5 daqiqada bajariladi.</p>' +
+    '<div class="grid g4">' + steps.map(x => '<div class="card tight soft"><div class="row" style="gap:9px">' +
+      '<div class="lead" style="width:30px;height:30px;border-radius:10px;' + (x.d ? 'background:rgba(56,225,160,.16);border-color:rgba(56,225,160,.34);color:#7CF0C3' : '') + '">' + ico(x.d ? 'check' : 'flag', 'sm') + '</div>' +
+      '<div class="small" style="font-weight:750">' + esc(x.t) + '</div></div>' +
+      '<div class="xs muted" style="margin:8px 0 10px">' + esc(x.s) + '</div>' +
+      (x.d ? '<span class="tag g">' + ico('check-c', 'sm') + 'Bajarildi</span>'
+        : '<button class="btn btn-xs btn-soft btn-block" data-act="' + (x.route ? 'go' : x.a) + '" ' +
+          (x.route ? 'data-route="' + x.route + '"' : (x.id ? 'data-id="' + x.id + '"' : '')) + '>' + ico('right', 'sm') + 'Boshlash</button>') +
+      '</div>').join('') + '</div></div>';
 
   /* Bugungi reja + deadline */
   h += '<div class="grid g2">' +
@@ -229,9 +252,17 @@ function vTasks() {
     return '<div class="card"><div class="row between wrap" style="gap:14px;align-items:flex-start">' +
       '<div class="grow" style="min-width:250px">' +
       '<div class="row wrap" style="gap:8px;margin-bottom:8px"><span class="tag p">' + ico(mm.icon, 'sm') + mm.n + '-modul</span>' + stChip(stt) +
-      (s && s.score != null ? '<span class="tag a">' + ico('star', 'sm') + s.score + '/100</span>' : '') + tlPill(d.tl) + '</div>' +
+      (s && s.score != null ? '<span class="tag a">' + ico('star', 'sm') + s.score + '/100</span>' : '') +
+      /* muddat holati: qabul qilingan ishlar uchun "o‘tib ketdi" ko‘rsatilmaydi */
+      (stt === 'accepted'
+        ? (new Date(s.at) <= new Date(d.due + 'T23:59:59')
+            ? '<span class="tag g">' + ico('check', 'sm') + 'Muddatida topshirilgan</span>'
+            : '<span class="tag o">' + ico('clock', 'sm') + 'Kechikib topshirilgan</span>')
+        : tlPill(d.tl)) + '</div>' +
       '<div class="h2">' + esc(t.title) + '</div>' +
       '<p class="small muted" style="margin:6px 0 10px;max-width:70ch">' + esc(t.brief) + '</p>' +
+      (s && s.file ? '<div class="row xs muted wrap" style="gap:8px;margin-bottom:8px">' + ico('upload', 'sm') + 'Fayl: <b>' + esc(s.file) + '</b>' +
+        (s.fileData ? '<button class="btn btn-xs btn-ghost" data-act="open-file" data-sub="' + s.id + '">' + ico('download', 'sm') + 'Yuklab olish</button>' : '') + '</div>' : '') +
       (s && s.fb ? '<div class="card soft tight" style="border-color:rgba(124,92,255,.3)"><div class="xs up muted" style="margin-bottom:5px">Mentor izohi' + (s.rev ? ' • ' + esc(s.rev) : '') + '</div><div class="small t2">' + esc(s.fb) + '</div></div>' : '') +
       (s ? '<div class="row xs muted" style="gap:8px;margin-top:10px">' + ico('clock', 'sm') + fmtFull(s.at) + ' topshirildi</div>' : '') +
       '</div>' +
@@ -326,7 +357,9 @@ function vDeadlines() {
   all.forEach(d => { (map[d.due] = map[d.due] || []).push({ k: 'task', l: d.t.title, s: d.s, d }); });
   openLessons(st).forEach(l => { (map[l.d] = map[l.d] || []).push({ k: 'lesson', l: l.t, id: l.id }); });
   const near = all.filter(d => !d.s || d.s.status !== 'accepted').slice(0, 1)[0];
-  const strip = Array.from({ length: 9 }).map((_, i) => { const dt = new Date(); dt.setDate(dt.getDate() + i - 3); return dt; });
+  const nowD = new Date(), dow = (nowD.getDay() + 6) % 7;
+  const weekStart = new Date(nowD); weekStart.setDate(nowD.getDate() - dow);
+  const strip = Array.from({ length: 7 }).map((_, i) => { const dt = new Date(weekStart); dt.setDate(weekStart.getDate() + i); return dt; });
 
   let h = '<div class="page-head"><div><h1 class="h1">Deadlines</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Deadline — baho emas, odat. Kechikkanlar mentor yordamiga muhtoj bo‘ladi.</p></div>' +
@@ -337,13 +370,15 @@ function vDeadlines() {
     '<div class="row" style="gap:13px;min-width:280px"><div class="lead" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(255,92,122,.14);color:#FF9AAB;border:1px solid rgba(255,92,122,.3)">' + ico('clock', 'lg') + '</div>' +
     '<div><div class="up muted">Eng yaqin deadline</div><div class="h2" style="margin:3px 0">' + esc(near.t.title) + '</div>' +
     '<div class="small muted">' + fmtFull(near.due) + ' • ' + wd(near.due) + ' kuni</div></div></div>' +
-    '<div class="col tc"><div class="v" style="font-size:34px;font-weight:850;letter-spacing:-.03em">' + (near.tl.late ? near.tl.txt : near.tl.txt) + '</div>' +
-    '<div class="xs muted">' + (near.tl.late ? 'kechikdi — mentor bilan bog‘laning' : 'qoldi — kechikib bo‘lmaydi') + '</div></div>' +
+    (near.tl.late
+      ? '<span class="tag r" style="font-size:12.5px">' + ico('alert', 'sm') + esc(near.tl.txt) + ' — mentor bilan bog‘laning</span>'
+      : '<div class="row" style="gap:8px">' + [['kun', near.tl.d], ['soat', near.tl.h], ['daq', near.tl.m]].map(x =>
+          '<div class="card tight soft tc" style="min-width:62px"><div class="big">' + x[1] + '</div><div class="xs muted">' + x[0] + '</div></div>').join('') + '</div>') +
     '<button class="btn btn-primary" data-act="submit-open" data-id="' + near.t.id + '">' + ico('upload', 'sm') + 'Topshirish</button></div></div>';
 
   if (!isCal) {
     h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('cal') + 'Haftalik lenta</h2><span class="small muted">' + fmtFull(today) + '</span></div>' +
-      '<div class="grid" style="grid-template-columns:repeat(7,minmax(0,1fr));gap:8px">' + strip.map(dt => {
+      '<div class="grid" style="grid-template-columns:repeat(7,minmax(0,1fr));gap:8px" id="week-strip">' + strip.map(dt => {
         const ds = isoDate(dt), items = map[ds] || [], isToday = ds === today, past = ds < today;
         return '<div class="card tight" style="min-height:150px;' + (isToday ? 'border-color:var(--brand-2);box-shadow:0 0 0 1px rgba(34,211,238,.35) inset;' : past ? 'opacity:.75;' : '') + '">' +
           '<div class="row between" style="margin-bottom:8px"><span class="xs muted" style="font-weight:800">' + UZ_D[(dt.getDay() + 6) % 7] + '</span>' +
@@ -368,14 +403,16 @@ function vDeadlines() {
   }
 
   h += '<div class="grid g2"><div class="card"><div class="card-h"><h2 class="h2">' + ico('task') + 'Vazifalar jadvali</h2><span class="small muted">' + all.length + ' ta</span></div>' +
-    '<div class="col" style="gap:10px">' + all.map(d => '<div class="lrow ' + (d.tl.late ? 'hot' : '') + '">' +
+    '<div class="col" style="gap:10px">' + all.map(d => '<div class="lrow ' + (!d.s && d.tl.late ? 'hot' : '') + '">' +
       '<div class="lead">' + ico(modOf(d.t.m).icon) + '</div>' +
       '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(d.t.title) + '</div>' +
       '<div class="xs muted">' + fmtFull(d.due) + ' • ' + wd(d.due) + (dueOf(st, d.t) !== d.t.dl ? ' • jamoa sanasi' : '') + '</div></div>' +
       (d.s ? stChip(d.s.status) : tlPill(d.tl)) + '</div>').join('') + '</div></div>' +
 
     '<div class="col" style="gap:14px"><div class="card"><div class="card-h"><h2 class="h2">' + ico('alert') + 'E’tibor bering</h2></div>' +
-    '<div class="col" style="gap:9px">' + (all.filter(d => !d.s || d.s.status === 'revise').slice(0, 3).map(d => '<div class="row small" style="gap:9px">' + ico('alert', 'sm') + '<span class="grow">' + esc(d.t.title) + '</span><span class="xs muted">' + (d.s ? 'qayta ishlash' : 'topshirilmagan') + '</span></div>').join('') || '<div class="empty">Hammasi joyida ✅</div>') + '</div></div>' +
+    '<div class="col" style="gap:9px">' + (all.filter(d => (d.s && d.s.status === 'revise') || (!d.s && d.tl.late)).slice(0, 4)
+      .map(d => '<div class="row small" style="gap:9px">' + ico('alert', 'sm') + '<span class="grow">' + esc(d.t.title) + '</span><span class="xs muted">' + (d.s ? 'qayta ishlash' : 'topshirilmagan') + '</span></div>').join('')
+      || '<div class="empty">Hammasi joyida ✅ Kechikkan topshiriq yo‘q.</div>') + '</div></div>' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('users') + 'Jamoa deadline’lari</h2></div>' +
     (myGroup(st) ? '<div class="col" style="gap:9px">' + S.tasks.slice(2, 5).map(t => { const gd = myGroup(st).dl[t.id] || t.dl; return '<div class="row between small"><span class="t2 ellip">' + esc(t.title) + '</span><b class="nowrap">' + fmtD(gd) + '</b></div>'; }).join('') +
       '<div class="divider"></div><div class="xs muted">Jamoa uchun alohida sanalar mentor tomonidan belgilanadi.</div></div>' : '<div class="empty">Jamoa yo‘q</div>') + '</div>' +
@@ -509,9 +546,14 @@ function vInfo() {
   h += '<div class="grid g2">' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('settings') + 'Sozlamalar</h2></div>' +
     '<div class="col" style="gap:12px">' +
-    [['Bildirishnomalar', 'Yangi vazifa va deadline haqida xabar', true], ['Haftalik hisobot', 'Dushanba kuni email xulosa', true], ['Ochiq profil', 'Reytingda ismimni ko‘rsatish', true], ['Do‘stlar reytingi', 'Haftalik musobaqa eslatmasi', false]]
-      .map(([t, s, on]) => '<div class="row between" style="gap:12px"><div><div class="small" style="font-weight:700">' + esc(t) + '</div><div class="xs muted">' + esc(s) + '</div></div>' +
-        '<button class="switch ' + (on ? 'on' : '') + '" data-act="toggle-set" aria-label="' + esc(t) + '"></button></div>').join('') +
+    [['notif', 'Bildirishnomalar', 'Yangi vazifa va deadline haqida xabar'], ['weekly', 'Haftalik hisobot', 'Dushanba kuni xulosa keladi'],
+     ['publicProfile', 'Ochiq profil', 'Reytingda ismim ko‘rinsin'], ['friendBoard', 'Do‘stlar reytingi', 'Haftalik musobaqa eslatmasi']]
+      .map(([k, t2, s2]) => '<div class="row between" style="gap:12px"><div><div class="small" style="font-weight:700">' + esc(t2) + '</div><div class="xs muted">' + esc(s2) + '</div></div>' +
+        '<button class="switch ' + (S.settings[k] ? 'on' : '') + '" data-act="toggle-set" data-k="' + k + '" role="switch" aria-checked="' + !!S.settings[k] + '" aria-label="' + esc(t2) + '"></button></div>').join('') +
+    '<div class="divider"></div>' +
+    '<div class="row wrap" style="gap:9px"><button class="btn btn-soft btn-sm" data-act="export-my">' + ico('download', 'sm') + 'Natijalarimni yuklab olish</button>' +
+    (UI.installEvt ? '<button class="btn btn-soft btn-sm" data-act="install">' + ico('download', 'sm') + 'Ilovani o‘rnatish</button>' : '') +
+    '<span class="xs muted" style="align-self:center">AI Leaders v' + APP_VERSION + '</span></div>' +
     '</div></div>' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('mail') + 'Aloqa va yordam</h2></div>' +
     '<div class="col" style="gap:10px">' +

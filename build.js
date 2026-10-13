@@ -13,6 +13,27 @@ fs.writeFileSync(path.join(root, 'index.html'), out);
 const dist = path.join(root, 'dist');
 fs.mkdirSync(dist, { recursive: true });
 fs.writeFileSync(path.join(dist, 'index.html'), out);
-fs.writeFileSync(path.join(dist, '_headers'), '/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: geolocation=(), microphone=(), camera=()\n\n/index.html\n  Cache-Control: public, max-age=0, must-revalidate\n');
+fs.copyFileSync(path.join(root, 'manifest.webmanifest'), path.join(dist, 'manifest.webmanifest'));
+fs.copyFileSync(path.join(root, 'sw.js'), path.join(dist, 'sw.js'));
+fs.mkdirSync(path.join(dist, 'assets'), { recursive: true });
+for (const f of fs.readdirSync(path.join(root, 'assets'))) {
+  fs.copyFileSync(path.join(root, 'assets', f), path.join(dist, 'assets', f));
+}
+fs.writeFileSync(path.join(dist, '_headers'), [
+  '/*',
+  '  X-Content-Type-Options: nosniff',
+  '  Referrer-Policy: strict-origin-when-cross-origin',
+  '  Permissions-Policy: geolocation=(), microphone=(), camera=()',
+  '  X-Frame-Options: SAMEORIGIN',
+  '',
+  '/index.html',
+  '  Cache-Control: public, max-age=0, must-revalidate',
+  '',
+  '/sw.js',
+  '  Cache-Control: no-cache',
+  '',
+  '/assets/*',
+  '  Cache-Control: public, max-age=604800, immutable',
+  ''].join('\n'));
 const kb = (Buffer.byteLength(out) / 1024).toFixed(1);
 console.log('✔ index.html yaratildi: ' + kb + ' KB, ' + out.split('\n').length + ' qator');
