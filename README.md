@@ -7,9 +7,9 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **152 ta tekshiruv, 0 xato** |
+| 🧪 **Testlar** | `npm test` → **195 ta tekshiruv, 0 xato** |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
-| 📦 **Hajm** | Bitta `index.html` (~266 KB), tashqi kutubxonasiz |
+| 📦 **Hajm** | Bitta `index.html` (~288 KB), tashqi kutubxonasiz |
 
 ---
 
@@ -18,12 +18,13 @@
 2. [Talaba kabineti](#1-talaba-kabineti-7-boʻlim)
 3. [Admin paneli](#2-admin--mentor-paneli-8-boʻlim)
 4. [Gamification](#3-gamification-oʻquvchini-ushlab-turish)
-5. [Texnik tuzilma](#texnik-tuzilma)
-6. [Ishga tushirish va buyruqlar](#ishga-tushirish)
-7. [Testlar va skrinshotlar](#testlar)
-8. [Real bazaga o'tish (Supabase)](#real-bazaga-otish)
-9. [Demo ma'lumotlar](#demo-maʼlumotlar)
-10. [Yo'l xaritasi](#yol-xaritasi)
+5. [Noutbuk rejimi](#4-noutbuk-va-kompyuter-rejimi)
+6. [Texnik tuzilma](#texnik-tuzilma)
+7. [Ishga tushirish va buyruqlar](#ishga-tushirish)
+8. [Testlar va skrinshotlar](#testlar)
+9. [Real bazaga o'tish (Supabase)](#real-bazaga-otish)
+10. [Demo ma'lumotlar](#demo-maʼlumotlar)
+11. [Yo'l xaritasi](#yol-xaritasi)
 
 ---
 
@@ -34,7 +35,9 @@ Platforma **uchta asosiy g'oyani** hal qiladi:
 - **Intizom** — vazifa → deadline → tekshirish → baho → keyingi modul zanjiri.
 - **Jamoa** — yolg'iz o'qish emas, startap mashqi: jamoa, devor, mentor, Demo Day.
 
-Barcha sahifalar **mobil-birinchi** (talabalar asosan telefondan kiradi) va **ikki rejimli** (dark / light).
+Barcha sahifalar **mobil-birinchi** (talabalar asosan telefondan kiradi) va **noutbukda ham to'liq qulay**
+(keng ekran tuzilishi, yig'iladigan yon panel, `Ctrl/⌘ + K` buyruq paneli, klaviatura yorliqlari, saralanadigan jadvallar).
+Ikki rejimli: **dark / light**.
 
 ---
 
@@ -70,6 +73,26 @@ Barcha sahifalar **mobil-birinchi** (talabalar asosan telefondan kiradi) va **ik
 🎓 **Sertifikatlar** (modul 100% → chop etiladigan hujjat + kod) · 🏆 **Haftalik reyting va jamoalar musobaqasi** ·
 🖼 **Galereya** · 🧑‍🏫 **Mentor–talaba juftligi** · 🎤 **Offline Demo Day**
 
+
+---
+
+### 4. Noutbuk va kompyuter rejimi
+
+Telefon ko'rinishi o'zgarmagan — noutbukda esa qo'shimcha qulayliklar **avtomatik** (981 px dan keng ekranlarda) yoqiladi:
+
+| Imkoniyat | Tafsilot |
+|---|---|
+| 🖥 **Keng ekran tuzilishi** | Asosiy ustun + o'ng yon panel (≥1280 px); kontent `1460 / 1680 / 1860 px` gacha kengayadi, oraliqlar mutanosib |
+| 📐 **2–3 ustunli to'rlar** | ≥1400 px da vazifalar 2 ustun, modullar 3 ustun, galereya zichroq |
+| ⬅️ **Yig'iladigan yon panel** | Sarlavhadagi tugma yoki `Ctrl+K → "Yon panelni yig'ish"`; holat eslab qolinadi (ish maydoni 80 px panel bilan kengayadi) |
+| ⌨️ **Buyruq paneli** | `Ctrl/⌘ + K` — bo'limlar, darslar, vazifalar, talabalar, tez amallar bir joyda; ↑ ↓ va `Enter` bilan boshqariladi |
+| 🧭 **Klaviatura yorliqlari** | `/` qidiruv, `Alt+1…8` bo'limlar, `N` bildirishnomalar, `T` dark/light, `?` yorliqlar oynasi, `Esc` modalni yopish |
+| 🔤 **Saralanadigan jadvallar** | Admin «Talabalar» jadvalida ustun nomini bosing (ism, jamoa, progress, baho); telefonda esa «Saralash» tanlagichi (XP, streak ham) |
+| 📏 **Kompakt rejim** | Balandligi 850 px dan kam noutbuklarda (masalan 1366×768) oraliqlar avtomatik zichlashadi |
+| ⬆️ **«Yuqoriga» tugmasi** | Uzoq ro'yxatlarda pastda o'ng burchakda paydo bo'ladi |
+
+Yorliqlar oynasini sayt ichidan ko'rish: yuqori paneldagi `?` tugmasi yoki `Shift + /` (ya'ni `?`).
+
 ---
 
 ## Texnik tuzilma
@@ -94,7 +117,7 @@ ai-leaders/
 ├── tools/
 │   ├── make-assets.py         # ikon va OG rasmni generatsiya qiladi (Pillow)
 │   └── tests/
-│       ├── run.js             # 152 ta avtomatik test (jsdom)
+│       ├── run.js             # 195 ta avtomatik test (jsdom)
 │       └── screens.js         # 28 ta skrinshot (playwright) → docs/screens/
 ├── docs/
 │   ├── ishga-tushirish-rejasi.md   # 30 kunlik klub ishga tushirish rejasi + metrikalar
@@ -120,7 +143,7 @@ git clone https://github.com/Asilbek-ops-afk/ai-leaders-platform.git
 cd ai-leaders-platform
 
 npm run build       # src → index.html + dist/
-npm test            # 152 ta avtomatik test (jsdom kerak: npm install)
+npm test            # 195 ta avtomatik test (jsdom kerak: npm install)
 npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
 npm run check       # sintaksis tekshiruvi
 
@@ -143,13 +166,18 @@ npm run deploy                       # build + wrangler pages deploy dist/
 Loyihada ikki darajali sifat nazorati bor:
 
 **1) `npm test` — funksional testlar (jsdom, haqiqiy DOM)**
-15 guruh, **152 ta tekshiruv**: kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
+16 guruh, **195 ta tekshiruv**: kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
 vazifa topshirish → tekshirish → baholash zanjiri, modul qulfi, quiz, kunlik questlar,
 fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, eksport/zaxira,
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-28 ta skrinshot: 14 desktop sahifa, 6 mobil ko'rinish, modallar, light tema → `docs/screens/`.
+**37 ta skrinshot**: 14 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati va **10 noutbuk ko'rinishi**
+(1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
+→ `docs/screens/`.
+
+**3) `node tools/tests/live.js [url]` — jonli sayt tekshiruvi**
+18 ta tekshiruv: sahifa yuklanishi, brend, SEO/PWA teglari, manifest, service worker, rasm va sarlavha (header) sozlamalari.
 
 ---
 

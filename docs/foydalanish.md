@@ -85,3 +85,27 @@ Qabul qilingan vazifa talabaga +60 XP beradi va keyingi modulni ochadi.
 
 **Noto'g'ri ma'lumot kirib qoldi?** — `Sozlamalar → Demo ma'lumotlarga qaytarish` (ehtiyot bo'ling: hammasi o'chadi,
 shuning uchun avval zaxira oling).
+
+## 9. Noutbukda tez ishlash (klaviatura)
+
+Kundalik ishni noutbukdan olib boradigan admin/mentor uchun eng tez yo'llar:
+
+| Amal | Tugma |
+|---|---|
+| Buyruq paneli (bo'lim, dars, vazifa, talaba qidirish) | **Ctrl / ⌘ + K** |
+| Qidiruv maydoniga o'tish | `/` |
+| Bo'limlar orasida almashish | **Alt + 1…8** |
+| Bildirishnomalar | `N` |
+| Dark / Light rejim | `T` |
+| Yorliqlar oynasi | `?` |
+| Modalni yopish / fokusni aylantirish | `Esc` / `Tab` |
+
+- **Yon panelni yig'ish**: sarlavhadagi strelka tugmasi yoki `Ctrl+K → "Yon panelni yig'ish"`.
+  Holat eslab qolinadi — keyingi kirishda ham yig'ilgan holicha ochiladi.
+- **Talabalar jadvalini saralash**: ustun nomini bosing (ism, jamoa, progress, baho).
+  Qayta bosilsa tartib teskari bo'ladi; faol ustun strelka bilan belgilanadi.
+- **Tez amallar paneli** (Bosh sahifaning o'ng ustunida): darsda davom etish, vazifa topshirish,
+  deadline kalendari, do'st qo'shish — telefon ekranida bular pastga tushadi.
+- Kichik noutbuk ekranlarida (masalan 1366×768) interfeys avtomatik **kompakt** bo'ladi.
+
+> Telefon ko'rinishi o'zgarmagan: pastdagi navigatsiya, karta tuzilishi va tugmalar avvalgidek ishlaydi.

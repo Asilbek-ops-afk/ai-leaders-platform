@@ -33,6 +33,10 @@ window.AIL = {
   exportCSV: () => { try { exportCSV(); return 'ok'; } catch (e) { return 'err:' + e.message; } },
   exportMy: () => { try { exportMyCSV(); return 'ok'; } catch (e) { return 'err:' + e.message; } },
   downloadState: () => { try { downloadState(); return 'ok'; } catch (e) { return 'err:' + e.message; } },
+  palActs: () => (PAL.visible || []).map(x => x.act),
+  palOpen: () => !!document.querySelector('.mbox.pal'),
+  collapse: () => UI.collapsed,
+  setCollapse: v => { UI.collapsed = !!v; S.settings.sidebarCollapsed = !!v; },
   version: () => APP_VERSION
 };`;
 
@@ -526,6 +530,137 @@ group('15. Quiz, kunlik questlar, fayl, yon panel guruhlari');
   A.click('[data-act="filter-s"][data-f="all"]');
   t('barcha filtr (18 ta)', /18/.test(allBtn));
   t('JS xatosi yo‘q', A.errors.length === 0);
+
+/* ================= 16. NOUTBUK REJIMI: PANEL, KLAVIATURA, SARALASH ================= */
+group('16. Noutbuk rejimi: buyruq paneli, klaviatura yorliqlari, saralash');
+const B = boot();
+const key = (k2, opt) => B.d.dispatchEvent(new B.w.KeyboardEvent('keydown', Object.assign({ key: k2, bubbles: true, cancelable: true }, opt || {})));
+const keyOn = (el, k2, opt) => el.dispatchEvent(new B.w.KeyboardEvent('keydown', Object.assign({ key: k2, bubbles: true, cancelable: true }, opt || {})));
+
+B.w.AIL.login('student', 's1');
+B.w.AIL.go('home');
+
+/* — keng ekran tuzilishi (noutbukda asosiy ustun + yon ustun) — */
+t('bosh sahifada keng ekran ustunlari bor', B.txt().includes('Tezkor amallar') && B.d.querySelectorAll('.wide-split').length === 1);
+t('yon panel kartalari to‘liq', B.has('Mening jamoam') && B.has('Haftalik faollik') && B.has('Klubda nima') && B.has('Tezkor amallar'));
+t('modullar 3-ustun gridda', B.d.querySelector('.mod-grid') !== null);
+t('galereya karta fokuslanadi (tabindex)', B.d.querySelector('.gal[tabindex="0"]') !== null);
+t('tezkor amal: darsni ochish ishlaydi', (() => { const b2 = B.d.querySelector('.wide-rail [data-act="lesson-open"]'); if (!b2) return false; b2.dispatchEvent(new B.w.MouseEvent('click', { bubbles: true })); const ok = B.hasModal('Dars'); B.click('[data-act="close-modal"]'); return ok; })());
+
+/* — vazifalar sahifasida 2 ustunli grid — */
+B.w.AIL.go('tasks');
+t('vazifalar gridi keng ekranga mos', B.d.querySelector('.task-grid') !== null);
+
+/* — Ctrl+K buyruq paneli — */
+B.w.AIL.go('home');
+key('k', { ctrlKey: true });
+t('Ctrl+K panelni ochadi', B.w.AIL.palOpen() && B.hasModal('Buyruq') === false && B.d.getElementById('pal-input') !== null);
+t('panelda guruh sarlavhalari bor', /Bo‘limlar/.test(B.d.getElementById('pal-list').textContent));
+const palActs = B.w.AIL.palActs();
+t('panelda bo‘lim/amal/dars buyruqlari', palActs.includes('go:home') && palActs.includes('theme') && palActs.some(a2 => a2.startsWith('lesson-open:')));
+t('panelda 40+ buyruq', palActs.length >= 40);
+
+/* — filtr — */
+const pin = B.d.getElementById('pal-input');
+pin.value = 'alt+3'; pin.dispatchEvent(new B.w.Event('input', { bubbles: true }));
+t('filtr natija toraytiradi', B.w.AIL.palActs().length === 1 && B.w.AIL.palActs()[0] === 'go:tasks');
+keyOn(pin, 'Enter');
+t('Enter bilan bo‘limga o‘tish', B.w.AIL.UI.route === 'tasks' && !B.w.AIL.palOpen());
+
+/* — filtr + klik (pal-run) — */
+key('k', { ctrlKey: true });
+const pin2 = B.d.getElementById('pal-input');
+pin2.value = 'mavzu'; pin2.dispatchEvent(new B.w.Event('input', { bubbles: true }));
+t('“mavzu” bo‘yicha topildi', B.w.AIL.palActs().length === 1 && B.w.AIL.palActs()[0] === 'theme');
+const before = B.w.AIL.UI.theme;
+B.click('.pal-item[data-act="pal-run"]');
+t('pal-run: mavzu almashdi va modal yopildi', B.w.AIL.UI.theme !== before && !B.w.AIL.palOpen());
+
+/* — Escape panelni yopadi — */
+key('k', { ctrlKey: true });
+t('panel qayta ochildi', B.w.AIL.palOpen());
+key('Escape');
+t('Esc panelni yopadi', !B.w.AIL.palOpen());
+
+/* — klaviatura yorliqlari — */
+key('?');
+t('“?” yorliqlar oynasini ochadi', B.hasModal('Klaviatura yorliqlari') && B.hasModal('Ctrl / ⌘ + K'));
+key('Escape');
+B.d.body.focus();
+key('/');
+t('“/” qidiruvga fokus beradi', B.d.activeElement && B.d.activeElement.id === 'gsearch');
+
+/* — Alt+2 bo‘limga o‘tadi, T mavzuni almashtiradi, N bildirishnoma — */
+B.w.AIL.go('home');
+key('2', { altKey: true });
+t('Alt+2 — Darslar bo‘limi', B.w.AIL.UI.route === 'lessons');
+const th0 = B.w.AIL.UI.theme;
+B.d.body.focus(); key('t');
+t('“T” mavzuni almashtiradi', B.w.AIL.UI.theme !== th0);
+B.d.body.focus(); key('n');
+t('“N” bildirishnomalarni ochadi', B.hasModal('Bildirishnoma'));
+key('Escape');
+
+/* — yozayotganda yorliqlar ishlamaydi — */
+B.d.body.focus();
+const inp2 = B.d.getElementById('gsearch');
+const before2 = B.w.AIL.UI.route;
+keyOn(inp2, 't');
+t('inputda yozganda yorliq ishga tushmaydi', B.w.AIL.UI.route === before2 && !B.hasModal('Klaviatura'));
+
+/* — yon panelni yig‘ish — */
+B.w.AIL.setCollapse(false);
+B.w.AIL.go('home');
+t('yig‘ilmagan holatda tugma/klass yo‘q', !B.d.getElementById('app').className.includes('collapsed'));
+key('k', { ctrlKey: true });
+const pin3 = B.d.getElementById('pal-input');
+pin3.value = 'yon panelni'; pin3.dispatchEvent(new B.w.Event('input', { bubbles: true }));
+t('panelda “yon panelni yig‘ish” buyrug‘i', B.w.AIL.palActs()[0] === 'collapse');
+B.click('.pal-item[data-act="pal-run"]');
+t('yon panel yig‘ildi (klass + holat)', B.d.getElementById('app').className.includes('collapsed') && B.w.AIL.collapse() === true);
+t('holat saqlandi (localStorage)', B.w.AIL.S.settings.sidebarCollapsed === true);
+B.w.AIL.go('home');
+t('sahifa almashganda yig‘ilgan holat saqlanadi', B.d.getElementById('app').className.includes('collapsed'));
+
+/* — admin: saralash (saralanadigan jadval) — */
+B.click('[data-act="switch"]');
+B.w.AIL.go('students');
+t('admin jadvalida saralash sarlavhalari', B.d.querySelectorAll('.th[data-act="sort"]').length >= 4);
+t('saralash sarlavhasi jadval boshida', B.d.querySelector('.trow.head .th[data-k="name"]') !== null);
+B.w.AIL.UI.sort.k = 'name'; B.w.AIL.UI.sort.d = 1;
+B.w.AIL.go('students');
+const rowName = () => { const r = B.d.querySelectorAll('.trows .trow:not(.head)'); return r.length ? r[0].textContent.replace(/\s+/g, ' ').trim() : ''; };
+const alphaFirst = rowName();
+B.click('.th[data-act="sort"][data-k="name"]');
+t('ism saralash teskari (Z→A)', B.w.AIL.UI.sort.k === 'name' && B.w.AIL.UI.sort.d === -1 && rowName() !== alphaFirst);
+B.click('.th[data-act="sort"][data-k="name"]');
+t('ism saralash to‘g‘ri (A→Z)', B.w.AIL.UI.sort.d === 1 && rowName() === alphaFirst);
+const topScore = B.w.AIL.S.students.slice().sort((a2, b3) => (b3.score || 0) - (a2.score || 0))[0];
+B.click('.th[data-act="sort"][data-k="score"]');
+t('baho bo‘yicha kamayish tartibi', B.w.AIL.UI.sort.k === 'score' && B.w.AIL.UI.sort.d === -1 && rowName().includes(topScore.name));
+t('faol ustun belgisi va strelka', B.d.querySelector('.th[data-k="score"]').classList.contains('on') && B.d.querySelector('.th[data-k="score"] .ar') !== null);
+B.click('.th[data-act="sort"][data-k="score"]');
+t('ustun qayta bosilganda tartib o‘zgaradi', B.w.AIL.UI.sort.d === 1 && B.d.querySelector('.th[data-k="score"] .ar').textContent === '▲');
+const lowScore = B.w.AIL.S.students.slice().sort((a2, b3) => (a2.score || 0) - (b3.score || 0))[0];
+t('eng past baho birinchi bo‘ldi', rowName().includes(lowScore.name));
+B.change('[data-act="sort-sel"]', 'xp');
+t('tanlagich orqali XP saralash (kamayish)', B.w.AIL.UI.sort.k === 'xp' && B.w.AIL.UI.sort.d === -1);
+const topXp = B.w.AIL.S.students.slice().sort((a2, b3) => b3.xp - a2.xp)[0];
+t('XP bo‘yicha eng yuqori birinchi', rowName().includes(topXp.name));
+B.change('[data-act="sort-sel"]', 'streak');
+t('tanlagich orqali streak saralash', B.w.AIL.UI.sort.k === 'streak' && B.w.AIL.UI.sort.d === -1);
+B.change('[data-act="sort-sel"]', 'group');
+t('jamoa bo‘yicha saralash A–Z', B.w.AIL.UI.sort.k === 'group' && B.w.AIL.UI.sort.d === 1);
+t('progress ustuni ham saralanadi', (() => { B.click('.th[data-act="sort"][data-k="progress"]'); return B.w.AIL.UI.sort.k === 'progress' && B.w.AIL.UI.sort.d === -1; })());
+
+/* — scroll-to-top tugmasi — */
+B.w.AIL.go('home');
+const ttop = B.d.getElementById('toTop');
+t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
+
+/* — versiya va xatolar — */
+t('versiya 1.3.0', B.w.AIL.version() === '1.3.0');
+t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 }
 
 /* ============================ XULOSA ====================================== */

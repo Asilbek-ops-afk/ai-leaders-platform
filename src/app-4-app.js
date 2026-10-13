@@ -170,14 +170,17 @@ function currentView() {
 }
 function renderApp() {
   if (UI.authShow) return vAuth();
-  return sidebar() + '<div class="main">' + topbar() + '<div class="content">' + currentView() + '</div></div>' + bottomnav();
+  return sidebar() + '<div class="main">' + topbar() + '<div class="content">' + currentView() + '</div></div>' + bottomnav() + toTopBtn();
 }
 function paint(keepScroll) {
   const el = document.getElementById('app');
+  el.className = 'app' + (UI.collapsed ? ' collapsed' : '');
   el.innerHTML = renderApp();
   if (!keepScroll) { try { if (window.scrollY) window.scrollTo({ top: 0, behavior: 'auto' }); } catch (e) { } }
   const gs = document.getElementById('gsearch');
   if (gs) { gs.value = UI.search; gs.onkeydown = e => { if (e.key === 'Enter') { UI.search = gs.value.trim(); if (UI.search) searchModal(UI.search); } }; }
+  const top = document.getElementById('toTop');
+  if (top && window.scrollY > 640) top.classList.add('show');
 }
 function go(route) {
   if (isAdmin() && STUDENT_ONLY.includes(route)) route = 'admin';
@@ -206,6 +209,16 @@ document.addEventListener('click', e => {
     case 'go': e.preventDefault(); go(t.dataset.route); break;
     case 'go-team': go(isAdmin() ? 'adminGroups' : 'team'); break;
     case 'go-settings': go('settings'); break;
+    case 'palette': openPalette(); break;
+    case 'pal-run': { const it = (PAL.visible || [])[parseInt(t.dataset.idx, 10)]; if (it) runPalette(it.act); break; }
+    case 'shortcuts': shortcutsModal(); break;
+    case 'collapse': toggleCollapse(); break;
+    case 'to-top': try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { } break;
+    case 'sort': {
+      const k = t.dataset.k;
+      if (UI.sort.k === k) UI.sort.d = -UI.sort.d; else { UI.sort.k = k; UI.sort.d = (k === 'name' || k === 'group') ? 1 : -1; }
+      paint(true); break;
+    }
     case 'reset-confirm': confirmModal('Demo ma’lumotlarni tiklash?', 'Topshiriqlar, baholar va yangi qo‘shilgan a’zolar o‘chib, boshlang‘ich demo holat qaytadi. Bu amalni qaytarib bo‘lmaydi.', 'reset-do', '', true); break;
     case 'reset-do': resetAll(); break;
     case 'install': {
@@ -593,6 +606,12 @@ document.addEventListener('submit', e => {
   }
 });
 document.addEventListener('change', e => {
+  const ss = e.target.closest('[data-act="sort-sel"]');
+  if (ss) {
+    UI.sort.k = ss.value;
+    UI.sort.d = (ss.value === 'name' || ss.value === 'group') ? 1 : -1;
+    paint(true); return;
+  }
   const cg = e.target.closest('[data-act="change-group"]');
   if (cg && cg.value) {
     const stx = get(S.students, cg.dataset.id), g = groupOf(cg.value);
@@ -614,14 +633,31 @@ document.addEventListener('change', e => {
     save(); closeModal(); paint(true);
   }
 });
+const NAV_ORDER_S = ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friends', 'info'];
+const NAV_ORDER_A = ['admin', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings'];
 document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  const typing = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+  /* Ctrl/⌘ + K — buyruq paneli */
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); openPalette(); return; }
   if (e.key === 'Escape') { closeModal(); return; }
   trapFocus(e);
-  const tag = (e.target.tagName || '').toLowerCase();
-  if (e.key === '/' && tag !== 'input' && tag !== 'textarea' && !e.target.isContentEditable) {
-    const gs = document.getElementById('gsearch');
-    if (gs) { e.preventDefault(); gs.focus(); }
+  /* Alt + 1…8 — bo'limlar */
+  if (e.altKey && /^[1-8]$/.test(e.key)) {
+    e.preventDefault();
+    const order = isAdmin() ? NAV_ORDER_A : NAV_ORDER_S;
+    const r = order[parseInt(e.key, 10) - 1];
+    if (r) go(r);
+    return;
   }
+  if (typing) return;
+  if (e.key === '/') { const gs = document.getElementById('gsearch'); if (gs) { e.preventDefault(); gs.focus(); } return; }
+  if (e.key === '?') { e.preventDefault(); shortcutsModal(); return; }
+  if (e.key === 't' || e.key === 'T') {
+    const n = UI.theme === 'dark' ? 'light' : 'dark';
+    UI.theme = n; S.theme = n; document.documentElement.dataset.theme = n; save(); paint(true); return;
+  }
+  if (e.key === 'n' || e.key === 'N') { notifModal(); return; }
 });
 
 /* ---------- Ishga tushirish ---------- */
@@ -641,6 +677,13 @@ window.addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); UI.i
 window.addEventListener('appinstalled', () => { UI.installEvt = null; toast('ok', 'AI Leaders o‘rnatildi', 'Endi ilova telefon ekranidan ochiladi.'); paint(true); });
 window.addEventListener('online', () => toast('ok', 'Internet tiklandi', 'Ma’lumotlar saqlanmoqda.'));
 window.addEventListener('offline', () => toast('warn', 'Internet yo‘q', 'Ilova oflayn rejimda ishlayapti — o‘zgarishlar saqlanadi.'));
+window.addEventListener('scroll', () => {
+  const top = document.getElementById('toTop');
+  if (!top) return;
+  const show = window.scrollY > 640;
+  if (show !== top.classList.contains('show')) top.classList.toggle('show', show);
+}, { passive: true });
+
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => { }));
 }

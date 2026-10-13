@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.3.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -366,7 +366,7 @@ function activityPct() { return Math.round(activeCount() / S.students.length * 1
 /* ---------- 5. UI holati ---------- */
 const UI = { route: 'home', authShow: false, authRole: 'student', theme: 'dark', cal: 0, calMonthly: false,
   taskFilter: 'all', studentsFilter: 'all', friendTab: 'friends', search: '', reviewFilter: 'all',
-  module: null, installEvt: null, lastLesson: null };
+  module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 } };
 
 function toast(kind, title, text) {
   const map = { ok: 'check-c', warn: 'alert', err: 'x', info: 'spark' };
@@ -468,19 +468,21 @@ const MOBILE_STUDENT = ['home', 'lessons', 'tasks', 'deadlines', 'info'];
 const MOBILE_ADMIN = ['admin', 'students', 'adminTasks', 'adminGroups', 'stats'];
 
 /* ---------- 7. Shell ---------- */
-function brandBlock(big) {
+function brandBlock(big, withCollapse) {
   return '<div class="brand"><svg class="mark" style="width:' + (big ? 46 : 42) + 'px;height:' + (big ? 46 : 42) + 'px" viewBox="0 0 64 64" aria-hidden="true">' +
     '<defs><linearGradient id="bm' + (big ? 'b' : 's') + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset=".55" stop-color="#5B8CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
     '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="#0A0F1E" stroke="url(#bm' + (big ? 'b' : 's') + ')" stroke-width="2.6" stroke-linejoin="round"/>' +
     '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#bm' + (big ? 'b' : 's') + ')" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
     '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
     '<circle cx="32" cy="17.8" r="3.7" fill="#C6FF4F"/><circle cx="21" cy="46.5" r="3" fill="#22D3EE"/><circle cx="43" cy="46.5" r="3" fill="#7C5CFF"/></svg>' +
-    '<div class="brand-txt"><strong>AI LEADERS</strong><em>STARTUP CLUB</em></div></div>';
+    '<div class="brand-txt"><strong>AI LEADERS</strong><em>STARTUP CLUB</em></div>' +
+    (withCollapse ? '<button class="collapse-btn" data-act="collapse" title="Yon panelni yig‘ish / ochish" aria-label="Yon panelni yig‘ish">' +
+      ico(UI.collapsed ? 'right' : 'left', 'sm') + '</button>' : '') + '</div>';
 }
 function sidebar() {
   const nav = NAV_SEC[isAdmin() ? 'admin' : 'student'];
   const st = me();
-  let h = '<aside class="sidebar">' + brandBlock(false);
+  let h = '<aside class="sidebar">' + brandBlock(false, true);
   nav.forEach(sec => {
     h += '<div class="nav-lbl">' + sec[0] + '</div>';
     sec[1].forEach(r => {
@@ -490,17 +492,18 @@ function sidebar() {
       if (r === 'adminTasks') { const n = reviewQueue().length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
       if (r === 'deadlines') { const n = deadlinesOf(st).filter(x => !x.s && x.tl.late).length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
       if (r === 'friends') { const n = incomingOf(st).length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
-      h += '<a class="nav-item' + (on ? ' on' : '') + '" href="#" data-act="go" data-route="' + r + '">' + ico(d.i) + '<span>' + esc(d.l) + '</span>' + badge + '</a>';
+      h += '<a class="nav-item' + (on ? ' on' : '') + '" href="#" data-act="go" data-route="' + r + '" title="' + esc(d.l) + '"' + (on ? ' aria-current="page"' : '') + '>' +
+        ico(d.i) + '<span class="nlbl">' + esc(d.l) + '</span>' + badge + '</a>';
     });
   });
   h += '<div class="side-foot">';
   h += '<div class="userbox">' + avatar(isAdmin() ? { id: 'adm', name: 'Bekzod Aliyev', act: true, last: 0 } : st, 'sm') +
-    '<div class="grow" style="min-width:0"><div class="small help ellip" style="font-weight:750">' + esc(isAdmin() ? 'Bekzod Aliyev' : st.name) + '</div>' +
+    '<div class="grow ubx" style="min-width:0"><div class="small help ellip" style="font-weight:750">' + esc(isAdmin() ? 'Bekzod Aliyev' : st.name) + '</div>' +
     '<small>' + esc(isAdmin() ? 'Founder • Admin' : (myGroup(st) ? myGroup(st).name + ' jamoasi' : 'Jamoa biriktirilmagan')) + '</small></div>' +
     '<button class="btn-icon" style="width:34px;height:34px" data-act="theme" title="Rejim" aria-label="Mavzu">' + ico('moon', 'sm') + '</button></div>';
-  h += '<div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm grow" data-act="logout">' + ico('out', 'sm') + 'Chiqish</button>' +
+  h += '<div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm grow" data-act="logout" title="Hisobdan chiqish">' + ico('out', 'sm') + '<span class="blbl">Chiqish</span></button>' +
     '<button class="btn btn-ghost btn-sm" data-act="reset-confirm" title="Demoni tiklash" aria-label="Demo ma’lumotlarni tiklash">' + ico('refresh', 'sm') + '</button></div>' +
-    '<div class="xs muted" style="text-align:center;padding-top:2px">v' + APP_VERSION + ' • demo rejim</div></div></aside>';
+    '<div class="xs muted verline" style="text-align:center;padding-top:2px">v' + APP_VERSION + ' • demo rejim</div></div></aside>';
   return h;
 }
 function topbar() {
@@ -508,20 +511,160 @@ function topbar() {
   const un = st ? unreadOf(st) : reviewQueue().length;
   return '<header class="topbar">' +
     '<div class="mobile-brand">' + ico('spark', 'sm') + 'AI LEADERS</div>' +
-    '<label class="searchbar grow"><span style="display:flex">' + ico('search', 'sm') + '</span><input id="gsearch" placeholder="Dars, vazifa yoki odam qidirish…" autocomplete="off"></label>' +
+    '<label class="searchbar grow"><span style="display:flex">' + ico('search', 'sm') + '</span><input id="gsearch" placeholder="Dars, vazifa yoki odam qidirish…" autocomplete="off">' +
+    '<button type="button" class="kbd" data-act="palette" title="Buyruq paneli (Ctrl+K)">Ctrl K</button></label>' +
     '<span class="hide-sm ' + (isAdmin() ? 'tag p' : 'tag c') + '">' + ico(isAdmin() ? 'shield' : 'user', 'sm') + (isAdmin() ? 'Admin' : 'Student') + '</span>' +
     (!isAdmin() && st ? '<span class="hide-sm streak">' + ico('flame', 'sm') + st.streak + '</span>' : '') +
     '<button class="btn-icon" data-act="notifs" aria-label="Bildirishnomalar">' + ico('bell', 'sm') + (un ? '<i class="dot"></i>' : '') + '</button>' +
     '<button class="btn-icon" data-act="theme" aria-label="Mavzu">' + ico(UI.theme === 'dark' ? 'sun' : 'moon', 'sm') + '</button>' +
     (UI.installEvt ? '<button class="btn-icon hide-sm" data-act="install" title="Ilovani o‘rnatish">' + ico('download', 'sm') + '</button>' : '') +
     (isAdmin() ? '<button class="btn-icon" data-act="go-settings" title="Sozlamalar" aria-label="Sozlamalar">' + ico('settings', 'sm') + '</button>' : '') +
+    '<button class="btn-icon hide-sm" data-act="shortcuts" title="Klaviatura yorliqlari (?)" aria-label="Klaviatura yorliqlari">' + ico('help', 'sm') + '</button>' +
     '<button class="btn-icon hide-sm" data-act="switch" title="Demo: rolni almashtirish">' + ico('refresh', 'sm') + '</button>' +
     '</header>';
+}
+function toTopBtn() {
+  return '<button class="totop" id="toTop" data-act="to-top" title="Yuqoriga" aria-label="Yuqoriga ko‘tarilish"><svg class="i" style="transform:rotate(180deg)" aria-hidden="true"><use href="#i-down"></use></svg></button>';
 }
 function bottomnav() {
   const list = isAdmin() ? MOBILE_ADMIN : MOBILE_STUDENT;
   return '<nav class="bottomnav">' + list.map(r => '<a class="bn' + (UI.route === r ? ' on' : '') + '" href="#" data-act="go" data-route="' + r + '">' + ico(navDefs[r].i) + '<span>' + esc(navDefs[r].l.split(' ')[0]) + '</span></a>').join('') + '</nav>';
 }
+
+/* ---------- 7b. Buyruq paneli (Ctrl/Cmd + K) va tez amallar ---------- */
+let PAL = { q: '', idx: 0, items: [], visible: [] };
+function paletteData() {
+  const items = [];
+  const navs = isAdmin() ? ['admin', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings']
+    : ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friends', 'info'];
+  navs.forEach((r, i) => items.push({ grp: 'Bo‘limlar', l: navDefs[r].l, s: 'Sahifaga o‘tish • Alt+' + (i + 1), i: navDefs[r].i, act: 'go:' + r }));
+  if (isAdmin()) {
+    items.push({ grp: 'Amallar', l: 'Yangi vazifa berish', s: 'Talabalarga topshiriq', i: 'plus', act: 'new-task' });
+    items.push({ grp: 'Amallar', l: 'Dars qo‘shish', s: 'Kontent qo‘shish', i: 'video', act: 'new-lesson' });
+    items.push({ grp: 'Amallar', l: 'Talaba qo‘shish', s: 'Yangi a’zo', i: 'users-plus', act: 'new-student' });
+    items.push({ grp: 'Amallar', l: 'Zaxira nusxa (JSON)', s: 'Ma’lumotlarni yuklab olish', i: 'download', act: 'export-json' });
+    items.push({ grp: 'Amallar', l: 'Statistika hisoboti (CSV)', s: 'Excel uchun', i: 'doc', act: 'export' });
+  } else {
+    const nl = nextLesson(me()), nt = nextTask(me());
+    if (nl) items.push({ grp: 'Amallar', l: 'Darsda davom etish', s: nl.t, i: 'play', act: 'lesson-open:' + nl.id });
+    if (nt) items.push({ grp: 'Amallar', l: 'Vazifa topshirish', s: nt.title, i: 'upload', act: 'submit-open:' + nt.id });
+    items.push({ grp: 'Amallar', l: 'Natijalarimni yuklab olish', s: 'CSV hisobot', i: 'download', act: 'export-my' });
+  }
+  items.push({ grp: 'Amallar', l: UI.theme === 'dark' ? 'Yorug‘ rejimga o‘tish' : 'Tungi rejimga o‘tish', s: 'Mavzu', i: 'sun', act: 'theme' });
+  items.push({ grp: 'Amallar', l: 'Bildirishnomalar', s: 'Yangi xabarlar', i: 'bell', act: 'notifs' });
+  items.push({ grp: 'Amallar', l: UI.collapsed ? 'Yon panelni ochish' : 'Yon panelni yig‘ish', s: 'Ish maydonini kengaytirish', i: 'grid', act: 'collapse' });
+  if (UI.installEvt) items.push({ grp: 'Amallar', l: 'Ilovani o‘rnatish', s: 'Telefon yoki kompyuterga', i: 'download', act: 'install' });
+  S.lessons.forEach(l => items.push({ grp: 'Darslar', l: l.t, s: modOf(l.m).n + '-modul • ' + l.dur + ' daqiqa', i: 'book',
+    act: (isAdmin() ? 'lesson-edit:' : 'lesson-open:') + l.id }));
+  S.tasks.forEach(t => items.push({ grp: 'Vazifalar', l: t.title, s: 'Deadline: ' + fmtFull(t.dl), i: 'task', act: (isAdmin() ? 'task-review:' : 'task-open:') + t.id }));
+  if (isAdmin()) S.students.forEach(s0 => items.push({ grp: 'Talabalar', l: s0.name, s: (myGroup(s0) || {}).name || 'jamoa yo‘q', i: 'user', act: 'student-open:' + s0.id }));
+  S.groups.forEach(g => items.push({ grp: 'Jamoalar', l: g.name, s: g.project, i: 'flag', act: 'group-open:' + g.id }));
+  return items;
+}
+function openPalette() {
+  PAL.items = paletteData(); PAL.q = ''; PAL.idx = 0;
+  openModal(
+    '<div class="pal-head">' + ico('search') +
+    '<input id="pal-input" class="grow" placeholder="Buyruq, dars, vazifa yoki odam qidirish…" autocomplete="off" aria-label="Buyruq izlash">' +
+    '<span class="kbd">ESC</span></div>' +
+    '<div id="pal-list" class="pal-list"></div>' +
+    '<div class="pal-foot"><span class="row xs">' + ico('down', 'sm') + ico('up', 'sm') + ' harakatlanish • ' + ico('right', 'sm') + ' tanlash</span>' +
+    '<span class="xs">' + PAL.items.length + ' ta buyruq</span></div>', 'pal');
+  const inp = document.getElementById('pal-input');
+  if (inp) {
+    inp.focus();
+    inp.oninput = () => { PAL.q = inp.value.trim().toLowerCase(); PAL.idx = 0; paintPalette(); };
+    inp.onkeydown = e => {
+      const list = PAL.visible || [];
+      if (e.key === 'ArrowDown') { e.preventDefault(); PAL.idx = Math.min(PAL.idx + 1, list.length - 1); paintPalette(true); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); PAL.idx = Math.max(PAL.idx - 1, 0); paintPalette(true); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (list[PAL.idx]) runPalette(list[PAL.idx].act); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeModal(); }
+    };
+  }
+  paintPalette();
+}
+function paintPalette(keepIdx) {
+  const items = PAL.items.filter(x => !PAL.q || (x.l + ' ' + x.s + ' ' + x.grp).toLowerCase().includes(PAL.q));
+  PAL.visible = items.slice(0, 60);
+  if (!keepIdx) PAL.idx = 0;
+  if (PAL.idx > PAL.visible.length - 1) PAL.idx = Math.max(0, PAL.visible.length - 1);
+  let html = '', lastGrp = '';
+  PAL.visible.forEach((x, i) => {
+    if (x.grp !== lastGrp) { html += '<div class="pal-grp">' + esc(x.grp) + '</div>'; lastGrp = x.grp; }
+    html += '<button type="button" class="pal-item' + (i === PAL.idx ? ' on' : '') + '" data-act="pal-run" data-idx="' + i + '">' +
+      '<span class="pal-ic">' + ico(x.i, 'sm') + '</span><span class="grow" style="min-width:0">' +
+      '<span class="small ellip" style="font-weight:700;display:block">' + esc(x.l) + '</span>' +
+      '<span class="xs muted ellip" style="display:block">' + esc(x.s) + '</span></span>' +
+      '<span class="kbd">↵</span></button>';
+  });
+  const list = document.getElementById('pal-list');
+  if (list) list.innerHTML = html || '<div class="empty">Hech narsa topilmadi — boshqa so‘z bilan urinib ko‘ring</div>';
+  const on = document.querySelector('.pal-item.on');
+  if (on && on.scrollIntoView) { try { on.scrollIntoView({ block: 'nearest' }); } catch (e) { } }
+}
+function runPalette(act) {
+  const parts = String(act).split(':'), k = parts[0], v = parts[1];
+  closeModal();
+  const acts = {
+    go: () => go(v),
+    theme: () => { const n = UI.theme === 'dark' ? 'light' : 'dark'; UI.theme = n; S.theme = n; document.documentElement.dataset.theme = n; save(); paint(true); },
+    notifs: () => notifModal(),
+    collapse: () => toggleCollapse(),
+    install: () => document.querySelector('.topbar [data-act="install"]') ? document.querySelector('.topbar [data-act="install"]').click() : toast('info', 'O‘rnatish', 'Brauzer menyusidan “Bosh ekranga qo‘shish” ni tanlang.'),
+    'new-task': () => createTaskModal(),
+    'new-lesson': () => createLessonModal(),
+    'new-student': () => addStudentModal(),
+    'export-json': () => downloadState(),
+    'export-my': () => exportMyCSV(),
+    export: () => exportCSV(),
+    'lesson-open': () => lessonModal(lessonOf(v)),
+    'lesson-edit': () => editLessonModal(v),
+    'submit-open': () => submitModal(taskOf(v)),
+    'task-open': () => { if (isAdmin()) toast('info', 'Vazifa', taskOf(v).title); else { const p = subOf(me(), v); p ? subViewModal(p) : submitModal(taskOf(v)); } },
+    'task-review': () => { const rel = S.submissions.filter(p => p.task === v); openModal(mhead('Tekshirish: ' + taskOf(v).title, rel.length + ' ta topshiriq') + (rel.length ? '<div class="col" style="gap:9px">' + rel.map(p => { const s0 = get(S.students, p.st); return '<div class="lrow"><div class="row grow" style="gap:11px;min-width:0">' + avatar(s0, 'xs') + '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s0.name) + '</div><div class="xs muted">' + fmtD(p.at) + '</div></div></div>' + stChip(p.status) + '<button class="btn btn-xs btn-primary" data-act="review-open" data-sub="' + p.id + '">Ochish</button></div>'; }).join('') + '</div>' : '<div class="empty">Topshiriq yo‘q</div>'), 'wide'); },
+    'student-open': () => adminStudentModal(get(S.students, v)),
+    'group-open': () => teamModal(groupOf(v))
+  };
+  (acts[k] || (() => { }))();
+}
+function toggleCollapse() {
+  UI.collapsed = !UI.collapsed;
+  S.settings.sidebarCollapsed = UI.collapsed;
+  save(); paint(true);
+  toast('info', UI.collapsed ? 'Yon panel yig‘ildi' : 'Yon panel ochildi', UI.collapsed ? 'Ish maydoni kengaydi (Ctrl+K bilan tez amallar).' : '');
+}
+function shortcutsModal() {
+  const rows = [
+    ['Ctrl / ⌘ + K', 'Buyruq paneli — tez qidiruv va amallar'],
+    ['/', 'Qidiruv maydoniga o‘tish'],
+    ['Alt + 1…8', 'Bo‘limlar orasida almashish'],
+    ['N', 'Bildirishnomalar'],
+    ['T', 'Dark / Light rejim'],
+    ['?', 'Klaviatura yorliqlari'],
+    ['Esc', 'Modalni yopish'],
+    ['Tab', 'Modal ichida fokusni aylantirish']
+  ];
+  openModal(mhead('Klaviatura yorliqlari', 'Noutbukda sichqonchasiz ishlash uchun') +
+    '<div class="col" style="gap:10px">' + rows.map(r => '<div class="row between" style="gap:12px"><span class="small t2">' + esc(r[1]) + '</span><span class="kbd">' + esc(r[0]) + '</span></div>').join('') + '</div>' +
+    '<div class="divider"></div><div class="row" style="gap:10px"><span class="kbd">Ctrl K</span><span class="xs muted">— eng tez yo‘l: buyruq paneli orqali hamma narsa.</span></div>' +
+    '<div class="xs muted" style="margin-top:8px">Maslahat: yon panel sarlavhasidagi strelka tugmasi bilan panelni yig‘ib, kengroq ish maydoni olasiz.</div>', 'narrow');
+}
+/* Jadval saralash (admin) */
+function sortStudentsList(list) {
+  const k = UI.sort.k, d = UI.sort.d;
+  const val = s0 => ({
+    name: s0.name, group: (myGroup(s0) || {}).name || '~', progress: progress(s0).pct,
+    score: Number(s0.score) || 0, xp: s0.xp, streak: s0.streak, last: s0.last
+  }[k]);
+  return [...list].sort((a, b) => {
+    const A = val(a), B = val(b);
+    if (typeof A === 'string') return A.localeCompare(B, 'uz') * d;
+    return (A - B) * d;
+  });
+}
+const thBtn = (k, l) => '<button class="th' + (UI.sort.k === k ? ' on' : '') + '" data-act="sort" data-k="' + k + '" title="' + esc(l) + ' bo‘yicha saralash">' +
+  esc(l) + (UI.sort.k === k ? '<span class="ar">' + (UI.sort.d > 0 ? '▲' : '▼') + '</span>' : '') + '</button>';
 
 /* ---------- 8. Kunlik topshiriqlar (gamification) ---------- */
 const QUESTS = [

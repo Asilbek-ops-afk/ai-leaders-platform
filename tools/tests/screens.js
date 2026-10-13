@@ -34,7 +34,18 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
     { name: '29-quiz-dars', vp: { width: 1440, height: 1000 }, steps: ['login-student', 'go-lessons', 'module-m1', 'lesson-l1'] },
     { name: '30-light-deadline', vp: { width: 1440, height: 1000 }, steps: ['login-student', 'theme', 'go-deadlines'] },
     { name: '31-admin-talaba-profili', vp: { width: 1440, height: 1000 }, steps: ['login-admin', 'go-students', 'student-profile'] },
-    { name: '32-admin-darslar', vp: { width: 1440, height: 1000 }, steps: ['login-admin', 'go-adminLessons'] }
+    { name: '32-admin-darslar', vp: { width: 1440, height: 1000 }, steps: ['login-admin', 'go-adminLessons'] },
+    /* --- v1.3.0: noutbuk rejimi --- */
+    { name: '40-noutbuk-bosh-1920', vp: { width: 1920, height: 1080 }, steps: ['login-student'] },
+    { name: '41-noutbuk-bosh-1440', vp: { width: 1440, height: 900 }, steps: ['login-student'] },
+    { name: '42-noutbuk-yigilgan-panel', vp: { width: 1920, height: 1080 }, steps: ['login-student', 'collapse'] },
+    { name: '43-noutbuk-palette', vp: { width: 1920, height: 1080 }, steps: ['login-student', 'palette-q'] },
+    { name: '44-noutbuk-yorliqlar', vp: { width: 1440, height: 950 }, steps: ['login-student', 'shortcuts'] },
+    { name: '45-noutbuk-vazifalar-2ustun', vp: { width: 1440, height: 1000 }, steps: ['login-student', 'go-tasks'] },
+    { name: '46-noutbuk-admin-talabalar', vp: { width: 1920, height: 1080 }, steps: ['login-admin', 'go-students'] },
+    { name: '47-noutbuk-kompakt-1366', vp: { width: 1366, height: 768 }, steps: ['login-student', 'go-deadlines'] },
+    { name: '48-noutbuk-light-1920', vp: { width: 1920, height: 1080 }, steps: ['login-student', 'theme'] },
+    { name: '49-noutbuk-admin-1680', vp: { width: 1680, height: 1050 }, steps: ['login-admin', 'go-stats'] }
   ];
   const page = await browser.newPage();
   const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
@@ -63,6 +74,13 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
       else if (t === 'student-profile') {
         setTimeout(() => document.querySelector('[data-act="student-open"]')?.click(), 80);
       }
+      else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
+      else if (t === 'palette-q') {
+        document.querySelector('[data-act="palette"]')?.click();
+        setTimeout(() => { const i = document.getElementById('pal-input'); if (i) { i.value = 'dars'; i.dispatchEvent(new Event('input', { bubbles: true })); } }, 130);
+      }
+      else if (t === 'collapse') document.querySelector('[data-act="collapse"]')?.click();
+      else if (t === 'shortcuts') document.querySelector('[data-act="shortcuts"]')?.click();
     }, s.steps[0] || 'none');
     for (const st of s.steps.slice(1)) {
       await page.waitForTimeout(220);
@@ -74,6 +92,13 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
         else if (t === 'student-profile') document.querySelector('[data-act="student-open"]')?.click();
         else if (t.startsWith('module-')) document.querySelector('[data-act="module-open"][data-id="' + t.slice(7) + '"]')?.click();
         else if (t.startsWith('lesson-')) document.querySelector('[data-act="lesson-open"][data-id="' + t.slice(7) + '"]')?.click();
+        else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
+        else if (t === 'palette-q') {
+          document.querySelector('[data-act="palette"]')?.click();
+          setTimeout(() => { const i = document.getElementById('pal-input'); if (i) { i.value = 'dars'; i.dispatchEvent(new Event('input', { bubbles: true })); } }, 130);
+        }
+        else if (t === 'collapse') document.querySelector('[data-act="collapse"]')?.click();
+        else if (t === 'shortcuts') document.querySelector('[data-act="shortcuts"]')?.click();
       }, st);
     }
     await page.waitForTimeout(500);

@@ -113,3 +113,40 @@ PWA sifatida o'rnatiladi, oflayn ishlaydi, telefon va kompyuterda bir xil sifatl
 ma'lumot zaxiralanadi va statistikalar eksport qilinadi.
 Real ko'p foydalanuvchili rejimga o'tish uchun `schema/supabase.sql` ishga tushirilib,
 `loadState()` / `save()` almashtiriladi — UI kodi o'zgarmaydi.
+
+---
+
+## Qo'shimcha: v1.3.0 — noutbuk rejimi (13-oktyabr)
+
+**Vazifa:** mobil uchun moslangan saytni noutbuk/kompyuterdan ham to'liq va qulay ishlatish (telefon tajribasini buzmasdan).
+
+### Qilingan ishlar
+
+| # | Ish | Tafsilot |
+|---|---|---|
+| 1 | Keng ekran tuzilishi | ≥1500 px da kontent 1460 px, ≥1800 px da 1680 px, ≥2200 px da 1860 px gacha kengaydi; oraliqlar mutanosib |
+| 2 | Asosiy ustun + yon panel | ≥1280 px da Bosh sahifa va tegishli sahifalar 2 ustunga bo'lindi (o'ng panel 372→420 px): jamoa, tez amallar, haftalik faollik, klub oqimi |
+| 3 | Yig'iladigan yon panel | 80 px ikonka paneli; holat `localStorage`da saqlanadi (`settings.sidebarCollapsed`) |
+| 4 | Buyruq paneli (Ctrl/⌘+K) | 54+ buyruq: bo'limlar, amallar, darslar, vazifalar, talabalar, jamoalar; ↑↓ va Enter bilan boshqariladi |
+| 5 | Klaviatura yorliqlari | `/`, `Alt+1…8`, `N`, `T`, `?`, `Esc`; yozish maydonida yorliqlar bloklanadi; yordam oynasi sayt ichida |
+| 6 | Saralanadigan jadvallar | Admin «Talabalar»: ism/jamoa/progress/baho ustunlari (▲▼ belgisi); telefonda «Saralash» tanlagichi (XP, streak ham) |
+| 7 | Keng ekran to'rlari | ≥1400 px da vazifalar 2 ustun, modullar 3 ustun, galereya zichroq |
+| 8 | Kompakt rejim | ≥1024 px va balandlik ≤850 px (masalan 1366×768) da oraliqlar avtomatik zichlashadi |
+| 9 | «Yuqoriga» tugmasi | Sahifa 640 px dan ko'p aylantirilsa paydo bo'ladi (yumshoq ko'tarilish) |
+| 10 | Karta fokus | Galereya kartalari `tabindex`/`role`/`aria-label` bilan — `Tab` bilan aylanib chiqish mumkin |
+
+### Sifat nazorati (v1.3.0)
+
+| Daraja | Natija |
+|---|---|
+| Sintaksis (`npm run check`) | ✔ 4 fayl toza |
+| Funksional testlar (`npm test`) | ✔ **195 ta tekshiruv, 0 xato** (16-guruh: buyruq paneli, yorliqlar, yig'ish, saralash — 43 yangi tekshiruv) |
+| Vizual QA (`npm run screens`) | ✔ **37 ta skrinshot**, shundan 10 tasi noutbuk (1920×1080, 1440×900, 1366×768) |
+| Jonli sayt (`npm run test:live`) | ✔ 18 ta tekshiruv (deploydan keyin) |
+| Telefon regressiyasi | ✔ mobil ko'rinishlar (6 ta skrinshot) va pastdagi navigatsiya o'zgarmagan |
+
+### Ma'lum cheklovlar (o'zgarmagan)
+
+- Ma'lumotlar hali ham `localStorage`da (demo) — ko'p qurilmali ishlash uchun Supabase'ga o'tish kerak.
+- Mentor roli faqat ma'lumot sifatida (login yo'q) — bu ongli qaror, admin panel mentor ishini bajaradi.
+- Buyruq paneli va klaviatura yorliqlari telefon ekranida ham ochiladi, lekin ular noutbuk uchun mo'ljallangan.

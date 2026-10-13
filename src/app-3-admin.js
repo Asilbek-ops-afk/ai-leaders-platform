@@ -213,9 +213,20 @@ function vStudents() {
       .map(([k, l]) => '<button class="' + (f === k ? ' on' : '') + '" data-act="filter-s" data-f="' + k + '">' + esc(l) + '</button>').join('') +
     '</div></div>';
 
+  h += '<div class="row wrap between" style="gap:10px;margin-top:-4px">' +
+    '<div class="row small t2 only-sm" style="gap:8px">' + ico('filter', 'sm') + 'Saralash:' +
+    '<select class="inp" style="width:auto;padding:8px 12px" data-act="sort-sel" aria-label="Saralash">' +
+    [['name', 'Ism (A–Z)'], ['progress', 'Progress'], ['score', 'Baho'], ['xp', 'XP'], ['streak', 'Streak'], ['group', 'Jamoa']]
+      .map(([k, l]) => '<option value="' + k + '"' + (UI.sort.k === k ? ' selected' : '') + '>' + esc(l) + '</option>').join('') +
+    '</select></div>' +
+    '<span class="xs muted hide-sm">Ustun nomini bosing — saralash uchun</span></div>';
+
+  const sorted = sortStudentsList(list);
   h += '<div class="card" style="padding:14px 12px"><div class="table-scroll"><div class="trows">' +
-    '<div class="trow head"><span>Talaba</span><span>Jamoa</span><span>Progress</span><span>Faollik / baho</span><span>Amallar</span></div>' +
-    list.map(s => { const p = progress(s); const g = myGroup(s); const late = lateStudents().some(x => x.st.id === s.id);
+    '<div class="trow head">' + thBtn('name', 'Talaba') + '<span class="cell-hide">' + thBtn('group', 'Jamoa') + '</span>' +
+    '<span class="cell-hide">' + thBtn('progress', 'Progress') + '</span><span class="cell-hide">' + thBtn('score', 'Faollik / baho') + '</span>' +
+    '<span class="tr">Amallar</span></div>' +
+    sorted.map(s => { const p = progress(s); const g = myGroup(s); const late = lateStudents().some(x => x.st.id === s.id);
       return '<div class="trow"><div class="row" style="gap:10px;min-width:0">' + avatar(s, 'sm') +
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s.name) + '</div>' +
         '<div class="xs muted ellip">' + esc(s.tg) + ' • ' + esc(medal(s).n) + '</div></div></div>' +
@@ -225,7 +236,7 @@ function vStudents() {
         '<span class="tag a">' + ico('star', 'sm') + s.score + '</span><span class="tag c">' + ico('bolt', 'sm') + nf(s.wxp) + '</span></div></span>' +
         '<span class="row" style="gap:7px;justify-content:flex-end"><button class="btn btn-xs btn-soft" data-act="student-open" data-id="' + s.id + '">Profil</button>' +
         '<button class="btn btn-xs btn-ghost" data-act="nudge" data-id="' + s.id + '" aria-label="Eslatma yuborish">' + ico('bell', 'sm') + '</button></span></div>'; }).join('') +
-    '</div></div>' + (list.length ? '' : '<div class="empty">Filtr bo‘yicha talaba topilmadi</div>') + '</div>';
+    '</div></div>' + (sorted.length ? '' : '<div class="empty">Filtr bo‘yicha talaba topilmadi</div>') + '</div>';
   return h;
 }
 
