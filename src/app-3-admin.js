@@ -135,7 +135,9 @@ function csvDoneModal(res) {
       '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(x.student.name) + '</div>' +
       '<div class="xs muted">@' + esc(x.acc.nick) + ' • HEMIS: ' + esc(x.acc.hemisId) + (x.student.group ? ' • ' + esc((groupOf(x.student.group) || {}).name || '') : '') + '</div></div>' +
       '<button class="btn btn-xs btn-soft" data-act="login-card" data-id="' + esc(x.acc.id) + '">' + ico('doc', 'sm') + 'Kartochka</button></div>').join('') +
-    '</div><div class="row" style="gap:10px;margin-top:14px"><button class="btn btn-primary grow" data-act="print">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
+    '</div>' + (UI.lastImport ? '<div class="xs muted" style="margin-top:10px">Xato fayl yuklangan bo‘lsa — «Importni bekor qilish» shu import yaratgan talaba, akkaunt va jamoalarni o‘chiradi (keyin qo‘shilganlarga tegmaydi).</div>' +
+    '<div class="row" style="margin-top:8px"><button class="btn btn-soft btn-sm" data-act="import-undo">' + ico('trash', 'sm') + 'Importni bekor qilish (' + res.created.length + ')</button></div>' : '') +
+    '<div class="row" style="gap:10px;margin-top:14px"><button class="btn btn-primary grow" data-act="print">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
     '<button class="btn btn-ghost" data-act="close-modal">Yopish</button></div>', 'wide');
 }
 function createGroupModal() {
@@ -290,6 +292,7 @@ function vStudents() {
   let h = '<div class="page-head"><div><h1 class="h1">Talabalar</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Guruh, daraja va faollik bo‘yicha kuzatuv. Profilni ochib vazifa, deadline va baholarni ko‘rish mumkin.</p></div>' +
     '<div class="row wrap" style="gap:9px">' +
+    (actionAllowed('students') && UI.lastImport ? '<button class="btn btn-ghost btn-sm" data-act="import-undo" title="Oxirgi CSV import natijasini o‘chirish">' + ico('trash', 'sm') + 'Oxirgi importni bekor qilish (' + UI.lastImport.studentIds.length + ')</button>' : '') +
     (actionAllowed('students') ? '<button class="btn btn-soft btn-sm" data-act="import-csv">' + ico('upload', 'sm') + 'CSV import</button>' : '') +
     (actionAllowed('students') ? '<button class="btn btn-primary btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' : '') + '</div></div>';
 

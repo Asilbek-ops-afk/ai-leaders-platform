@@ -112,7 +112,7 @@ Platformada namuna ma'lumot **yo'q** (v2.0.0 da butunlay olib tashlandi). Haqiqi
 
 **Admin → Talabalar → «CSV import»** → fayl tanlanadi → tekshiruv hisoboti (qabul/xato/ogohlantirish)
 → tasdiqlangach talabalar, akkauntlar va jamoalar avtomatik yaratiladi, kirish kartochkalari chiqadi.
-Kod o'zgartirish yoki qayta deploy **kerak emas**. (CLI varianti `tools/import-talabalar.js` arxiv sifatida qoladi.)
+Kod o'zgartirish yoki qayta deploy **kerak emas**. Xato fayl yuklansa — «Importni bekor qilish» tugmasi shu import natijasini butunlay qaytaradi. (CLI varianti `tools/import-talabalar.js` arxiv sifatida qoladi.)
 
 | # | Qadam | Kim | Vaqt |
 |---|---|---|---|

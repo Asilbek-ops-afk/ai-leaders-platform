@@ -313,6 +313,13 @@ document.addEventListener('click', e => {
     case 'go-team': go(isAdmin() ? 'adminGroups' : 'team'); break;
     case 'go-settings': go('settings'); break;
     case 'import-csv': csvImportModal(UI.csvReport || null); break;
+    case 'import-undo': {
+      if (!UI.lastImport) break;
+      const u = undoImport(UI.lastImport);
+      UI.lastImport = null;
+      toast('warn', 'Import bekor qilindi', u.students + ' talaba, ' + u.accounts + ' akkaunt va ' + u.groups + ' jamoa olib tashlandi.');
+      closeModal(); paint(true); break;
+    }
     case 'palette': openPalette(); break;
     case 'pal-run': { const it = (PAL.visible || [])[parseInt(t.dataset.idx, 10)]; if (it) runPalette(it.act); break; }
     case 'shortcuts': shortcutsModal(); break;
@@ -781,6 +788,7 @@ document.addEventListener('submit', e => {
     if (!rep || !rep.ok.length) { toast('warn', 'Import qilinmadi', 'Avval CSV faylni tanlang.'); closeModal(); return; }
     const res = importStudents(rep);
     UI.csvReport = null;
+    UI.lastImport = res.undo;
     toast('ok', 'Import yakunlandi', res.created.length + ' talaba qo‘shildi' + (res.newGroups ? ', ' + res.newGroups + ' yangi jamoa' : '') + '.');
     if (res.created.length) csvDoneModal(res); else closeModal();
     paint(true); return;

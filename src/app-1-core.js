@@ -316,7 +316,7 @@ function activityPct() { return S.students.length ? Math.round(activeCount() / S
 /* ---------- 5. UI holati ---------- */
 const UI = { route: 'home', authShow: false, authRole: 'student', authErr: '', firstPass: null, newCard: null, theme: 'dark', cal: 0, calMonthly: false,
   taskFilter: 'all', studentsFilter: 'all', friendTab: 'friends', search: '', reviewFilter: 'all',
-  module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 }, csvReport: null };
+  module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 }, csvReport: null, lastImport: null };
 
 function toast(kind, title, text) {
   const map = { ok: 'check-c', warn: 'alert', err: 'x', info: 'spark' };
@@ -730,9 +730,10 @@ function createFounderAccount(data) {
   return { ok: true, acc };
 }
 /* ---------- 3b. Talaba yaratish (bitta joydan: forma ham, CSV import ham) ---------- */
-function addStudentRecord(d) {
+function addStudentRecord(d, o) {
   const res = createStudentAccount(d);
   if (res.err) return res;
+  if (o && o.imp) res.acc.imp = true;
   const s0 = { id: uid('s'), name: String(d.name || '').trim(), tg: String(d.tg || '').trim() || '@talaba',
     phone: String(d.phone || '').trim() || '+998', group: d.groupId || '',
     xp: 0, wxp: 0, streak: 0, coins: 0, level: 'junior', act: true, score: 0, joined: todayISO(),
@@ -805,25 +806,56 @@ function csvStudentsReport(text) {
     ok.push({ name, hemisId: hemis, phone, group, tg: g('tg'), goal: g('goal') });
   });
   const groups = [...new Set(ok.map(x => x.group).filter(Boolean))];
-  return { ok, groups, errors, warns };
+  const freeNicks = NICK_WORDS.filter(w => !nickTaken(w)).length;
+  if (ok.length > freeNicks) warns.push((ok.length - freeNicks) + ' talabaga «leaderN» ko‘rinishidagi nick beriladi (nick lug‘ati tugadi).');
+  const newGroupNames = groups.filter(n => !S.groups.some(g => String(g.name).toLowerCase() === String(n).toLowerCase()));
+  return { ok, groups, newGroupNames, errors, warns };
 }
 /* Tekshirilgan qatorlarni bazaga qo'shadi (jamoa kerak bo'lsa avtomatik yaratiladi) */
 function importStudents(report) {
   const gMap = {};
   const created = [];
-  let newGroups = 0;
+  const newGroupIds = [];
+  const newGroupNames = [];
   report.groups.forEach(gName => {
     const found = S.groups.find(g => String(g.name).toLowerCase() === String(gName).toLowerCase());
     const g = found || { id: uid('g'), name: gName, project: '', members: [], mentor: null, xp: 0, dl: {}, color: 'p' };
-    if (!found) { S.groups.push(g); newGroups++; }
+    if (!found) { S.groups.push(g); newGroupIds.push(g.id); newGroupNames.push(gName); }
     gMap[gName] = g.id;
   });
   report.ok.forEach(row => {
-    const res = addStudentRecord({ name: row.name, phone: row.phone, hemisId: row.hemisId, groupId: row.group ? gMap[row.group] : '', tg: row.tg, goal: row.goal });
+    const res = addStudentRecord({ name: row.name, phone: row.phone, hemisId: row.hemisId, groupId: row.group ? gMap[row.group] : '', tg: row.tg, goal: row.goal }, { imp: true });
     if (res.ok) created.push(res);
   });
   save();
-  return { created, newGroups };
+  const undo = { accIds: created.map(x => x.acc.id), studentIds: created.map(x => x.student.id), groupIds: newGroupIds, groupNames: newGroupNames };
+  return { created, newGroups: newGroupIds.length, undo };
+}
+/* Noto'g'ri fayl yuklangan bo'lsa — import natijasini bir tugma bilan qaytarish.
+   Faqat shu import yaratgan talaba/akkaunt/jamoa o'chadi; keyin qo'lda qo'shilganlar tegilmaydi. */
+function undoImport(u) {
+  if (!u) return { students: 0, groups: 0, accounts: 0 };
+  const sids = new Set(u.studentIds || []);
+  const accIds = new Set(u.accIds || []);
+  const gids = new Set(u.groupIds || []);
+  const before = { students: S.students.length, groups: S.groups.length, accounts: accounts().length };
+  const names = new Set(S.students.filter(x => sids.has(x.id)).map(x => x.name));
+  S.students = S.students.filter(x => !sids.has(x.id));
+  (S.groups || []).forEach(g => { g.members = (g.members || []).filter(id => !sids.has(id)); });
+  S.groups = S.groups.filter(g => !gids.has(g.id));
+  accounts().forEach(a => { if (accIds.has(a.id)) delete a.imp; });
+  S.accounts = accounts().filter(a => !accIds.has(a.id));
+  if (S.session && accIds.has(S.session.acc)) S.session = null;
+  sids.forEach(id => { ['friends', 'incoming', 'sent'].forEach(k => { if (S[k]) delete S[k][id]; }); if (S.notifs) delete S.notifs[id]; });
+  if (Array.isArray(S.submissions)) S.submissions = S.submissions.filter(p => !sids.has(p.st));
+  if (Array.isArray(S.activity)) S.activity = S.activity.filter(a => !names.has(a.who));
+  pruneOrphans();
+  save();
+  return {
+    students: before.students - S.students.length,
+    groups: before.groups - S.groups.length,
+    accounts: before.accounts - accounts().length
+  };
 }
 function createStudentAccount(data) {
   const name = String(data.name || '').trim(), phone = String(data.phone || '').trim(), hemis = digitsOnly(data.hemisId);

@@ -65,7 +65,7 @@ window.AIL = {
   closePalette: () => closeModal(),
   closeModal: () => closeModal(),
   needsSetup: () => needsSetup(),
-  csvReport: t2 => { const r = csvStudentsReport(t2); return { ok: r.ok || [], groups: r.groups || [], errors: r.errors || [], warns: r.warns || [], fatal: r.fatal || null }; },
+  csvReport: t2 => { const r = csvStudentsReport(t2); return { ok: r.ok || [], groups: r.groups || [], newGroupNames: r.newGroupNames || [], errors: r.errors || [], warns: r.warns || [], fatal: r.fatal || null }; },
   founder: () => { const a = founderAcc(); return a ? { id: a.id, name: a.name, nick: a.nick } : null; },
   createFounder: o => { const r = createFounderAccount(o || {}); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', acc: r.acc ? JSON.parse(JSON.stringify(r.acc)) : null }; },
   reset: () => resetAll(),
@@ -77,6 +77,9 @@ window.AIL = {
     pruneOrphans(); save(); return null;
   },
   addStudent: d2 => { const r = addStudentRecord(d2); return r.ok ? { ok: true, acc: { id: r.acc.id, nick: r.acc.nick, hemisId: r.acc.hemisId }, s: r.student.id } : { ok: false, err: r.err, msg: r.msg }; },
+  lastImport: () => { const u = UI.lastImport; return u ? { accIds: u.accIds.length, studentIds: u.studentIds.length, groupIds: u.groupIds.length } : null; },
+  impStatus: () => accounts().filter(a => a.imp).length,
+  accs: () => accounts().map(a => ({ id: a.id, nick: a.nick, role: a.role, imp: !!a.imp, studentId: a.studentId })),
   version: () => APP_VERSION
 };`;
 
@@ -1184,6 +1187,53 @@ group('22. CSV import: haqiqiy talaba ro‘yxatini yuklash');
       return btns.some(x => /Nova/.test(x)) && btns.some(x => /Orbit/.test(x));
     })());
     t('JS xatosi yo‘q (CSV import)', Q.errors.length === 0);
+
+    /* — bekor qilish (undo) — */
+    t('import belgisi akkauntlarga qo‘yilgan (imp)', Q.w.AIL.impStatus() === 2);
+    t('bekor qilish ma’lumoti saqlandi (2 talaba, 2 jamoa)', (() => {
+      const u = Q.w.AIL.lastImport();
+      return !!u && u.studentIds === 2 && u.accIds === 2 && u.groupIds === 2;
+    })());
+    /* qo'lda qo'shilgan talaba undo'ga tegmasligi kerak */
+    const manual = Q.w.AIL.addStudent({ name: 'Qo‘lda Qo‘shilgan', hemisId: '121212121212', groupId: '' });
+    t('qo‘lda qo‘shilgan talaba undo’dan himoyalangan', manual.ok === true && Q.w.AIL.S.students.length === 3);
+    Q.w.AIL.closeModal();
+    Q.w.AIL.go('students');
+    t('talabalar sahifasida «Oxirgi importni bekor qilish» tugmasi', Q.has('Oxirgi importni bekor qilish (2)'));
+    Q.click('[data-act="import-undo"]');
+    t('bekor qilindi: 2 talaba va 2 jamoa olib tashlandi', (() => {
+      const S0 = Q.w.AIL.S;
+      return S0.students.length === 1 && S0.students[0].name === 'Qo‘lda Qo‘shilgan'
+        && S0.groups.length === 0 && S0.accounts.filter(a => a.role === 'student').length === 1
+        && Q.w.AIL.impStatus() === 0 && Q.w.AIL.lastImport() === null;
+    })());
+    t('undo’dan keyin yetim ssilka qolmadi', (() => {
+      const S0 = Q.w.AIL.S;
+      const ids = new Set(S0.students.map(x => x.id));
+      return S0.groups.every(g => g.members.every(id => ids.has(id)))
+        && S0.submissions.every(p => ids.has(p.st))
+        && Object.keys(S0.friends).every(id => ids.has(id))
+        && Object.keys(S0.notifs).every(id => ids.has(id));
+    })());
+    t('undo’dan keyin talabalar sahifasi toza', Q.has('Qo‘lda Qo‘shilgan') && !Q.has('Nodira') && !/NaN|undefined/.test(Q.txt()));
+    t('undo’dan keyin tugma ham yo‘qoladi', !Q.has('Oxirgi importni bekor qilish'));
+    t('undo’dan keyin karta va statistika ishlaydi', (() => {
+      Q.w.AIL.go('stats'); const st = Q.txt();
+      Q.w.AIL.go('admin'); const ad = Q.txt();
+      return !/NaN|undefined/.test(st + ad);
+    })());
+    /* nick lug'ati tugashi haqida ogohlantirish */
+    t('katta ro‘yxatda nick lug‘ati ogohlantirishi chiqadi', (() => {
+      let csv = 'ism_familiya,hemis_id\n';
+      for (let i = 0; i < 200; i++) csv += 'Talaba Raqam' + i + ',9' + String(10000000000 + i) + '\n';
+      const rep = Q.w.AIL.csvReport(csv);
+      return rep.ok.length === 200 && rep.warns.some(w => /nick lug‘ati tugadi/.test(w));
+    })());
+    t('yangi jamoalar hisoboti to‘g‘ri (mavjudi qayta yaratilmaydi)', (() => {
+      const rep = Q.w.AIL.csvReport('ism_familiya,hemis_id,jamoa\nYangi Odam,333222111000,YangiJamoa\n');
+      return rep.newGroupNames.length === 1 && rep.newGroupNames[0] === 'YangiJamoa';
+    })());
+    t('JS xatosi yo‘q (undo)', Q.errors.length === 0);
   }
 }
 

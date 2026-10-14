@@ -7,7 +7,7 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **379 ta tekshiruv, 0 xato** |
+| 🧪 **Testlar** | `npm test` → **391 ta tekshiruv, 0 xato** |
 | 🔐 **Kirish** | Talaba: **HEMIS ID yoki nick** + parol • Admin: email + parol |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
@@ -145,11 +145,11 @@ ai-leaders/
 ├── tools/
 │   ├── make-assets.py         # ikon va OG rasmni generatsiya qiladi (Pillow)
 │   └── tests/
-│       ├── run.js             # 379 ta avtomatik test (jsdom)
+│       ├── run.js             # 391 ta avtomatik test (jsdom)
 │       ├── layout.js          # 119 joylashuv (overflow) tekshiruvi (playwright)
 │       ├── live.js            # 18 ta jonli sayt tekshiruvi
 │       ├── fixtures.js        # test uchun namuna ma'lumot (manba kodda YO'Q)
-│       └── screens.js         # 76 qadam / 66 skrinshot (playwright) → docs/screens/
+│       └── screens.js         # 78 qadam / 68 skrinshot (playwright) → docs/screens/
 ├── docs/
 │   ├── ishga-tushirish-rejasi.md   # 30 kunlik klub ishga tushirish rejasi + metrikalar
 │   └── screens/                    # desktop + mobil skrinshotlar
@@ -174,7 +174,7 @@ git clone https://github.com/Asilbek-ops-afk/ai-leaders-platform.git
 cd ai-leaders-platform
 
 npm run build       # src → index.html + dist/
-npm test            # 379 ta avtomatik test (jsdom kerak: npm install)
+npm test            # 391 ta avtomatik test (jsdom kerak: npm install)
 npm run test:layout # 119 ta joylashuv tekshiruvi (playwright: npx playwright install chromium)
 npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
 npm run check       # sintaksis tekshiruvi
@@ -198,7 +198,7 @@ npm run deploy                       # build + wrangler pages deploy dist/
 Loyihada ikki darajali sifat nazorati bor:
 
 **1) `npm test` — funksional testlar (jsdom, haqiqiy DOM)**
-23 guruh, **379 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
+23 guruh, **391 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
 **CSV import** (fayl → tekshiruv hisoboti → akkauntlar + kartochkalar), **chekka holatlar**
 (vazifasiz jamoa, yetim a'zo, bo'sh tuzilmalarda `NaN`siz hisoblar),
 kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
@@ -207,7 +207,7 @@ fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, e
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**66 ta skrinshot** (76 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari** va **CSV import oynasi**
+**68 ta skrinshot** (78 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari** va **CSV import oynasi**
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 
@@ -219,7 +219,7 @@ Admin va talaba bo'limlari ketma-ket ochiladi, har biri uchun `document.scrollWi
 18 ta tekshiruv: sahifa yuklanishi, brend, SEO/PWA teglari, manifest, service worker, rasm va sarlavha (header) sozlamalari.
 
 **5) `npm run test:remote` — jonli saytda to'liq funksional testlar**
-Xuddi `npm test` kabi to'liq to'plam (379 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
+Xuddi `npm test` kabi to'liq to'plam (391 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
 (`TEST_URL=<url> node tools/tests/run.js`). Deploydan keyin «haqiqatan shu versiya chiqdimi?» degan savolga javob beradi.
 
 ---
@@ -264,6 +264,10 @@ node tools/import-talabalar.js docs/talabalar-shabloni.csv --write   # bazaga yo
 fayl tanlanadi, hisobot ko'rsatiladi (nechta qabul qilinadi, qaysi qatorlarda xato/ogohlantirish),
 tasdiqlangach talabalar + akkauntlar + jamoalar avtomatik yaratiladi va kirish kartochkalari chiqadi.
 Ya'ni yangi oqim uchun kod o'zgartirish yoki qayta deploy kerak emas.
+
+**Xato fayl yuklandi?** Yakuniy oynada va Talabalar sahifasida **«Importni bekor qilish»** tugmasi bor:
+u shu import yaratgan talaba, akkaunt va jamoalarni o'chiradi — keyin qo'lda qo'shilganlarga tegmaydi
+(har bir import qatori `imp` belgisi bilan saqlanadi).
 
 CLI varianti (`tools/import-talabalar.js`) tekshirilgan ro'yxat arxivi sifatida qoladi:
 platformada Founder akkaunti bo'lishi kerak (`localStorage` zaxirasidan yoki brauzerdan eksport qilingan
