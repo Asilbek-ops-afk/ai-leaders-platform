@@ -47,7 +47,15 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
     { name: '46-noutbuk-admin-talabalar', vp: { width: 1920, height: 1080 }, steps: ['login-admin', 'go-students'] },
     { name: '47-noutbuk-kompakt-1366', vp: { width: 1366, height: 768 }, steps: ['login-student', 'go-deadlines'] },
     { name: '48-noutbuk-light-1920', vp: { width: 1920, height: 1080 }, steps: ['login-student', 'theme'] },
-    { name: '49-noutbuk-admin-1680', vp: { width: 1680, height: 1050 }, steps: ['login-admin', 'go-stats'] }
+    { name: '49-noutbuk-admin-1680', vp: { width: 1680, height: 1050 }, steps: ['login-admin', 'go-stats'] },
+    /* --- v1.4.0: MVP akkaunt tizimi --- */
+    { name: '50-mvp-kirish-talaba-1920', vp: { width: 1920, height: 1080 }, steps: [] },
+    { name: '51-mvp-kirish-admin-1920', vp: { width: 1920, height: 1080 }, steps: ['admin-login-form'] },
+    { name: '52-mvp-birinchi-kirish-parol', vp: { width: 1920, height: 1080 }, steps: ['login-nick'] },
+    { name: '53-mvp-kirish-mobil', vp: { width: 390, height: 844 }, steps: [], mobile: true },
+    { name: '54-mvp-adminlar-bolimi', vp: { width: 1920, height: 1080 }, steps: ['login-admin', 'admins-page'] },
+    { name: '55-mvp-admin-tahrirlash', vp: { width: 1920, height: 1080 }, steps: ['login-admin', 'admins-page', 'login-card'] },
+    { name: '56-mvp-talaba-qoshish', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'go-students', 'add-student'] }
   ];
   const page = await browser.newPage();
   const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
@@ -76,6 +84,14 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
       else if (t === 'student-profile') {
         setTimeout(() => document.querySelector('[data-act="student-open"]')?.click(), 80);
       }
+      else if (t === 'login-nick') {
+        document.querySelector('[data-act="pick-role"][data-r="student"]')?.click();
+        setTimeout(() => {
+          const f = document.querySelector('[data-form="login-student"]');
+          if (f) { f.querySelector('input[name="login"]').value = 'falcon'; f.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); }
+        }, 120);
+      }
+      else if (t === 'admin-login-form') document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click();
       else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
       else if (t === 'palette-q') {
         document.querySelector('[data-act="palette"]')?.click();
@@ -94,6 +110,11 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
         else if (t === 'student-profile') document.querySelector('[data-act="student-open"]')?.click();
         else if (t.startsWith('module-')) document.querySelector('[data-act="module-open"][data-id="' + t.slice(7) + '"]')?.click();
         else if (t.startsWith('lesson-')) document.querySelector('[data-act="lesson-open"][data-id="' + t.slice(7) + '"]')?.click();
+        else if (t === 'login-nick') document.querySelector('[data-act="pick-role"][data-r="student"]')?.click();
+        else if (t === 'admin-login-form') document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click();
+        else if (t === 'admins-page') setTimeout(() => document.querySelector('[data-act="go"][data-route="adminAdmins"]')?.click(), 100);
+        else if (t === 'login-card') setTimeout(() => document.querySelector('[data-act="admin-edit"][data-id="acc-a2"]')?.click(), 300);
+        else if (t === 'add-student') setTimeout(() => document.querySelector('[data-act="new-student"]')?.click(), 120);
         else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
         else if (t === 'palette-q') {
           document.querySelector('[data-act="palette"]')?.click();

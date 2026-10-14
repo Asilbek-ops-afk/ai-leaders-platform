@@ -200,3 +200,40 @@ dizayn ritmi va izchillik yaxshilandi:
 
 **Tekshiruv:** `npm test` → **219 ta tekshiruv, 0 xato** (18-guruh: pastki panel va dizayn izchilligi — 10 yangi tekshiruv),
 39 ta skrinshot qayta olindi.
+
+---
+
+## v1.4.0 — MVP: HEMIS ID + unikal nick akkaunt tizimi
+
+Foydalanuvchi aniqlashtirdi: platforma **demo emas, MVP** bo'lishi kerak. Shu asosda haqiqiy akkaunt tizimi qurildi.
+
+### Nima yaratildi
+
+| # | Qism | Tafsilot |
+|---|---|---|
+| 1 | **Akkaunt qatlami** | `accounts[]` + `session`; har akkauntda: nick, ism, HEMIS ID, telefon, rol, holat, parol heshi, oxirgi kirish |
+| 2 | **HEMIS ID tekshiruvi** | Aynan **12 xona raqam**; bir xil HEMIS ikkinchi marta kiritilmaydi; telefon takrori ham tekshiriladi |
+| 3 | **Unikal nick generatori** | ~200 inglizcha so'zdan (`falcon`, `onyx`, `comet`...) tasodifiy tanlanadi, band bo'lsa keyingisiga o'tadi; 25 namuna akkauntga avtomatik berilgan |
+| 4 | **Birinchi kirish oqimi** | Parolsiz kirilgan akkaunt "Parolni o'rnatamiz" bosqichiga o'tadi (2 maydon + mos kelish tekshiruvi) |
+| 5 | **Parol xavfsizligi** | Parol hesh sifatida saqlanadi (ochiq matn emas), heshda nick "tuz" vazifasini bajaradi; 4 belgidan qisqa parol qabul qilinmaydi |
+| 6 | **Login formasi** | Talaba: **HEMIS ID yoki nick**; Admin: **email**. Yagona `authLookup()` uch xil usulni ham taniydi |
+| 7 | **Sessiya** | Kirgandan keyin `session` saqlanadi → sahifa yangilanganda qayta parol so'ralmaydi; paroli o'rnatilmagan akkauntda sessiya tiklanmaydi (xavfsizlik) |
+| 8 | **Adminlar bo'limi** (yangi) | 7 admin seed: Founder, Bosh mentor, 2 Mentor, Kontent menejer, Kurator; KPI kartalar, jadval, qo'shish/tahrirlash/bloklash/o'chirish; **faqat Founder** ko'radi |
+| 9 | **Ruxsatlar modeli** | 7 ruxsat turi (`students`, `tasks`, `content`, `groups`, `stats`, `settings`, `admins`); founder avtomatik `__all` |
+| 10 | **Kirish kartochkasi** | Nick + HEMIS ID + parol qoidasi; chop etish/PDF va nusxalash; talaba va admin uchun alohida ko'rinish |
+| 11 | **Yordam oynasi** | "Kirish bo'yicha yordam": talaba/admin qanday kiradi, parolni unutganda nima qilish, birinchi kirish |
+| 12 | **Namuna rejimi ajratildi** | Demo akkauntlar `demo: true` belgisi bilan; faqat shularda "Tez kirish" va rol almashtirish tugmasi ko'rinadi; versiya qatorida "namuna rejimi" yozuvi |
+
+### Tekshiruv natijalari
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **261 ta, 0 xato** (19-guruh: akkaunt tizimi — 35 yangi tekshiruv) |
+| Haqiqiy brauzer sinovi | ✔ `falcon` → parol o'rnatish → talaba kabineti; xato nick/parol xabarlari; admin qo'shish → kartochka |
+| Skrinshotlar | 7 ta yangi: kirish (talaba/admin), birinchi kirish, mobil, Adminlar bo'limi, tahrirlash, talaba qo'shish |
+| Migratsiya | ✔ Eski `localStorage` holati buzilmaydi — akkauntlar avtomatik ulanadi |
+
+### Keyingi qadam (baza)
+
+`docs/mvp-reja.md` dagi 7 bosqichli reja kuchida: Supabase kalitlari kiritilishi bilan bir xil interfeys
+haqiqiy bazada ishlay boshlaydi (19 jadval, 26 RLS siyosat, storage tayyor).

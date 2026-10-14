@@ -7,7 +7,8 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **195 ta tekshiruv, 0 xato** |
+| 🧪 **Testlar** | `npm test` → **261 ta tekshiruv, 0 xato** |
+| 🔐 **Kirish** | Talaba: **HEMIS ID yoki nick** + parol • Admin: email + parol |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 📦 **Hajm** | Bitta `index.html` (~288 KB), tashqi kutubxonasiz |
 
@@ -96,6 +97,31 @@ Yorliqlar oynasini sayt ichidan ko'rish: yuqori paneldagi `?` tugmasi yoki `Shif
 
 ---
 
+### 5. Kirish tizimi va akkauntlar (MVP)
+
+**Talabalar** klubga HEMIS ID topshiradi → admin platformaga kiritadi → tizim har bir HEMIS ID uchun
+**unikal nick** beradi (21-school uslubida). Parolni talaba **birinchi kirishda o'zi** o'rnatadi —
+admin parol tarqatmaydi.
+
+| Qadam | Kim | Nima bo'ladi |
+|---|---|---|
+| 1 | Talaba | HEMIS ID (12 xona) ni klubga topshiradi |
+| 2 | Admin | `Talabalar → Talaba qo'shish`: ism, HEMIS ID, telefon, jamoa |
+| 3 | Tizim | Takrorlanmas nick yaratadi + **Kirish kartochkasi** (chop etish/nusxalash mumkin) |
+| 4 | Talaba | HEMIS ID yoki nick bilan kiradi → parolni o'zi o'rnatadi |
+| 5 | Keyingi kirishlar | Nick/HEMIS ID + o'zi tanlagan parol |
+
+**Admin va mentorlar** (7 kishi) email + parol bilan kiradi. Ular uchun alohida **Adminlar** bo'limi bor:
+rol (Founder, Bosh mentor, Mentor, Kontent menejer, Kurator), ruxsatlar, bloklash/o'chirish, kirish kartochkalari.
+Bo'limni faqat **Founder** ko'radi va boshqaradi.
+
+> ⚠️ **Muhim:** hozir ma'lumotlar brauzer xotirasida (`localStorage`) saqlanadi — bu MVP ning 1-bosqichi,
+> interfeys va login tizimi to'liq ishlaydi. Ko'p qurilmali ishlash (talaba telefonda topshiradi → admin
+> noutbukda ko'radi) uchun **Supabase** bazasi ulanadi: `schema/supabase.sql` tayyor, adapter yozilgan —
+> kalitlar kiritilishi bilan 15 daqiqada ishga tushadi. Batafsil: `docs/mvp-reja.md`.
+
+---
+
 ## Texnik tuzilma
 
 ```
@@ -118,7 +144,7 @@ ai-leaders/
 ├── tools/
 │   ├── make-assets.py         # ikon va OG rasmni generatsiya qiladi (Pillow)
 │   └── tests/
-│       ├── run.js             # 195 ta avtomatik test (jsdom)
+│       ├── run.js             # 261 ta avtomatik test (jsdom)
 │       └── screens.js         # 28 ta skrinshot (playwright) → docs/screens/
 ├── docs/
 │   ├── ishga-tushirish-rejasi.md   # 30 kunlik klub ishga tushirish rejasi + metrikalar
@@ -144,7 +170,7 @@ git clone https://github.com/Asilbek-ops-afk/ai-leaders-platform.git
 cd ai-leaders-platform
 
 npm run build       # src → index.html + dist/
-npm test            # 195 ta avtomatik test (jsdom kerak: npm install)
+npm test            # 261 ta avtomatik test (jsdom kerak: npm install)
 npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
 npm run check       # sintaksis tekshiruvi
 
@@ -167,13 +193,13 @@ npm run deploy                       # build + wrangler pages deploy dist/
 Loyihada ikki darajali sifat nazorati bor:
 
 **1) `npm test` — funksional testlar (jsdom, haqiqiy DOM)**
-16 guruh, **195 ta tekshiruv**: kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
+19 guruh, **261 ta tekshiruv**: kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
 vazifa topshirish → tekshirish → baholash zanjiri, modul qulfi, quiz, kunlik questlar,
 fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, eksport/zaxira,
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**39 ta skrinshot**: 15 desktop sahifa (3 tasi kirish ekrani), 6 mobil ko'rinish, 7 modal/light-tema holati va **10 noutbuk ko'rinishi**
+**46 ta skrinshot**: 15 desktop sahifa (3 tasi kirish ekrani), 6 mobil ko'rinish, 7 modal/light-tema holati va **10 noutbuk ko'rinishi**
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 

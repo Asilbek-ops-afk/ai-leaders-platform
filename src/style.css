@@ -364,6 +364,22 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 .cert .qr i{background:#C6FF4F;border-radius:1px}
 .cert .sig{border-top:1px solid #33456F;padding-top:6px;font-size:10.5px;color:#94A7D6}
 
+/* ---------- jadval: rol teglari va kataklar ---------- */
+.trow .tag{white-space:nowrap}
+.trow .cell-hide{min-width:0}
+
+/* ---------- auth: MVP kirish elementlari ---------- */
+.auth-tabs{display:flex;gap:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:5px;margin-bottom:16px}
+.auth-tab{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:750;color:var(--muted);transition:.16s}
+.auth-tab:hover{color:var(--txt2)}
+.auth-tab.on{background:linear-gradient(135deg,rgba(124,92,255,.24),rgba(34,211,238,.16));color:#fff;border:1px solid rgba(124,92,255,.4)}
+[data-theme="light"] .auth-tab.on{color:#221262}
+.form-err{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:var(--r-sm);font-size:12.5px;font-weight:650;
+  background:rgba(255,92,122,.12);border:1px solid rgba(255,92,122,.34);color:#FF9AAB}
+[data-theme="light"] .form-err{color:#B4234A}
+.auth-demo{margin-top:18px;padding:14px;border-radius:var(--r-sm);border:1px dashed var(--line-2);background:var(--panel-2)}
+.card.tight[data-print], #printZone .card{break-inside:avoid}
+
 /* ---------- auth ---------- */
 /* Kirish ekranida #app yon-panel gridi bo'lmasligi kerak (aks holda forma birinchi ustunga siqiladi) */
 .app.authscreen{display:block;grid-template-columns:none}

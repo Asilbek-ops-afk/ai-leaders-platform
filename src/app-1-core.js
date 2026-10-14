@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '1.3.2';
+const APP_VERSION = '1.4.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -229,6 +229,7 @@ function blankState() {
     role: 'student', user: 's1', theme: 'dark',
     students: STUDENTS, submissions: buildSubmissions(), walls: buildWalls(), gallery: buildGallery(),
     badges: BADGES.map(b => ({ ...b })), quests: {}, quizDone: {},
+    accounts: buildAccounts(), session: null,
     settings: { notif: true, weekly: true, publicProfile: true, friendBoard: false },
     meta: { version: APP_VERSION, created: todayISO() },
     groups: GROUPS.map(g => JSON.parse(JSON.stringify(g))),
@@ -266,6 +267,11 @@ function loadState() {
     if (!p || !p.students || !p.lessons) return blankState();
     const base = blankState();
     Object.keys(base).forEach(k => { if (p[k] === undefined) p[k] = base[k]; });
+    /* Migratsiya: akkauntlar/sessiya qo'shilgach, eski saqlangan holatga ularni ulaymiz */
+    if (!Array.isArray(p.accounts) || !p.accounts.length) p.accounts = base.accounts;
+    p.accounts.forEach(a => { if (!a.studentId && a.id.startsWith('acc-s')) a.studentId = a.id.slice(4); });
+    if (p.session === undefined) p.session = null;
+    if (p.session && !p.accounts.some(a => a.id === p.session.acc)) p.session = null;
     return p;
   } catch (e) { return blankState(); }
 }
@@ -364,7 +370,7 @@ function kpisAdmin() {
 function activityPct() { return Math.round(activeCount() / S.students.length * 100); }
 
 /* ---------- 5. UI holati ---------- */
-const UI = { route: 'home', authShow: false, authRole: 'student', theme: 'dark', cal: 0, calMonthly: false,
+const UI = { route: 'home', authShow: false, authRole: 'student', authErr: '', firstPass: null, newCard: null, theme: 'dark', cal: 0, calMonthly: false,
   taskFilter: 'all', studentsFilter: 'all', friendTab: 'friends', search: '', reviewFilter: 'all',
   module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 } };
 
@@ -450,6 +456,7 @@ const navDefs = {
   team: { l: 'Team', i: 'users' }, deadlines: { l: 'Deadline', i: 'clock' }, friends: { l: 'Friends', i: 'user' }, info: { l: 'Ma’lumot', i: 'shield' },
   admin: { l: 'Dashboard', i: 'dash' }, students: { l: 'Talabalar', i: 'users' }, adminTasks: { l: 'Vazifalar', i: 'task' },
   adminLessons: { l: 'Darslar', i: 'book' }, adminGroups: { l: 'Jamoalar', i: 'flag' }, adminDeadlines: { l: 'Deadline’lar', i: 'cal' },
+  adminAdmins: { l: 'Adminlar', i: 'shield' },
   stats: { l: 'Statistika', i: 'trend' }, settings: { l: 'Sozlamalar', i: 'settings' }
 };
 const NAV_SEC = {
@@ -459,7 +466,7 @@ const NAV_SEC = {
     ['Ijtimoiy', ['friends', 'info']]
   ],
   admin: [
-    ['Boshqaruv', ['admin', 'students', 'adminTasks']],
+    ['Boshqaruv', ['admin', 'students', 'adminTasks', 'adminAdmins']],
     ['Kontent', ['adminLessons', 'adminGroups', 'adminDeadlines']],
     ['Tahlil', ['stats', 'settings']]
   ]
@@ -497,13 +504,18 @@ function sidebar() {
     });
   });
   h += '<div class="side-foot">';
-  h += '<div class="userbox">' + avatar(isAdmin() ? { id: 'adm', name: 'Bekzod Aliyev', act: true, last: 0 } : st, 'sm') +
-    '<div class="grow ubx" style="min-width:0"><div class="small help ellip" style="font-weight:750">' + esc(isAdmin() ? 'Bekzod Aliyev' : st.name) + '</div>' +
-    '<small>' + esc(isAdmin() ? 'Founder • Admin' : (myGroup(st) ? myGroup(st).name + ' jamoasi' : 'Jamoa biriktirilmagan')) + '</small></div>' +
+  const acc = meAcc();
+  const meName = acc ? acc.name : (isAdmin() ? 'Admin' : st.name);
+  const meSub = acc
+    ? (acc.role === 'admin' ? (ADMIN_ROLES[acc.adminRole] || { l: 'Admin' }).l + ' • @' + acc.nick : '@' + acc.nick + ' • ' + (myGroup(st) ? myGroup(st).name + ' jamoasi' : 'jamoa yo‘q'))
+    : (isAdmin() ? 'Founder • Admin' : (myGroup(st) ? myGroup(st).name + ' jamoasi' : 'Jamoa biriktirilmagan'));
+  h += '<div class="userbox">' + avatar(isAdmin() ? { id: 'adm', name: meName, act: true, last: 0 } : st, 'sm') +
+    '<div class="grow ubx" style="min-width:0"><div class="small help ellip" style="font-weight:750">' + esc(meName) + '</div>' +
+    '<small>' + esc(meSub) + '</small></div>' +
     '<button class="btn-icon" style="width:34px;height:34px" data-act="theme" title="Rejim" aria-label="Mavzu">' + ico('moon', 'sm') + '</button></div>';
   h += '<div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm grow" data-act="logout" title="Hisobdan chiqish">' + ico('out', 'sm') + '<span class="blbl">Chiqish</span></button>' +
     '<button class="btn btn-ghost btn-sm" data-act="reset-confirm" title="Demoni tiklash" aria-label="Demo ma’lumotlarni tiklash">' + ico('refresh', 'sm') + '</button></div>' +
-    '<div class="xs muted verline" style="text-align:center;padding-top:2px">v' + APP_VERSION + ' • demo rejim</div></div></aside>';
+    '<div class="xs muted verline" style="text-align:center;padding-top:2px">v' + APP_VERSION + ((meAcc() && meAcc().demo) ? ' • namuna rejimi' : '') + '</div></div></aside>';
   return h;
 }
 function topbar() {
@@ -520,7 +532,7 @@ function topbar() {
     (UI.installEvt ? '<button class="btn-icon hide-sm" data-act="install" title="Ilovani o‘rnatish">' + ico('download', 'sm') + '</button>' : '') +
     (isAdmin() ? '<button class="btn-icon" data-act="go-settings" title="Sozlamalar" aria-label="Sozlamalar">' + ico('settings', 'sm') + '</button>' : '') +
     '<button class="btn-icon hide-sm" data-act="shortcuts" title="Klaviatura yorliqlari (?)" aria-label="Klaviatura yorliqlari">' + ico('help', 'sm') + '</button>' +
-    '<button class="btn-icon hide-sm" data-act="switch" title="Demo: rolni almashtirish">' + ico('refresh', 'sm') + '</button>' +
+    ((meAcc() && meAcc().demo) ? '<button class="btn-icon hide-sm" data-act="switch" title="Namuna rejimi: rolni almashtirish">' + ico('refresh', 'sm') + '</button>' : '') +
     '</header>';
 }
 function toTopBtn() {
@@ -541,7 +553,8 @@ function paletteData() {
   if (isAdmin()) {
     items.push({ grp: 'Amallar', l: 'Yangi vazifa berish', s: 'Talabalarga topshiriq', i: 'plus', act: 'new-task' });
     items.push({ grp: 'Amallar', l: 'Dars qo‘shish', s: 'Kontent qo‘shish', i: 'video', act: 'new-lesson' });
-    items.push({ grp: 'Amallar', l: 'Talaba qo‘shish', s: 'Yangi a’zo', i: 'users-plus', act: 'new-student' });
+    items.push({ grp: 'Amallar', l: 'Talaba qo‘shish', s: 'HEMIS ID + nick berish', i: 'users-plus', act: 'new-student' });
+    items.push({ grp: 'Amallar', l: 'Admin qo‘shish', s: 'Email + rol + ruxsatlar', i: 'shield', act: 'new-admin' });
     items.push({ grp: 'Amallar', l: 'Zaxira nusxa (JSON)', s: 'Ma’lumotlarni yuklab olish', i: 'download', act: 'export-json' });
     items.push({ grp: 'Amallar', l: 'Statistika hisoboti (CSV)', s: 'Excel uchun', i: 'doc', act: 'export' });
   } else {
@@ -665,6 +678,140 @@ function sortStudentsList(list) {
 }
 const thBtn = (k, l) => '<button class="th' + (UI.sort.k === k ? ' on' : '') + '" data-act="sort" data-k="' + k + '" title="' + esc(l) + ' bo‘yicha saralash">' +
   esc(l) + (UI.sort.k === k ? '<span class="ar">' + (UI.sort.d > 0 ? '▲' : '▼') + '</span>' : '') + '</button>';
+
+/* ---------- 7c. AKKAUNTLAR: HEMIS ID + unikal nick + parol (MVP) ----------
+   Har bir talabaga bitta HEMIS ID va bitta unikal nick beriladi (21-school uslubida).
+   Parolni talaba BIRINCHI kirishda o'zi o'rnatadi. Hozir ma'lumot brauzerda saqlanadi
+   (demo baza); Supabase ulanganda shu qatlam o'sha bazaga ko'chadi — interfeys o'zgarmaydi. */
+const NICK_WORDS = ('falcon onyx comet zephyr nova atlas echo pixel cobalt quasar vector photon nexus ember orbit lunar ' +
+  'titan hydra volt riddle summit beacon cypher delta aurora blaze canyon dynamo eclipse forge glacier halo ' +
+  'ignite jasper kernel legend matrix nebula omega prism quartz ripple sigma torrent umbra vertex whisper xenon ' +
+  'yonder zenith alpine bison cascade drift falcon2 granite horizon ivory jigsaw kraken lantern marble nimbus ' +
+  'obsidian pinnacle quill raven sapphire tundra uranium voyage wanderer yarrow zephyrus anchor breeze cliff ' +
+  'domino engine fathom gadget helix inlet journey keystone lagoon magnet nickel orchard plumage quiver rocket ' +
+  'saddle tempest upal valley willow xenolith yacht zebra acorn boulder cipher dune flint grove haven isthmus ' +
+  'jubilee kestrel lotus mirage nomad opal pasture quasar2 reef solstice tide ultimo vista walnut zephyr2 aikido ' +
+  'binary circuit diode falconer grid iron juniper kelvin laser metro neutron octagon plasma rotor seismic tesseract ' +
+  'urgent vivid wagon zenith2 amber bronze copper diamond emerald falcon3 graphite helium indigo jade krypton ' +
+  'lithium mercury neon oxygen pearl radium silver tin uranium2 zinc argon boron carbon').split(/\s+/).filter(Boolean);
+const ADMIN_ROLES = {
+  founder: { l: 'Founder (to‘liq huquq)', i: 'award' },
+  'head-mentor': { l: 'Bosh mentor', i: 'trophy' },
+  mentor: { l: 'Mentor', i: 'users' },
+  content: { l: 'Kontent menejer', i: 'book' },
+  curator: { l: 'Kurator (nazorat)', i: 'shield' }
+};
+const ADMIN_PERMS = [
+  ['students', 'Talabalar va akkauntlar'], ['tasks', 'Vazifalar va tekshirish'], ['content', 'Darslar va modullar'],
+  ['groups', 'Jamoalar'], ['stats', 'Statistika va hisobot'], ['settings', 'Sozlamalar va zaxira'], ['admins', 'Adminlarni boshqarish']
+];
+const ADMIN_SEED = [
+  { id: 'a1', nick: 'bekzod', name: 'Bekzod Aliyev', email: 'bekzod@aileaders.uz', adRole: 'founder', perms: ['__all'] },
+  { id: 'a2', nick: 'malika', name: 'Malika Abdurahmonova', email: 'malika@aileaders.uz', adRole: 'head-mentor', perms: ['students', 'tasks', 'stats'] },
+  { id: 'a3', nick: 'sardor', name: 'Sardor Yo‘ldoshev', email: 'sardor@aileaders.uz', adRole: 'mentor', perms: ['students', 'tasks'] },
+  { id: 'a4', nick: 'nigora', name: 'Nigora Karimova', email: 'nigora@aileaders.uz', adRole: 'mentor', perms: ['students', 'tasks', 'content'] },
+  { id: 'a5', nick: 'zuhra', name: 'Zuhra Ismoilova', email: 'zuhra@aileaders.uz', adRole: 'content', perms: ['content', 'students'] },
+  { id: 'a6', nick: 'timur', name: 'Timur Sobirov', email: 'timur@aileaders.uz', adRole: 'curator', perms: ['students', 'stats', 'groups'] },
+  { id: 'a7', nick: 'dilnoza', name: 'Dilnoza Yo‘ldosheva', email: 'dilnoza@aileaders.uz', adRole: 'mentor', perms: ['students', 'tasks', 'groups'] }
+];
+const DEMO_NICKS = ['falcon', 'onyx', 'comet', 'zephyr', 'nova', 'atlas', 'echo', 'pixel', 'cobalt', 'quasar', 'vector', 'photon', 'nexus', 'ember', 'orbit', 'lunar', 'titan', 'hydra'];
+/* Parol hesh: cxhash (demo-darajali). Haqiqiy bazada parol server tomonda (bcrypt) saqlanadi. */
+function cxhash(str) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return ('0000000' + (h2 >>> 0).toString(36) + (h1 >>> 0).toString(36)).slice(-13);
+}
+const hashPass = (nick, pass) => cxhash('ail|' + String(nick).toLowerCase() + '|' + String(pass) + '|v1');
+function digitsOnly(v) { return String(v == null ? '' : v).replace(/\D/g, ''); }
+const validHemis = h => /^\d{12}$/.test(digitsOnly(h));
+const maskHemis = h => h ? '•••• •••• ' + digitsOnly(h).slice(-4) : '—';
+function buildAccounts() {
+  const accs = [];
+  STUDENTS.forEach((st, i) => accs.push({
+    id: 'acc-' + st.id, role: 'student', studentId: st.id, nick: DEMO_NICKS[i % DEMO_NICKS.length] + (i >= DEMO_NICKS.length ? (i + 1) : ''),
+    name: st.name, phone: st.phone, hemisId: null, groupId: st.group, pass: null, mustSetPass: true,
+    status: 'active', demo: true, created: st.joined, lastLogin: null
+  }));
+  ADMIN_SEED.forEach(a => accs.push({
+    id: 'acc-' + a.id, role: 'admin', adminRole: a.adRole, perms: a.perms.slice(), nick: a.nick, name: a.name,
+    email: a.email, phone: null, hemisId: null, pass: null, mustSetPass: true, status: 'active', demo: true,
+    created: todayISO(), lastLogin: null
+  }));
+  return accs;
+}
+const accounts = () => (S.accounts || []);
+const accById = id => accounts().find(a => a.id === id) || null;
+const accByNick = n => accounts().find(a => a.nick && a.nick.toLowerCase() === String(n || '').trim().toLowerCase()) || null;
+const accByHemis = h => { const d = digitsOnly(h); return d ? accounts().find(a => a.hemisId && digitsOnly(a.hemisId) === d) || null : null; };
+const accByEmail = e => accounts().find(a => a.email && a.email.toLowerCase() === String(e || '').trim().toLowerCase()) || null;
+const meAcc = () => (S.session && accById(S.session.acc)) || null;
+const nickTaken = (nick, exceptId) => accounts().some(a => a.nick && a.nick.toLowerCase() === String(nick).toLowerCase() && a.id !== exceptId);
+function genNick() {
+  const free = NICK_WORDS.filter(w => !nickTaken(w));
+  if (free.length) return free[Math.floor(Math.random() * free.length)];
+  let n = 2; while (nickTaken('leader' + n)) n++;
+  return 'leader' + n;
+}
+function createStudentAccount(data) {
+  const name = String(data.name || '').trim(), phone = String(data.phone || '').trim(), hemis = digitsOnly(data.hemisId);
+  if (name.length < 3) return { err: 'name', msg: 'Ism-familiyani to‘liq kiriting.' };
+  if (!validHemis(hemis)) return { err: 'hemis', msg: 'HEMIS ID 12 xonali raqam bo‘lishi kerak (masalan 123456789012).' };
+  if (accByHemis(hemis)) return { err: 'hemis-dup', msg: 'Bu HEMIS ID allaqachon ro‘yxatda: ' + accByHemis(hemis).nick + '. Bitta HEMIS ID — bitta talaba.' };
+  if (phone && accounts().some(a => a.phone && a.phone === phone)) return { err: 'phone-dup', msg: 'Bu telefon raqami boshqa akkauntda ishlatilgan.' };
+  const acc = { id: 'acc-' + Math.random().toString(36).slice(2, 8), role: 'student', studentId: null, nick: genNick(), name, phone, hemisId: hemis, groupId: data.groupId || null, pass: null, mustSetPass: true, status: 'active', demo: false, created: todayISO(), lastLogin: null };
+  accounts().push(acc); save();
+  return { ok: true, acc };
+}
+function createAdminAccount(data) {
+  const name = String(data.name || '').trim(), email = String(data.email || '').trim().toLowerCase();
+  if (name.length < 3) return { err: 'name', msg: 'Ism-familiyani kiriting.' };
+  if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) return { err: 'email', msg: 'Email manzil noto‘g‘ri ko‘rinishda.' };
+  if (accByEmail(email)) return { err: 'email-dup', msg: 'Bu email allaqachon band: ' + accByEmail(email).nick + '.' };
+  let nick = String(data.nick || '').trim().toLowerCase().replace(/[^a-z0-9_.]/g, '');
+  if (!nick) nick = genNick();
+  if (nickTaken(nick)) return { err: 'nick-dup', msg: 'Bu nick band: ' + nick + '. Boshqasini tanlang.' };
+  const role = ADMIN_ROLES[data.adRole] ? data.adRole : 'mentor';
+  const perms = (data.perms && data.perms.length ? data.perms : ['students', 'tasks']).slice();
+  const acc = { id: 'acc-' + Math.random().toString(36).slice(2, 8), role: 'admin', adminRole: role, perms, nick, name, email, phone: null, hemisId: null, pass: null, mustSetPass: true, status: 'active', demo: false, created: todayISO(), lastLogin: null };
+  accounts().push(acc); save();
+  return { ok: true, acc };
+}
+function setAccountPass(acc, pass) {
+  if (!acc) return { err: 'no' };
+  if (String(pass).length < 4) return { err: 'short', msg: 'Parol kamida 4 belgidan iborat bo‘lsin.' };
+  acc.pass = hashPass(acc.nick, pass); acc.mustSetPass = false; acc.lastLogin = Date.now(); save();
+  return { ok: true };
+}
+/* Kirish: login = nick | HEMIS ID (12 xona) | admin uchun email */
+function authLookup(login) {
+  const raw = String(login || '').trim();
+  if (!raw) return null;
+  if (/^\d{12}$/.test(digitsOnly(raw)) && digitsOnly(raw).length === raw.length) return accByHemis(raw);
+  return accByEmail(raw) || accByNick(raw) || accByHemis(raw);
+}
+function authCheck(login, pass) {
+  const acc = authLookup(login);
+  if (!acc) return { err: 'notfound', msg: 'Bunday nick, HEMIS ID yoki email topilmadi.' };
+  if (acc.status === 'blocked') return { err: 'blocked', msg: 'Akkaunt bloklangan. Administratorga murojaat qiling.' };
+  if (acc.mustSetPass) return { err: 'first', acc };
+  if (acc.pass !== hashPass(acc.nick, pass)) return { err: 'pass', msg: 'Parol xato. Yana bir marta urinib ko‘ring.' };
+  return { ok: true, acc };
+}
+function signIn(acc) {
+  acc.lastLogin = Date.now();
+  S.session = { acc: acc.id, at: Date.now() };
+  S.role = acc.role;
+  if (acc.role === 'student' && acc.studentId) S.user = acc.studentId;
+  save();
+}
+const isFounder = () => { const a = meAcc(); return !!a && a.role === 'admin' && (a.adminRole === 'founder' || (a.perms || []).includes('__all')); };
+const canPerm = p => { const a = meAcc(); if (!a || a.role !== 'admin') return false; return a.adminRole === 'founder' || (a.perms || []).includes('__all') || (a.perms || []).includes(p); };
+function logoutAcc() { S.session = null; save(); UI.authShow = true; UI.firstPass = null; closeModal(); paint(); }
 
 /* ---------- 8. Kunlik topshiriqlar (gamification) ---------- */
 const QUESTS = [

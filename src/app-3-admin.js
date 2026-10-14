@@ -68,11 +68,16 @@ function createModuleModal() {
 function addStudentModal() {
   openModal(mhead('Talaba qo‘shish', 'Yangi a’zoni klubga ro‘yxatdan o‘tkazish') +
     '<form data-form="new-student" class="col" style="gap:13px">' +
+    '<div class="card soft tight" style="background:rgba(124,92,255,.10);border-color:rgba(124,92,255,.28)">' +
+    '<div class="row" style="gap:10px">' + ico('shield', 'sm') +
+    '<div><div class="small" style="font-weight:750">HEMIS ID — kirish uchun asos</div>' +
+    '<div class="xs muted" style="margin-top:3px">Talaba HEMIS ID sini topshiradi → siz kiritasiz → tizim unga unikal nick beradi. Bitta HEMIS ID — bitta talaba.</div></div></div></div>' +
     '<div class="field"><label>To‘liq ism</label><input class="inp" name="name" required placeholder="Ism Familiya"></div>' +
-    '<div class="grid g2" style="gap:12px"><div class="field"><label>Telegram</label><input class="inp" name="tg" placeholder="@username"></div>' +
+    '<div class="grid g2" style="gap:12px"><div class="field"><label>HEMIS ID (12 xona)</label><input class="inp" name="hemis" inputmode="numeric" maxlength="12" required placeholder="123456789012"><div class="inp-hint">Faqat raqam, 12 xona.</div></div>' +
     '<div class="field"><label>Telefon</label><input class="inp" name="phone" placeholder="+998 __ ___ __ __"></div></div>' +
     '<div class="field"><label>Jamoa</label><select class="inp" name="group"><option value="">Hozircha yo‘q</option>' + S.groups.map(g => '<option value="' + g.id + '">' + esc(g.name) + '</option>').join('') + '</select></div>' +
-    '<div class="field"><label>Maqsadi</label><input class="inp" name="goal" placeholder="Nima uchun o‘qiyapti…"></div>' +
+    '<div class="grid g2" style="gap:12px"><div class="field"><label>Telegram</label><input class="inp" name="tg" placeholder="@username"></div>' +
+    '<div class="field"><label>Maqsadi</label><input class="inp" name="goal" placeholder="Nima uchun o‘qiyapti…"></div></div>' +
     '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('plus', 'sm') + 'Qo‘shish</button>' +
     '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>', 'narrow');
 }
@@ -591,4 +596,109 @@ function vAdminSettings() {
     '<div class="xs t2">Telegram-bot orqali deadline eslatmalarini ulash mumkin (kuniga 21:00 standup xabari).</div></div>' +
     '</div></div></div>';
   return h;
+}
+
+/* ==========================================================================
+   ADMINLAR BO'LIMI (MVP): 7 admin, rollar, ruxsatlar, kirish kartochkalari
+   ========================================================================== */
+function vAdminAdmins() {
+  if (!isFounder()) return adminGate();
+  const list = accounts().filter(a => a.role === 'admin');
+  const active = list.filter(a => a.status === 'active').length;
+  const needPass = list.filter(a => a.mustSetPass).length;
+  let h = '<div class="row wrap between" style="gap:12px"><div>' +
+    '<h1 class="h1">Adminlar</h1>' +
+    '<p class="small muted" style="margin:6px 0 0">Klub boshqaruvi: rollar, ruxsatlar va kirish huquqlari. Faqat siz (founder) ko‘rasiz.</p></div>' +
+    '<button class="btn btn-primary" data-act="new-admin">' + ico('plus', 'sm') + 'Admin qo‘shish</button></div>';
+
+  h += '<div class="grid g4">' +
+    kpi('users', 'shield', list.length, 'Admin va mentorlar', 'navigatsiya huquqi') +
+    kpi('trend', 'check', active, 'Faol akkaunt', 'bloklanmagan') +
+    kpi('clock', 'alert', needPass, 'Parol o‘rnatilmagan', 'birinchi kirish kutilmoqda') +
+    kpi('award', 'award', list.filter(a => a.adminRole === 'founder').length, 'Founder', 'to‘liq huquq') +
+    '</div>';
+
+  h += '<div class="card" style="padding:14px 12px"><div class="table-scroll"><div class="trows">' +
+    '<div class="trow head"><span>Admin</span><span class="cell-hide">Rol</span><span class="cell-hide">Ruxsatlar</span><span class="cell-hide">Oxirgi kirish</span><span class="tr">Amallar</span></div>' +
+    list.map(a => {
+      const rl = ADMIN_ROLES[a.adminRole] || { l: 'Admin', i: 'shield' };
+      const perms = (a.perms || []).includes('__all') ? 'Barcha huquqlar' : (a.perms || []).map(p => (ADMIN_PERMS.find(x => x[0] === p) || [p, p])[1]).join(', ') || '—';
+      return '<div class="trow">' +
+        '<div class="row" style="gap:11px;min-width:0">' + avatar({ id: a.id, name: a.name, act: a.status === 'active', last: 0 }, 'xs') +
+        '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(a.name) + (a.demo ? ' <span class="tag">namuna</span>' : '') + '</div>' +
+        '<div class="xs muted ellip">@' + esc(a.nick) + ' • ' + esc(a.email || '—') + '</div></div></div>' +
+        '<span class="cell-hide"><span class="tag ' + (a.adminRole === 'founder' ? 'a' : a.adminRole === 'head-mentor' ? 'p' : '') + '">' + ico(rl.i, 'sm') + esc(rl.l) + '</span></span>' +
+        '<span class="cell-hide xs muted ellip">' + esc(perms) + '</span>' +
+        '<span class="cell-hide xs muted">' + (a.lastLogin ? fmtD(new Date(a.lastLogin).toISOString().slice(0, 10)) : (a.mustSetPass ? 'kirilmagan' : '—')) + '</span>' +
+        '<span class="tr row" style="gap:6px;justify-content:flex-end">' +
+        (a.status === 'blocked' ? '<span class="tag hot">bloklangan</span>' : '') +
+        '<button class="btn btn-xs btn-soft" data-act="admin-edit" data-id="' + a.id + '">Tahrirlash</button>' +
+        '<button class="btn btn-xs btn-ghost" data-act="admin-block" data-id="' + a.id + '" title="' + (a.status === 'blocked' ? 'Faollashtirish' : 'Bloklash') + '">' + ico(a.status === 'blocked' ? 'check' : 'lock', 'sm') + '</button>' +
+        (a.adminRole === 'founder' ? '' : '<button class="btn btn-xs btn-ghost" data-act="admin-del" data-id="' + a.id + '" title="O‘chirish">' + ico('trash', 'sm') + '</button>') +
+        '</span></div>';
+    }).join('') + '</div></div>' +
+    (list.length ? '' : '<div class="empty">Admin yo‘q</div>') + '</div>';
+
+  h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('help') + 'Rollar va ruxsatlar</h2><span class="small muted">Kim nima qila oladi</span></div>' +
+    '<div class="col" style="gap:10px">' + Object.keys(ADMIN_ROLES).map(k => {
+      const n = list.filter(a => a.adminRole === k).length;
+      const pm = k === 'founder' ? 'Barcha bo‘lim va amallar, adminlarni boshqarish' :
+        k === 'head-mentor' ? 'Talabalar, vazifalarni tekshirish, statistika' :
+          k === 'mentor' ? 'O‘z jamoasi talabalari, vazifalarni tekshirish' :
+            k === 'content' ? 'Darslar, modullar, kontent joylash' : 'Talabalar va jamoalar nazorati, hisobotlar';
+      return '<div class="lrow"><div class="lead">' + ico(ADMIN_ROLES[k].i) + '</div><div class="grow"><div class="small" style="font-weight:750">' + esc(ADMIN_ROLES[k].l) + ' <span class="xs muted">• ' + n + ' kishi</span></div>' +
+        '<div class="xs muted">' + esc(pm) + '</div></div></div>';
+    }).join('') + '</div></div>';
+  return h;
+}
+function adminGate() {
+  return '<div class="card"><div class="empty">' + ico('lock') + '<div style="margin-top:10px">Bu bo‘lim faqat <b>Founder</b> uchun ochiq.</div></div></div>';
+}
+function kpi(ic, ic2, v, l, s2) {
+  return '<div class="kpi"><div class="ic">' + ico(ic2 || ic) + '</div><div><div class="v">' + v + '</div><div class="small muted" style="font-weight:650">' + esc(l) + '</div>' +
+    '<div class="d up-c xs">' + esc(s2) + '</div></div></div>';
+}
+function adminFormModal(id) {
+  const a = id ? accById(id) : null;
+  const perms = a && (a.perms || []).includes('__all') ? ADMIN_PERMS.map(x => x[0]) : (a ? a.perms || [] : ['students', 'tasks']);
+  openModal(mhead(a ? 'Adminni tahrirlash' : 'Yangi admin qo‘shish', a ? '@' + a.nick : 'Email + rol + ruxsatlar') +
+    '<form data-form="' + (a ? 'admin-edit' : 'new-admin') + '"' + (a ? ' data-id="' + esc(a.id) + '"' : '') + ' class="col" style="gap:13px">' +
+    '<div class="field"><label>To‘liq ism</label><input class="inp" name="name" required value="' + esc(a ? a.name : '') + '" placeholder="Ism Familiya"></div>' +
+    '<div class="grid g2" style="gap:12px">' +
+    '<div class="field"><label>Email (kirish uchun)</label><input class="inp" name="email" type="email" required value="' + esc(a ? a.email || '' : '') + '" placeholder="ism@aileaders.uz"></div>' +
+    '<div class="field"><label>Nick</label><input class="inp" name="nick" value="' + esc(a ? a.nick : '') + '" placeholder="bo‘sh qolsa avtomatik"><div class="inp-hint">Faqat kichik harf, raqam, _ va .</div></div></div>' +
+    '<div class="field"><label>Rol</label><select class="inp" name="adRole">' +
+    Object.keys(ADMIN_ROLES).map(k => '<option value="' + k + '"' + (a && a.adminRole === k ? ' selected' : '') + '>' + esc(ADMIN_ROLES[k].l) + '</option>').join('') + '</select></div>' +
+    '<div class="field"><label>Ruxsatlar</label><div class="col" style="gap:8px">' +
+    ADMIN_PERMS.map(x => '<label class="row" style="gap:10px;cursor:pointer"><input type="checkbox" name="perms" value="' + x[0] + '"' + (perms.includes(x[0]) ? ' checked' : '') + '><span class="small">' + esc(x[1]) + '</span></label>').join('') +
+    '</div><div class="inp-hint">Founder avtomatik barcha huquqqa ega.</div></div>' +
+    '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico(a ? 'check' : 'plus', 'sm') + (a ? 'Saqlash' : 'Qo‘shish') + '</button>' +
+    '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>', 'narrow');
+}
+/* Kirish kartochkasi: nick + HEMIS + parol qoidasi (chop etish mumkin) */
+function loginCardModal(accId) {
+  const a = accById(accId);
+  if (!a) return;
+  openModal(mhead('Kirish kartochkasi', (a.role === 'admin' ? 'Admin akkaunti' : 'Talaba akkaunti') + ' • ' + (a.demo ? 'namuna' : 'haqiqiy')) +
+    '<div class="card soft" id="loginCard" style="background:linear-gradient(135deg,rgba(124,92,255,.16),rgba(34,211,238,.10));border-color:rgba(124,92,255,.34)">' +
+    '<div class="row between" style="gap:12px"><div class="row" style="gap:11px">' + avatar({ id: a.id, name: a.name, act: true, last: 0 }, 'sm') +
+    '<div><div class="h3">' + esc(a.name) + '</div><div class="xs muted">' + esc(a.role === 'admin' ? (ADMIN_ROLES[a.adminRole] || { l: 'Admin' }).l : 'Talaba') + (a.groupId ? ' • ' + esc((groupOf(a.groupId) || {}).name || '') : '') + '</div></div></div>' +
+    '<span class="tag a">' + ico('shield', 'sm') + 'AI Leaders</span></div>' +
+    '<div class="divider"></div>' +
+    '<div class="grid g2" style="gap:10px">' +
+    '<div><div class="up muted">Nick (login)</div><div class="h3" style="letter-spacing:.04em">' + esc(a.nick) + '</div></div>' +
+    (a.role === 'admin'
+      ? '<div><div class="up muted">Email (login)</div><div class="small" style="font-weight:750;word-break:break-all">' + esc(a.email || '—') + '</div></div>'
+      : '<div><div class="up muted">HEMIS ID</div><div class="h3">' + (a.hemisId ? esc(a.hemisId) : '—') + '</div></div>') +
+    '</div>' +
+    '<div class="xs muted" style="margin-top:10px">' +
+    (a.role === 'admin'
+      ? 'Parol: admin birinchi kirishda o‘zi o‘rnatadi. Kiradi: <b>email + parol</b>.'
+      : 'Parol: talaba <b>birinchi kirishda</b> o‘zi o‘rnatadi. Tizimga <b>HEMIS ID yoki nick</b> bilan kiradi — ikkalasi ham ishlaydi.') +
+    '</div>' +
+    '</div>' +
+    '<div class="row" style="gap:10px;margin-top:12px">' +
+    '<button class="btn btn-primary grow" data-act="print-card">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
+    '<button class="btn btn-soft" data-act="toast-copy" data-code="Nick: ' + esc(a.nick) + (a.hemisId ? ' | HEMIS: ' + esc(a.hemisId) : '') + '">' + ico('copy', 'sm') + 'Nusxalash</button>' +
+    '</div>', 'narrow');
 }
