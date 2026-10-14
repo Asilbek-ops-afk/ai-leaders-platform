@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.2.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -119,7 +119,7 @@ function blankState() {
     meta: { version: APP_VERSION, created: todayISO(), demoPurged: true },
     groups: [], modules: MODULES.map(m => JSON.parse(JSON.stringify(m))),
     lessons: LESSONS.map(l => JSON.parse(JSON.stringify(l))),
-    tasks: [], mentors: [], notifs: [],
+    tasks: [], mentors: [], notifs: [], leads: [],
     friends: {}, incoming: {}, sent: {}, activity: [], weekly: [], monthGrowth: []
   };
 }
@@ -316,7 +316,7 @@ function activityPct() { return S.students.length ? Math.round(activeCount() / S
 /* ---------- 5. UI holati ---------- */
 const UI = { route: 'home', authShow: false, authRole: 'student', authErr: '', firstPass: null, newCard: null, theme: 'dark', cal: 0, calMonthly: false,
   taskFilter: 'all', studentsFilter: 'all', friendTab: 'friends', search: '', reviewFilter: 'all',
-  module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 }, csvReport: null, lastImport: null };
+  module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 }, csvReport: null, lastImport: null, leadDone: null, landScrollKeep: null, leadDraft: null };
 
 function toast(kind, title, text) {
   const map = { ok: 'check-c', warn: 'alert', err: 'x', info: 'spark' };
@@ -694,6 +694,13 @@ function cxhash(str) {
 const hashPass = (nick, pass) => cxhash('ail|' + String(nick).toLowerCase() + '|' + String(pass) + '|v1');
 function digitsOnly(v) { return String(v == null ? '' : v).replace(/\D/g, ''); }
 const validHemis = h => /^\d{12}$/.test(digitsOnly(h));
+/* Telefonni o'qishga qulay ko'rinishda: 998901112233 → +998 90 111 22 33 */
+const fmtPhone = p => {
+  const d = digitsOnly(p || '');
+  if (d.length === 12 && d.slice(0, 3) === '998') return '+998 ' + d.slice(3, 5) + ' ' + d.slice(5, 8) + ' ' + d.slice(8, 10) + ' ' + d.slice(10);
+  if (d.length === 9) return '+998 ' + d.slice(0, 2) + ' ' + d.slice(2, 5) + ' ' + d.slice(5, 7) + ' ' + d.slice(7);
+  return p || '';
+};
 const maskHemis = h => h ? '•••• •••• ' + digitsOnly(h).slice(-4) : '—';
 const accounts = () => (S.accounts || []);
 const accById = id => accounts().find(a => a.id === id) || null;
@@ -729,6 +736,28 @@ function createFounderAccount(data) {
   accounts().push(acc); save();
   return { ok: true, acc };
 }
+/* ---------- 3a. Ro'yxatdan o'tish arizasi (landing sahifasi) ----------
+   Talaba o'zi akkaunt yarata olmaydi: ariza qoldiradi, admin HEMIS ID bilan
+   akkaunt ochadi. Bu oqim landing sahifasidagi «Ariza» formasi orqali ishlaydi. */
+function addLead(d) {
+  const name = String(d.name || '').trim();
+  const phone = digitsOnly(d.phone || '');
+  const tg = String(d.tg || '').trim();
+  const goal = String(d.goal || '').trim();
+  if (name.length < 3) return { err: 'name', msg: 'Ism-familiyani to‘liq kiriting.' };
+  if (phone.length < 9) return { err: 'phone', msg: 'Telefon raqamni to‘liq kiriting (masalan +998 90 123 45 67).' };
+  if ((S.leads || []).some(l => l.phone === phone)) return { err: 'dup', msg: 'Bu raqam bilan ariza allaqachon yuborilgan — admin tez orada bog‘lanadi.' };
+  if (!Array.isArray(S.leads)) S.leads = [];
+  const lead = { id: uid('ld'), name, phone, tg, goal, at: todayISO(), status: 'new' };
+  S.leads.unshift(lead); save();
+  return { ok: true, lead };
+}
+function delLead(id) {
+  if (!Array.isArray(S.leads)) return;
+  const i = S.leads.findIndex(l => l.id === id);
+  if (i > -1) { S.leads.splice(i, 1); save(); }
+}
+
 /* ---------- 3b. Talaba yaratish (bitta joydan: forma ham, CSV import ham) ---------- */
 function addStudentRecord(d, o) {
   const res = createStudentAccount(d);

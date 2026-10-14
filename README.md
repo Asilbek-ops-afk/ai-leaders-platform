@@ -7,7 +7,7 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **394 ta tekshiruv, 0 xato** |
+| 🧪 **Testlar** | `npm test` → **422 ta tekshiruv, 0 xato** |
 | 🔐 **Kirish** | Talaba: **HEMIS ID yoki nick** + parol • Admin: email + parol |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
@@ -145,11 +145,11 @@ ai-leaders/
 ├── tools/
 │   ├── make-assets.py         # ikon va OG rasmni generatsiya qiladi (Pillow)
 │   └── tests/
-│       ├── run.js             # 394 ta avtomatik test (jsdom)
-│       ├── layout.js          # 119 joylashuv (overflow) tekshiruvi (playwright)
+│       ├── run.js             # 422 ta avtomatik test (jsdom)
+│       ├── layout.js          # 175 joylashuv (overflow) tekshiruvi (playwright)
 │       ├── live.js            # 18 ta jonli sayt tekshiruvi
 │       ├── fixtures.js        # test uchun namuna ma'lumot (manba kodda YO'Q)
-│       └── screens.js         # 78 qadam / 68 skrinshot (playwright) → docs/screens/
+│       └── screens.js         # 88 qadam / 78 skrinshot (playwright) → docs/screens/
 ├── docs/
 │   ├── ishga-tushirish-rejasi.md   # 30 kunlik klub ishga tushirish rejasi + metrikalar
 │   └── screens/                    # desktop + mobil skrinshotlar
@@ -174,8 +174,8 @@ git clone https://github.com/Asilbek-ops-afk/ai-leaders-platform.git
 cd ai-leaders-platform
 
 npm run build       # src → index.html + dist/
-npm test            # 394 ta avtomatik test (jsdom kerak: npm install)
-npm run test:layout # 119 ta joylashuv tekshiruvi (playwright: npx playwright install chromium)
+npm test            # 422 ta avtomatik test (jsdom kerak: npm install)
+npm run test:layout # 175 ta joylashuv tekshiruvi (playwright: npx playwright install chromium)
 npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
 npm run check       # sintaksis tekshiruvi
 
@@ -198,7 +198,7 @@ npm run deploy                       # build + wrangler pages deploy dist/
 Loyihada ikki darajali sifat nazorati bor:
 
 **1) `npm test` — funksional testlar (jsdom, haqiqiy DOM)**
-23 guruh, **394 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
+24 guruh, **422 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
 **CSV import** (fayl → tekshiruv hisoboti → akkauntlar + kartochkalar), **chekka holatlar**
 (vazifasiz jamoa, yetim a'zo, bo'sh tuzilmalarda `NaN`siz hisoblar),
 kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
@@ -207,7 +207,7 @@ fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, e
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**68 ta skrinshot** (78 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari** va **CSV import oynasi**
+**78 ta skrinshot** (88 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari** va **CSV import oynasi**
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 
@@ -219,7 +219,7 @@ Admin va talaba bo'limlari ketma-ket ochiladi, har biri uchun `document.scrollWi
 18 ta tekshiruv: sahifa yuklanishi, brend, SEO/PWA teglari, manifest, service worker, rasm va sarlavha (header) sozlamalari.
 
 **5) `npm run test:remote` — jonli saytda to'liq funksional testlar**
-Xuddi `npm test` kabi to'liq to'plam (394 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
+Xuddi `npm test` kabi to'liq to'plam (422 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
 (`TEST_URL=<url> node tools/tests/run.js`). Deploydan keyin «haqiqatan shu versiya chiqdimi?» degan savolga javob beradi.
 
 ---
@@ -252,6 +252,21 @@ talaba qo'shadi, jamoa tuzadi, vazifa beradi, adminlarni tayinlaydi.
 | 2 | **Jamoa tuzish** — 3–4 talaba, mentor juftligi, jamoa devori |
 | 3 | **Vazifa + deadline** — modulga bog'lanadi, talabalar topshiradi, admin/mentor baholaydi |
 | 4 | **Admin va mentor qo'shish** — har biriga alohida rol va ruxsat beriladi |
+
+## Landing sahifa (v2.2.0)
+
+Tizimga kirmagan foydalanuvchi endi **landing sahifani** ko'radi: yopishqoq navigatsiya va o'qish
+progressi, hero (qahramon) bloki, «Klub nima beradi» 6 karta, 4 qadamli jarayon, o'quv dasturi
+(bazadagi 6 modul), savol-javob akkordeoni — va eng pastda **Kirish / Ro'yxatdan o'tish** bo'limi.
+
+**Skrollda kreativ ochilish:** kirish bo'limiga yetib kelganda tepadan yorug'lik chizig'i tushadi,
+fon porlaydi va **karta 3D burilib ochiladi** (perspective + rotateX), maydonlar ketma-ket chiqadi.
+Animatsiya `prefers-reduced-motion` sozlamasini hurmat qiladi.
+
+Uch tab: **Talaba** (nick/HEMIS ID + parol), **Admin / Mentor** (email + parol) va **Ariza**
+(ro'yxatdan o'tish). Ariza **Admin → Talabalar → «Yangi arizalar»** blokida ko'rinadi: bir tugma
+bilan talabaga aylantiriladi (ism, telefon, telegram, maqsad avtomatik to'ldiriladi — faqat HEMIS ID
+kiritasiz), shundan keyin kirish kartochkasi chiqadi. Dashboard ham yangi arizalar haqida ogohlantiradi.
 
 **Real talabalar ro'yxatini ommaviy yuklash** (CSV: ism, HEMIS ID, telefon, jamoa, telegram, maqsad):
 

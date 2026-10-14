@@ -48,20 +48,169 @@ function vAuth() {
       '<div class="inp-hint" style="margin-top:12px">Parolni hech kimga aytmang. Keyinchalik «Adminlar» bo‘limidan boshqa admin va mentorlarni qo‘shasiz.</div>' +
       '</div></div></div>';
   }
-  return '<div class="auth">' +
-    '<div class="auth-art">' + authArt() + '</div>' +
+  /* Asosiy holat: LANDING sahifasi — kirish/ariza bo'limi skrolda ochiladi */
+  return landingPage();
+}
+/* ============================================================================
+   LANDING SAHIFA — tizimga kirmagan foydalanuvchi ko'radigan birinchi ekran.
+   Tuzilish: qahramon (hero) → imkoniyatlar → jarayon → o'quv dasturi → savollar
+   → KIRISH/ARIZA bo'limi (skrollda 3D «ochilish» animatsiyasi bilan).
+   ============================================================================ */
 
-    '<div class="auth-form"><div class="inner">' +
-    '<h2 class="h1" style="font-size:24px">Tizimga kirish</h2>' +
-    '<p class="small muted" style="margin:8px 0 16px">Talabalar <b>HEMIS ID</b> yoki <b>nick</b> bilan kiradi — parolni birinchi kirishda o‘zi o‘rnatadi.</p>' +
-
-    '<div class="auth-tabs">' +
-    '<button class="auth-tab' + (role === 'student' ? ' on' : '') + '" data-act="pick-role" data-r="student">' + ico('user', 'sm') + 'Talaba</button>' +
-    '<button class="auth-tab' + (role === 'admin' ? ' on' : '') + '" data-act="pick-role" data-r="admin">' + ico('shield', 'sm') + 'Admin / Mentor</button>' +
+/* Logotip (brend hexagon) — unique gradient id bilan */
+function landLogo(id, sz) {
+  return '<svg style="width:' + sz + 'px;height:' + sz + 'px;flex:0 0 auto" viewBox="0 0 64 64">' +
+    '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
+    '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="rgba(10,15,30,.55)" stroke="url(#' + id + ')" stroke-width="2.6" stroke-linejoin="round"/>' +
+    '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#' + id + ')" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
+    '<circle cx="32" cy="17.8" r="3.7" fill="#C6FF4F"/><circle cx="21" cy="46.5" r="3" fill="#22D3EE"/><circle cx="43" cy="46.5" r="3" fill="#7C5CFF"/></svg>';
+}
+function landBrand() {
+  return '<div class="lbrand">' + landLogo('lgL', 42) +
+    '<div><div class="lbrand-t">AI LEADERS</div><div class="lbrand-s">STARTUP CLUB</div></div></div>';
+}
+/* Yuklash progress chizig'i + yopishqoq navigatsiya */
+function landNav() {
+  return '<div class="lprog" id="lprog" aria-hidden="true"></div>' +
+    '<header class="lnav" id="lnav">' + landBrand() +
+    '<nav class="lnav-links">' +
+    [['#limkon', 'Imkoniyatlar'], ['#ljarayon', 'Jarayon'], ['#ldastur', 'Dastur'], ['#lsavol', 'Savollar']]
+      .map(x => '<a href="' + x[0] + '" data-act="to-sec" data-sec="' + x[0] + '">' + esc(x[1]) + '</a>').join('') +
+    '</nav>' +
+    '<button class="btn btn-primary btn-sm lnav-cta" data-act="to-auth">' + ico('lock', 'sm') + 'Kirish</button>' +
+    '</header>';
+}
+/* Qahramon bo'limi */
+function landHero() {
+  const nMod = S.modules.length, nL = S.lessons.length;
+  return '<section class="lhero">' +
+    '<div class="lhero-orb o1"></div><div class="lhero-orb o2"></div><div class="lhero-orb o3"></div>' +
+    '<div class="lhero-grid-bg" aria-hidden="true"></div>' +
+    '<div class="lhero-copy">' +
+    '<span class="ltag rise" data-d="0">' + ico('spark', 'sm') + '0 dan startapgacha · Toshkent</span>' +
+    '<h1 class="rise" data-d="1">G‘oyadan ishlaydigan mahsulotgacha — <em>jamoada, kuzatuv ostida</em>.</h1>' +
+    '<p class="llede rise" data-d="2">AI Leaders — 0 dan boshlovchilar uchun amaliy klub. Platformada: yo‘l xaritasi, ' +
+    'vazifa → deadline → mentor izohi → baho, jamoaviy loyihalar va reyting tizimi.</p>' +
+    '<div class="lcta rise" data-d="3">' +
+    '<button class="btn btn-primary btn-lg" data-act="to-apply">' + ico('rocket', 'sm') + 'Hoziroq boshlash</button>' +
+    '<button class="btn btn-soft btn-lg" data-act="to-auth">' + ico('lock', 'sm') + 'Tizimga kirish</button>' +
     '</div>' +
-
-    (role === 'student' ?
-      '<form data-form="login-student" class="col" style="gap:12px">' +
+    '<div class="lchips rise" data-d="4">' +
+    [[nf(nMod), 'modul', 'book'], [nf(nL), 'dars', 'code'], ['0–100', 'baholash', 'star'], ['8', 'yutuq', 'award']]
+      .map(x => '<div class="lchip">' + ico(x[2], 'sm') + '<b>' + x[0] + '</b><span>' + x[1] + '</span></div>').join('') +
+    '</div></div>' +
+    '<div class="lhero-float" aria-hidden="true">' +
+    '<div class="lfcard a">' + ico('bolt', 'sm') + '<div><b>+120 XP</b><span>Vazifa qabul qilindi</span></div></div>' +
+    '<div class="lfcard b">' + ico('flame', 'sm') + '<div><b>7 kun streak</b><span>Uzluksiz o‘qish</span></div></div>' +
+    '<div class="lfcard c">' + ico('users', 'sm') + '<div><b>Nova jamoasi</b><span>3 a’zo · loyiha 80%</span></div></div>' +
+    '</div>' +
+    '<div class="lcue"><span class="lcue-m"></span>Pastga suring</div>' +
+    '</section>';
+}
+/* Bo'lim sarlavhasi */
+function landHead(tag, title, sub, d) {
+  return '<div class="lhead reveal"' + (d ? ' data-d="' + d + '"' : '') + '>' +
+    '<span class="ltag p">' + ico('spark', 'sm') + esc(tag) + '</span>' +
+    '<h2 class="lh2">' + esc(title) + '</h2>' +
+    (sub ? '<p class="lsub">' + esc(sub) + '</p>' : '') + '</div>';
+}
+/* Imkoniyatlar */
+function landFeature() {
+  const items = [
+    ['task', 'Amaliy loyihalar', 'Har modul mini-loyiha bilan yakunlanadi: muammo → yechim → MVP → demo.'],
+    ['star', 'Mentor izohi va baho', 'Har topshiriq 0–100 ballik tizimda baholanadi, izoh bilan qaytadi.'],
+    ['users', 'Jamoada ishlash', '3–4 kishilik startap jamoalari, jamoa devori va umumiy topshiriqlar.'],
+    ['clock', 'Aniq deadline', 'Har modulga muddat: kalendar, eslatmalar va kechikkanlar nazorati.'],
+    ['flame', 'XP, streak, reyting', 'Kunlik faollik, coin, yutuqlar va jamoalar musobaqasi.'],
+    ['cert', 'Sertifikat va Galereya', 'Dasturni tugatganlarga chop etiladigan sertifikat, loyihalar galereyasi.']
+  ];
+  return '<section class="lsec" id="limkon"><div class="lsec-in">' +
+    landHead('Klub nima beradi', 'Bilim emas — ishlaydigan mahsulot', 'Har bir modul nazariya emas, amaliyot bilan tugaydi. Platforma jarayonni ko‘rinadigan qiladi: kim nima qildi, qachon, qanday baho oldi.', 0) +
+    '<div class="lfeat">' + items.map((x, i) =>
+      '<div class="lfeat-c reveal" data-d="' + (i % 3 + 1) + '"><div class="lfeat-ic">' + ico(x[0], 'sm') + '</div>' +
+      '<h3>' + esc(x[1]) + '</h3><p>' + esc(x[2]) + '</p></div>').join('') + '</div></div></section>';
+}
+/* Jarayon: 4 qadam */
+function landFlow() {
+  const steps = [
+    ['Ariza qoldirasiz', 'Quyidagi «Ariza» formasini to‘ldirasiz — ism, telefon va maqsad. 1 daqiqada.'],
+    ['Admin akkaunt ochadi', 'Klub admini HEMIS ID asosida sizga akkaunt yaratadi va unikal nick beradi.'],
+    ['Birinchi kirish', 'Nick (yoki HEMIS ID) bilan kirasiz, parolni o‘zingiz o‘rnatasiz.'],
+    ['Jamoa, vazifa, baho', 'Jamoaga qo‘shilasiz, vazifa va deadline olasiz, har ish baholanadi.']
+  ];
+  return '<section class="lsec" id="ljarayon"><div class="lsec-in">' +
+    landHead('Qanday ishlaydi', '4 qadamda klubga qo‘shilasiz', 'Ro‘yxatdan o‘tish 1 daqiqa, qolganini klub hal qiladi.', 0) +
+    '<div class="lflow">' + steps.map((x, i) =>
+      '<div class="lstep reveal" data-d="' + (i + 1) + '"><div class="lstep-n">' + (i + 1) + '</div>' +
+      '<h3>' + esc(x[0]) + '</h3><p>' + esc(x[1]) + '</p></div>').join('') + '</div></div></section>';
+}
+/* O'quv dasturi (bazadan) */
+function landProgram() {
+  const mods = S.modules.map(m => ({ t: m.title, d: m.desc, i: m.icon || 'book', n: lessonsOfModule(m.id).length }));
+  return '<section class="lsec" id="ldastur"><div class="lsec-in">' +
+    landHead('O‘quv dasturi', '6 modul — noldan startapgacha', 'AI asoslaridan boshlab, jamoa bilan ishlaydigan loyihaga qadar. Har modul darslar va topshiriqlardan iborat.', 0) +
+    '<div class="lprog-list">' + mods.map((m, i) =>
+      '<div class="lmodc reveal" data-d="' + (i % 3 + 1) + '">' +
+      '<div class="lmodc-h"><span class="lmodc-n">' + (i + 1) + '</span><div class="lmodc-ic">' + ico(m.i, 'sm') + '</div>' +
+      '<b>' + esc(m.t) + '</b></div><p>' + esc(m.d) + '</p>' +
+      '<span class="lmodc-l">' + ico('book', 'sm') + m.n + ' dars</span></div>').join('') + '</div>' +
+    '<div class="lgame reveal" data-d="2">' +
+    [['flame', 'Streak', 'Har kuni o‘qisangiz — seriya uzilmaydi'],
+     ['bolt', 'XP va coin', 'Topshiriq va faollik uchun ball'],
+     ['trophy', 'Reyting', 'Jamoalar va talabalar orasida musobaqa'],
+     ['cert', 'Sertifikat', 'Dastur yakunida chop etiladigan hujjat']]
+      .map(x => '<div class="lgame-c">' + ico(x[0], 'sm') + '<div><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div></div>').join('') +
+    '</div></div></section>';
+}
+/* Savol-javob */
+function landFaq() {
+  const qa = [
+    ['Tizimga kirish uchun nima kerak?', 'Klub a’zolariga admin HEMIS ID asosida akkaunt yaratadi. Kirishda nick (yoki HEMIS ID) kiritasiz, parolni esa birinchi kirishda o‘zingiz o‘rnatasiz.'],
+    ['Hali a’zo emasman — nima qilaman?', '«Ariza» formasini to‘ldiring: ism, telefon va maqsad. Klub admini siz bilan bog‘lanib, akkaunt yaratib beradi.'],
+    ['Parolimni unutdim, nima qilaman?', 'Mentor yoki klub adminiga murojaat qiling — u parolni tiklab, qayta o‘rnatish imkonini beradi. Parollar bazada ochiq saqlanmaydi.'],
+    ['Qancha vaqt o‘qiyman?', 'Dastur 6 modul • 29 darsdan iborat. Har modulga alohida deadline bor, o‘qish tezligini o‘zingiz belgilaysiz.'],
+    ['Sertifikat beriladimi?', 'Ha. Dasturni yakunlab, topshiriqlarni muvaffaqiyatli topshirganlarga chop etiladigan sertifikat beriladi.']
+  ];
+  return '<section class="lsec" id="lsavol"><div class="lsec-in lsec-narrow">' +
+    landHead('Savol-javob', 'Ko‘p so‘raladigan savollar', '', 0) +
+    '<div class="lfaq">' + qa.map((x, i) =>
+      '<div class="fq reveal" data-d="' + (i + 1) + '"><button class="fq-q" data-act="faq" aria-expanded="false">' +
+      '<span>' + esc(x[0]) + '</span><span class="fq-i">' + ico('down', 'sm') + '</span></button>' +
+      '<div class="fq-a"><div class="fq-a-in">' + esc(x[1]) + '</div></div></div>').join('') + '</div></div></section>';
+}
+/* KIRISH + ARIZA bo'limi: skrollda 3D «ochilish» animatsiyasi bilan chiqadi */
+function landAuthSection() {
+  const role = UI.authRole;
+  const err = UI.authErr || '';
+  const tab = (r, l, ic) => '<button class="auth-tab' + (role === r ? ' on' : '') + '" data-act="pick-role" data-r="' + r + '">' + ico(ic, 'sm') + l + '</button>';
+  let body = '';
+  if (role === 'apply') {
+    body = UI.leadDone
+      ? '<div class="ldone">' + ico('check-c', 'big') +
+        '<h3>Ariza qabul qilindi!</h3>' +
+        '<p>Rahmat, <b>' + esc(UI.leadDone) + '</b>. Klub admini tez orada telefon orqali bog‘lanadi va ' +
+        'HEMIS ID asosida akkauntingizni yaratadi. Shundan keyin shu yerdan kirishingiz mumkin bo‘ladi.</p>' +
+        '<button class="btn btn-soft" data-act="lead-reset">' + ico('plus', 'sm') + 'Yana ariza topshirish</button></div>'
+      : (() => { const d0 = UI.leadDraft || {}; return '<form data-form="lead" class="col" style="gap:11px">' +
+        '<div class="field"><label>Ism va familiya</label><input class="inp" name="name" required placeholder="Masalan: Dilnoza Karimova" value="' + esc(d0.name || '') + '"></div>' +
+        '<div class="grid g2" style="gap:11px">' +
+        '<div class="field"><label>Telefon</label><input class="inp" name="phone" inputmode="tel" required placeholder="+998 90 123 45 67" value="' + esc(d0.phone || '') + '"></div>' +
+        '<div class="field"><label>Telegram</label><input class="inp" name="tg" placeholder="@username" value="' + esc(d0.tg || '') + '"></div></div>' +
+        '<div class="field"><label>Maqsadingiz</label><textarea class="inp" name="goal" placeholder="Nima qilmoqchisiz? Masalan: AI yordamida mahsulot yasash">' + esc(d0.goal || '') + '</textarea></div>' +
+        (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
+        '<button class="btn btn-primary btn-block" type="submit">' + ico('send', 'sm') + 'Arizani yuborish</button>' +
+        '<div class="inp-hint">Ariza klub adminiga tushadi. Akkaunt ochilgach, «Kirish» bo‘limidan foydalanasiz.</div>' +
+        '</form>'; })();
+  } else if (role === 'admin') {
+    body = '<form data-form="login-admin" class="col" style="gap:12px">' +
+      '<div class="field"><label>Email</label><input class="inp" name="login" required autocomplete="username" placeholder="ism@aileaders.uz"></div>' +
+      '<div class="field"><label>Parol</label><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"></div>' +
+      (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
+      '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Admin panelga kirish</button>' +
+      '</form>';
+  } else {
+    body = '<form data-form="login-student" class="col" style="gap:12px">' +
       '<div class="field"><label>HEMIS ID yoki nick</label>' +
       '<input class="inp" name="login" required autocomplete="username" inputmode="text" placeholder="123456789012 yoki falcon"></div>' +
       '<div class="field"><label>Parol</label><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"></div>' +
@@ -69,17 +218,78 @@ function vAuth() {
       '<button type="button" class="btn btn-xs btn-ghost" data-act="auth-help">' + ico('help', 'sm') + 'Yordam</button></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Talaba kabinetiga kirish</button>' +
-      '</form>'
-      :
-      '<form data-form="login-admin" class="col" style="gap:12px">' +
-      '<div class="field"><label>Email</label><input class="inp" name="login" required autocomplete="username" placeholder="ism@aileaders.uz"></div>' +
-      '<div class="field"><label>Parol</label><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"></div>' +
-      (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
-      '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Admin panelga kirish</button>' +
-      '</form>') +
-
-    '<div class="row" style="gap:8px;margin-top:16px;justify-content:center"><span class="xs muted">© 2026 AI Leaders Startup Club • Toshkent</span></div>' +
-    '</div></div></div>';
+      '</form>';
+  }
+  return '<section class="lauth" id="lkirish">' +
+    '<div class="lauth-thread" aria-hidden="true"></div>' +
+    '<div class="lauth-glow" aria-hidden="true"></div>' +
+    '<div class="lauth-hero reveal" data-d="0">' +
+    '<span class="ltag a">' + ico('lock', 'sm') + 'Kirish / Ro‘yxatdan o‘tish</span>' +
+    '<h2 class="lh2">Klubga kirish shu yerdan boshlanadi</h2>' +
+    '<p class="lsub">A’zo bo‘lsangiz — nick yoki HEMIS ID bilan kirasiz. Hali a’zo emassizmi? Ariza qoldiring.</p>' +
+    '</div>' +
+    '<div class="lauth-wrap">' +
+    '<div class="lauth-pitch reveal" data-d="1">' +
+    [['shield', 'Parolni faqat siz bilasiz', 'Parolni birinchi kirishda o‘zingiz o‘rnatasiz — admin ham ko‘ra olmaydi.'],
+     ['lock', 'HEMIS ID — yagona kalit', 'Bitta HEMIS ID — bitta akkaunt. Nick tizim tomonidan beriladi.'],
+     ['user', 'Talaba kabineti', 'Darslar, vazifalar, deadline, jamoa, yutuqlar va sertifikat.'],
+     ['shield', 'Admin va mentor paneli', 'Talabalar, jamoalar, vazifalar, baholar, statistika va sozlamalar.']]
+      .map(x => '<div class="lpitch-r"><span class="lpitch-ic">' + ico(x[0], 'sm') + '</span>' +
+        '<div><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div></div>').join('') +
+    '</div>' +
+    '<div class="lauth-card rev-card">' +
+    '<div class="auth-tabs">' + tab('student', 'Talaba', 'user') + tab('admin', 'Admin / Mentor', 'shield') + tab('apply', 'Ariza', 'send') + '</div>' +
+    body +
+    '<div class="lauth-note xs muted">© 2026 AI Leaders Startup Club • Toshkent</div>' +
+    '</div>' +
+    '</div></section>';
+}
+function landFoot() {
+  return '<footer class="lfoot">' + landBrand() +
+    '<div class="lfoot-links">' +
+    '<a href="#limkon" data-act="to-sec" data-sec="#limkon">Imkoniyatlar</a>' +
+    '<a href="#ljarayon" data-act="to-sec" data-sec="#ljarayon">Jarayon</a>' +
+    '<a href="#ldastur" data-act="to-sec" data-sec="#ldastur">Dastur</a>' +
+    '<a href="#lkirish" data-act="to-auth">Kirish</a></div>' +
+    '<div class="xs muted">© 2026 AI Leaders Startup Club • Toshkent</div></footer>';
+}
+/* To'liq landing sahifasi */
+function landingPage() {
+  return '<div class="land">' + landNav() + landHero() + landFeature() + landFlow() + landProgram() + landFaq() + landAuthSection() + landFoot() + '</div>';
+}
+/* Landing interaktivligi: skrollda ochilish, progress, yopishqoq navigatsiya.
+   IntersectionObserver yo'q bo'lsa (eski brauzer/test muhiti) — hammasi darhol ko'rinadi. */
+function initLanding() {
+  const root = document.querySelector('.land');
+  if (!root) return;
+  const targets = root.querySelectorAll('.reveal,.rev-card,.lauth');
+  if (!('IntersectionObserver' in window)) {
+    targets.forEach(el => el.classList.add('in'));
+  } else {
+    const io = new IntersectionObserver(ents => {
+      ents.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+    targets.forEach(el => io.observe(el));
+  }
+  landTick();
+  /* Tab almashganda yoki forma qayta chizilganda skrol o'rni saqlanadi */
+  if (UI.landScrollKeep) { const y = UI.landScrollKeep; UI.landScrollKeep = null; try { window.scrollTo({ top: y, behavior: 'auto' }); } catch (e) { } }
+}
+/* Skrol holati: o'qish progressi + yopishqoq navigatsiya foni.
+   Global scroll listener'dan chaqiriladi (listener takrorlanmaydi). */
+function landTick() {
+  const bar = document.getElementById('lprog'), nav = document.getElementById('lnav');
+  if (!bar && !nav) return;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  const p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
+  if (bar) bar.style.transform = 'scaleX(' + p.toFixed(4) + ')';
+  if (nav) nav.classList.toggle('scrolled', window.scrollY > 28);
+}
+/* Bo'limga yumshoq skrol */
+function landScrollTo(sel) {
+  const el = document.querySelector(sel);
+  if (!el) return;
+  try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { try { window.scrollTo(0, el.offsetTop); } catch (e2) { } }
 }
 /* Kirish ekranining chap tomoni (brend + tavsif) */
 function authArt() {
@@ -261,6 +471,7 @@ function paint(keepScroll) {
   if (gs) { gs.value = UI.search; gs.onkeydown = e => { if (e.key === 'Enter') { UI.search = gs.value.trim(); if (UI.search) searchModal(UI.search); } }; }
   const top = document.getElementById('toTop');
   if (top && window.scrollY > 640) top.classList.add('show');
+  if (UI.authShow) initLanding();   /* landing: skrollda ochilish animatsiyasi */
 }
 function go(route) {
   if (isAdmin() && STUDENT_ONLY.includes(route)) route = 'admin';
@@ -390,7 +601,7 @@ document.addEventListener('click', e => {
       UI.theme = n; S.theme = n; document.documentElement.dataset.theme = n; save(); paint(true); break;
     }
     case 'logout': logoutAcc(); break;
-    case 'auth-back': UI.firstPass = null; UI.authErr = ''; paint(); break;
+    case 'auth-back': UI.firstPass = null; UI.authErr = ''; paint(true); break;
     case 'auth-help': openModal(mhead('Kirish bo‘yicha yordam', 'Talaba va admin uchun') +
       '<div class="col" style="gap:11px">' +
       [['user', 'Talaba qanday kiradi?', 'HEMIS ID (12 xonali) yoki shaxsiy nick + parol. Nick va HEMIS ID ni klub admini beradi.'],
@@ -401,7 +612,28 @@ document.addEventListener('click', e => {
       '</div>', 'narrow'); break;
     case 'reset': resetAll(); break;
     case 'notifs': notifModal(); paint(true); break;
-    case 'pick-role': UI.authRole = t.dataset.r; paint(); break;
+    case 'pick-role': UI.authRole = t.dataset.r; UI.authErr = ''; paint(true); break;
+    /* --- Landing sahifasi: bo'limlarga skrol va ariza oqimi --- */
+    case 'to-auth': UI.authRole = 'student'; UI.authErr = ''; UI.leadDone = null; paint(true); landScrollTo('#lkirish'); break;
+    case 'to-apply': UI.authRole = 'apply'; UI.authErr = ''; paint(true); landScrollTo('#lkirish'); break;
+    case 'to-sec': landScrollTo(t.dataset.sec || ''); break;
+    case 'faq': {
+      const fq = t.closest('.fq');
+      if (fq) t.setAttribute('aria-expanded', fq.classList.toggle('open') ? 'true' : 'false');
+      break;
+    }
+    case 'lead-reset': UI.leadDone = null; UI.authErr = ''; paint(true); landScrollTo('#lkirish'); break;
+    case 'lead-approve': {
+      const l = (S.leads || []).find(x => x.id === id);
+      if (l) addStudentModal({ name: l.name, phone: fmtPhone(l.phone), tg: l.tg, goal: l.goal, lead: l.id });
+      break;
+    }
+    case 'del-lead': {
+      const l2 = (S.leads || []).find(x => x.id === id);
+      if (l2) confirmModal('Arizani o‘chirish?', l2.name + ' (' + l2.phone + ') — ariza ro‘yxatdan olib tashlanadi.', 'del-lead-do', id, true);
+      break;
+    }
+    case 'del-lead-do': delLead(id); toast('warn', 'Ariza o‘chirildi', 'Ro‘yxatdan olib tashlandi.'); closeModal(); paint(true); break;
     case 'quest': {
       const q = ensureQuests(st());
       if (q.done.includes(id)) { toast('info', 'Bajarilgan', 'Bu topshiriq bugun allaqachon bajarildi.'); break; }
@@ -641,6 +873,16 @@ document.addEventListener('submit', e => {
     const okPerm = need === null ? isFounder() : actionAllowed(need);
     if (!okPerm) { permDenied(need === null ? 'admins' : need); return; }
   }
+  /* Landing: ro'yxatdan o'tish arizasi */
+  if (kind === 'lead') {
+    const draft = { name: fd.get('name'), phone: fd.get('phone'), tg: fd.get('tg'), goal: fd.get('goal') };
+    const r = addLead(draft);
+    if (r.err) { UI.authErr = r.msg; UI.leadDraft = draft; paint(true); return; }
+    UI.authErr = ''; UI.leadDraft = null; UI.leadDone = r.lead.name;
+    toast('ok', 'Ariza yuborildi', 'Admin tez orada bog‘lanadi: ' + r.lead.phone);
+    paint(true); landScrollTo('#lkirish');
+    return;
+  }
   if (kind === 'login-student' || kind === 'login-admin') {
     const res = authCheck(fd.get('login'), fd.get('pass'));
     if (res.err === 'first') { UI.firstPass = { acc: res.acc.id }; UI.authErr = ''; paint(); return; }
@@ -796,6 +1038,7 @@ document.addEventListener('submit', e => {
   if (kind === 'new-student') {
     const res = addStudentRecord({ name: fd.get('name'), phone: fd.get('phone'), hemisId: fd.get('hemis'), groupId: fd.get('group'), tg: fd.get('tg'), goal: fd.get('goal') });
     if (res.err) { toast('warn', 'Qo‘shilmadi', res.msg); return; }
+    if (f.dataset.lead) delLead(f.dataset.lead);   /* ariza talabaga aylandi */
     closeModal();
     toast('ok', 'Talaba qo‘shildi', res.student.name + ' • nick: @' + res.acc.nick);
     loginCardModal(res.acc.id); paint(true); return;
@@ -926,6 +1169,7 @@ window.addEventListener('appinstalled', () => { UI.installEvt = null; toast('ok'
 window.addEventListener('online', () => toast('ok', 'Internet tiklandi', 'Ma’lumotlar saqlanmoqda.'));
 window.addEventListener('offline', () => toast('warn', 'Internet yo‘q', 'Ilova oflayn rejimda ishlayapti — o‘zgarishlar saqlanadi.'));
 window.addEventListener('scroll', () => {
+  landTick();
   const top = document.getElementById('toTop');
   if (!top) return;
   const show = window.scrollY > 640;

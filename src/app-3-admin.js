@@ -74,19 +74,21 @@ function createModuleModal() {
     '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('plus', 'sm') + 'Modul qo‘shish</button>' +
     '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>', 'narrow');
 }
-function addStudentModal() {
-  openModal(mhead('Talaba qo‘shish', 'Yangi a’zoni klubga ro‘yxatdan o‘tkazish') +
-    '<form data-form="new-student" class="col" style="gap:13px">' +
+function addStudentModal(pre) {
+  const p0 = pre || {};
+  openModal(mhead(p0.lead ? 'Arizani talabaga aylantirish' : 'Talaba qo‘shish',
+    p0.lead ? 'Ariza ma’lumotlari to‘ldirilgan — HEMIS ID ni kiriting' : 'Yangi a’zoni klubga ro‘yxatdan o‘tkazish') +
+    '<form data-form="new-student"' + (p0.lead ? ' data-lead="' + esc(p0.lead) + '"' : '') + ' class="col" style="gap:13px">' +
     '<div class="card soft tight" style="background:rgba(124,92,255,.10);border-color:rgba(124,92,255,.28)">' +
     '<div class="row" style="gap:10px">' + ico('shield', 'sm') +
     '<div><div class="small" style="font-weight:750">HEMIS ID — kirish uchun asos</div>' +
     '<div class="xs muted" style="margin-top:3px">Talaba HEMIS ID sini topshiradi → siz kiritasiz → tizim unga unikal nick beradi. Bitta HEMIS ID — bitta talaba.</div></div></div></div>' +
-    '<div class="field"><label>To‘liq ism</label><input class="inp" name="name" required placeholder="Ism Familiya"></div>' +
+    '<div class="field"><label>To‘liq ism</label><input class="inp" name="name" required placeholder="Ism Familiya" value="' + esc(p0.name || '') + '"></div>' +
     '<div class="grid g2" style="gap:12px"><div class="field"><label>HEMIS ID (12 xona)</label><input class="inp" name="hemis" inputmode="numeric" maxlength="12" required placeholder="123456789012"><div class="inp-hint">Faqat raqam, 12 xona.</div></div>' +
-    '<div class="field"><label>Telefon</label><input class="inp" name="phone" placeholder="+998 __ ___ __ __"></div></div>' +
+    '<div class="field"><label>Telefon</label><input class="inp" name="phone" placeholder="+998 __ ___ __ __" value="' + esc(p0.phone || '') + '"></div></div>' +
     '<div class="field"><label>Jamoa</label><select class="inp" name="group"><option value="">Hozircha yo‘q</option>' + S.groups.map(g => '<option value="' + g.id + '">' + esc(g.name) + '</option>').join('') + '</select></div>' +
-    '<div class="grid g2" style="gap:12px"><div class="field"><label>Telegram</label><input class="inp" name="tg" placeholder="@username"></div>' +
-    '<div class="field"><label>Maqsadi</label><input class="inp" name="goal" placeholder="Nima uchun o‘qiyapti…"></div></div>' +
+    '<div class="grid g2" style="gap:12px"><div class="field"><label>Telegram</label><input class="inp" name="tg" placeholder="@username" value="' + esc(p0.tg || '') + '"></div>' +
+    '<div class="field"><label>Maqsadi</label><input class="inp" name="goal" placeholder="Nima uchun o‘qiyapti…" value="' + esc(p0.goal || '') + '"></div></div>' +
     '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('plus', 'sm') + 'Qo‘shish</button>' +
     '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>', 'narrow');
 }
@@ -201,6 +203,15 @@ function vAdmin() {
     (myPerms.length ? '<span class="xs muted">Huquqlar: ' + esc(myPerms.join(', ')) + '</span>' : '') + '</div></div>' +
     '<div class="row wrap" style="gap:9px">' + quick.join('') + '</div></div>';
 
+  /* Landing sahifasidan kelgan yangi arizalar — birinchi navbatda ko'rinadi */
+  if ((S.leads || []).length && actionAllowed('students')) {
+    h += '<div class="lrow" style="border-color:rgba(198,255,79,.34);background:rgba(198,255,79,.06);border-radius:var(--r-sm);border:1px solid rgba(198,255,79,.34);margin-bottom:14px">' +
+      '<div class="lead" style="background:rgba(198,255,79,.14)">' + ico('send', 'sm') + '</div>' +
+      '<div class="grow" style="min-width:0"><div class="small" style="font-weight:780">' + S.leads.length + ' ta yangi ariza keldi</div>' +
+      '<div class="xs muted ellip">Oxirgisi: ' + esc(S.leads[0].name) + ' • ' + esc(S.leads[0].phone) + '</div></div>' +
+      '<button class="btn btn-sm btn-primary" data-act="go" data-route="students">Arizalarni ko‘rish</button></div>';
+  }
+
   /* Bo'sh platforma: KPI o'rniga 4 qadamli boshlash yo'riqnomasi */
   if (!S.students.length) {
     const steps = [
@@ -295,6 +306,25 @@ function vStudents() {
     (actionAllowed('students') && UI.lastImport ? '<button class="btn btn-ghost btn-sm" data-act="import-undo" title="Oxirgi CSV import natijasini o‘chirish">' + ico('trash', 'sm') + 'Oxirgi importni bekor qilish (' + UI.lastImport.studentIds.length + ')</button>' : '') +
     (actionAllowed('students') ? '<button class="btn btn-soft btn-sm" data-act="import-csv">' + ico('upload', 'sm') + 'CSV import</button>' : '') +
     (actionAllowed('students') ? '<button class="btn btn-primary btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' : '') + '</div></div>';
+
+  /* Landing sahifasidan kelgan arizalar */
+  if ((S.leads || []).length) {
+    h += '<div class="card" style="margin-bottom:14px;border-color:rgba(198,255,79,.34)">' +
+      '<div class="card-h"><div class="row" style="gap:11px">' +
+      '<div class="feat-ic" style="background:rgba(198,255,79,.14);border-color:rgba(198,255,79,.34)">' + ico('send', 'sm') + '</div>' +
+      '<div><h2 class="h2">Yangi arizalar (' + S.leads.length + ')</h2>' +
+      '<div class="xs muted">Landing sahifasidagi «Ariza» formasidan. «Talaba qilish» bosilganda ma’lumotlar ' +
+      'to‘ldirilgan holda ochiladi — faqat HEMIS ID ni kiritasiz.</div></div></div></div>' +
+      '<div class="col" style="gap:8px">' + S.leads.slice(0, 10).map(l => '<div class="lrow">' +
+        '<div class="lead">' + ico('user', 'sm') + '</div>' +
+        '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(l.name) + '</div>' +
+        '<div class="xs muted ellip">' + esc(fmtPhone(l.phone)) + (l.tg ? ' • ' + esc(l.tg) : '') + (l.goal ? ' • ' + esc(l.goal) : '') + ' • ' + esc(l.at || '') + '</div></div>' +
+        (actionAllowed('students') ? '<button class="btn btn-xs btn-primary" data-act="lead-approve" data-id="' + esc(l.id) + '">' + ico('plus', 'sm') + 'Talaba qilish</button>' +
+          '<button class="btn btn-xs btn-ghost" data-act="del-lead" data-id="' + esc(l.id) + '" title="Arizani o‘chirish">' + ico('trash', 'sm') + '</button>' : '') +
+        '</div>').join('') + '</div>' +
+      (S.leads.length > 10 ? '<div class="xs muted" style="margin-top:8px">… yana ' + (S.leads.length - 10) + ' ta ariza</div>' : '') +
+      '</div>';
+  }
 
   if (!S.students.length) return h + emptyCard('users-plus', 'Hali talaba yo‘q',
     'Birinchi talabani qo‘shing (ism-familiya + HEMIS ID) yoki tayyor ro‘yxatni CSV fayl bilan bir yo‘la yuklang. Tizim har biriga unikal nick beradi va kirish kartochkalarini chiqaradi.',

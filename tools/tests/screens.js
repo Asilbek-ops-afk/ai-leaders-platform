@@ -18,6 +18,7 @@ function founderState() {
 function stateFor(name) {
   if (name === 'empty') return null;
   if (name === 'founder') return founderState();
+  if (name === 'landing') { const l = FIX.withSession('a1'); l.session = null; return l; }
   if (name === 'demo') return FIX.demoState();
   return FIX.withSession(name);
 }
@@ -97,7 +98,18 @@ function stateFor(name) {
     { name: '75-v2-bosh-statistika-1568', vp: { width: 1568, height: 768 }, steps: ['go-stats'], data: 'founder' },
     { name: '76-v2-csv-import', vp: { width: 1568, height: 768 }, steps: ['go-students', 'csv-import'], data: 'founder' },
     { name: '77-v2-import-yakunlandi', vp: { width: 1568, height: 768 }, steps: ['go-students', 'csv-import', 'csv-import-file', 'csv-import-confirm'], data: 'founder' },
-    { name: '78-v2-undo-tugmasi', vp: { width: 1568, height: 768 }, steps: ['go-students', 'csv-import', 'csv-import-file', 'csv-import-confirm', 'csv-import-close'], data: 'founder' }
+    { name: '78-v2-undo-tugmasi', vp: { width: 1568, height: 768 }, steps: ['go-students', 'csv-import', 'csv-import-file', 'csv-import-confirm', 'csv-import-close'], data: 'founder' },
+    /* v2.2.0 — landing sahifasi */
+    { name: '79-v22-landing-hero-1920', vp: { width: 1920, height: 1080 }, steps: [], data: 'landing' },
+    { name: '80-v22-landing-imkoniyatlar', vp: { width: 1440, height: 1000 }, steps: ['land-sec:#limkon'], data: 'landing' },
+    { name: '81-v22-landing-jarayon', vp: { width: 1440, height: 1000 }, steps: ['land-sec:#ljarayon'], data: 'landing' },
+    { name: '82-v22-landing-dastur', vp: { width: 1440, height: 1050 }, steps: ['land-sec:#ldastur'], data: 'landing' },
+    { name: '83-v22-landing-savollar', vp: { width: 1440, height: 950 }, steps: ['land-sec:#lsavol', 'faq-open'], data: 'landing' },
+    { name: '84-v22-landing-kirish', vp: { width: 1568, height: 768 }, steps: ['land-sec:#lkirish'], data: 'landing' },
+    { name: '85-v22-landing-ariza', vp: { width: 1568, height: 900 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing' },
+    { name: '86-v22-landing-kirish-admin', vp: { width: 1440, height: 1050 }, steps: ['land-sec:#lkirish', 'admin-tab'], data: 'landing' },
+    { name: '87-v22-landing-mobil', vp: { width: 390, height: 844 }, steps: [], data: 'landing' },
+    { name: '88-v22-landing-kirish-mobil', vp: { width: 390, height: 844 }, steps: ['land-sec:#lkirish'], data: 'landing' }
   ];
   const page = await browser.newPage();
   const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
@@ -139,6 +151,10 @@ function stateFor(name) {
         }, 120);
       }
       else if (t === 'csv-import') setTimeout(() => document.querySelector('[data-act="import-csv"]')?.click(), 120);
+      else if (t.startsWith('land-sec:')) setTimeout(() => document.querySelector(t.slice(9))?.scrollIntoView({ block: 'start' }), 150);
+      else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="apply"]')?.click(), 320);
+      else if (t === 'admin-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click(), 320);
+      else if (t === 'faq-open') setTimeout(() => document.querySelector('.fq .fq-q')?.click(), 320);
       else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
       else if (t === 'palette-q') {
         document.querySelector('[data-act="palette"]')?.click();
@@ -159,6 +175,10 @@ function stateFor(name) {
         else if (t.startsWith('lesson-')) document.querySelector('[data-act="lesson-open"][data-id="' + t.slice(7) + '"]')?.click();
         else if (t === 'student-profile') setTimeout(() => document.querySelector('[data-act="student-open"]')?.click(), 200);
         else if (t === 'csv-import') setTimeout(() => document.querySelector('[data-act="import-csv"]')?.click(), 120);
+        else if (t.startsWith('land-sec:')) setTimeout(() => document.querySelector(t.slice(9))?.scrollIntoView({ block: 'start' }), 150);
+        else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="apply"]')?.click(), 320);
+        else if (t === 'admin-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click(), 320);
+        else if (t === 'faq-open') setTimeout(() => document.querySelector('.fq .fq-q')?.click(), 320);
         else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
         else if (t === 'palette-q') {
           document.querySelector('[data-act="palette"]')?.click();

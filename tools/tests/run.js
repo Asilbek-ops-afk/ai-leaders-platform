@@ -77,6 +77,8 @@ window.AIL = {
     pruneOrphans(); save(); return null;
   },
   addStudent: d2 => { const r = addStudentRecord(d2); return r.ok ? { ok: true, acc: { id: r.acc.id, nick: r.acc.nick, hemisId: r.acc.hemisId }, s: r.student.id } : { ok: false, err: r.err, msg: r.msg }; },
+  lead: d2 => { const r = addLead(d2); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '' }; },
+  leads: () => (S.leads || []).map(l => ({ id: l.id, name: l.name, phone: l.phone, status: l.status })),
   lastImport: () => { const u = UI.lastImport; return u ? { accIds: u.accIds.length, studentIds: u.studentIds.length, groupIds: u.groupIds.length } : null; },
   impStatus: () => accounts().filter(a => a.imp).length,
   accs: () => accounts().map(a => ({ id: a.id, nick: a.nick, role: a.role, imp: !!a.imp, studentId: a.studentId })),
@@ -829,38 +831,98 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 2.1.0', B.w.AIL.version() === '2.1.0');
+t('versiya 2.2.0', B.w.AIL.version() === '2.2.0');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
-/* ================= 17. KIRISH EKRANI TUZILISHI (noutbuk/planshet) ================= */
-group('17. Kirish ekrani: keng ekranda to‘g‘ri tuzilish');
+/* ============ 17. LANDING SAHIFASI: HERO, BO'LIMLAR, KIRISH/ARIZA ============
+   v2.2.0: kirish ekrani landing sahifasiga aylandi — skrollda kirish/ariza
+   bo'limi «ochiladi». Bu guruh tuzilishni, bo'limlarni va ariza oqimini tekshiradi. */
+group('17. Landing sahifasi: hero, bo‘limlar, kirish/ariza bloki');
 const C = bootF();
 const appCls = () => C.d.getElementById('app').className;
 t('kirish ekranida #app yon-panel gridi emas', appCls() === 'app authscreen');
 t('CSS qoidasi joyida (authscreen → block)', C.d.documentElement.innerHTML.includes('.app.authscreen{display:block'));
-t('.auth ikki ustunli tuzilma saqlangan', !!C.d.querySelector('#app > .auth > .auth-art') && !!C.d.querySelector('#app > .auth > .auth-form'));
-t('brend va sarlavha kirish ekranida', C.has('AI LEADERS') && C.has('Tizimga kirish'));
-t('rol tanlash (Admin) formalar bilan bog‘liq', (() => {
-  const b2 = C.d.querySelector('[data-act="pick-role"][data-r="admin"]');
-  if (!b2) return false;
-  b2.dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
-  return C.w.AIL.UI.authRole === 'admin' && C.has('Admin');
+t('landing ildizi va hero mavjud', !!C.d.querySelector('.land') && !!C.d.querySelector('.lhero'));
+t('yopishqoq navigatsiya va o‘qish progressi', !!C.d.querySelector('.lnav') && !!C.d.querySelector('#lprog'));
+t('hero: sarlavha, matn, 2 CTA', !!C.d.querySelector('.lhero h1') && !!C.d.querySelector('.lhero .llede') &&
+  C.d.querySelectorAll('.lhero .lcta .btn').length === 2);
+t('bo‘limlar: imkoniyatlar, jarayon, dastur, savollar', ['#limkon', '#ljarayon', '#ldastur', '#lsavol'].every(x => !!C.d.querySelector(x)));
+t('imkoniyat kartalari (6 ta)', C.d.querySelectorAll('.lfeat-c').length === 6);
+t('jarayon 4 qadam', C.d.querySelectorAll('.lstep').length === 4);
+t('dastur modullari bazadan (6 ta)', C.d.querySelectorAll('.lmodc').length === C.w.AIL.S.modules.length);
+t('savol-javob 5 ta, akkordeon yopiq', (() => {
+  const qs = C.d.querySelectorAll('.fq');
+  return qs.length === 5 && !qs[0].classList.contains('open');
 })());
-C.w.AIL.loginAs('acc-a1');
-t('kirishdan keyin grid qaytadi (#app)', appCls() === 'app' && C.w.AIL.UI.authShow === false);
-t('kirish ekrani DOMdan olib tashlandi', C.d.querySelector('#app > .auth') === null);
-C.click('[data-act="collapse"]');
-t('yig‘ilgan holat klassi kirish mantiqiga xalal bermaydi', appCls() === 'app collapsed');
+t('FAQ bosilganda ochiladi (aria-expanded)', (() => {
+  C.d.querySelector('.fq .fq-q').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
+  const fq = C.d.querySelector('.fq');
+  return fq.classList.contains('open') && fq.querySelector('.fq-q').getAttribute('aria-expanded') === 'true';
+})());
+t('kirish/ariza bo‘limi va 3 tab', !!C.d.querySelector('#lkirish') && C.d.querySelectorAll('#lkirish .auth-tab').length === 3);
+t('ochilish animatsiyasi elementi (rev-card) joyida', !!C.d.querySelector('#lkirish .rev-card'));
+t('kuzatuvchi bo‘lmagan muhitda ham ko‘rinadi (in klasslari)', C.d.querySelector('.lauth').classList.contains('in') &&
+  C.d.querySelectorAll('.reveal.in').length > 0);
+t('«Hoziroq boshlash» → ariza tabi', (() => {
+  C.d.querySelector('[data-act="to-apply"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
+  return C.w.AIL.UI.authRole === 'apply' && !!C.d.querySelector('[data-form="lead"]');
+})());
+t('ariza xatolari: ism va telefon', (() => {
+  const r1 = C.w.AIL.lead({ name: 'Al', phone: '+998901112233' });
+  const r2 = C.w.AIL.lead({ name: 'Dilnoza Karimova', phone: '123' });
+  return r1.err === 'name' && r2.err === 'phone';
+})());
+t('ariza saqlanadi + takroriy raqam bloklanadi', (() => {
+  const r = C.w.AIL.lead({ name: 'Dilnoza Karimova', phone: '+998 90 111 22 33', tg: '@dilnoza', goal: 'AI mahsulot' });
+  if (!r.ok) return false;
+  const dup = C.w.AIL.lead({ name: 'Boshqa Odam', phone: '998901112233' });
+  return C.w.AIL.S.leads.length === 1 && dup.err === 'dup' && C.w.AIL.S.leads[0].status === 'new';
+})());
+t('ariza formasi submit → rahmat ekrani', (() => {
+  C.set('[data-form="lead"] input[name="name"]', 'Sardor Bekov');
+  C.set('[data-form="lead"] input[name="phone"]', '+998 91 234 56 78');
+  C.submit('[data-form="lead"]');
+  return C.w.AIL.UI.leadDone === 'Sardor Bekov' && C.has('Ariza qabul qilindi') && C.w.AIL.S.leads.length === 2;
+})());
+t('«Yana ariza topshirish» formani qaytaradi', (() => {
+  C.d.querySelector('[data-act="lead-reset"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
+  return !!C.d.querySelector('[data-form="lead"]') && C.w.AIL.UI.leadDone === null;
+})());
+t('«Tizimga kirish» → talaba tabi, login formasi', (() => {
+  C.d.querySelector('[data-act="to-auth"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
+  return C.w.AIL.UI.authRole === 'student' && !!C.d.querySelector('[data-form="login-student"]');
+})());
+t('Admin tabi admin formasini beradi', (() => {
+  C.d.querySelector('[data-act="pick-role"][data-r="admin"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
+  return C.has('Admin') && !!C.d.querySelector('[data-form="login-admin"]');
+})());
+t('formadan chiqqan xato landingda ko‘rinadi', (() => {
+  C.set('[data-form="login-admin"] input[name="login"]', 'yoq@yoq.uz');
+  C.set('[data-form="login-admin"] input[name="pass"]', 'xato');
+  C.submit('[data-form="login-admin"]');
+  return !!C.d.querySelector('#lkirish .form-err') && !!C.w.AIL.UI.authErr;
+})());
+t('parolsiz akkaunt: landingdan kirish → parol o‘rnatish bosqichi', (() => {
+  C.w.AIL.UI.authRole = 'student'; C.w.AIL.UI.authErr = ''; C.w.AIL.repaint();
+  C.set('[data-form="login-student"] input[name="login"]', 'falcon');
+  C.submit('[data-form="login-student"]');
+  return C.w.AIL.UI.authShow === true && !!C.d.querySelector('[data-form="first-pass"]');
+})());
+t('parol o‘rnatilgach kabinetga kiriladi', (() => {
+  C.set('[data-form="first-pass"] input[name="p1"]', 'talaba2026');
+  C.set('[data-form="first-pass"] input[name="p2"]', 'talaba2026');
+  C.submit('[data-form="first-pass"]');
+  return C.w.AIL.UI.authShow === false && appCls() === 'app' && C.w.AIL.UI.firstPass === null;
+})());
+t('kirishdan keyin landing DOMdan olib tashlandi', C.d.querySelector('.land') === null);
 C.click('[data-act="logout"]');
-t('chiqishda kirish ekrani yana to‘liq en oladi', appCls() === 'app authscreen' && !!C.d.querySelector('#app > .auth'));
-t('orblar absolute — flex oqimini cho‘zmaydi', C.w.getComputedStyle(C.d.querySelector('.spark-orb')).position === 'absolute');
-t('CSS kaskadi: orb qoidasi .auth-art>* dan keyin',
-  C.d.documentElement.innerHTML.indexOf('.auth-art>.spark-orb{position:absolute') >
-  C.d.documentElement.innerHTML.indexOf('.auth-art>*{position:relative'));
-t('kirish bloki uchun klasslar (auth-copy, auth-stats)', !!C.d.querySelector('.auth-copy') && !!C.d.querySelector('.auth-stats'));
-t('kirish ekranida oqimdagi bloklar soni 3 ta (brend, matn, statistika)',
-  [...C.d.querySelector('.auth-art').children].filter(k => !k.classList.contains('spark-orb') && !k.classList.contains('float-slow')).length === 3);
-t('JS xatosi yo‘q (kirish ekrani)', C.errors.length === 0);
+t('chiqishda landing qaytadi (authscreen)', appCls() === 'app authscreen' && !!C.d.querySelector('.land'));
+t('chiqishdan keyin hero va kirish bo‘limi joyida', !!C.d.querySelector('.lhero') && !!C.d.querySelector('#lkirish .rev-card'));
+t('qayta kirilganda ariza raqami esda qoladi (xato bermaydi)', (() => {
+  const dup = C.w.AIL.lead({ name: 'Yangi Odam', phone: '998901112233' });
+  return dup.err === 'dup';
+})());
+t('JS xatosi yo‘q (landing)', C.errors.length === 0);
 
 /* ================= 19. MVP: AKKAUNTLAR, HEMIS, NICK, SESSIYA ================= */
 group('19. MVP akkaunt tizimi: HEMIS ID, unikal nick, birinchi kirish, sessiya');
@@ -1319,6 +1381,56 @@ group('23. Bo‘sh tuzilmalar: vazifasiz jamoa, yetim a’zo, NaN yo‘q');
   t('JS xatosi yo‘q (bo‘sh tuzilmalar)', Q.errors.length === 0);
 }
 
+/* ============= 24. ARIZA OQIMI: LANDING → ADMIN → TALABA ================== */
+group('24. Ariza oqimi: landing arizasi → admin tasdiqlash → talaba');
+{
+  const Q = bootF();
+  Q.w.AIL.loginAs('acc-a1');
+  Q.w.AIL.go('students');
+  const L1 = Q.w.AIL.lead({ name: 'Dilnoza Karimova', phone: '+998 90 777 66 55', tg: '@dilnoza', goal: 'AI mahsulot' });
+  const L2 = Q.w.AIL.lead({ name: 'Rustam Aliyev', phone: '+998 90 999 88 77' });
+  t('arizalar saqlanadi (2 ta)', L1.ok && L2.ok && Q.w.AIL.leads().length === 2);
+  Q.w.AIL.repaint();
+  t('talabalar sahifasida «Yangi arizalar (2)» bloki', Q.has('Yangi arizalar (2)'));
+  t('ariza satrida telefon o‘qiladigan ko‘rinishda', Q.has('+998 90 777 66 55') && Q.has('@dilnoza'));
+  t('takroriy telefon bloklanadi', Q.w.AIL.lead({ name: 'Boshqa Odam', phone: '998907776655' }).err === 'dup');
+  /* tasdiqlash: forma ariza ma'lumotlari bilan to'ladi */
+  const first = Q.w.AIL.leads()[0];
+  Q.d.querySelector('[data-act="lead-approve"]').dispatchEvent(new Q.w.MouseEvent('click', { bubbles: true }));
+  t('«Talaba qilish» formani ariza bilan to‘ldiradi', (() => {
+    const f = Q.d.querySelector('[data-form="new-student"]');
+    if (!f || !f.dataset.lead) return false;
+    const phoneVal = f.querySelector('input[name="phone"]').value;
+    return f.querySelector('input[name="name"]').value === first.name && /^\+998 90 /.test(phoneVal);
+  })());
+  Q.d.querySelector('[data-form="new-student"] input[name="hemis"]').value = '777666555444';
+  Q.submit('[data-form="new-student"]');
+  t('ariza talabaga aylandi va arizadan o‘chdi', Q.w.AIL.S.students.length === 19 && Q.w.AIL.leads().length === 1);
+  t('yangi talaba akkaunti yaratildi (HEMIS + nick)', (() => {
+    const a = Q.w.AIL.accByHemis('777666555444');
+    return !!a && a.role === 'student' && !!a.nick && a.mustSetPass === true;
+  })());
+  t('kirish kartochkasi ochildi (nick + HEMIS + parol qoidasi)', (() => {
+    if (!Q.hasModal('Kirish kartochkasi')) return false;
+    const txt = Q.d.querySelector('.mbox').textContent;
+    return /777666555444/.test(txt) && /Nick [(]login[)]/.test(txt) && /parol/i.test(txt);
+  })());
+  Q.w.AIL.closeModal();
+  Q.w.AIL.go('students');
+  t('qolgan ariza (1 ta) ko‘rinadi', Q.has('Yangi arizalar (1)'));
+  /* arizani o'chirish */
+  Q.click('[data-act="del-lead"]');
+  Q.click('[data-act="del-lead-do"]');
+  t('arizani o‘chirish ishlaydi', Q.w.AIL.leads().length === 0 && !Q.has('Yangi arizalar'));
+  /* dashboard xabari */
+  Q.w.AIL.lead({ name: 'Yangi Nomzod', phone: '+998 93 222 33 44' });
+  Q.w.AIL.go('admin');
+  t('dashboardda yangi ariza xabari', Q.has('1 ta yangi ariza keldi') && !!Q.d.querySelector('[data-act="go"][data-route="students"]'));
+  Q.w.AIL.go('students');
+  t('talabalar sahifasida arizalar bloki ko‘rinadi', Q.has('Yangi arizalar (1)') && Q.has('Talaba qilish'));
+  t('JS xatosi yo‘q (ariza oqimi)', Q.errors.length === 0);
+}
+
 /* ============= 21. STATIK QO'RIQCHI: MANBA KODDA NAMUNA MA'LUMOT YO'Q ======= */
 group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
 {
@@ -1337,11 +1449,11 @@ group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
   t('src fixtura faylini chaqirmaydi', !/fixtures/.test(srcAll) && !/require\(/.test(srcAll));
   t('tozalash funksiyasi mavjud (purgeDemoState)', /function purgeDemoState\(/.test(srcAll) && /needsSetup/.test(srcAll) && /function createFounderAccount\(/.test(srcAll));
   t('qurilgan index.html ham namuna ismlaridan xoli', stNames.every(x => !HTML.includes(x)) && adNames.every(x => !HTML.includes(x)));
-  t('versiya izchil (src = sw.js = package.json = 2.1.0)', (() => {
+  t('versiya izchil (src = sw.js = package.json = 2.2.0)', (() => {
     const ver = /const APP_VERSION = '([^']+)'/.exec(srcAll)[1];
     const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-    return ver === '2.1.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
+    return ver === '2.2.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
   })());
 }
 

@@ -64,6 +64,24 @@ const ROUTES = { admin: ['admin', 'students', 'adminTasks', 'adminGroups', 'admi
       await page.waitForTimeout(170);
       await measure(w + '×' + h + ' bo‘sh/' + r);
     }
+    /* v2.2.0: landing sahifasi (tizimga kirilmagan) — hero, bo'limlar, ariza formasi */
+    await seed(FIX.withSession('a1'));
+    await page.evaluate(() => { const r = JSON.parse(localStorage.getItem('ai-leaders-platform-v1')); r.session = null; localStorage.setItem('ai-leaders-platform-v1', JSON.stringify(r)); });
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForTimeout(500);
+    await measure(w + '×' + h + ' landing/hero');
+    for (const sec of ['#limkon', '#ljarayon', '#ldastur', '#lsavol', '#lkirish']) {
+      await page.evaluate(x => document.querySelector(x).scrollIntoView({ block: 'start' }), sec);
+      await page.waitForTimeout(420);
+      await measure(w + '×' + h + ' landing/' + sec);
+    }
+    for (const tab of ['apply', 'admin']) {
+      await page.evaluate(x => document.querySelector('[data-act="pick-role"][data-r="' + x + '"]')?.click(), tab);
+      await page.waitForTimeout(260);
+      await page.evaluate(() => document.querySelector('#lkirish').scrollIntoView({ block: 'center' }));
+      await page.waitForTimeout(260);
+      await measure(w + '×' + h + ' landing/' + tab + '-tab');
+    }
     console.log('  ✓ ' + w + '×' + h + ' tekshirildi');
   }
   await browser.close();

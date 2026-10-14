@@ -4,7 +4,7 @@ Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** bar
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
 **eng yangi holat — oxirgi bo'lim (v2.0.0)**.
 
-**Oxirgi versiya:** v2.1.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (394 test, 119 joylashuv, 68 skrinshot, jonli sayt tasdiqlangan)
+**Oxirgi versiya:** v2.2.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (422 test, 175 joylashuv, 78 skrinshot)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -14,6 +14,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [v1.4.1](#v141--mvpni-mukammal-qilish-ruxsatlar-parol-boshqaruvi-namunareal-ajratish) | v1.4.1 | Rollar/ruxsatlar, parol boshqaruvi, joylashuv auditi |
 | [**v2.0.0**](#v200--keraksiz-narsalarni-ochirib-tashla-namuna-malumotlar-butunlay-olib-tashlandi) | **v2.0.0** | **Namuna ma'lumotlar butunlay olib tashlandi: bo'sh start + Founder yaratish** |
 | [**v2.1.0**](#v210--haqiqiy-talabalar-royxatini-yuklash-csv-import) | **v2.1.0** | **CSV import: haqiqiy talabalar ro'yxatini platformada yuklash + bo'sh tuzilmalar mustahkamligi** |
+| [**v2.2.0**](#v220--landing-sahifa-va-skrollda-ochiladigan-kirishariza) | **v2.2.0** | **Landing sahifa + skrollda 3D ochiladigan kirish/ariza bo'limi & ariza oqimi** |
 
 ---
 
@@ -428,3 +429,35 @@ havola o'zgarmaydi. Yechim: **service worker `controllerchange` → avtomatik re
 («Yangi versiya o'rnatildi» xabari) + har 30 daqiqada `registration.update()`; testlar
 `sw.js` kesh nomi versiyaga bog'langanligini va `_headers` kesh siyosatini
 (`index.html` → `must-revalidate`, `sw.js` → `no-cache`) har safar tekshiradi.
+
+---
+
+## v2.2.0 — Landing sahifa va skrollda ochiladigan kirish/ariza
+
+**Talab:** «sahifani landing page qilish kerak, skroldan keyin kreativroq usulda login/register qismi chiqishi kerak».
+
+### Nima qo'shildi
+
+| # | O'zgarish | Tafsilot |
+|---|---|---|
+| 1 | **Landing sahifa** | Yopishqoq navigatsiya (fon skrolda shishadi) + o'qish progressi (yuqorida gradient chiziq). Bo'limlar: hero → «Klub nima beradi» (6 karta) → 4 qadamli jarayon → o'quv dasturi (bazadagi modullar + gamification) → savol-javob (5 akkordeon) → kirish/ariza → sayt pasti |
+| 2 | **Hero** | Katta sarlavha (gradient urg'u bilan), tavsif, 2 CTA, 4 ko'rsatkich (modul/dars/baholash/yutuq), suzuvchi «+120 XP / 7 kun streak / Nova jamoasi» kartochkalari, orblar va to'r fon, «pastga suring» ko'rsatkichi |
+| 3 | **Kreativ ochilish** | Kirish bo'limiga skrollda: tepadan yorug'lik chizig'i tushadi, fon porlaydi, **karta 3D burilib ochiladi** (perspective(1400px) rotateX(17°) → 0), chetida yashil yorug'lik yugurishi, maydonlar ketma-ket chiqadi. `IntersectionObserver`; yo'q muhitda darhol ko'rinadi |
+| 4 | **Uch tab** | **Talaba** (nick/HEMIS ID), **Admin / Mentor** (email), **Ariza** (yangi). Tab almashganda skrol o'rni saqlanadi, xatolar landingda ko'rsatiladi |
+| 5 | **Ariza oqimi** | Ariza formasi (ism, telefon, telegram, maqsad) → rahmat ekrani → **Admin → Talabalar → «Yangi arizalar (N)»** → «Talaba qilish» bosilganda forma ariza ma'lumotlari bilan to'ldiriladi (faqat HEMIS ID kiritiladi) → kirish kartochkasi. Dashboard ham «N ta yangi ariza keldi» deb ogohlantiradi |
+| 6 | **Ariza tekshiruvlari** | Ism ≥3 belgi, telefon ≥9 raqam (rakamlarga normallashtiriladi), takroriy raqam bloklanadi («allaqachon yuborilgan»). Xato berganda kiritilgan qiymatlar yo'qolmaydi (`UI.leadDraft`) |
+| 7 | **Telefon formati** | Ariza kartasida va formasida raqam o'qiladigan ko'rinishda: `998901112233` → `+998 90 111 22 33` (`fmtPhone()`) |
+
+### Nima tuzatildi
+
+1. **Ariza xatosi maydonlarni tozalar edi** — foydalanuvchi hammasini qaytadan yozishi kerak bo'lardi; endi qoralama saqlanadi.
+
+### Tekshiruv natijalari (v2.2.0)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **422 ta, 0 xato** (yangi: `17. Landing sahifasi`, `24. Ariza oqimi`) |
+| Joylashuv testi | ✔ **175 tekshiruv, 0 toshish** — landing 5 bo'limi + 3 tabi ham 7 o'lchamda (390×844 dan 1920×1080 gacha) |
+| Skrinshotlar | ✔ **78 ta surat (88 qadam)** — yangi: 79–88 (`79-v22-landing-hero-1920`, imkoniyatlar, jarayon, dastur, savollar, kirish, ariza, admin tab, mobil hero, mobil kirish) |
+| Ariza oqimi (Playwright) | ✔ Landing → ariza (2 ta) → takroriy raqam bloklandi → dashboard ogohlantirishi → «Talaba qilish» (prefill) → talaba + kartochka → ariza o'chdi: **0 JS xatosi** |
+| Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.2.0** |

@@ -89,6 +89,7 @@ Rejani boshlash uchun 4 ta savolga javob kerak (keyingi xabarda so'rayman):
 |---|---|---|
 | Ma'lumotlar bazasi | **Hozircha lokal** (brauzer xotirasi) | Login tizimi shunday quriladiki, keyin bazaga o'tilganda qayta yozilmaydi. Baza kalitlari tayyor bo'lsa — 15 daqiqada ulanadi. |
 | Kirish usuli | **HEMIS ID + unikal nick** | Talaba bizga HEMIS ID topshiradi → biz bazaga kiritamiz → har bir HEMIS ID uchun **bitta alohida nick** beriladi (21-school uslubida). Bitta HEMIS ID = bitta foydalanuvchi. |
+| Landing sahifa | **v2.2.0: tizimga kirilmagan foydalanuvchi uchun landing** — hero, imkoniyatlar, jarayon, dastur, FAQ va skrollda 3D ochiladigan kirish/ariza bo'limi. Talabgor «Ariza» qoldiradi, admin uni bir tugma bilan talabaga aylantiradi |
 | Namuna ma'lumotlar | **Butunlay olib tashlandi (v2.0.0)** | Platforma bo'sh boshlanadi: birinchi ochilishda **Founder akkaunti** yaratiladi. Namuna ma'lumot faqat `tools/tests/fixtures.js` ichida (test uchun). |
 | MVP qamrovi | **Asosiy** | Baza + login + talaba kabineti + admin panel + fayl yuklash + xavfsizlik. |
 
