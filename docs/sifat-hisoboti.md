@@ -1,9 +1,18 @@
-# Sifat hisoboti — v1.2.0 (professional sayqal)
+# Sifat hisoboti — AI Leaders platformasi
 
 Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** barcha kamchiliklarni,
-tekshiruv usullarini va natijalarni qayd etadi.
+tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
+**eng yangi holat — oxirgi bo'lim (v2.0.0)**.
 
-**Sana:** 2026-10-13 · **Versiya:** v1.2.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi
+**Oxirgi versiya:** v2.0.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (349 test, 119 joylashuv, 65 skrinshot)
+
+| Bo'lim | Versiya | Mazmuni |
+|---|---|---|
+| [1–5](#1-umumiy-natija) | v1.2.0 | Professional sayqal: 23 nuqson, dizayn, PWA/SEO |
+| v1.3.x | v1.3.0–1.3.2 | Noutbuk rejimi, buyruq paneli, dizayn sayqali |
+| [v1.4.0](#v140--mvp-haqiqiy-akkaunt-tizimi) | v1.4.0 | Haqiqiy akkaunt tizimi: HEMIS ID + nick, parol, sessiya |
+| [v1.4.1](#v141--mvpni-mukammal-qilish-ruxsatlar-parol-boshqaruvi-namunareal-ajratish) | v1.4.1 | Rollar/ruxsatlar, parol boshqaruvi, joylashuv auditi |
+| [**v2.0.0**](#v200--keraksiz-narsalarni-ochirib-tashla-namuna-malumotlar-butunlay-olib-tashlandi) | **v2.0.0** | **Namuna ma'lumotlar butunlay olib tashlandi: bo'sh start + Founder yaratish** |
 
 ---
 
@@ -11,7 +20,7 @@ tekshiruv usullarini va natijalarni qayd etadi.
 
 | Ko'rsatkich | Natija |
 |---|---|
-| Funksional testlar (`npm test`) | **152 ta tekshiruv, 0 xato** (15 guruh) |
+| Funksional testlar (`npm test`, v1.2.0 paytida) | **152 ta tekshiruv, 0 xato** (15 guruh) — hozirgi holat: **349 ta** |
 | Jonli sayt tekshiruvi (`node tools/tests/live.js`) | **18 tekshiruv, 0 xato** |
 | Vizual QA (playwright, Chromium) | **28 ta skrinshot** — desktop, mobil, modallar, light tema |
 | JS sintaksis (`npm run check`) | 4/4 fayl toza |
@@ -294,7 +303,10 @@ gorizontal toshishni (overflow) o'lchaydi. Topilgan va tuzatilgan 3 ta turdagi n
 | Rollar sinovi | ✔ Founder/mentor/kontent/kurator: ko'rinadigan bo'limlar, bloklangan amallar, qulflar |
 | Parol oqimi | ✔ Eski parol tekshiruvi, qisqa parol rad etilishi, mos kelmagan takror, tiklashdan keyin birinchi kirish |
 
-### Foydalanish (namuna rejimi)
+### Foydalanish (namuna rejimi — v1.4.1 holati)
+
+> **Diqqat:** v2.0.0 da namuna ma'lumotlar butunlay olib tashlandi (quyiga qarang). Quyidagi jadval
+> faqat tarixiy ma'lumot — bu hisoblar endi platformada yo'q, ular `tools/tests/fixtures.js` ichida test uchun saqlanadi.
 
 | Rol | Kirish | Ko'radigan bo'limlari |
 |---|---|---|
@@ -308,3 +320,60 @@ gorizontal toshishni (overflow) o'lchaydi. Topilgan va tuzatilgan 3 ta turdagi n
 **Keyingi qadam:** foydalanuvchi haqiqiy talabalar bazasini va admin ma'lumotlarini yuborishi bilan
 `npm run import <fayl.csv>` → namuna yozuvlar olib tashlanadi → kirish kartochkalari tarqatiladi
 (`docs/mvp-reja.md` §8 dagi 7 bosqich).
+
+---
+
+## v2.0.0 — «Keraksiz narsalarni o'chirib tashla»: namuna ma'lumotlar butunlay olib tashlandi
+
+Foydalanuvchi so'rovi: *"Keraksiz narsalarni ochirib tashla"* → aniqlashtiruvchi savolga javob:
+**«Namuna ma'lumotlarni BUTUNLAY»** (18 namuna talaba + 7 namuna admin). Ya'ni platforma **bo'sh holatda**
+ishga tushadi, real talabalar keyin `npm run import` bilan yuklanadi, adminlar esa platformadan qo'shiladi.
+
+### Nima qilindi
+
+| # | O'zgarish | Tafsilot |
+|---|---|---|
+| 1 | **Namuna ma'lumot manbadan chiqarildi** | `src/app-1-core.js` ichidagi 18 talaba, 7 admin, 6 jamoa, 3 mentor, 6 vazifa, 38 topshiriq, devorlar, galereya — hammasi `tools/tests/fixtures.js` ga ko'chirildi (faqat test uchun). Manba kodda birorta namuna ism/email qolmadi |
+| 2 | **Bo'sh holat (`blankState`)** | Platforma `students: []`, `tasks: []`, `groups: []`, `accounts: []` bilan boshlanadi; o'quv dasturi (6 modul / 29 dars), yutuqlar va questlar ta'riflari saqlanadi |
+| 3 | **Birinchi ishga tushirish ekrani** | Akkaunt yo'q bo'lsa `needsSetup()` → «Birinchi ishga tushirish → **Founder akkauntini yaratamiz**»: ism (≥3 belgi), email, parol (≥4 belgi, takrori bilan), unikal nick avtomatik beriladi. Founder = `adminRole: 'founder'`, `perms: ['__all']` |
+| 4 | **Migratsiya (eski brauzerlar)** | Ilgari ochilgan `localStorage` holatida `meta.demoPurged` belgisi bo'lmasa — `purgeDemoState()` ishlaydi: namuna yozuvlar o'chadi, **haqiqiy** (demo bo'lmagan) akkauntlar va ularning profillari saqlanadi, mavzu va sozlamalar ko'chiriladi, holat darhol qayta yoziladi |
+| 5 | **Reset semantikasi o'zgardi** | «Barcha ma'lumotni o'chirish (noldan boshlash)»: talabalar, jamoalar, vazifalar, akkauntlar — hammasi o'chadi va Founder ekrani qaytadi (avvalgi «namunani tiklash» o'rniga) |
+| 6 | **Namuna rejimi qoldiqlari olib tashlandi** | `sampleModal` (25 akkaunt paneli), kirish ekranidagi tez kirish tugmalari, topbar'dagi rol almashtirgich, versiya qatoridagi «namuna rejimi» yozuvi, buyruq panelidagi namuna yozuvi — hammasi o'chirildi |
+| 7 | **Bo'sh holat dizayni** | Admin dashboardda **«Boshlash — 4 qadam»** yo'riqnomasi (talaba → jamoa → vazifa/deadline → admin), bo'limlarda tushunarli bo'sh holat kartalari (Talabalar, Vazifalar, Jamoalar, Deadline, Statistika, talaba tomonida Vazifalar/Deadline/Team/Friends) |
+| 8 | **Statik qo'riqchi (yangi test guruhi)** | `21. Statik qo'riqchi`: manba kodda namuna ism/email/o'zgaruvchilar (`ADMIN_SEED`, `DEMO_NICKS`, `buildAccounts`, `demo:true`) yo'qligini, bo'sh `blankState`, versiya izchilligi (`src` = `sw.js` = `package.json`) va qurilgan `index.html` tozaligini tekshiradi |
+
+### Yo'l-yo'lakay topilgan va tuzatilgan xatolar
+
+| # | Muammo | Tuzatish |
+|---|---|---|
+| 1 | Bo'sh holatda `vStats()` `h` o'zgaruvchisiga e'londan oldin murojaat qilardi (TDZ) — Statistika bo'limi yiqilardi | Bo'sh holat tekshiruvi `let h = …` dan keyinga ko'chirildi; testlar barcha bo'limlarni bo'sh holatda aylanib chiqadi |
+| 2 | `kpisAdmin()`/`activityPct()` bo'sh bazada `NaN` qaytarardi | Bo'luvchi nolga tekshiriladi (`avg`, `activityPct`, modul foizlari, statistika foizlari) |
+| 3 | Haftalik faollik grafigi bo'sh bo'lganda `NaN` balandlik berardi | `weeklyData()`: saqlangan haftalik ma'lumot bo'lmasa, talabalar XP'sidan hisoblanadi (0 bo'lsa — 0) |
+| 4 | Sertifikat va ruxsat kartasida qattiq yozilgan ism/email («Bekzod Aliyev», «bekzod@aileaders.uz») qolgan edi | Endi `founderAcc()` dan olinadi: imzo — haqiqiy Founder, ruxsat kartasi — haqiqiy Founder emaili |
+| 5 | Yopiq dars qatori `data-act="noop"` yuborardi, `case 'noop'` olib tashlangach hech narsa bo'lmasdi | Yopiq dars `data-act="locked"` → «Dars yopiq: oldingi modul vazifasi qabul qilingach ochiladi» xabari; admin buyruq panelidagi dars/vazifa yozuvlari ham to'g'ri ishlaydi |
+| 6 | Bo'sh platformada «jamoalar yetakchisi» va «haftalik g'olib» kartalari yiqilardi | `topGroup()` (bo'sh bo'lsa `null`) + «jamoa yo'q»/«talabalar qo'shilgach reyting boshlanadi» matnlari |
+| 7 | Tozalash har yuklanishda qayta hisoblanardi | `loadState()` tozalangan holatni darhol `localStorage`ga yozadi |
+| 8 | Test/tasvir to'plamlari olib tashlangan namuna tugmalariga tayanardi | `run.js`/`screens.js`/`layout.js` fixtura (`tools/tests/fixtures.js`) bilan ishlaydi: sessiya va holat to'g'ridan-to'g'ri `localStorage`ga seed qilinadi |
+
+### Tekshiruv natijalari (v2.0.0)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **349 ta, 0 xato** — 21 guruh (yangi: `0. Bo'sh platforma va Founder`, `0b. Migratsiya`, `21. Statik qo'riqchi`) |
+| Joylashuv testi | ✔ **`npm run test:layout` — 7 o'lcham × 17 sahifa (7 admin + 7 talaba + 3 bo'sh platforma), 119 tekshiruv, 0 toshish** |
+| Skrinshotlar | ✔ **65 ta surat (75 qadam)** — bo'sh platforma holatlari: birinchi sozlash (1920/1568/1024), Founder dashboardi, bo'sh bo'limlar, mobil |
+| O'lchamlar | ✔ 1920×1080, 1568×768 (foydalanuvchi noutbuki), 1440×900, 1366×768, 1024×800, 768×1024, 390×844 |
+| Migratsiya sinovi | ✔ Eski holat (18 talaba + 7 admin) yuklanganda hammasi o'chadi, haqiqiy akkaunt/profil saqlanadi, Founder ekrani chiqadi |
+| Bo'sh holat sinovi | ✔ Barcha 9 admin bo'limi va barcha talaba bo'limlari bo'sh bazada xatosiz chiziladi (`NaN`/`undefined` yo'q) |
+
+### Fayllar
+
+| Fayl | O'zgarish |
+|---|---|
+| `tools/tests/fixtures.js` | **Yangi** — `demoState()`, `withSession(accId)`, `emptyState()`, `FIXTURE_VERSION` (namuna ma'lumot faqat shu yerda) |
+| `src/app-1-core.js` | Bo'sh `blankState()`, `purgeDemoState()`, `needsSetup()`, `createFounderAccount()`, `founderAcc()`, `weeklyData()`, `emptyCard()`, `topGroup()`; namuna seedlari va `sampleModal` olib tashlandi |
+| `src/app-2-student.js` | Bo'sh holat kartalari (Vazifalar, Deadline, Team, Friends), faollik lentasi bo'sh holati |
+| `src/app-3-admin.js` | «Boshlash — 4 qadam» yo'riqnomasi, bo'limlar bo'sh holatlari, bo'sh bazada `NaN`siz hisoblar, dinamik Founder emaili |
+| `src/app-4-app.js` | «Birinchi ishga tushirish» ekrani + forması, `data-form="setup-founder"` oqimi, namuna amallari/`login()` olib tashlandi |
+| `tools/tests/run.js`, `screens.js`, `layout.js` | Fixtura bilan seed qilinadi; namuna paneli testlari → bo'sh holat + migratsiya + statik qo'riqchi testlariga almashtirildi |
+| `README.md`, `docs/mvp-reja.md`, `docs/talabalar-shabloni.csv` | Hujjatlar yangilandi; shablondan NAMUNA qatorlar olib tashlandi (import vositasi `#` izohlarni o'qiydi) |

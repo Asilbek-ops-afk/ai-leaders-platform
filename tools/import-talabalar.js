@@ -42,7 +42,8 @@ function detectSep(line) {
 }
 function parseCSV(text) {
   const clean = text.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
-  const lines = clean.split('\n').filter(l => l.trim() !== '');
+  /* '#' bilan boshlanadigan qatorlar — izoh (shablondagi ko'rsatmalar) */
+  const lines = clean.split('\n').filter(l => l.trim() !== '' && !l.trim().startsWith('#'));
   if (!lines.length) return [];
   const sep = detectSep(lines[0]);
   const rows = [];
@@ -116,7 +117,7 @@ function main() {
   }
 
   const rows = parseCSV(fs.readFileSync(file, 'utf8'));
-  if (rows.length < 2) { console.error('✖ Faylda sarlavha va kamida bitta qator bo‘lishi kerak.'); process.exit(2); }
+  if (rows.length < 2) { console.error('✖ Faylda sarlavha va kamida bitta talaba qatori bo‘lishi kerak.\n  Shablon: docs/talabalar-shabloni.csv (izoh qatorlari «#» bilan boshlanadi va o‘qilmaydi).'); process.exit(2); }
 
   const map = mapHeader(rows[0]);
   const missing = ['name', 'hemis'].filter(k => map[k] === undefined);

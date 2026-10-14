@@ -38,7 +38,6 @@ window.AIL = {
   get UI(){ return UI; },
   go: r => go(r),
   forceGo: r => { UI.route = r; UI.module = null; paint(); },
-  login: (role, id) => login(role, id),
   exportCSV: () => { try { exportCSV(); return 'ok'; } catch (e) { return 'err:' + e.message; } },
   exportMy: () => { try { exportMyCSV(); return 'ok'; } catch (e) { return 'err:' + e.message; } },
   downloadState: () => { try { downloadState(); return 'ok'; } catch (e) { return 'err:' + e.message; } },
@@ -65,6 +64,9 @@ window.AIL = {
   openPalette: () => openPalette(),
   closePalette: () => closeModal(),
   closeModal: () => closeModal(),
+  needsSetup: () => needsSetup(),
+  founder: () => { const a = founderAcc(); return a ? { id: a.id, name: a.name, nick: a.nick } : null; },
+  createFounder: o => { const r = createFounderAccount(o || {}); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', acc: r.acc ? JSON.parse(JSON.stringify(r.acc)) : null }; },
   reset: () => resetAll(),
   passResetById: id => passReset(id),
   saveNow: () => save(),
@@ -112,6 +114,15 @@ function boot(preload) {
   };
 }
 
+/* ---- fixtura: namunaviy ma'lumotlar FAQAT testlarda (src ichida yo'q) ---- */
+const FIX = require('./fixtures.js');
+/* Namuna holat bilan ishga tushirish */
+function bootF(preload) { return boot(preload || JSON.stringify(FIX.demoState())); }
+/* Namuna holat + darhol tizimga kirish */
+function bootS(accId) { return boot(JSON.stringify(FIX.withSession(accId))); }
+/* Bo'sh (yangi o'rnatilgan) platforma — birinchi ishga tushirish ekrani */
+function bootE() { return boot(); }
+
 /* ---- test yozuvchi ---- */
 let pass = 0, fail = 0; const failures = [];
 const VERBOSE = process.argv.includes('--verbose');
@@ -129,14 +140,97 @@ const noCrash = x => { let bad = /NaN|undefined|\[object Object\]|Infinity/.test
 
 async function main() {
 await loadRemote();
+/* ================= 0. BO'SH PLATFORMA VA BIRINCHI ISHGA TUSHIRISH ============== */
+group('0. Bo‘sh platforma: birinchi ishga tushirish va Founder akkaunti');
+{
+  const Z = bootE();
+  t('platforma bo‘sh holatda boshlanadi (talaba/akkaunt/vazifa yo‘q)',
+    Z.w.AIL.S.students.length === 0 && Z.w.AIL.S.accounts.length === 0 && Z.w.AIL.S.tasks.length === 0 && Z.w.AIL.S.groups.length === 0);
+  t('birinchi ishga tushirish ekrani ko‘rinadi', Z.has('Birinchi ishga tushirish') && !!Z.d.querySelector('[data-form="setup-founder"]'));
+  t('sozlash formasi maydonlari (ism, email, parol x2)',
+    ['name', 'email', 'p1', 'p2'].every(n2 => !!Z.d.querySelector('[data-form="setup-founder"] input[name="' + n2 + '"]')));
+  t('eski namuna rejimi tugmalari yo‘q (quick/sample-accounts)', !Z.d.querySelector('[data-act="quick"]') && !Z.d.querySelector('[data-act="sample-accounts"]') && !Z.has('Namuna rejimi'));
+  t('o‘quv dasturi saqlanib qolgan (6 modul / 29 dars)', Z.w.AIL.S.modules.length === 6 && Z.w.AIL.S.lessons.length >= 29);
+  t('needsSetup() rost (akkaunt yo‘q)', Z.w.AIL.needsSetup() === true);
+  const setF = o => {
+    ['name', 'email', 'p1', 'p2'].forEach(k2 => { Z.d.querySelector('[data-form="setup-founder"] input[name="' + k2 + '"]').value = o[k2] || ''; });
+    Z.submit('[data-form="setup-founder"]');
+  };
+  setF({ name: 'Al', email: 'a@b.uz', p1: 'parol1234', p2: 'parol1234' });
+  t('qisqa ism rad etiladi', Z.has('to‘liq kiriting') && Z.w.AIL.S.accounts.length === 0);
+  setF({ name: 'Asil Bek', email: 'notogri', p1: 'parol1234', p2: 'parol1234' });
+  t('noto‘g‘ri email rad etiladi', Z.has('Email manzil noto‘g‘ri'));
+  setF({ name: 'Asil Bek', email: 'asil@aileaders.uz', p1: '123', p2: '123' });
+  t('qisqa parol rad etiladi', Z.has('kamida 4 belgi'));
+  setF({ name: 'Asil Bek', email: 'asil@aileaders.uz', p1: 'parol1234', p2: 'boshqa1234' });
+  t('mos kelmagan parol rad etiladi', Z.has('mos kelmadi') && Z.w.AIL.S.accounts.length === 0);
+  setF({ name: 'Asil Bek', email: 'asil@aileaders.uz', p1: 'parol1234', p2: 'parol1234' });
+  t('founder yaratildi va tizimga kirdi', Z.w.AIL.S.accounts.length === 1 && Z.w.AIL.UI.authShow === false && !!Z.d.querySelector('aside'));
+  t('founder roli va to‘liq huquq', (() => {
+    const a = Z.w.AIL.accByEmail('asil@aileaders.uz');
+    return !!a && a.adminRole === 'founder' && a.perms.includes('__all') && a.mustSetPass === false && Z.w.AIL.isFounder() === true;
+  })());
+  t('founder nick berildi (unikal)', !!Z.w.AIL.founder() && Z.w.AIL.founder().nick.length > 2);
+  t('needsSetup() endi yolg‘on', Z.w.AIL.needsSetup() === false);
+  t('bo‘sh platformada 4 qadamli boshlash yo‘riqnomasi', Z.has('Boshlash — 4 qadam') && Z.has('Talaba qo‘shing') && Z.has('Admin va mentor qo‘shing'));
+  t('bo‘sh holatda barcha bo‘limlar yiqilmaydi', (() => {
+    const before = Z.errors.length;
+    ['admin', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings', 'adminAdmins'].forEach(r2 => Z.w.AIL.go(r2));
+    Z.w.AIL.go('admin');
+    return Z.errors.length === before && !/NaN|undefined/.test(Z.d.querySelector('.content').textContent);
+  })());
+  t('bo‘sh holatda statistika «ma’lumot yo‘q» ko‘rsatadi', (() => { Z.w.AIL.go('stats'); return Z.has('Statistika uchun ma’lumot yo‘q'); })());
+  t('bo‘sh holatda talabalar bo‘limi yo‘riqnoma beradi', (() => { Z.w.AIL.go('students'); return Z.has('Hali talaba yo‘q'); })());
+  t('founder sessiyasi va demoPurged belgisi saqlandi', (() => {
+    const raw = JSON.parse(Z.w.localStorage.getItem('ai-leaders-platform-v1'));
+    return !!raw.session && raw.accounts.length === 1 && raw.meta && raw.meta.demoPurged === true;
+  })());
+  t('sahifa yangilanganda sozlash ekrani qaytmaydi', (() => {
+    const Z2 = bootF(Z.w.localStorage.getItem('ai-leaders-platform-v1'));
+    return Z2.d.getElementById('app').className.indexOf('authscreen') === -1 && Z2.w.AIL.S.accounts.length === 1 && Z2.errors.length === 0;
+  })());
+  t('JS xatosi yo‘q (bo‘sh holat + founder)', Z.errors.length === 0);
+}
+
+/* ================= 0b. MIGRATSIYA: ESKI NAMUNA HOLATI TOZALANADI ============= */
+group('0b. Migratsiya: eski namuna ma’lumotlar avtomatik o‘chiriladi');
+{
+  const legacy = FIX.demoState();
+  delete legacy.meta.demoPurged; legacy.meta.version = '1.4.1';
+  const P = bootF(JSON.stringify(legacy));
+  t('eski holatdagi namuna talaba/adminlar o‘chdi',
+    P.w.AIL.S.students.length === 0 && P.w.AIL.S.accounts.length === 0 && P.w.AIL.S.tasks.length === 0 && P.w.AIL.S.mentors.length === 0);
+  t('o‘chirilgach birinchi ishga tushirish ekrani', P.has('Birinchi ishga tushirish') && !!P.d.querySelector('[data-form="setup-founder"]'));
+  t('holat demoPurged belgisi bilan saqlanadi', (() => {
+    const raw = JSON.parse(P.w.localStorage.getItem('ai-leaders-platform-v1') || '{}');
+    return raw.meta && raw.meta.demoPurged === true && raw.meta.purgedFrom === '1.4.1';
+  })());
+  t('mavzu va sozlamalar saqlanadi', (() => {
+    const lg = FIX.demoState(); delete lg.meta.demoPurged; lg.theme = 'light'; lg.settings.notif = false;
+    const Q = bootF(JSON.stringify(lg));
+    return Q.w.AIL.S.theme === 'light' && Q.w.AIL.S.settings.notif === false;
+  })());
+  t('haqiqiy akkaunt va talaba profili saqlanadi', (() => {
+    const lg = FIX.demoState(); delete lg.meta.demoPurged;
+    lg.accounts.push({ id: 'acc-real1', role: 'student', studentId: 's-real1', nick: 'realone', name: 'Real Talaba', phone: null, hemisId: '555666777888', groupId: null, pass: null, mustSetPass: true, status: 'active', demo: false, created: '2026-01-01', lastLogin: null });
+    lg.students.push({ id: 's-real1', name: 'Real Talaba', group: null, act: true, last: 0, xp: 0, wxp: 0, score: 0, tg: '', phone: '', goal: '', bio: '', joined: '2026-01-01' });
+    lg.friends['s-real1'] = []; lg.incoming['s-real1'] = []; lg.sent['s-real1'] = [];
+    const Q = bootF(JSON.stringify(lg));
+    return Q.w.AIL.S.accounts.length === 1 && Q.w.AIL.S.accounts[0].nick === 'realone'
+      && Q.w.AIL.S.students.length === 1 && Q.w.AIL.S.students[0].id === 's-real1'
+      && Q.w.AIL.S.groups.length === 0 && !!Q.w.AIL.accByHemis('555666777888');
+  })());
+  t('JS xatosi yo‘q (migratsiya)', P.errors.length === 0);
+}
+
 /* ============================ 1. KIRISH EKRANI ============================ */
 group('1. Kirish ekrani va brend');
 {
-  const A = boot();
+  const A = bootF();
   t('auth ekrani ochiladi', A.has('Tizimga kirish'));
   t('ikki rol tabi (Talaba / Admin)', A.has('Talaba') && A.has('Admin / Mentor'));
   t('brend va slogan', A.has('0 dan startapgacha'));
-  t('tezkirish tugmalari (namuna akkauntlar)', !!A.d.querySelector('[data-act="quick"][data-s="s1"]') && !!A.d.querySelector('[data-act="quick"][data-r="admin"]'));
+  t('namuna rejimi tugmalari olib tashlangan (quick/quick-acc yo‘q)', !A.d.querySelector('[data-act="quick"]') && !A.d.querySelector('[data-act="quick-acc"]') && !A.has('Namuna'));
   t('talaba formasi: HEMIS ID yoki nick maydoni', !!A.d.querySelector('[data-form="login-student"] input[name="login"]'));
   t('talaba formasi: parol maydoni', !!A.d.querySelector('[data-form="login-student"] input[name="pass"]'));
   t('yordam tugmasi bor', !!A.d.querySelector('[data-act="auth-help"]'));
@@ -149,8 +243,8 @@ group('1. Kirish ekrani va brend');
 /* ============================ 2. TALABA KABINETI ========================== */
 group('2. Talaba kabineti — 7 bo‘lim');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   const routes = ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friends', 'info'];
   const titles = { home: 'Bugungi reja', lessons: 'Modulni ochish', tasks: 'Mening deadline’im', team: 'Jamoa devori', deadlines: 'Haftalik lenta', friends: 'Do‘stlar', info: 'Yutuqlar' };
   routes.forEach(r => {
@@ -173,8 +267,8 @@ group('2. Talaba kabineti — 7 bo‘lim');
 /* ============================ 3. DARSLAR VA MODUL ========================= */
 group('3. Darslar, modul qulfi va progress');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   A.w.AIL.go('lessons');
   t('6 modul kartasi', A.d.querySelectorAll('.mod').length === 6);
   A.click('[data-act="module-open"][data-id="m1"]');
@@ -201,8 +295,8 @@ group('3. Darslar, modul qulfi va progress');
 /* ============================ 4. VAZIFA OQIMI ============================= */
 group('4. Vazifa: topshirish → tekshirish → baholash');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   A.w.AIL.go('tasks');
   t('vazifa filtrlari', A.has('Topshirish kerak') && A.has('Qabul qilindi'));
   A.click('[data-act="filter"][data-f="accepted"]');
@@ -217,7 +311,7 @@ group('4. Vazifa: topshirish → tekshirish → baholash');
   t('topshiriq saqlandi (in_review)', !!sub && sub.status === 'in_review');
   t('XP oshdi', A.w.AIL.S.students.find(s => s.id === 's1').xp > 1840);
   /* admin tomondan baholash */
-  A.click('[data-act="switch"]');
+  A.w.AIL.loginAs('acc-a1');
   A.w.AIL.go('adminTasks');
   A.click('[data-act="filter2"][data-f="in_review"]');
   t('admin oqimi filtrlandi', A.w.AIL.UI.reviewFilter === 'in_review');
@@ -246,8 +340,8 @@ group('4. Vazifa: topshirish → tekshirish → baholash');
 /* ============================ 5. DEADLINE ================================= */
 group('5. Deadline: lenta, kalendar, sanoq');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   A.w.AIL.go('deadlines');
   t('haftalik lenta 7 kun', A.d.querySelectorAll('#week-strip > .card').length === 7);
   t('sanoq taymeri kun/soat/daq', A.has('kun') && A.has('soat') && A.has('daq'));
@@ -266,8 +360,8 @@ group('5. Deadline: lenta, kalendar, sanoq');
 /* ============================ 6. JAMOA ==================================== */
 group('6. Jamoa: devor, loyiha holati, reyting');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   A.w.AIL.go('team');
   t('jamoa reytingi', A.has('reyting') || A.has('Jamoa XP'));
   A.set('#wall-input', 'Bugun jamoa bilan API ni uladik');
@@ -289,8 +383,8 @@ group('6. Jamoa: devor, loyiha holati, reyting');
 /* ============================ 7. FRIENDS ================================== */
 group('7. Friends: so‘rovlar, reyting, mentor juftligi');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   A.w.AIL.go('friends');
   t('do‘stlar ro‘yxati', A.has('Do‘stlar'));
   A.click('[data-act="ftab"][data-t="requests"]');
@@ -309,8 +403,8 @@ group('7. Friends: so‘rovlar, reyting, mentor juftligi');
 /* ============================ 8. ADMIN PANELLARI ========================== */
 group('8. Admin panellari (8 bo‘lim)');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-r="admin"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-a1');
   const titles = {
     admin: 'Tekshirish navbati', students: 'Jami talaba', adminTasks: 'Topshiriqlar',
     adminLessons: 'Modul', adminGroups: 'Jamoalar', adminDeadlines: 'Deadline boshqaruvi',
@@ -329,8 +423,8 @@ group('8. Admin panellari (8 bo‘lim)');
 /* ============================ 9. ADMIN AMALLARI =========================== */
 group('9. Admin amallari: vazifa, dars, jamoa, talaba');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-r="admin"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-a1');
   /* vazifa berish */
   A.w.AIL.go('adminTasks');
   const nTasks = A.w.AIL.S.tasks.length;
@@ -406,8 +500,8 @@ group('9. Admin amallari: vazifa, dars, jamoa, talaba');
 /* ============================ 10. GAMIFICATION ============================ */
 group('10. Gamification: questlar, XP, badge, sertifikat');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   const xp0 = A.w.AIL.S.students.find(s => s.id === 's1').xp;
   A.click('[data-act="quest"][data-id="q1"]');
   t('kunlik quest bajarildi (+XP)', A.w.AIL.S.students.find(s => s.id === 's1').xp === xp0 + 30);
@@ -427,13 +521,13 @@ group('10. Gamification: questlar, XP, badge, sertifikat');
 /* ============================ 11. SANA MANTIQI ============================ */
 group('11. Demo sanalari bugunga bog‘langan');
 {
-  const A = boot();
+  const A = bootF();
   const S = A.w.AIL.S;
   const today = new Date().toISOString().slice(0, 10);
   t('vazifalar sanasi bugundan keyin ham bor', S.tasks.some(x => x.dl >= today));
-  t('kechikish demosi saqlangan (1–2 ta)', S.tasks.filter(x => x.dl < today).length >= 1 && S.tasks.filter(x => x.dl < today).length <= 2);
+  t('fixturada kechikish sanalari bor (1–2 ta)', S.tasks.filter(x => x.dl < today).length >= 1 && S.tasks.filter(x => x.dl < today).length <= 2);
   const lateCount = S.submissions.filter(p => p.status === 'late').length;
-  t('kechikkan topshiriq demosi bor', lateCount >= 3 && lateCount <= 5);
+  t('fixturada kechikkan topshiriqlar bor', lateCount >= 3 && lateCount <= 5);
   t('darslar oraliq sanalarda', new Date(S.lessons[S.lessons.length - 1].d) > new Date(S.lessons[0].d));
   t('topshiriq sanasi kelajakda emas', S.submissions.every(p => new Date(p.at) <= new Date()));
 }
@@ -441,8 +535,8 @@ group('11. Demo sanalari bugunga bog‘langan');
 /* ============================ 12. SOZLAMALAR / A11Y / PWA ================= */
 group('12. Sozlamalar, a11y, PWA, SEO');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   A.w.AIL.go('info');
   const before = A.w.AIL.S.settings.notif;
   A.click('[data-act="toggle-set"][data-k="notif"]');
@@ -458,7 +552,7 @@ group('12. Sozlamalar, a11y, PWA, SEO');
   t('JSON-LD', /EducationalOrganization/.test(HTML));
   t('title va description', /<title>AI Leaders/.test(HTML) && /name="description"/.test(HTML));
   t('aria-label’lar bor', (A.d.querySelectorAll('[aria-label]').length > 3));
-  t('switch role=switch', !!A.d.querySelector('[role="switch"]'));
+  t('topbar rol almashtirgichi olib tashlangan', !A.d.querySelector('[data-act="switch"]'));
   t('PWA ikonkalari 512px', fs.existsSync(path.join(ROOT, 'assets', 'icon-512.png')));
   t('OG rasm 1200x630 mavjud', fs.existsSync(path.join(ROOT, 'assets', 'og.png')));
   t('reduced-motion qo‘llab-quvvatlanadi', /prefers-reduced-motion/.test(HTML));
@@ -467,14 +561,14 @@ group('12. Sozlamalar, a11y, PWA, SEO');
 /* ============================ 13. QIDIRUV VA EKSPORT ====================== */
 group('13. Qidiruv, eksport, zaxira');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   A.set('#gsearch', 'prompt');
   A.d.getElementById('gsearch').dispatchEvent(new A.w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
   t('qidiruv natijalari', !!A.d.querySelector('.mbox') && /Qidiruv/.test(A.d.querySelector('.mbox').textContent));
   A.d.querySelector('[data-act="close-modal"]').dispatchEvent(new A.w.MouseEvent('click', { bubbles: true }));
   t('eksport funksiyalari yiqilmaydi', [A.w.AIL.exportCSV(), A.w.AIL.exportMy(), A.w.AIL.downloadState()].every(x => x === 'ok' || x.startsWith('err:')));
-  A.click('[data-act="switch"]');
+  A.w.AIL.loginAs('acc-a1');
   A.w.AIL.go('settings');
   t('zaxira va import UI', !!A.d.querySelector('[data-act="export-json"]') && !!A.d.querySelector('#import-json'));
   A.click('[data-act="export-json"]');
@@ -485,8 +579,8 @@ group('13. Qidiruv, eksport, zaxira');
 /* ============================ 14. BARQARORLIK ============================= */
 group('14. Barqarorlik: holat saqlanishi, reset, xatolar');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   A.w.AIL.go('tasks');
   A.click('[data-act="submit-open"][data-id="t4"]');
   A.set('[data-form="submit"] input[name="link"]', 'https://example.com/demo');
@@ -495,29 +589,28 @@ group('14. Barqarorlik: holat saqlanishi, reset, xatolar');
   t('holat localStorage’da', !!saved && /example\.com\/demo/.test(saved));
   /* reset */
   A.click('[data-act="reset-confirm"]');
-  t('reset tasdiq modali', !!A.d.querySelector('[data-act="reset-do"]'));
+  t('reset tasdiq modali', !!A.d.querySelector('[data-act="reset-do"]') && A.hasModal('Barcha ma’lumotni o‘chirish'));
   A.click('[data-act="reset-do"]');
-  t('demo holat tiklandi', !A.w.AIL.S.submissions.some(p => /example\.com\/demo/.test(p.link)));
+  t('reset butun bazani o‘chiradi (namuna tiklanmaydi)', A.w.AIL.S.submissions.length === 0 && A.w.AIL.S.students.length === 0 && A.w.AIL.S.accounts.length === 0);
+  t('resetdan keyin birinchi ishga tushirish ekrani', A.has('Birinchi ishga tushirish') && !!A.d.querySelector('[data-form="setup-founder"]'));
   /* buzuq saqlangan holat bilan ham ishga tushadi */
-  const B = boot();
-  B.w.localStorage.setItem('ai-leaders-platform-v1', '{"buzuq":true}');
-  const C = boot();
-  t('buzuq localStorage’dan tiklanadi', C.has('Tizimga kirish') && C.w.AIL.S.students.length >= 18);
+  const C = boot('{"buzuq":true}');
+  t('buzuq localStorage’dan tiklanadi (bo‘sh holat)', C.has('Birinchi ishga tushirish') && C.w.AIL.S.students.length === 0 && C.w.AIL.S.accounts.length === 0);
   /* eski versiya holati (yetishmayotgan kalitlar) */
-  const D = boot();
+  const D = bootF();
   const old = JSON.parse(JSON.stringify(D.w.AIL.S)); delete old.settings; delete old.badges; delete old.quests;
   D.w.localStorage.setItem('ai-leaders-platform-v1', JSON.stringify(old));
-  const E = boot();
-  E.click('[data-act="quick"][data-s="s1"]');
+  const E = bootF();
+  E.w.AIL.loginAs('acc-s1');
   t('eski holat migratsiya qilinadi', E.w.AIL.S.settings !== undefined && E.w.AIL.S.badges.length === 8);
-  t('barcha boot’larda xato yo‘q', [A, B, C, D, E].every(x => x.errors.length === 0));
+  t('barcha boot’larda xato yo‘q', [A, C, D, E].every(x => x.errors.length === 0));
 }
 
 /* ============================ 15. YANGI FUNKSIYALAR ======================= */
 group('15. Quiz, kunlik questlar, fayl, yon panel guruhlari');
 {
-  const A = boot();
-  A.click('[data-act="quick"][data-s="s1"]');
+  const A = bootF();
+  A.w.AIL.loginAs('acc-s1');
   /* yon panel guruhlari (takrorlanmaydigan sarlavhalar) */
   const labels = [...A.d.querySelectorAll('.nav-lbl')].map(x => x.textContent.trim());
   t('yon panelda 3 guruh', labels.length === 3);
@@ -574,7 +667,7 @@ group('15. Quiz, kunlik questlar, fayl, yon panel guruhlari');
   t('fayl kontenti dataURL sifatida', (() => { const p = A.w.AIL.S.submissions.find(x => x.task === 't4' && x.st === 's1'); return p.fileData && p.fileData.startsWith('data:'); })());
 
   /* admin: talabalar filtrlarining izchilligi */
-  A.click('[data-act="switch"]');
+  A.w.AIL.loginAs('acc-a1');
   A.w.AIL.go('students');
   const allBtn = A.d.querySelector('[data-act="filter-s"][data-f="all"]').textContent;
   A.click('[data-act="filter-s"][data-f="inactive"]');
@@ -587,11 +680,11 @@ group('15. Quiz, kunlik questlar, fayl, yon panel guruhlari');
 
 /* ================= 16. NOUTBUK REJIMI: PANEL, KLAVIATURA, SARALASH ================= */
 group('16. Noutbuk rejimi: buyruq paneli, klaviatura yorliqlari, saralash');
-const B = boot();
+const B = bootF();
 const key = (k2, opt) => B.d.dispatchEvent(new B.w.KeyboardEvent('keydown', Object.assign({ key: k2, bubbles: true, cancelable: true }, opt || {})));
 const keyOn = (el, k2, opt) => el.dispatchEvent(new B.w.KeyboardEvent('keydown', Object.assign({ key: k2, bubbles: true, cancelable: true }, opt || {})));
 
-B.w.AIL.login('student', 's1');
+B.w.AIL.loginAs('acc-s1');
 B.w.AIL.go('home');
 
 /* — keng ekran tuzilishi (noutbukda asosiy ustun + yon ustun) — */
@@ -677,7 +770,7 @@ B.w.AIL.go('home');
 t('sahifa almashganda yig‘ilgan holat saqlanadi', B.d.getElementById('app').className.includes('collapsed'));
 
 /* — admin: saralash (saralanadigan jadval) — */
-B.click('[data-act="switch"]');
+B.w.AIL.loginAs('acc-a1');
 B.w.AIL.go('students');
 t('admin jadvalida saralash sarlavhalari', B.d.querySelectorAll('.th[data-act="sort"]').length >= 4);
 t('saralash sarlavhasi jadval boshida', B.d.querySelector('.trow.head .th[data-k="name"]') !== null);
@@ -713,12 +806,12 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 1.4.1', B.w.AIL.version() === '1.4.1');
+t('versiya 2.0.0', B.w.AIL.version() === '2.0.0');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ================= 17. KIRISH EKRANI TUZILISHI (noutbuk/planshet) ================= */
 group('17. Kirish ekrani: keng ekranda to‘g‘ri tuzilish');
-const C = boot();
+const C = bootF();
 const appCls = () => C.d.getElementById('app').className;
 t('kirish ekranida #app yon-panel gridi emas', appCls() === 'app authscreen');
 t('CSS qoidasi joyida (authscreen → block)', C.d.documentElement.innerHTML.includes('.app.authscreen{display:block'));
@@ -730,7 +823,7 @@ t('rol tanlash (Admin) formalar bilan bog‘liq', (() => {
   b2.dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
   return C.w.AIL.UI.authRole === 'admin' && C.has('Admin');
 })());
-C.click('[data-act="quick"][data-r="admin"]');
+C.w.AIL.loginAs('acc-a1');
 t('kirishdan keyin grid qaytadi (#app)', appCls() === 'app' && C.w.AIL.UI.authShow === false);
 t('kirish ekrani DOMdan olib tashlandi', C.d.querySelector('#app > .auth') === null);
 C.click('[data-act="collapse"]');
@@ -748,10 +841,10 @@ t('JS xatosi yo‘q (kirish ekrani)', C.errors.length === 0);
 
 /* ================= 19. MVP: AKKAUNTLAR, HEMIS, NICK, SESSIYA ================= */
 group('19. MVP akkaunt tizimi: HEMIS ID, unikal nick, birinchi kirish, sessiya');
-const E = boot();
+const E = bootF();
 /* — HEMIS/nick tekshiruvlari — */
 t('HEMIS ID 12 xona bo‘lishi shart', E.w.AIL.digits('12 34 567 890 12').length === 12 && E.w.AIL.validHemis('123456789012') && !E.w.AIL.validHemis('12345'));
-t('demo akkauntlarda HEMIS bo‘sh (real talabaga tegmasin)', E.w.AIL.S.accounts.filter(a => a.demo && a.role === 'student').every(a => a.hemisId === null));
+t('fixtura akkauntlarida HEMIS bo‘sh (real talabaga tegmasin)', E.w.AIL.S.accounts.filter(a => a.demo && a.role === 'student').every(a => a.hemisId === null));
 t('har bir namuna talabaning nicki bor', E.w.AIL.S.accounts.filter(a => a.role === 'student').every(a => a.nick && a.nick.length > 2));
 t('admin xatosi: band HEMIS', (() => { E.w.AIL.S.accounts[0].hemisId = '111111111111'; const r = E.w.AIL.create('Nomzod Talaba', '+998901112233', '111111111111'); E.w.AIL.S.accounts[0].hemisId = null; return r.err === 'hemis-dup'; })());
 t('admin xatosi: 11 xonali HEMIS', E.w.AIL.create('Nomzod Talaba', '+998901112233', '12345678901').err === 'hemis');
@@ -783,8 +876,8 @@ t('yangi admin qo‘shildi (avtomatik nick + rol + ruxsat)', (() => {
   return r.ok && r.acc.adminRole === 'content' && r.acc.perms.includes('content') && r.acc.nick.length > 2 && r.acc.mustSetPass === true;
 })());
 /* — UI: kirish oqimi (namuna rejimida) — */
-const F = boot();
-F.w.AIL.login('admin', 'a1');
+const F = bootF();
+F.w.AIL.loginAs('acc-a1');
 t('namuna admin sessiyasi yozildi', !!F.w.AIL.S.session && F.w.AIL.S.session.acc === 'acc-a1');
 t('admin panelida “Adminlar” bo‘limi (founder uchun)', (() => { F.w.AIL.go('adminAdmins'); return F.has('Adminlar') && F.d.querySelector('[data-act="new-admin"]') !== null; })());
 t('admin jadvalida 7 ta yozuv', F.d.querySelectorAll('.trows .trow:not(.head)').length === 7);
@@ -793,47 +886,47 @@ t('admin qo‘shish formasi ochiladi', (() => { F.click('[data-act="new-admin"]'
 F.click('[data-act="close-modal"]');
 t('admin bloklash holatni o‘zgartiradi', (() => { const before = F.w.AIL.accById('acc-a3').status; F.click('[data-act="admin-block"][data-id="acc-a3"]'); const after = F.w.AIL.accById('acc-a3').status; F.click('[data-act="admin-block"][data-id="acc-a3"]'); return before === 'active' && after === 'blocked'; })());
 t('talaba uchun adminlar bo‘limi ochilmaydi', (() => {
-  const G2 = boot(); G2.w.AIL.login('student', 's1');
+  const G2 = bootF(); G2.w.AIL.loginAs('acc-s1');
   G2.d.querySelector('[data-act="go"][data-route="adminAdmins"]')?.click();
   const routed = G2.w.AIL.UI.route;
   G2.w.AIL.go('adminAdmins');
   return !G2.d.querySelector('[data-act="new-admin"]') && (routed === 'home' || routed === 'adminAdmins');
 })());
 t('admin (founder bo‘lmagan) ham gate ko‘radi', (() => {
-  const G2b = boot(); G2b.w.AIL.loginAs('acc-a3');
+  const G2b = bootF(); G2b.w.AIL.loginAs('acc-a3');
   G2b.w.AIL.go('adminAdmins');
   return G2b.has('faqat') && !G2b.d.querySelector('[data-act="new-admin"]');
 })());
 t('founder uchun esa bo‘lim ochiq', (() => {
-  const G2c = boot(); G2c.w.AIL.loginAs('acc-a1'); G2c.w.AIL.go('adminAdmins');
+  const G2c = bootF(); G2c.w.AIL.loginAs('acc-a1'); G2c.w.AIL.go('adminAdmins');
   return !!G2c.d.querySelector('[data-act="new-admin"]') && G2c.d.querySelectorAll('.trows .trow:not(.head)').length === 7;
 })());
 /* — sessiya saqlanishi (sahifa yangilanganda) — */
-t('sessiya localStorage’da saqlanadi', (() => { const G3 = boot(); G3.w.AIL.login('student', 's2'); const raw = JSON.parse(G3.w.localStorage.getItem('ai-leaders-platform-v1')); return raw.session && raw.session.acc === 'acc-s2'; })());
+t('sessiya localStorage’da saqlanadi', (() => { const G3 = bootF(); G3.w.AIL.loginAs('acc-s2'); const raw = JSON.parse(G3.w.localStorage.getItem('ai-leaders-platform-v1')); return raw.session && raw.session.acc === 'acc-s2'; })());
 t('sessiya bo‘lsa, kirish ekrani ko‘rinmaydi (parol o‘rnatilgan bo‘lsa)', (() => {
-  const G4 = boot();
-  G4.w.AIL.login('student', 's4');
+  const G4 = bootF();
+  G4.w.AIL.loginAs('acc-s4');
   G4.w.AIL.setPassById('acc-s4', 'parol123');
   const saved = G4.w.localStorage.getItem('ai-leaders-platform-v1');
-  const G5 = boot(saved);
+  const G5 = bootF(saved);
   return G5.d.getElementById('app').className.indexOf('authscreen') === -1 && G5.w.AIL.UI.route === 'home';
 })());
 t('paroli o‘rnatilmagan akkauntda sessiya tiklanmaydi (xavfsizlik)', (() => {
-  const G7 = boot();
+  const G7 = bootF();
   G7.w.AIL.S.session = { acc: 'acc-s5', at: Date.now() };
   G7.w.AIL.saveNow();
-  const G8 = boot(G7.w.localStorage.getItem('ai-leaders-platform-v1'));
+  const G8 = bootF(G7.w.localStorage.getItem('ai-leaders-platform-v1'));
   return G8.d.getElementById('app').className.includes('authscreen');
 })());
 t('chiqishda sessiya o‘chadi va kirish ekrani qaytadi', (() => {
-  const G6 = boot(); G6.w.AIL.login('student', 's1'); G6.w.AIL.logout();
+  const G6 = bootF(); G6.w.AIL.loginAs('acc-s1'); G6.w.AIL.logout();
   return !G6.w.AIL.S.session && G6.d.getElementById('app').className.includes('authscreen');
 })());
 t('JS xatosi yo‘q (MVP akkauntlar)', E.errors.length === 0 && F.errors.length === 0);
 
 /* ================= 20. MVP SAYQAL: RUXSATLAR, PAROL, NAMUNA PANELI ================= */
 group('20. MVP sayqal: rol ruxsatlari, parol amallari, namuna paneli');
-const H = boot();
+const H = bootF();
 /* — founder: hamma bo'limlar ochiq — */
 H.w.AIL.loginAs('acc-a1');
 t('founder: barcha bo‘limlar ochiq', ['admin','students','adminTasks','adminLessons','adminGroups','stats','settings','adminAdmins'].every(r => H.w.AIL.canView(r)));
@@ -844,13 +937,13 @@ t('founder: barcha amallar ochiq', ['new-lesson', 'new-task', 'new-student', 'ne
 t('founder talaba profilida o‘chirish amali bor', (() => { H.w.AIL.go('students'); H.click('[data-act="student-open"]'); const ok4 = !!H.d.querySelector('.mbox [data-act="delete-student"]') && !!H.d.querySelector('.mbox [data-act="change-group"]') && !!H.d.querySelector('.mbox [data-act="pass-reset"]'); H.w.AIL.closeModal(); return ok4; })());
 t('talaba profilidan parolni tiklash ishlaydi', (() => { H.click('[data-act="student-open"]'); H.click('[data-act="pass-reset"]'); const ok5 = H.hasModal('Kirish kartochkasi') && H.d.body.textContent.includes('Parol tiklandi'); H.w.AIL.closeModal(); return ok5; })());
 /* — mentor (a3: students, tasks): kontent/statistika/sozlamalar/adminlar qulfli — */
-const M = boot(); M.w.AIL.loginAs('acc-a3');
+const M = bootF(); M.w.AIL.loginAs('acc-a3');
 t('mentor: talabalar va vazifalar ochiq', M.w.AIL.canView('students') && M.w.AIL.canView('adminTasks'));
 t('mentor: kontent, statistika, sozlamalar qulfli', !M.w.AIL.canView('adminLessons') && !M.w.AIL.canView('stats') && !M.w.AIL.canView('settings'));
 t('mentor: adminlar bo‘limi qulfli', !M.w.AIL.canView('adminAdmins'));
 t('sidebar qulflarni ko‘rsatadi', M.d.querySelectorAll('.nav-item.locked').length >= 4 && M.d.querySelector('.nav-item.locked .lk') !== null);
 t('ruxsatsiz bo‘limda tushuntirish sahifasi chiqadi', (() => { M.w.AIL.go('stats'); return M.has('bo‘limi sizga yopiq') && !M.d.querySelector('.kpi'); })());
-t('ruxsat sahifasida rol va kimdan so‘rash yozilgan', M.has('Mentor') && M.has('bekzod@aileaders.uz') && !!M.d.querySelector('[data-act="perm-ask"]'));
+t('ruxsat sahifasida rol va kimdan so‘rash yozilgan', M.has('Mentor') && M.has(FIX.demoState().accounts.find(a => a.adminRole === 'founder').email) && !!M.d.querySelector('[data-act="perm-ask"]'));
 t('ruxsat so‘rash tugmasi xabar beradi', (() => { M.click('[data-act="perm-ask"]'); return M.d.body.textContent.includes('So‘rov yuborildi'); })());
 t('ruxsatli bo‘limga o‘tish ishlaydi', (() => { M.w.AIL.go('students'); return M.w.AIL.UI.route === 'students' && !M.has('bo‘limi sizga yopiq'); })());
 t('mentor panelida «Dars qo‘shish» amali bloklangan', (() => { const before = M.w.AIL.S.modules.length; M.w.AIL.runPalette('new-lesson'); return M.w.AIL.S.modules.length === before && !M.hasModal('Yangi dars'); })());
@@ -872,14 +965,14 @@ t('mentor mobil navigatsiyasida ham faqat ruxsatli bo‘limlar', (() => {
   return items.every(r => M.w.AIL.canView(r));
 })());
 /* — kontent menejeri (a5: content, students) — */
-const CM = boot(); CM.w.AIL.loginAs('acc-a5');
+const CM = bootF(); CM.w.AIL.loginAs('acc-a5');
 t('kontent menejer: darslar ochiq, vazifalar qulfli', CM.w.AIL.canView('adminLessons') && !CM.w.AIL.canView('adminTasks'));
 t('kontent menejer: yangi dars qo‘sha oladi', (() => { CM.click('[data-act="go"][data-route="adminLessons"]'); CM.w.AIL.go('adminLessons'); const b2 = CM.d.querySelector('[data-act="new-lesson"]'); return b2 !== null; })());
 /* — kurator (a6: students, stats, groups) — */
-const CU = boot(); CU.w.AIL.loginAs('acc-a6');
+const CU = bootF(); CU.w.AIL.loginAs('acc-a6');
 t('kurator: statistika ochiq, vazifalar qulfli', CU.w.AIL.canView('stats') && !CU.w.AIL.canView('adminTasks'));
 /* — parolni almashtirish — */
-const PC = boot(); PC.w.AIL.loginAs('acc-a1');
+const PC = bootF(); PC.w.AIL.loginAs('acc-a1');
 PC.w.AIL.setPassById('acc-a1', 'eski1234');
 const openPassForm = () => {
   if (!PC.d.querySelector('[data-form="pass-change"]')) PC.click('[data-act="pass-change"]');
@@ -905,7 +998,7 @@ t('to‘g‘ri parol bilan almashtiriladi', (() => {
 t('parol almashtirilgach oyna yopiladi', !PC.d.querySelector('[data-form="pass-change"]'));
 
 /* — parolni tiklash (admin amali) — */
-const PR = boot(); PR.w.AIL.loginAs('acc-a1');
+const PR = bootF(); PR.w.AIL.loginAs('acc-a1');
 PR.w.AIL.go('students');
 t('talaba profilida parol kartochkasi bor', (() => { PR.click('[data-act="new-student"]'); const ok = PR.hasModal('HEMIS ID'); PR.click('[data-act="close-modal"]'); return ok; })());
 t('parolni tiklash mustSetPass’ni qaytaradi', (() => {
@@ -914,17 +1007,16 @@ t('parolni tiklash mustSetPass’ni qaytaradi', (() => {
   PR.w.AIL.passResetById('acc-s6');
   return PR.w.AIL.check('onyx', 'eskiParol').err === 'first';
 })());
-/* — namuna akkauntlar paneli — */
-const SM = boot();
-t('namuna paneli 7 admin + 18 talabani ko‘rsatadi', (() => { SM.click('[data-act="sample-accounts"]'); const rows = SM.d.querySelectorAll('.acc-row').length; return SM.hasModal('Namuna akkauntlar') && rows === 15; })());
-t('namuna panelidagi admin rollari ko‘rinadi', SM.hasModal('Founder (to‘liq huquq)') && SM.hasModal('Bosh mentor'));
-t('namuna panelidan bir bosishda kirish ishlaydi', (() => {
-  const btn = SM.d.querySelector('.acc-row[data-id="acc-a6"]');
-  btn.dispatchEvent(new SM.w.MouseEvent('click', { bubbles: true }));
-  return SM.w.AIL.UI.authShow === false && SM.w.AIL.UI.route === 'admin' && SM.w.AIL.canView('stats') && !SM.w.AIL.canView('adminTasks');
+/* — namuna paneli butunlay olib tashlandi — */
+const SM = bootF();
+t('namuna akkauntlar paneli yo‘q (sample-accounts/acc-row yo‘q)', !SM.d.querySelector('[data-act="sample-accounts"]') && SM.d.querySelectorAll('.acc-row').length === 0 && !SM.has('Namuna akkauntlar'));
+t('namuna rejimi verline/switch olib tashlangan', !SM.d.querySelector('[data-act="switch"]') && SM.d.querySelectorAll('[role="switch"]').length === 0);
+t('kurator akkaunti bir bosishda kiradi (stats ochiq, tasks qulfli)', (() => {
+  SM.w.AIL.loginAs('acc-a6');
+  return SM.w.AIL.UI.authShow === false && SM.w.AIL.canView('stats') && !SM.w.AIL.canView('adminTasks');
 })());
 /* — reset: haqiqiy akkauntlar saqlanadi — */
-const RS = boot();
+const RS = bootF();
 RS.w.AIL.loginAs('acc-a1');
 const baseAcc = RS.w.AIL.S.accounts.length, baseStd = RS.w.AIL.S.students.length, baseDemo = RS.w.AIL.S.accounts.filter(a => a.demo).length;
 RS.w.AIL.go('students');
@@ -938,28 +1030,28 @@ t('haqiqiy talaba akkaunt + profili bilan qo‘shildi', !!realAcc && realAcc.dem
   && RS.w.AIL.S.accounts.length === baseAcc + 1 && RS.w.AIL.S.students.length === baseStd + 1
   && !!RS.w.AIL.S.students.find(x => x.id === realSid));
 t('haqiqiy talaba uchun kirish kartochkasi berildi', RS.hasModal('Kirish kartochkasi') && RS.hasModal(realAcc.nick));
-t('reset namuna ma’lumotni tiklaydi, haqiqiyni saqlaydi', (() => {
+t('reset butun bazani o‘chiradi (haqiqiy talaba ham)', (() => {
   RS.w.AIL.reset();
-  return RS.w.AIL.S.accounts.length === baseAcc + 1 && RS.w.AIL.S.accounts.filter(a => a.demo).length === baseDemo
-    && !!RS.w.AIL.accByHemis('999888777666')
-    && RS.w.AIL.S.students.length === baseStd + 1 && !!RS.w.AIL.S.students.find(x => x.id === realSid);
+  return RS.w.AIL.S.accounts.length === 0 && RS.w.AIL.S.students.length === 0 && !RS.w.AIL.accByHemis('999888777666')
+    && RS.w.AIL.S.tasks.length === 0 && RS.w.AIL.S.groups.length === 0;
 })());
-t('ketma-ket reset bazani o‘zgartirmaydi (nusxa himoyasi)', (() => {
+t('resetdan keyin ham platforma ishlaydi (sozlash ekrani)', RS.has('Birinchi ishga tushirish') && !!RS.d.querySelector('[data-form="setup-founder"]'));
+t('ketma-ket reset jimgina o‘tadi (nusxa himoyasi)', (() => {
   RS.w.AIL.reset();
-  return RS.w.AIL.S.accounts.length === baseAcc + 1 && RS.w.AIL.S.students.length === baseStd + 1;
+  return RS.w.AIL.S.accounts.length === 0 && RS.w.AIL.S.students.length === 0 && RS.errors.length === 0;
 })());
-t('reset haqiqiy talabaning do‘stlik ro‘yxatini saqlaydi', Array.isArray(RS.w.AIL.S.friends[realSid]) && Array.isArray(RS.w.AIL.S.incoming[realSid]) && Array.isArray(RS.w.AIL.S.sent[realSid]));
+t('resetdan keyin do‘stlik/so‘rov xaritalari ham bo‘sh', Object.keys(RS.w.AIL.S.friends).length === 0 && Object.keys(RS.w.AIL.S.incoming).length === 0 && Object.keys(RS.w.AIL.S.sent).length === 0);
 t('resetdan keyin sessiya yopiladi (xavfsizlik)', RS.w.AIL.S.session === null);
 t('JS xatosi yo‘q (sayqal)', H.errors.length === 0 && M.errors.length === 0 && PC.errors.length === 0 && SM.errors.length === 0 && RS.errors.length === 0);
 
 /* — KPI ko'rsatkichlari (v1.4.0 dagi shadowing xatosi qaytmasin) — */
 t('talaba KPI raqamlari ko‘rinadi', (() => {
-  const K = boot(); K.w.AIL.login('student', 's1');
+  const K = bootF(); K.w.AIL.loginAs('acc-s1');
   const vs = [...K.d.querySelectorAll('.kpi .v')].map(x => x.textContent.trim());
   return vs.length >= 3 && vs.every(v => /\d/.test(v)) && [...K.d.querySelectorAll('.kpi .ic')].every(x => !!x.querySelector('svg'));
 })());
 t('admin KPI raqamlari ko‘rinadi', (() => {
-  const K2 = boot(); K2.w.AIL.loginAs('acc-a1');
+  const K2 = bootF(); K2.w.AIL.loginAs('acc-a1');
   const vs = [...K2.d.querySelectorAll('.kpi .v')].map(x => x.textContent.trim());
   return vs.length >= 5 && vs.every(v => /\d/.test(v)) && !K2.d.querySelector('.kpi .d.r');
 })());
@@ -976,8 +1068,8 @@ t('manba kodda takroriy funksiya nomi yo‘q (shadowing himoyasi)', (() => {
 
 /* ================= 18. SAHIFA PASTIDAGI PANEL (dizayn ritmi) ================= */
 group('18. Sahifa pastidagi panel va dizayn izchilligi');
-const D = boot();
-D.w.AIL.login('student', 's1'); D.w.AIL.go('friends');
+const D = bootF();
+D.w.AIL.loginAs('acc-s1'); D.w.AIL.go('friends');
 t('pastki panel student ko‘rinishida bor', !!D.d.querySelector('.content-foot'));
 t('panelda brend va tezkor havolalar', D.d.querySelector('.content-foot .cf-brand') !== null && D.d.querySelectorAll('.content-foot .cf-links a').length === 5);
 t('panelda versiya ko‘rsatilgan', new RegExp('v' + D.w.AIL.version().replace(/\./g, '\\.')).test(D.d.querySelector('.content-foot').textContent));
@@ -992,7 +1084,7 @@ t('panel yordam tugmasi yorliqlar oynasini ochadi', (() => {
   D.d.querySelector('[data-act="close-modal"]').dispatchEvent(new D.w.MouseEvent('click', { bubbles: true }));
   return ok;
 })());
-D.click('[data-act="switch"]');
+D.w.AIL.loginAs('acc-a1');
 t('admin uchun ham panel bor (boshqa havolalar)', !!D.d.querySelector('.content-foot') && [...D.d.querySelectorAll('.content-foot .cf-links a')].some(x => x.dataset.route === 'students'));
 t('mobil uchun panel CSSda yashirilgan, noutbukda ko‘rinadi', (() => {
   const css = D.d.documentElement.innerHTML;
@@ -1001,6 +1093,32 @@ t('mobil uchun panel CSSda yashirilgan, noutbukda ko‘rinadi', (() => {
 t('karta cho‘zilishi (.stretch) dashboardda ishlatilgan', D.d.documentElement.innerHTML.includes("class=\"card stretch\"") || /class=\\"card stretch\\"/.test(D.d.documentElement.innerHTML) || D.d.documentElement.innerHTML.includes('card stretch'));
 t('qidiruv maydoni fokus halqasi CSSda bor', D.d.documentElement.innerHTML.includes('.searchbar:focus-within'));
 t('JS xatosi yo‘q (dizayn)', D.errors.length === 0);
+}
+
+/* ============= 21. STATIK QO'RIQCHI: MANBA KODDA NAMUNA MA'LUMOT YO'Q ======= */
+group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
+{
+  const srcFiles = ['app-1-core.js', 'app-2-student.js', 'app-3-admin.js', 'app-4-app.js'];
+  const srcAll = srcFiles.map(f => fs.readFileSync(path.join(ROOT, 'src', f), 'utf8')).join('\n');
+  const demoSt = FIX.demoState();
+  const stNames = demoSt.students.map(x => x.name).filter(x => x && x.length > 5);
+  const adNames = demoSt.accounts.filter(a => a.role === 'admin').map(a => a.name);
+  const adMails = demoSt.accounts.filter(a => a.role === 'admin' && a.email).map(a => a.email);
+  t('namuna talaba ismlari src’da yo‘q', stNames.length > 10 && stNames.every(x => !srcAll.includes(x)));
+  t('namuna admin ism va emaillari src’da yo‘q', adNames.every(x => !srcAll.includes(x)) && adMails.every(x => !srcAll.includes(x)));
+  t('namuna o‘zgaruvchilari src’da yo‘q (ADMIN_SEED/DEMO_NICKS/buildAccounts/sampleModal)', !/ADMIN_SEED|DEMO_NICKS|buildAccounts|sampleModal|sample-accounts|quick-acc/.test(srcAll));
+  t('src’da demo:true yozuvi yo‘q', !/demo\s*:\s*true/.test(srcAll));
+  t('namuna sanalari/grafik qiymatlari src’da yo‘q', !/const TASKS|const GROUPS|const MENTORS|const STUDENTS/.test(srcAll));
+  t('blankState() bo‘sh massivlardan boshlanadi', /students:\s*\[\]/.test(fs.readFileSync(path.join(ROOT, 'src', 'app-1-core.js'), 'utf8')));
+  t('src fixtura faylini chaqirmaydi', !/fixtures/.test(srcAll) && !/require\(/.test(srcAll));
+  t('tozalash funksiyasi mavjud (purgeDemoState)', /function purgeDemoState\(/.test(srcAll) && /needsSetup/.test(srcAll) && /function createFounderAccount\(/.test(srcAll));
+  t('qurilgan index.html ham namuna ismlaridan xoli', stNames.every(x => !HTML.includes(x)) && adNames.every(x => !HTML.includes(x)));
+  t('versiya izchil (src = sw.js = package.json = 2.0.0)', (() => {
+    const ver = /const APP_VERSION = '([^']+)'/.exec(srcAll)[1];
+    const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+    return ver === '2.0.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
+  })());
 }
 
 /* ============================ XULOSA ====================================== */

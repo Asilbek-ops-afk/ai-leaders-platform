@@ -9,8 +9,8 @@ function vHome() {
   const dls = deadlinesOf(st).filter(d => !d.s || d.s.status === 'revise' || d.s.status === 'in_review').sort((a, b) => a.due < b.due ? -1 : 1);
   const near = dls[0];
   const m = medal(st);
-  const week = S.weekly;
-  const maxv = Math.max(...week.map(w => w.v));
+  const week = weeklyData();
+  const maxv = Math.max(1, ...week.map(w => w.v));
   const questXp = QUESTS.reduce((a, x) => a + (q.done.includes(x.id) ? x.xp : 0), 0);
   const lateCount = dls.filter(d => !d.s && d.tl.late).length;
 
@@ -156,9 +156,9 @@ function vHome() {
     '<div class="row" style="gap:5px">' + Array.from({ length: 7 }).map((_, i) => { const on = (6 - i) < st.streak; return '<span title="' + (on ? 'bajarilgan' : 'bo\u2019sh') + '" style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:' + (on ? 'linear-gradient(135deg,#7C5CFF,#22D3EE)' : 'var(--panel-3)') + ';color:' + (on ? '#08101F' : 'var(--muted)') + ';font-size:10px;font-weight:800">' + (on ? '\u2713' : '') + '</span>'; }).join('') + '</div></div></div>';
 
   h += '<div class="card rail-card"><div class="card-h"><h2 class="h2">' + ico('spark') + 'Klubda nima bo\u2019lyapti</h2></div>' +
-    '<div class="col" style="gap:0">' + S.activity.slice(0, 4).map(a => '<div class="wall-item" style="padding:9px 0">' +
+    '<div class="col" style="gap:0">' + (S.activity.length ? S.activity.slice(0, 4).map(a => '<div class="wall-item" style="padding:9px 0">' +
       '<div class="lead" style="width:32px;height:32px;border-radius:10px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:var(--panel-3);border:1px solid var(--line);color:var(--txt2)">' + ico('spark', 'sm') + '</div>' +
-      '<div><div class="small"><b>' + esc(a.who) + '</b> ' + esc(a.what) + '</div><div class="xs muted" style="margin-top:2px">' + esc(a.at) + '</div></div></div>').join('') + '</div></div>';
+      '<div><div class="small"><b>' + esc(a.who) + '</b> ' + esc(a.what) + '</div><div class="xs muted" style="margin-top:2px">' + esc(a.at) + '</div></div></div>').join('') : '<div class="small muted" style="padding:10px 0">Hozircha yangilik yo‘q — birinchi topshiriqdan keyin shu yerda ko‘rinadi.</div>') + '</div></div>';
 
   h += '</aside></div>';
 
@@ -225,7 +225,7 @@ function vModule(mid) {
     '<span class="small muted">' + mp.done + '/' + mp.total + '</span></div>' + bar(mp.pct) +
     '<div class="col" style="gap:4px;margin-top:12px">' + ls.map((l, i) => {
       const done = st.done.includes(l.id), ty = TYPES[l.type] || TYPES.video;
-      return '<div class="lesson-row' + (done ? ' done' : '') + (lock ? '' : ' ') + '" data-act="' + (lock ? 'noop' : 'lesson-open') + '" data-id="' + l.id + '">' +
+      return '<div class="lesson-row' + (done ? ' done' : '') + (lock ? '' : ' ') + '" data-act="' + (lock ? 'locked' : 'lesson-open') + '" data-id="' + l.id + '">' +
         '<div class="num">' + (done ? ico('check', 'sm') : (i + 1)) + '</div>' +
         '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:700">' + esc(l.t) + '</div>' +
         '<div class="row xs muted" style="gap:8px;margin-top:3px"><span class="tag ' + ty.tag + '">' + ico(ty.i, 'sm') + esc(ty.l) + '</span><span>' + l.dur + ' daq</span><span>•</span><span>' + fmtD(l.d) + '</span></div></div>' +
@@ -258,6 +258,9 @@ function vTasks() {
   const cnt = k => all.filter(d => k === 'all' ? true : k === 'todo' ? (!d.s || d.s.status === 'revise') : d.s && d.s.status === k).length;
   const accepted = all.filter(d => d.s && d.s.status === 'accepted');
   const avg = accepted.length ? Math.round(accepted.reduce((a, d) => a + (d.s.score || 0), 0) / accepted.length) : 0;
+  if (!all.length) return '<div class="page-head"><div><h1 class="h1">Vazifalar</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">Topshiriq → tekshirish → baho zanjiri. Mentorlar izoh yozadi.</p></div></div>' +
+    emptyCard('task', 'Hozircha vazifa yo‘q', 'Administrator vazifa bergan zahoti u shu bo‘limda deadline bilan ko‘rinadi. Hozir darslardan boshlash mumkin.');
 
   let h = '<div class="page-head"><div><h1 class="h1">Vazifa</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Havola yoki fayl yuboring — mentor tekshiradi va izoh yozadi. Qabul qilingan vazifa keyingi modulni ochadi.</p></div>' +
@@ -307,7 +310,9 @@ function vTasks() {
 /* ---------- Team ---------- */
 function vTeam() {
   const st = me(), g = myGroup(st);
-  if (!g) return '<div class="empty">Sizga hali jamoa biriktirilmagan. Admin jamoani tuzgach shu yerda ko‘rinadi.</div>';
+  if (!g) return '<div class="page-head"><div><h1 class="h1">Team</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">Jamoa — startap mashqi: devor, vazifalar va umumiy reyting.</p></div></div>' +
+    emptyCard('users', 'Sizga hali jamoa biriktirilmagan', 'Administrator jamoani tuzgach shu yerda devor, a’zolar va jamoaviy topshiriq ko‘rinadi.');
   const m = mentorOf(g.mentor);
   const walls = S.walls[g.id] || [];
   const task = S.tasks.find(t => t.m === 'm6') || S.tasks[2];
@@ -383,6 +388,9 @@ function vDeadlines() {
   const map = {};
   all.forEach(d => { (map[d.due] = map[d.due] || []).push({ k: 'task', l: d.t.title, s: d.s, d }); });
   openLessons(st).forEach(l => { (map[l.d] = map[l.d] || []).push({ k: 'lesson', l: l.t, id: l.id }); });
+  if (!all.length) return '<div class="page-head"><div><h1 class="h1">Deadlines</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">Deadline — baho emas, odat. Kechikkanlar mentor yordamiga muhtoj bo‘ladi.</p></div></div>' +
+    emptyCard('cal', 'Deadline hali qo‘yilmagan', 'Administrator vazifalarni deadline bilan berganda shu kalendar to‘ladi. Dars jadvali «Darslar» bo‘limida.');
   const near = all.filter(d => !d.s || d.s.status !== 'accepted').slice(0, 1)[0];
   const nowD = new Date(), dow = (nowD.getDay() + 6) % 7;
   const weekStart = new Date(nowD); weekStart.setDate(nowD.getDate() - dow);
@@ -456,6 +464,9 @@ function vFriends() {
   const others = S.students.filter(s => s.id !== st.id && !all.some(x => x.id === s.id));
   const tab = UI.friendTab;
   const board = [...S.students].sort((a, b) => b.wxp - a.wxp).slice(0, 8);
+  if (S.students.length < 2) return '<div class="page-head"><div><h1 class="h1">Friends</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">«Har kim har kimdan o‘rganadi» — do‘stlar, XP musobaqasi va jamoaviy reyting.</p></div></div>' +
+    emptyCard('users', 'Hozircha klubda faqat siz borsiz', 'Boshqa talabalar qo‘shilgach do‘stlar ro‘yxati, so‘rovlar va XP musobaqasi ishga tushadi.');
 
   let h = '<div class="page-head"><div><h1 class="h1">Friends</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Do‘stlar reytingi, o‘zaro yordam va mentor talaba juftliklari — birgalikda tezroq o‘rganiladi.</p></div>' +

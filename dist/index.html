@@ -827,7 +827,7 @@ a[target="_blank"]{word-break:break-word}
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '1.4.1';
+const APP_VERSION = '2.0.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -898,14 +898,6 @@ const LESSONS = [
   { id: 'l28', m: 'm6', t: 'Demo Day tayyorgarligi', type: 'text', dur: 10, d: dayShift(28), brief: 'Stend, ekran yozuvi, savollarga tayyorgarlik.' },
   { id: 'l29', m: 'm6', t: 'Amaliyot: startap MVP-ni chiqarish', type: 'practice', dur: 60, d: dayShift(32), brief: 'Jamoa bilan 2 haftada ishlaydigan mahsulot chiqarish.' }
 ];
-const TASKS = [
-  { id: 't1', m: 'm1', title: 'AI bilan tanishuv: 5 ta amaliy topshiriq', brief: 'ChatGPT yoki Claude bilan 5 xil turdagi vazifani bajaring va skrinshotlar bilan hisobot yuboring.', dl: dayShift(-28) },
-  { id: 't2', m: 'm2', title: 'Prompt kutubxonasi: 10 ta prompt', brief: 'O‘zingiz ishlatadigan 10 ta promptni yozing: maqsad, namuna, natija. Notion yoki GitHub-ga joylang.', dl: dayShift(-14) },
-  { id: 't3', m: 'm3', title: 'Shaxsiy landing sahifa', brief: 'O‘zingiz yoki g‘oyangiz uchun bitta sahifa: sarlavha, muammo, yechim, aloqa formasi. Jonli havola yuboring.', dl: dayShift(3) },
-  { id: 't4', m: 'm4', title: 'Loyihani GitHub + Vercel-ga joylash', brief: 'Kodni GitHub repoga yuklang, Vercel-ga deploy qiling. Repo va jonli havola kerak.', dl: dayShift(14) },
-  { id: 't5', m: 'm5', title: 'Mini-loyiha: demo video + havola', brief: 'MVP + 90 sekundlik demo video + foydalanuvchi bilan suhbat xulosasi.', dl: dayShift(31) },
-  { id: 't6', m: 'm6', title: 'Jamoaviy startap MVP + pitch', brief: 'Jamoa bilan ishlaydigan MVP, 60 sekundlik pitch va Demo Day taqdimoti.', dl: dayShift(45) }
-];
 const QUIZZES = {
   l1: [
     { q: 'Neyron tarmoq nima qiladi?', o: ['Ma’lumotdan naqsh (pattern) topadi', 'Faqat rasm chizadi', 'Internetni tezlashtiradi'], a: 0 },
@@ -923,19 +915,6 @@ const QUIZZES = {
     { q: 'Loyihani internetga chiqarish (deploy) uchun nima kerak?', o: ['Faqat qog‘oz', 'GitHub + Vercel kabi hosting', 'Server sotib olish shart'], a: 1 }
   ]
 };
-const GROUPS = [
-  { id: 'g1', name: 'Nova', project: 'EduBot — maktab o‘quvchilari uchun AI repetitor', mentor: 'mt1', members: ['s1', 's2', 's9'], xp: 4820, dl: { t3: dayShift(2) } },
-  { id: 'g2', name: 'Orbit', project: 'AgroScan — paxta kasalligini rasm orqali aniqlash', mentor: 'mt2', members: ['s3', 's4', 's10'], xp: 4390, dl: {} },
-  { id: 'g3', name: 'Vertex', project: 'Sog‘liqAI — klinikalarda navbatsiz yozilish', mentor: 'mt1', members: ['s5', 's6', 's11'], xp: 3960, dl: {} },
-  { id: 'g4', name: 'Pulse', project: 'ScooterGo — mikro-mobillik uchun marshrut', mentor: 'mt3', members: ['s7', 's8', 's12'], xp: 3610, dl: {} },
-  { id: 'g5', name: 'Kayzen', project: 'SoftPay — frilanserlar uchun hisob-kitob', mentor: 'mt2', members: ['s13', 's14', 's15'], xp: 3180, dl: {} },
-  { id: 'g6', name: 'Logos', project: 'KitobMR — maktab kitoblarini AI bilan saralash', mentor: 'mt3', members: ['s16', 's17', 's18'], xp: 2870, dl: {} }
-];
-const MENTORS = [
-  { id: 'mt1', name: 'Malika Abdurahmonova', role: 'AI mentor', tg: '@malika_ai', rating: 4.9, groups: ['g1', 'g3'], bio: 'ML muhandisi, 4 yillik tajriba. Promptlash va model tanlash bo‘yicha mutaxassis.' },
-  { id: 'mt2', name: 'Sardor Yo‘ldoshev', role: 'Product mentor', tg: '@sardor_pm', rating: 4.8, groups: ['g2', 'g5'], bio: 'Startap product menejeri. MVP, metrikalar va foydalanuvchi bilan suhbat bo‘yicha.' },
-  { id: 'mt3', name: 'Nigora Karimova', role: 'Design mentor', tg: '@nigora_ui', rating: 4.9, groups: ['g4', 'g6'], bio: 'UI/UX dizayner. Vibe coding va dizayn tizimlari bo‘yicha yordam beradi.' }
-];
 const BADGES = [
   { id: 'b1', n: 'Birinchi qadam', d: 'Birinchi darsni tugatdingiz', i: 'flag' },
   { id: 'b2', n: 'Prompt ustasi', d: '2-modulni to‘liq tugatdingiz', i: 'chat' },
@@ -946,178 +925,81 @@ const BADGES = [
   { id: 'b7', n: 'Mentor do‘sti', d: '3 kishiga yordam berdingiz', i: 'heart' },
   { id: 'b8', n: 'Demo Day yulduzi', d: 'Demo Day’da qatnashdingiz', i: 'trophy' }
 ];
-const buildStudents = () => ([
-  { id: 's1', name: 'Dilshod Rahimov', tg: '@dilshod_r', phone: '+998 90 111 22 33', group: 'g1', xp: 1840, wxp: 870, streak: 7, coins: 640, level: 'middle', act: true, score: 8.9, joined: dayShift(-42), bio: 'Toshkentda yashayman. AI bilan biznes g‘oyalarimni sinab ko‘rmoqchiman.', goal: 'Dekabrgacha o‘z SaaS loyihamni ishga tushirish', medals: true, done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'], last: 0 },
-  { id: 's2', name: 'Aziza Karimova', tg: '@aziza_k', phone: '+998 90 222 33 44', group: 'g1', xp: 2120, wxp: 760, streak: 12, coins: 810, level: 'middle', act: true, score: 9.2, joined: dayShift(-42), bio: 'Marketing bo‘yicha ishlayman, AI bilan kontent qilaman.', goal: 'Kontent bilan pul topishni yo‘lga qo‘yish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'], last: 0 },
-  { id: 's3', name: 'Jasur Toshmatov', tg: '@jasur_t', phone: '+998 91 333 44 55', group: 'g2', xp: 2310, wxp: 980, streak: 16, coins: 900, level: 'middle', act: true, score: 9.5, joined: dayShift(-42), bio: '2 kurs talabasiman, algoritmlarga qiziqaman.', goal: 'Birinchi ishga joylashish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10', 'l11'], last: 0 },
-  { id: 's4', name: 'Malika Sobirova', tg: '@malika_s', phone: '+998 93 444 55 66', group: 'g2', xp: 1740, wxp: 640, streak: 4, coins: 520, level: 'junior', act: true, score: 8.4, joined: dayShift(-42), bio: 'Dizayn bilan shug‘ullanaman.', goal: 'Portfolio yig‘ish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7'], last: 1 },
-  { id: 's5', name: 'Bekzod Nazarov', tg: '@bek_n', phone: '+998 94 555 66 77', group: 'g3', xp: 1290, wxp: 520, streak: 3, coins: 380, level: 'junior', act: true, score: 7.8, joined: dayShift(-42), bio: 'Savdo sohasida ishlayman.', goal: 'Ish jarayonini avtomatlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 2 },
-  { id: 's6', name: 'Zilola Yusupova', tg: '@zilola_y', phone: '+998 95 666 77 88', group: 'g3', xp: 980, wxp: 300, streak: 0, coins: 240, level: 'junior', act: false, score: 7.1, joined: dayShift(-42), bio: 'O‘qituvchiman, dars materiallarini AI bilan tayyorlayman.', goal: 'Onlayn kurs yaratish', done: ['l1', 'l2', 'l3', 'l4'], last: 6 },
-  { id: 's7', name: 'Umid Murodov', tg: '@umid_m', phone: '+998 97 777 88 99', group: 'g4', xp: 1120, wxp: 690, streak: 5, coins: 340, level: 'junior', act: true, score: 8.0, joined: dayShift(-38), bio: 'Logistika kompaniyasida ishlayman.', goal: 'Ichki tizimlarni avtomatlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5'], last: 1 },
-  { id: 's8', name: 'Shahzoda Ergasheva', tg: '@shahzoda', phone: '+998 99 888 99 00', group: 'g4', xp: 1310, wxp: 460, streak: 6, coins: 410, level: 'junior', act: true, score: 8.3, joined: dayShift(-38), bio: 'Frilans dizayner.', goal: 'AI bilan dizayn tezligini oshirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 0 },
-  { id: 's9', name: 'Otabek Ruzimov', tg: '@otabek_r', phone: '+998 90 121 23 34', group: 'g1', xp: 1980, wxp: 940, streak: 9, coins: 720, level: 'middle', act: true, score: 9.0, joined: dayShift(-42), bio: 'Backend dasturchiman, AI ni ishimga qo‘shyapman.', goal: 'AI-startupga texnik asoschi bo‘lish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9'], last: 0 },
-  { id: 's10', name: 'Nodira Ismoilova', tg: '@nodira_i', phone: '+998 91 232 34 45', group: 'g2', xp: 1560, wxp: 430, streak: 2, coins: 460, level: 'junior', act: true, score: 8.1, joined: dayShift(-42), bio: 'Agronomiya fakultetida o‘qiyman.', goal: 'Agrotech loyihasi', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7'], last: 2 },
-  { id: 's11', name: 'Rustam Qodirov', tg: '@rustam_q', phone: '+998 93 343 45 56', group: 'g3', xp: 870, wxp: 260, streak: 0, coins: 190, level: 'junior', act: false, score: 6.9, joined: dayShift(-35), bio: 'Tibbiyot sohasida ishlayman.', goal: 'Klinika uchun yordamchi vosita', done: ['l1', 'l2', 'l3'], last: 9 },
-  { id: 's12', name: 'Gulnora Sharipova', tg: '@gulnora_s', phone: '+998 94 454 56 67', group: 'g4', xp: 1440, wxp: 760, streak: 8, coins: 500, level: 'junior', act: true, score: 8.5, joined: dayShift(-38), bio: 'Maktabda informatika o‘qituvchisiman.', goal: 'Darslarni AI bilan yangilash', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 0 },
-  { id: 's13', name: 'Farrux Abdullayev', tg: '@farrux_a', phone: '+998 95 565 67 78', group: 'g5', xp: 1020, wxp: 380, streak: 1, coins: 280, level: 'junior', act: true, score: 7.4, joined: dayShift(-33), bio: 'Frilanser dasturchiman.', goal: 'To‘lov tizimlari bilan loyiha', done: ['l1', 'l2', 'l3', 'l4'], last: 3 },
-  { id: 's14', name: 'Sevara Mamadaliyeva', tg: '@sevara_m', phone: '+998 97 676 78 89', group: 'g5', xp: 890, wxp: 300, streak: 0, coins: 210, level: 'junior', act: false, score: 6.8, joined: dayShift(-33), bio: 'Talaba, marketingdan dars beraman.', goal: 'Birinchi mini-loyiha', done: ['l1', 'l2', 'l3'], last: 7 },
-  { id: 's15', name: 'Temur Sultonov', tg: '@temur_s', phone: '+998 99 787 89 90', group: 'g5', xp: 1180, wxp: 640, streak: 4, coins: 330, level: 'junior', act: true, score: 7.9, joined: dayShift(-33), bio: 'Nazorat organida ishlayman.', goal: 'Hujjat ishlarini avtomatlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5'], last: 1 },
-  { id: 's16', name: 'Kamola Nurmatova', tg: '@kamola_n', phone: '+998 90 898 90 01', group: 'g6', xp: 1370, wxp: 520, streak: 6, coins: 470, level: 'junior', act: true, score: 8.2, joined: dayShift(-31), bio: 'Kutubxona xodimiman.', goal: 'Ta’lim jarayonini raqamlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 1 },
-  { id: 's17', name: 'Anvar Yoqubov', tg: '@anvar_y', phone: '+998 91 909 01 12', group: 'g6', xp: 760, wxp: 180, streak: 0, coins: 150, level: 'junior', act: false, score: 6.6, joined: dayShift(-31), bio: 'Bankda ishlayman.', goal: 'Ichki hisobotlarni avtomatlashtirish', done: ['l1', 'l2'], last: 11 },
-  { id: 's18', name: 'Lola Tosheva', tg: '@lola_t', phone: '+998 93 010 12 23', group: 'g6', xp: 1490, wxp: 600, streak: 7, coins: 540, level: 'junior', act: true, score: 8.6, joined: dayShift(-31), bio: 'Nashriyotda ishlayman.', goal: 'Kitob tayyorlash oqimini tezlashtirish', done: ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'], last: 0 }
-]);
-const buildSubmissions = () => ([
-  /* s1 */
-  { id: 'p1', task: 't1', st: 's1', link: 'https://github.com/dilshod/ai-basics', note: '5 ta vazifa, skrinshotlar repoda.', at: dayShift(-30), status: 'accepted', score: 92, fb: 'Juda yaxshi hisobot! Keyingi safar 3-topshiriqda xulosa qismini qo‘shing.', rev: 'Malika Abdurahmonova' },
-  { id: 'p2', task: 't2', st: 's1', link: 'https://github.com/dilshod/prompt-library', note: '10 ta prompt, Notion bilan ham bog‘ladim.', at: dayShift(-16), status: 'accepted', score: 88, fb: 'Kutubxona tayyor. 6-promptni yanada aniqroq formatlash mumkin.', rev: 'Malika Abdurahmonova' },
-  { id: 'p3', task: 't3', st: 's1', link: 'https://edu-bot-xi.vercel.app', note: 'Landing tayyor, kontakt forma Supabase-ga ulanadi.', at: dayShift(-1), status: 'in_review', score: null, fb: '', rev: '' },
-  /* s2 */
-  { id: 'p4', task: 't1', st: 's2', link: 'https://notion.so/aziza-ai-basics', note: 'Hisobot Notion’da.', at: dayShift(-31), status: 'accepted', score: 95, fb: 'Namunali hisobot, boshqalarga ko‘rsatish mumkin!', rev: 'Malika Abdurahmonova' },
-  { id: 'p5', task: 't2', st: 's2', link: 'https://notion.so/aziza-prompts', note: 'Kontent promptlari to‘plami.', at: dayShift(-17), status: 'accepted', score: 90, fb: 'Yaxshi. Rasm promptlarini ham qo‘shsangiz zo‘r bo‘ladi.', rev: 'Malika Abdurahmonova' },
-  { id: 'p6', task: 't3', st: 's2', link: 'https://aziza-portfolio.vercel.app', note: 'Shaxsiy portfolio sahifa.', at: dayShift(0), status: 'in_review', score: null, fb: '', rev: '' },
-  /* s3 */
-  { id: 'p7', task: 't1', st: 's3', link: 'https://github.com/jasur/ai-first-steps', note: 'Barcha topshiriqlar bajarildi.', at: dayShift(-33), status: 'accepted', score: 98, fb: 'Ajoyib. Guruhda yordam berganingiz uchun rahmat!', rev: 'Sardor Yo‘ldoshev' },
-  { id: 'p8', task: 't2', st: 's3', link: 'https://github.com/jasur/prompts', note: 'Promptlar + test natijalari.', at: dayShift(-19), status: 'accepted', score: 94, fb: 'Kuchli ish.', rev: 'Sardor Yo‘ldoshev' },
-  { id: 'p9', task: 't3', st: 's3', link: 'https://agroscan-demo.vercel.app', note: 'Landing tayyor, model demosi tez orada.', at: dayShift(-2), status: 'in_review', score: null, fb: '', rev: '' },
-  /* s4 */
-  { id: 'p10', task: 't1', st: 's4', link: 'https://drive.google.com/malika-hisobot', note: 'Hisobot Google Docs’da.', at: dayShift(-25), status: 'revise', score: 62, fb: '3 ta topshiriq yetishmayapti. Skrinshotlarni qo‘shib qayta yuboring.', rev: 'Sardor Yo‘ldoshev' },
-  { id: 'p11', task: 't2', st: 's4', link: 'https://drive.google.com/malika-prompts', note: '6 ta prompt tayyor.', at: dayShift(-13), status: 'accepted', score: 78, fb: 'Yaxshi boshlanish. Keyingi safar to‘liq 10 ta bo‘lsin.', rev: 'Sardor Yo‘ldoshev' },
-  /* s5 */
-  { id: 'p12', task: 't1', st: 's5', link: 'https://github.com/bekzod/ai-homework', note: 'Topshiriq bajarildi.', at: dayShift(-27), status: 'accepted', score: 80, fb: 'Yaxshi, ammo xulosalar yuzaki. Chuqurroq yozing.', rev: 'Malika Abdurahmonova' },
-  { id: 'p13', task: 't2', st: 's5', link: 'https://notion.so/bek-prompts', note: 'Savdo uchun promptlar.', at: dayShift(-12), status: 'accepted', score: 84, fb: 'Amaliy promptlar. Rahmat!', rev: 'Malika Abdurahmonova' },
-  { id: 'p14', task: 't3', st: 's5', link: 'https://sogliq-ai.vercel.app', note: 'Landing, forma ishlamoqda.', at: dayShift(0), status: 'in_review', score: null, fb: '', rev: '' },
-  /* s6 — kechikkan, topshirmagan */
-  { id: 'p15', task: 't1', st: 's6', link: 'https://github.com/zilola/ai-tasks', note: 'Kechirasiz, biroz kechikdim.', at: dayShift(-21), status: 'late', score: 74, fb: 'Kechikkan, lekin bajarilgan. Vaqtni rejalashtirishga e’tibor bering.', rev: 'Malika Abdurahmonova' },
-  /* s7 */
-  { id: 'p16', task: 't1', st: 's7', link: 'https://github.com/umid/ai-1', note: 'Tayyor.', at: dayShift(-29), status: 'accepted', score: 86, fb: 'Yaxshi ish!', rev: 'Nigora Karimova' },
-  { id: 'p17', task: 't2', st: 's7', link: 'https://github.com/umid/prompts', note: 'Logistika promptlari.', at: dayShift(-15), status: 'accepted', score: 89, fb: 'Sohaga mos promptlar — juda yaxshi.', rev: 'Sardor Yo‘ldoshev' },
-  /* s8 */
-  { id: 'p18', task: 't1', st: 's8', link: 'https://figma.com/shahzoda-ai', note: 'Figma prezentatsiya.', at: dayShift(-26), status: 'accepted', score: 91, fb: 'Vizual jihatdan juda chiroyli.', rev: 'Nigora Karimova' },
-  { id: 'p19', task: 't2', st: 's8', link: 'https://figma.com/shahzoda-prompts', note: 'Dizayn promptlari.', at: dayShift(-11), status: 'in_review', score: null, fb: '', rev: '' },
-  /* s9 */
-  { id: 'p20', task: 't1', st: 's9', link: 'https://github.com/otabek/ai-first', note: 'Kod bilan birga.', at: dayShift(-32), status: 'accepted', score: 96, fb: 'Ajoyib. Mentor yordamchisi bo‘lishni taklif qilaman.', rev: 'Malika Abdurahmonova' },
-  { id: 'p21', task: 't2', st: 's9', link: 'https://github.com/otabek/prompts-api', note: 'Promptlarni API orqali sinovdan o‘tkazdim.', at: dayShift(-18), status: 'accepted', score: 97, fb: 'Aqlga sig‘maydigan darajada yaxshi ish.', rev: 'Malika Abdurahmonova' },
-  { id: 'p22', task: 't3', st: 's9', link: 'https://otabek-dev.vercel.app', note: 'Landing + blog sahifa.', at: dayShift(-4), status: 'accepted', score: 93, fb: 'Tez va toza ishlangan. Deploy ham to‘g‘ri.', rev: 'Malika Abdurahmonova' },
-  /* s10 */
-  { id: 'p23', task: 't1', st: 's10', link: 'https://drive.google.com/nodira-1', note: 'Tayyor.', at: dayShift(-23), status: 'accepted', score: 79, fb: 'Yaxshi, ilova qilingan fayllar aniq.', rev: 'Sardor Yo‘ldoshev' },
-  /* s11 */
-  { id: 'p24', task: 't1', st: 's11', link: 'https://github.com/rustam/ai-tasks', note: 'Bajardim.', at: dayShift(-14), status: 'late', score: 70, fb: 'Ikki hafta kechikdi. Qo‘llab-quvvatlash kerak bo‘lsa yozing.', rev: 'Malika Abdurahmonova' },
-  /* s12 */
-  { id: 'p25', task: 't1', st: 's12', link: 'https://github.com/gulnora/ai-lesson', note: 'Dars materiallari bilan.', at: dayShift(-28), status: 'accepted', score: 90, fb: 'Darsga tatbiq etilgani ajoyib.', rev: 'Nigora Karimova' },
-  { id: 'p26', task: 't2', st: 's12', link: 'https://github.com/gulnora/prompts', note: 'O‘qituvchi uchun promptlar.', at: dayShift(-13), status: 'accepted', score: 92, fb: 'Juda foydali to‘plam.', rev: 'Nigora Karimova' },
-  /* s13 */
-  { id: 'p27', task: 't1', st: 's13', link: 'https://github.com/farrux/ai-1', note: 'Tayyor.', at: dayShift(-24), status: 'accepted', score: 82, fb: 'Yaxshi.', rev: 'Sardor Yo‘ldoshev' },
-  /* s14 — topshirmagan */
-  /* s15 */
-  { id: 'p28', task: 't1', st: 's15', link: 'https://github.com/temur/ai-hw', note: 'Hujjat ishlari bilan bog‘ladim.', at: dayShift(-22), status: 'accepted', score: 85, fb: 'Amaliy yondashuv yaxshi.', rev: 'Sardor Yo‘ldoshev' },
-  { id: 'p29', task: 't2', st: 's15', link: 'https://notion.so/temur-prompts', note: 'Nazorat uchun promptlar.', at: dayShift(-8), status: 'in_review', score: null, fb: '', rev: '' },
-  /* s16 */
-  { id: 'p30', task: 't1', st: 's16', link: 'https://drive.google.com/kamola-1', note: 'Kutubxona misolida.', at: dayShift(-26), status: 'accepted', score: 87, fb: 'Yaxshi ish.', rev: 'Nigora Karimova' },
-  { id: 'p31', task: 't2', st: 's16', link: 'https://drive.google.com/kamola-prompts', note: 'Kitob tavsifi promptlari.', at: dayShift(-10), status: 'accepted', score: 88, fb: 'Aniq va toza.', rev: 'Nigora Karimova' },
-  /* s17 — jim */
-  { id: 'p32', task: 't1', st: 's17', link: 'https://github.com/anvar/ai', note: '', at: dayShift(-15), status: 'late', score: 68, fb: 'Kechikdi va hisobot yuzaki. Aloqaga chiqing.', rev: 'Nigora Karimova' },
-  /* s18 */
-  { id: 'p33', task: 't1', st: 's18', link: 'https://github.com/lola/ai-1', note: 'Nashriyot misolida.', at: dayShift(-27), status: 'accepted', score: 89, fb: 'Amaliy va aniq.', rev: 'Nigora Karimova' },
-  { id: 'p34', task: 't2', st: 's18', link: 'https://github.com/lola/prompts', note: 'Tahrir promptlari.', at: dayShift(-9), status: 'accepted', score: 91, fb: 'Juda yaxshi tuzilgan.', rev: 'Nigora Karimova' },
-  { id: 'p35', task: 't3', st: 's18', link: 'https://kitobmr.vercel.app', note: 'Landing sahifa tayyor.', at: dayShift(-1), status: 'in_review', score: null, fb: '', rev: '' },
-  /* s9 ikkinchi jamoaviy belgi */
-  { id: 'p36', task: 't1', st: 's10', link: 'https://drive.google.com/nodira-ai', note: 'Ilova.', at: dayShift(-22), status: 'revise', score: 65, fb: 'Fayl ochilmadi, ruxsatni tekshiring.', rev: 'Sardor Yo‘ldoshev' }
-]);
-const buildWalls = () => ({
-  g1: [
-    { id: 'w1', who: 's2', text: 'Bugun EduBot uchun chat ekranini tugatdim. Kechqurun 21:00 da qisqa sync qilamizmi?', at: '2 soat oldin' },
-    { id: 'w2', who: 's9', text: 'Supabase jadvallarini tayyorladim. Landing formasi endi saqlanadi ✅', at: '5 soat oldin' },
-    { id: 'w3', who: 's1', text: 'Demo Day uchun pitch strukturasi tayyor, ertaga mashq qilamiz.', at: 'kecha' }
-  ],
-  g2: [{ id: 'w4', who: 's3', text: 'Model aniqligi 78% ga chiqdi. Ma’lumot to‘plashda yordam kerak.', at: '3 soat oldin' }],
-  g3: [{ id: 'w5', who: 's5', text: 'Forma validatsiyasini qo‘shdim, ertaga testga chiqaramiz.', at: '1 kun oldin' }],
-  g4: [{ id: 'w6', who: 's8', text: 'Yangi dizayn varianti tayyor, fikrlaringizni yozing.', at: '6 soat oldin' }],
-  g5: [{ id: 'w7', who: 's15', text: 'Frilanserlar bo‘yicha 5 ta intervyu oldim.', at: '2 kun oldin' }],
-  g6: [{ id: 'w8', who: 's16', text: 'Kitoblarni saralash uchun test to‘plami tayyor.', at: '4 soat oldin' }]
-});
-const buildGallery = () => ([
-  { id: 'gl1', t: 'EduBot — AI repetitor', by: 'g1', kind: 'Nova jamoasi', link: 'https://edu-bot-xi.vercel.app', desc: 'O‘quvchiga moslashtirilgan mashqlar generatori. 3 haftada MVP chiqarildi.', k: 'g1' },
-  { id: 'gl2', t: 'AgroScan', by: 'g2', kind: 'Orbit jamoasi', link: 'https://agroscan-demo.vercel.app', desc: 'Barg rasmidan kasallikni aniqlaydigan model + mobil ko‘rinish.', k: 'g2' },
-  { id: 'gl3', t: 'Aziza portfolio', by: 's2', kind: 'Shaxsiy loyiha', link: 'https://aziza-portfolio.vercel.app', desc: 'Kontent marketolog uchun shaxsiy brend sahifasi.', k: 'g4' },
-  { id: 'gl4', t: 'KitobMR dashboard', by: 'g6', kind: 'Logos jamoasi', link: 'https://kitobmr.vercel.app', desc: 'Maktab kitoblarini AI bilan saralash paneli.', k: 'g3' }
-]);
-const STUDENTS = buildStudents();
 
 /* ---------- 3. Holat ---------- */
 function blankState() {
+  /* Platforma BO'SH holatda boshlanadi: namunaviy talaba/akkaunt yo'q.
+     O'quv dasturi (modullar, darslar) va o'yinlashtirish ta'riflari saqlanadi. */
   return {
-    role: 'student', user: 's1', theme: 'dark',
-    /* muhim: massivlar NUSXASI beriladi — reset() umumiy seed'ni o‘zgartirib qo‘ymasin */
-    students: JSON.parse(JSON.stringify(STUDENTS)), submissions: buildSubmissions(), walls: buildWalls(), gallery: buildGallery(),
+    role: 'student', user: null, theme: 'dark',
+    students: [], submissions: [], walls: {}, gallery: [],
     badges: BADGES.map(b => JSON.parse(JSON.stringify(b))), quests: {}, quizDone: {},
-    accounts: buildAccounts(), session: null,
+    accounts: [], session: null,
     settings: { notif: true, weekly: true, publicProfile: true, friendBoard: false },
-    meta: { version: APP_VERSION, created: todayISO() },
-    groups: GROUPS.map(g => JSON.parse(JSON.stringify(g))),
-    modules: MODULES.map(m => JSON.parse(JSON.stringify(m))),
+    meta: { version: APP_VERSION, created: todayISO(), demoPurged: true },
+    groups: [], modules: MODULES.map(m => JSON.parse(JSON.stringify(m))),
     lessons: LESSONS.map(l => JSON.parse(JSON.stringify(l))),
-    tasks: TASKS.map(t => JSON.parse(JSON.stringify(t))),
-    mentors: MENTORS.map(m => JSON.parse(JSON.stringify(m))),
-    notifs: [
-      { id: 'n1', for: 's1', t: 'Vazifa qabul qilindi', x: '“Prompt kutubxonasi” — 88/100 ball. Izohni o‘qing.', at: '2 kun oldin', ic: 'check-c', un: false },
-      { id: 'n2', for: 's1', t: 'Deadline yaqin', x: '“Shaxsiy landing sahifa” — jamoangiz uchun 15-oktabr.', at: 'bugun', ic: 'clock', un: true },
-      { id: 'n3', for: 's1', t: 'Jamoada yangi yozuv', x: 'Nova devorida Aziza yangi xabar qoldirdi.', at: '5 soat oldin', ic: 'users', un: true },
-      { id: 'n4', for: 's1', t: 'Do‘stlik so‘rovi', x: 'Umid Murodov sizga so‘rov yubordi.', at: '1 kun oldin', ic: 'user', un: true },
-      { id: 'n5', for: 's1', t: 'Demo Day', x: '28-noyabr kuni offline Demo Day. Ro‘yxatdan o‘ting.', at: '3 kun oldin', ic: 'trophy', un: false }
-    ],
-    friends: { s1: ['s2', 's3', 's9', 's12', 's15'] },
-    incoming: { s1: ['s7'] }, sent: { s1: ['s16'] },
-    activity: [
-      { who: 'Aziza Karimova', what: '“Prompt kutubxonasi”ni topshirdi', at: '4 daqiqa oldin' },
-      { who: 'Sardor Yo‘ldoshev', what: '5 ta vazifani tekshirishga oldi', at: '22 daqiqa oldin' },
-      { who: 'Jasur Toshmatov', what: '2-modulni 100% tugatdi', at: '1 soat oldin' },
-      { who: 'Nova jamoasi', what: 'yangi loyiha g‘oyasini e’lon qildi', at: '3 soat oldin' },
-      { who: 'Nigora Karimova', what: 'dizayn bo‘yicha izoh qoldirdi', at: 'kecha' },
-      { who: 'Otabek Ruzimov', what: '3-modul “Vibe coding”ni boshladi', at: 'kecha' }
-    ],
-    weekly: [{ l: 'Du', v: 42 }, { l: 'Se', v: 58 }, { l: 'Cho', v: 51 }, { l: 'Pa', v: 66 }, { l: 'Ju', v: 74 }, { l: 'Sh', v: 38 }, { l: 'Ya', v: 24 }],
-    monthGrowth: [8, 11, 14, 18]
+    tasks: [], mentors: [], notifs: [],
+    friends: {}, incoming: {}, sent: {}, activity: [], weekly: [], monthGrowth: []
   };
 }
 let S = null;
+/* Eski (demo) saqlangan holatni tozalash: namunaviy yozuvlar o'chadi,
+   faqat haqiqiy (demo bo'lmagan) akkauntlar va ularning profillari qoladi. */
+function purgeDemoState(p) {
+  const base = blankState();
+  const realAccs = (p.accounts || []).filter(a => a && !a.demo);
+  const realIds = realAccs.map(a => a.studentId).filter(Boolean);
+  base.accounts = realAccs;
+  base.students = (p.students || []).filter(x => realIds.includes(x.id));
+  realIds.forEach(id => {
+    base.friends[id] = (p.friends || {})[id] || [];
+    base.incoming[id] = (p.incoming || {})[id] || [];
+    base.sent[id] = (p.sent || {})[id] || [];
+  });
+  base.theme = p.theme || base.theme;
+  if (p.settings) base.settings = p.settings;
+  base.meta.demoPurged = true;
+  base.meta.purgedFrom = p.meta ? p.meta.version : '—';
+  base.meta.purgedAt = todayISO();
+  return base;
+}
 function loadState() {
   try {
     const raw = localStorage.getItem(VKEY);
     if (!raw) return blankState();
     const p = JSON.parse(raw);
-    if (!p || !p.students || !p.lessons) return blankState();
+    if (!p || typeof p !== 'object') return blankState();
+    /* v2.0.0: namunaviy ma'lumotlar olib tashlandi — eski holat tozalanadi */
+    if (!p.meta || p.meta.demoPurged !== true) {
+      /* Tozalangan holat darhol yoziladi: namuna ma'lumot qayta-qayta o'qilmaydi */
+      const q = purgeDemoState(p);
+      try { localStorage.setItem(VKEY, JSON.stringify(q)); } catch (e2) {}
+      return q;
+    }
     const base = blankState();
     Object.keys(base).forEach(k => { if (p[k] === undefined) p[k] = base[k]; });
-    /* Migratsiya: akkauntlar/sessiya qo'shilgach, eski saqlangan holatga ularni ulaymiz */
-    if (!Array.isArray(p.accounts) || !p.accounts.length) p.accounts = base.accounts;
-    p.accounts.forEach(a => { if (!a.studentId && a.id.startsWith('acc-s')) a.studentId = a.id.slice(4); });
-    if (p.session === undefined) p.session = null;
+    if (!Array.isArray(p.accounts)) p.accounts = [];
     if (p.session && !p.accounts.some(a => a.id === p.session.acc)) p.session = null;
+    if (!p.session) p.session = null;
     return p;
   } catch (e) { return blankState(); }
 }
 function save() { try { localStorage.setItem(VKEY, JSON.stringify(S)); } catch (e) { } }
 function resetAll() {
-  /* Namuna ma'lumotlar tiklanadi, lekin HAQIQIY (demo bo'lmagan) akkauntlar saqlab qolinadi */
-  const realAccs = accounts().filter(a => !a.demo);
-  const realStudents = realAccs.map(a => a.studentId).filter(Boolean).map(id => (S.students || []).find(x => x.id === id)).filter(Boolean);
-  const keepFriends = {}, keepIn = {}, keepSent = {};
-  realStudents.forEach(st2 => { keepFriends[st2.id] = S.friends[st2.id] || []; keepIn[st2.id] = S.incoming[st2.id] || []; keepSent[st2.id] = S.sent[st2.id] || []; });
-  const oldRole = S.role, oldUser = S.user;
+  /* Barcha ma'lumotlar (akkauntlar, talabalar, yozuvlar) butunlay o'chiriladi.
+     Platforma yangi o'rnatilgan holatga qaytadi — birinchi ishga tushirish ekrani ochiladi. */
   S = blankState();
-  realAccs.forEach(a => S.accounts.push(a));
-  realStudents.forEach(st2 => {
-    S.students.push(st2);
-    S.friends[st2.id] = keepFriends[st2.id]; S.incoming[st2.id] = keepIn[st2.id]; S.sent[st2.id] = keepSent[st2.id];
-  });
-  S.session = null; S.role = oldRole; S.user = oldUser;
   save();
-  toast('ok', 'Namuna ma’lumotlar tiklandi', realAccs.length ? realAccs.length + ' ta haqiqiy akkaunt saqlab qolindi.' : 'Boshlang‘ich holatga qaytdik.');
-  UI.route = S.role === 'admin' ? 'admin' : 'home'; UI.authShow = true; paint();
+  UI.route = 'home'; UI.authShow = true; UI.firstPass = null; UI.authErr = '';
+  closeModal();
+  toast('ok', 'Barcha ma’lumotlar tozalandi', 'Platforma yangi holatga qaytdi — Founder akkauntini qaytadan yaratasiz.');
+  paint();
 }
 
 /* ---------- 4. Hisob-kitoblar ---------- */
-const me = () => get(S.students, S.user) || S.students[0];
+const EMPTY_ME = { id: null, name: 'Mehmon', act: false, last: 0, xp: 0, wxp: 0, score: 0, tg: '', phone: '', goal: '', bio: '', coins: 0, streak: 0 };
+const me = () => get(S.students, S.user) || S.students[0] || EMPTY_ME;
 const isAdmin = () => S.role === 'admin';
 const modOf = id => get(S.modules, id);
 const taskOf = id => get(S.tasks, id);
@@ -1140,6 +1022,24 @@ const dueOf = (st, task) => { const g = myGroup(st); return (g && g.dl && g.dl[t
 const xpRank = id => [...S.students].sort((a, b) => b.xp - a.xp).findIndex(u => u.id === id) + 1;
 const wxpRank = id => [...S.students].sort((a, b) => b.wxp - a.wxp).findIndex(u => u.id === id) + 1;
 const teamRank = gid => [...S.groups].sort((a, b) => b.xp - a.xp).findIndex(g => g.id === gid) + 1;
+/* Haftalik faollik grafigi: saqlangan bo'lsa o'sha, aks holda talabalardan hisoblanadi */
+const DAY_L = ['Du', 'Se', 'Cho', 'Pay', 'Ju', 'Sha', 'Ya'];
+function weeklyData() {
+  if (Array.isArray(S.weekly) && S.weekly.length) return S.weekly;
+  const tot = S.students.reduce((a, x) => a + (Number(x.wxp) || 0), 0);
+  const base = Math.round(tot / 7);
+  return DAY_L.map((l, i) => ({ l, v: base ? Math.round(base * (0.74 + i * 0.085)) : 0 }));
+}
+/* Eng yuqori XP'li jamoa (bo'sh bo'lsa null) */
+const topGroup = () => (S.groups.length ? [...S.groups].sort((a, b) => b.xp - a.xp)[0] : null);
+/* Bo'sh holat kartasi: ikonka + sarlavha + matn + ixtiyoriy tugma */
+function emptyCard(ic, title, text, btn) {
+  return '<div class="card"><div class="empty">' + ico(ic) +
+    '<div style="margin-top:10px;font-weight:750;font-size:16px">' + esc(title) + '</div>' +
+    '<div class="small muted" style="margin-top:8px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.65">' + esc(text) + '</div>' +
+    (btn ? '<div class="row" style="justify-content:center;margin-top:16px">' + btn + '</div>' : '') +
+    '</div></div>';
+}
 function unlockedCount(st) {
   let n = 1;
   for (let i = 1; i < S.modules.length; i++) {
@@ -1202,10 +1102,10 @@ function kpisAdmin() {
   const accepted = subs.filter(p => p.status === 'accepted').length;
   const late = subs.filter(p => p.status === 'late').length;
   const rev = subs.filter(p => p.status === 'revise').length;
-  const avg = S.students.reduce((a, s) => a + s.score, 0) / S.students.length;
+  const avg = S.students.length ? S.students.reduce((a, s) => a + s.score, 0) / S.students.length : 0;
   return { total: S.students.length, active: activeCount(), subs: subs.length, accepted, late, rev, queue: reviewQueue().length, onTime: onTimePct(), avg: avg.toFixed(1), lateSt: lateStudents().length, groups: S.groups.length, projects: S.gallery.length };
 }
-function activityPct() { return Math.round(activeCount() / S.students.length * 100); }
+function activityPct() { return S.students.length ? Math.round(activeCount() / S.students.length * 100) : 0; }
 
 /* ---------- 5. UI holati ---------- */
 const UI = { route: 'home', authShow: false, authRole: 'student', authErr: '', firstPass: null, newCard: null, theme: 'dark', cal: 0, calMonthly: false,
@@ -1354,7 +1254,7 @@ function sidebar() {
     '<button class="btn-icon" style="width:34px;height:34px" data-act="pass-change" title="Parolni almashtirish" aria-label="Parolni almashtirish">' + ico('lock', 'sm') + '</button></div>';
   h += '<div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm grow" data-act="logout" title="Hisobdan chiqish">' + ico('out', 'sm') + '<span class="blbl">Chiqish</span></button>' +
     '<button class="btn btn-ghost btn-sm" data-act="reset-confirm" title="Demoni tiklash" aria-label="Demo ma’lumotlarni tiklash">' + ico('refresh', 'sm') + '</button></div>' +
-    '<div class="xs muted verline" style="text-align:center;padding-top:2px">v' + APP_VERSION + ((meAcc() && meAcc().demo) ? ' • namuna rejimi' : '') + '</div></div></aside>';
+    '<div class="xs muted verline" style="text-align:center;padding-top:2px">v' + APP_VERSION + '</div></div></aside>';
   return h;
 }
 function topbar() {
@@ -1371,7 +1271,6 @@ function topbar() {
     (UI.installEvt ? '<button class="btn-icon hide-sm" data-act="install" title="Ilovani o‘rnatish">' + ico('download', 'sm') + '</button>' : '') +
     (isAdmin() ? '<button class="btn-icon hide-sm" data-act="go-settings" title="Sozlamalar" aria-label="Sozlamalar">' + ico('settings', 'sm') + '</button>' : '') +
     '<button class="btn-icon hide-sm" data-act="shortcuts" title="Klaviatura yorliqlari (?)" aria-label="Klaviatura yorliqlari">' + ico('help', 'sm') + '</button>' +
-    ((meAcc() && meAcc().demo) ? '<button class="btn-icon hide-sm" data-act="switch" title="Namuna rejimi: rolni almashtirish">' + ico('refresh', 'sm') + '</button>' : '') +
     '</header>';
 }
 function toTopBtn() {
@@ -1419,7 +1318,6 @@ function paletteData() {
   items.push({ grp: 'Amallar', l: UI.collapsed ? 'Yon panelni ochish' : 'Yon panelni yig‘ish', s: 'Ish maydonini kengaytirish', i: 'grid', act: 'collapse' });
   if (UI.installEvt) items.push({ grp: 'Amallar', l: 'Ilovani o‘rnatish', s: 'Telefon yoki kompyuterga', i: 'download', act: 'install' });
   items.push({ grp: 'Amallar', l: 'Parolni almashtirish', s: '@' + ((meAcc() || {}).nick || '—'), i: 'lock', act: 'pass-change' });
-  if (meAcc() && meAcc().demo) items.push({ grp: 'Amallar', l: 'Namuna akkauntlar bilan sinash', s: 'Rollar bo‘yicha tez kirish', i: 'shield', act: 'sample-accounts' });
   S.lessons.forEach(l => items.push({ grp: 'Darslar', l: l.t, s: modOf(l.m).n + '-modul • ' + l.dur + ' daqiqa', i: 'book',
     act: (isAdmin() ? 'lesson-edit:' : 'lesson-open:') + l.id }));
   S.tasks.forEach(t => items.push({ grp: 'Vazifalar', l: t.title, s: 'Deadline: ' + fmtFull(t.dl), i: 'task', act: (isAdmin() ? 'task-review:' : 'task-open:') + t.id }));
@@ -1500,7 +1398,6 @@ function runPalette(act) {
     'new-student': () => addStudentModal(),
     'export-json': () => downloadState(),
     'pass-change': () => passChangeModal(),
-    'sample-accounts': () => sampleModal(),
     'export-my': () => exportMyCSV(),
     export: () => exportCSV(),
     'lesson-open': () => lessonModal(lessonOf(v)),
@@ -1577,16 +1474,6 @@ const ADMIN_PERMS = [
   ['students', 'Talabalar va akkauntlar'], ['tasks', 'Vazifalar va tekshirish'], ['content', 'Darslar va modullar'],
   ['groups', 'Jamoalar'], ['stats', 'Statistika va hisobot'], ['settings', 'Sozlamalar va zaxira'], ['admins', 'Adminlarni boshqarish']
 ];
-const ADMIN_SEED = [
-  { id: 'a1', nick: 'bekzod', name: 'Bekzod Aliyev', email: 'bekzod@aileaders.uz', adRole: 'founder', perms: ['__all'] },
-  { id: 'a2', nick: 'malika', name: 'Malika Abdurahmonova', email: 'malika@aileaders.uz', adRole: 'head-mentor', perms: ['students', 'tasks', 'stats'] },
-  { id: 'a3', nick: 'sardor', name: 'Sardor Yo‘ldoshev', email: 'sardor@aileaders.uz', adRole: 'mentor', perms: ['students', 'tasks'] },
-  { id: 'a4', nick: 'nigora', name: 'Nigora Karimova', email: 'nigora@aileaders.uz', adRole: 'mentor', perms: ['students', 'tasks', 'content'] },
-  { id: 'a5', nick: 'zuhra', name: 'Zuhra Ismoilova', email: 'zuhra@aileaders.uz', adRole: 'content', perms: ['content', 'students'] },
-  { id: 'a6', nick: 'timur', name: 'Timur Sobirov', email: 'timur@aileaders.uz', adRole: 'curator', perms: ['students', 'stats', 'groups'] },
-  { id: 'a7', nick: 'dilnoza', name: 'Dilnoza Yo‘ldosheva', email: 'dilnoza@aileaders.uz', adRole: 'mentor', perms: ['students', 'tasks', 'groups'] }
-];
-const DEMO_NICKS = ['falcon', 'onyx', 'comet', 'zephyr', 'nova', 'atlas', 'echo', 'pixel', 'cobalt', 'quasar', 'vector', 'photon', 'nexus', 'ember', 'orbit', 'lunar', 'titan', 'hydra'];
 /* Parol hesh: cxhash (demo-darajali). Haqiqiy bazada parol server tomonda (bcrypt) saqlanadi. */
 function cxhash(str) {
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -1602,20 +1489,6 @@ const hashPass = (nick, pass) => cxhash('ail|' + String(nick).toLowerCase() + '|
 function digitsOnly(v) { return String(v == null ? '' : v).replace(/\D/g, ''); }
 const validHemis = h => /^\d{12}$/.test(digitsOnly(h));
 const maskHemis = h => h ? '•••• •••• ' + digitsOnly(h).slice(-4) : '—';
-function buildAccounts() {
-  const accs = [];
-  STUDENTS.forEach((st, i) => accs.push({
-    id: 'acc-' + st.id, role: 'student', studentId: st.id, nick: DEMO_NICKS[i % DEMO_NICKS.length] + (i >= DEMO_NICKS.length ? (i + 1) : ''),
-    name: st.name, phone: st.phone, hemisId: null, groupId: st.group, pass: null, mustSetPass: true,
-    status: 'active', demo: true, created: st.joined, lastLogin: null
-  }));
-  ADMIN_SEED.forEach(a => accs.push({
-    id: 'acc-' + a.id, role: 'admin', adminRole: a.adRole, perms: a.perms.slice(), nick: a.nick, name: a.name,
-    email: a.email, phone: null, hemisId: null, pass: null, mustSetPass: true, status: 'active', demo: true,
-    created: todayISO(), lastLogin: null
-  }));
-  return accs;
-}
 const accounts = () => (S.accounts || []);
 const accById = id => accounts().find(a => a.id === id) || null;
 const accByNick = n => accounts().find(a => a.nick && a.nick.toLowerCase() === String(n || '').trim().toLowerCase()) || null;
@@ -1628,6 +1501,27 @@ function genNick() {
   if (free.length) return free[Math.floor(Math.random() * free.length)];
   let n = 2; while (nickTaken('leader' + n)) n++;
   return 'leader' + n;
+}
+/* Birinchi ishga tushirish: akkaunt yo'q bo'lsa — sozlash ekrani ko'rsatiladi */
+const needsSetup = () => accounts().length === 0;
+/* Founder akkauntini yaratish (platformaning birinchi egasi) */
+function createFounderAccount(data) {
+  const name = String(data.name || '').trim();
+  const email = String(data.email || '').trim().toLowerCase();
+  const pass = String(data.pass || '');
+  if (name.length < 3) return { err: 'name', msg: 'Ism-familiyani to‘liq kiriting.' };
+  if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) return { err: 'email', msg: 'Email manzil noto‘g‘ri ko‘rinishda (masalan ism@aileaders.uz).' };
+  if (accByEmail(email)) return { err: 'email-dup', msg: 'Bu email allaqachon ro‘yxatdan o‘tgan.' };
+  if (pass.length < 4) return { err: 'pass', msg: 'Parol kamida 4 belgidan iborat bo‘lsin.' };
+  const nick = (String(data.nick || '').trim().toLowerCase().replace(/[^a-z0-9_.]/g, '')) || genNick();
+  if (nickTaken(nick)) return { err: 'nick-dup', msg: 'Bu nick band: ' + nick + '.' };
+  const acc = {
+    id: 'acc-' + Math.random().toString(36).slice(2, 8), role: 'admin', adminRole: 'founder', perms: ['__all'],
+    nick, name, email, phone: null, hemisId: null, pass: hashPass(nick, pass), mustSetPass: false,
+    status: 'active', created: todayISO(), lastLogin: Date.now()
+  };
+  accounts().push(acc); save();
+  return { ok: true, acc };
 }
 function createStudentAccount(data) {
   const name = String(data.name || '').trim(), phone = String(data.phone || '').trim(), hemis = digitsOnly(data.hemisId);
@@ -1681,7 +1575,10 @@ function signIn(acc) {
   if (acc.role === 'student' && acc.studentId) S.user = acc.studentId;
   save();
 }
-const isFounder = () => { const a = meAcc(); return !!a && a.role === 'admin' && (a.adminRole === 'founder' || (a.perms || []).includes('__all')); };
+const isFounder = () => { const a = meAcc(); return !!a && isFounderAcc(a); };
+const isFounderAcc = a => !!a && a.role === 'admin' && (a.adminRole === 'founder' || (a.perms || []).includes('__all'));
+/* Platformadagi founder akkaunti (imzo va aloqa ma'lumotlari uchun) */
+const founderAcc = () => accounts().find(a => isFounderAcc(a)) || null;
 /* Har bir admin bo'limi qaysi ruxsatni talab qiladi (null — hamma admin uchun ochiq) */
 const ADMIN_SECTION_PERM = {
   admin: null, students: 'students', adminTasks: 'tasks', adminLessons: 'content',
@@ -1691,7 +1588,7 @@ const PERM_LABEL = { students: 'Talabalar', tasks: 'Vazifalar', content: 'Konten
 /* Bo'limni ko'rish huquqi */
 function canView(route) {
   const a = meAcc();
-  if (!a) return true;                                  /* sessiyasiz namuna rejimi — bloklamaymiz */
+  if (!a) return true;                                  /* sessiyasiz: birinchi ishga tushirish / kirish ekrani */
   if (a.role !== 'admin') return !ADMIN_ONLY_ROUTES.includes(route);
   const need = ADMIN_SECTION_PERM[route];
   if (!need) return true;
@@ -1726,25 +1623,6 @@ function passReset(accId) {
   if (!a) return false;
   a.pass = null; a.mustSetPass = true; save();
   return true;
-}
-/* Namuna akkauntlar oynasi: bir bosishda turli rol bilan sinash */
-function sampleModal() {
-  const st = accounts().filter(a => a.role === 'student' && a.demo);
-  const ad = accounts().filter(a => a.role === 'admin' && a.demo);
-  const row2 = a => '<button class="acc-row" data-act="quick-acc" data-id="' + a.id + '">' +
-    avatar({ id: a.id, name: a.name, act: true, last: 0 }, 'xs') +
-    '<span class="grow" style="min-width:0;text-align:left"><span class="small ellip" style="font-weight:750;display:block">' + esc(a.name) + '</span>' +
-    '<span class="xs muted ellip" style="display:block">' + (a.role === 'admin' ? esc((ADMIN_ROLES[a.adminRole] || { l: 'Admin' }).l) + ' • ' + esc(a.email) : (a.groupId && groupOf(a.groupId) ? esc(groupOf(a.groupId).name) + ' jamoasi • ' : '') + 'HEMIS: namuna') + '</span></span>' +
-    '<span class="kbd">' + esc(a.nick) + '</span></button>';
-  openModal(mhead('Namuna akkauntlar', 'Parolsiz, bir bosishda kirish — real talabalar kirish formasidan foydalanadi') +
-    '<div class="col" style="gap:16px">' +
-    '<div><div class="row between" style="gap:10px"><span class="up muted">Adminlar (' + ad.length + ')</span><span class="tag p">rollar turlicha</span></div>' +
-    '<div class="col" style="gap:6px;margin-top:8px">' + ad.map(row2).join('') + '</div></div>' +
-    '<div><div class="row between" style="gap:10px"><span class="up muted">Talabalar (' + st.length + ')</span><span class="tag c">barcha bo‘limlar</span></div>' +
-    '<div class="col" style="gap:6px;margin-top:8px">' + st.slice(0, 8).map(row2).join('') +
-    (st.length > 8 ? '<div class="xs muted" style="padding:6px 2px">… yana ' + (st.length - 8) + ' ta namuna talaba</div>' : '') + '</div></div>' +
-    '<div class="xs muted">Namuna akkauntlar «demo» belgisi bilan saqlanadi: haqiqiy ma’lumotlar kiritilganda ular bir tugma bilan o‘chiriladi.</div>' +
-    '</div>', 'wide');
 }
 const canPerm = p => { const a = meAcc(); if (!a || a.role !== 'admin') return false; return a.adminRole === 'founder' || (a.perms || []).includes('__all') || (a.perms || []).includes(p); };
 function logoutAcc() { S.session = null; save(); UI.authShow = true; UI.firstPass = null; closeModal(); paint(); }
@@ -1882,7 +1760,8 @@ function certModal(c) {
     '<div><div class="small" style="color:#C9D6F5">O‘quv dasturi: AI Leaders 2026</div>' +
     '<div class="xs" style="color:#8FA5D8;margin-top:2px">Kod: ' + esc(c.code) + '</div></div>' +
     '<div class="qr">' + Array.from({ length: 36 }).map((_, i) => (i % 3 === 0 || i % 7 === 0 || i < 6) ? '<i></i>' : '<i style="opacity:.15"></i>').join('') + '</div></div>' +
-    '<div class="row between" style="margin-top:18px"><div class="sig">Bekzod Aliyev<br>Founder, AI Leaders</div><div class="sig">Malika Abdurahmonova<br>Bosh mentor</div>' +
+    '<div class="row between" style="margin-top:18px"><div class="sig">' + esc(founderAcc() ? founderAcc().name : 'AI Leaders') + '<br>Founder, AI Leaders</div>' +
+    '<div class="sig">' + esc(S.mentors[0] ? S.mentors[0].name : 'Mentorlar kengashi') + '<br>Bosh mentor</div>' +
     '<div class="sig">' + fmtFull(c.date) + '</div></div></div>' +
     '<div class="row" style="margin-top:14px;gap:10px"><button class="btn btn-primary grow" data-act="print">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
     '<button class="btn btn-soft" data-act="toast-copy" data-code="' + esc(c.code) + '">' + ico('copy', 'sm') + 'Kodni nusxalash</button></div>', 'wide');
@@ -1922,8 +1801,8 @@ function vHome() {
   const dls = deadlinesOf(st).filter(d => !d.s || d.s.status === 'revise' || d.s.status === 'in_review').sort((a, b) => a.due < b.due ? -1 : 1);
   const near = dls[0];
   const m = medal(st);
-  const week = S.weekly;
-  const maxv = Math.max(...week.map(w => w.v));
+  const week = weeklyData();
+  const maxv = Math.max(1, ...week.map(w => w.v));
   const questXp = QUESTS.reduce((a, x) => a + (q.done.includes(x.id) ? x.xp : 0), 0);
   const lateCount = dls.filter(d => !d.s && d.tl.late).length;
 
@@ -2069,9 +1948,9 @@ function vHome() {
     '<div class="row" style="gap:5px">' + Array.from({ length: 7 }).map((_, i) => { const on = (6 - i) < st.streak; return '<span title="' + (on ? 'bajarilgan' : 'bo\u2019sh') + '" style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:' + (on ? 'linear-gradient(135deg,#7C5CFF,#22D3EE)' : 'var(--panel-3)') + ';color:' + (on ? '#08101F' : 'var(--muted)') + ';font-size:10px;font-weight:800">' + (on ? '\u2713' : '') + '</span>'; }).join('') + '</div></div></div>';
 
   h += '<div class="card rail-card"><div class="card-h"><h2 class="h2">' + ico('spark') + 'Klubda nima bo\u2019lyapti</h2></div>' +
-    '<div class="col" style="gap:0">' + S.activity.slice(0, 4).map(a => '<div class="wall-item" style="padding:9px 0">' +
+    '<div class="col" style="gap:0">' + (S.activity.length ? S.activity.slice(0, 4).map(a => '<div class="wall-item" style="padding:9px 0">' +
       '<div class="lead" style="width:32px;height:32px;border-radius:10px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:var(--panel-3);border:1px solid var(--line);color:var(--txt2)">' + ico('spark', 'sm') + '</div>' +
-      '<div><div class="small"><b>' + esc(a.who) + '</b> ' + esc(a.what) + '</div><div class="xs muted" style="margin-top:2px">' + esc(a.at) + '</div></div></div>').join('') + '</div></div>';
+      '<div><div class="small"><b>' + esc(a.who) + '</b> ' + esc(a.what) + '</div><div class="xs muted" style="margin-top:2px">' + esc(a.at) + '</div></div></div>').join('') : '<div class="small muted" style="padding:10px 0">Hozircha yangilik yo‘q — birinchi topshiriqdan keyin shu yerda ko‘rinadi.</div>') + '</div></div>';
 
   h += '</aside></div>';
 
@@ -2138,7 +2017,7 @@ function vModule(mid) {
     '<span class="small muted">' + mp.done + '/' + mp.total + '</span></div>' + bar(mp.pct) +
     '<div class="col" style="gap:4px;margin-top:12px">' + ls.map((l, i) => {
       const done = st.done.includes(l.id), ty = TYPES[l.type] || TYPES.video;
-      return '<div class="lesson-row' + (done ? ' done' : '') + (lock ? '' : ' ') + '" data-act="' + (lock ? 'noop' : 'lesson-open') + '" data-id="' + l.id + '">' +
+      return '<div class="lesson-row' + (done ? ' done' : '') + (lock ? '' : ' ') + '" data-act="' + (lock ? 'locked' : 'lesson-open') + '" data-id="' + l.id + '">' +
         '<div class="num">' + (done ? ico('check', 'sm') : (i + 1)) + '</div>' +
         '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:700">' + esc(l.t) + '</div>' +
         '<div class="row xs muted" style="gap:8px;margin-top:3px"><span class="tag ' + ty.tag + '">' + ico(ty.i, 'sm') + esc(ty.l) + '</span><span>' + l.dur + ' daq</span><span>•</span><span>' + fmtD(l.d) + '</span></div></div>' +
@@ -2171,6 +2050,9 @@ function vTasks() {
   const cnt = k => all.filter(d => k === 'all' ? true : k === 'todo' ? (!d.s || d.s.status === 'revise') : d.s && d.s.status === k).length;
   const accepted = all.filter(d => d.s && d.s.status === 'accepted');
   const avg = accepted.length ? Math.round(accepted.reduce((a, d) => a + (d.s.score || 0), 0) / accepted.length) : 0;
+  if (!all.length) return '<div class="page-head"><div><h1 class="h1">Vazifalar</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">Topshiriq → tekshirish → baho zanjiri. Mentorlar izoh yozadi.</p></div></div>' +
+    emptyCard('task', 'Hozircha vazifa yo‘q', 'Administrator vazifa bergan zahoti u shu bo‘limda deadline bilan ko‘rinadi. Hozir darslardan boshlash mumkin.');
 
   let h = '<div class="page-head"><div><h1 class="h1">Vazifa</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Havola yoki fayl yuboring — mentor tekshiradi va izoh yozadi. Qabul qilingan vazifa keyingi modulni ochadi.</p></div>' +
@@ -2220,7 +2102,9 @@ function vTasks() {
 /* ---------- Team ---------- */
 function vTeam() {
   const st = me(), g = myGroup(st);
-  if (!g) return '<div class="empty">Sizga hali jamoa biriktirilmagan. Admin jamoani tuzgach shu yerda ko‘rinadi.</div>';
+  if (!g) return '<div class="page-head"><div><h1 class="h1">Team</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">Jamoa — startap mashqi: devor, vazifalar va umumiy reyting.</p></div></div>' +
+    emptyCard('users', 'Sizga hali jamoa biriktirilmagan', 'Administrator jamoani tuzgach shu yerda devor, a’zolar va jamoaviy topshiriq ko‘rinadi.');
   const m = mentorOf(g.mentor);
   const walls = S.walls[g.id] || [];
   const task = S.tasks.find(t => t.m === 'm6') || S.tasks[2];
@@ -2296,6 +2180,9 @@ function vDeadlines() {
   const map = {};
   all.forEach(d => { (map[d.due] = map[d.due] || []).push({ k: 'task', l: d.t.title, s: d.s, d }); });
   openLessons(st).forEach(l => { (map[l.d] = map[l.d] || []).push({ k: 'lesson', l: l.t, id: l.id }); });
+  if (!all.length) return '<div class="page-head"><div><h1 class="h1">Deadlines</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">Deadline — baho emas, odat. Kechikkanlar mentor yordamiga muhtoj bo‘ladi.</p></div></div>' +
+    emptyCard('cal', 'Deadline hali qo‘yilmagan', 'Administrator vazifalarni deadline bilan berganda shu kalendar to‘ladi. Dars jadvali «Darslar» bo‘limida.');
   const near = all.filter(d => !d.s || d.s.status !== 'accepted').slice(0, 1)[0];
   const nowD = new Date(), dow = (nowD.getDay() + 6) % 7;
   const weekStart = new Date(nowD); weekStart.setDate(nowD.getDate() - dow);
@@ -2369,6 +2256,9 @@ function vFriends() {
   const others = S.students.filter(s => s.id !== st.id && !all.some(x => x.id === s.id));
   const tab = UI.friendTab;
   const board = [...S.students].sort((a, b) => b.wxp - a.wxp).slice(0, 8);
+  if (S.students.length < 2) return '<div class="page-head"><div><h1 class="h1">Friends</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">«Har kim har kimdan o‘rganadi» — do‘stlar, XP musobaqasi va jamoaviy reyting.</p></div></div>' +
+    emptyCard('users', 'Hozircha klubda faqat siz borsiz', 'Boshqa talabalar qo‘shilgach do‘stlar ro‘yxati, so‘rovlar va XP musobaqasi ishga tushadi.');
 
   let h = '<div class="page-head"><div><h1 class="h1">Friends</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Do‘stlar reytingi, o‘zaro yordam va mentor talaba juftliklari — birgalikda tezroq o‘rganiladi.</p></div>' +
@@ -2541,7 +2431,7 @@ function adminStudentModal(st) {
     (acc ? '<div class="divider"></div><div class="up muted" style="margin-bottom:8px">Kirish ma’lumotlari</div>' +
       '<div class="row wrap" style="gap:9px">' +
       '<span class="tag ' + (acc.pass ? 'g' : 'a') + '">' + ico('key', 'sm') + '@' + esc(acc.nick) + '</span>' +
-      '<span class="tag">' + ico('user', 'sm') + (acc.hemisId ? 'HEMIS: ' + esc(acc.hemisId) : 'Namuna akkaunt') + '</span>' +
+      '<span class="tag">' + ico('user', 'sm') + (acc.hemisId ? 'HEMIS: ' + esc(acc.hemisId) : 'Akkaunt') + '</span>' +
       '<span class="tag ' + (acc.mustSetPass ? 'a' : 'g') + '">' + (acc.mustSetPass ? 'Parol o‘rnatilmagan' : 'Parol o‘rnatilgan') + '</span>' +
       '<button class="btn btn-soft btn-sm" data-act="login-card" data-id="' + esc(acc.id) + '">' + ico('doc', 'sm') + 'Kirish kartochkasi</button>' +
       '<button class="btn btn-ghost btn-sm" data-act="pass-reset" data-id="' + esc(acc.id) + '">' + ico('refresh', 'sm') + 'Parolni tiklash</button></div>' : '') +
@@ -2646,7 +2536,8 @@ function vAdmin() {
   const k = kpisAdmin();
   const rq = reviewQueue();
   const late = lateStudents();
-  const maxv = Math.max(...S.weekly.map(w => w.v));
+  const week = weeklyData();
+  const maxv = Math.max(1, ...week.map(w => w.v));
   const top = [...S.students].sort((a, b) => b.wxp - a.wxp).slice(0, 5);
 
   const admin0 = meAcc() || {};
@@ -2662,6 +2553,28 @@ function vAdmin() {
     (myPerms.length ? '<span class="xs muted">Huquqlar: ' + esc(myPerms.join(', ')) + '</span>' : '') + '</div></div>' +
     '<div class="row wrap" style="gap:9px">' + quick.join('') + '</div></div>';
 
+  /* Bo'sh platforma: KPI o'rniga 4 qadamli boshlash yo'riqnomasi */
+  if (!S.students.length) {
+    const steps = [
+      ['users-plus', 'Talaba qo‘shing', 'Administrator HEMIS ID (12 xona) kiritadi — tizim unikal nick beradi va kirish kartochkasini chiqaradi.', actionAllowed('students') ? '<button class="btn btn-primary btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' : ''],
+      ['flag', 'Jamoa tuzing', 'Har bir jamoa — startap mashqi. A’zolarni biriktirib, mentorni juftlaysiz.', actionAllowed('groups') ? '<button class="btn btn-soft btn-sm" data-act="new-group">' + ico('flag', 'sm') + 'Yangi jamoa</button>' : ''],
+      ['task', 'Vazifa va deadline bering', 'Vazifa modulga bog‘lanadi, deadline qo‘yiladi — talabalar topshiradi, siz baholaysiz.', actionAllowed('tasks') ? '<button class="btn btn-soft btn-sm" data-act="new-task">' + ico('plus', 'sm') + 'Vazifa berish</button>' : ''],
+      ['shield', 'Admin va mentor qo‘shing', 'Har biriga alohida rol va ruxsat beriladi: mentor faqat o‘z bo‘limlarini ko‘radi.', isFounder() ? '<button class="btn btn-soft btn-sm" data-act="new-admin">' + ico('shield', 'sm') + 'Admin qo‘shish</button>' : '']
+    ];
+    h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('rocket') + 'Boshlash — 4 qadam</h2><span class="tag c">platforma bo‘sh</span></div>' +
+      '<p class="small muted" style="margin:-2px 0 14px">Platforma bo‘sh holatda ishga tushdi. Quyidagi qadamlarni ketma-ket bajaring — shundan keyin barcha bo‘limlar to‘liq ishlaydi.</p>' +
+      '<div class="grid g2">' + steps.map((x, i) => '<div class="card tight soft"><div class="row" style="gap:11px;align-items:flex-start">' +
+        '<div class="feat-ic">' + (i + 1) + '</div><div class="grow" style="min-width:0">' +
+        '<div class="small" style="font-weight:780">' + ico(x[0], 'sm') + ' ' + esc(x[1]) + '</div>' +
+        '<div class="xs muted" style="margin:5px 0 10px;line-height:1.6">' + esc(x[2]) + '</div>' +
+        (x[3] || '') + '</div></div></div>').join('') + '</div></div>';
+    h += '<div class="grid g3">' +
+      kpi('book', S.lessons.length, 'Dars tayyor', S.modules.length + ' modul o‘quv dasturi', 'c') +
+      kpi('users', accounts().length, 'Akkauntlar', 'xodim va o‘quvchilar', '') +
+      kpi('check-c', Object.keys(ADMIN_ROLES).length + ' ta', 'Rollar va ruxsatlar', 'founder · mentor · kontent · kurator', 'a') + '</div>';
+    return h;
+  }
+
   h += '<div class="grid g5">' +
     kpi('users', k.total, 'Talabalar', k.active + ' faol', '') +
     kpi('trend', activityPct() + '%', 'Haftalik faollik', k.active + '/' + k.total + ' kishi', 'c') +
@@ -2671,8 +2584,8 @@ function vAdmin() {
 
   h += '<div class="grid split-15">' +
     '<div class="card stretch"><div class="card-h"><h2 class="h2">' + ico('trend') + 'Haftalik topshirish faolligi</h2>' +
-    '<span class="tag c">' + ico('bolt', 'sm') + 'O‘rtacha ' + Math.round(S.weekly.reduce((a, w) => a + w.v, 0) / 7) + '/kun</span></div>' +
-    '<div class="chart">' + S.weekly.map((w, i) => '<div class="b"><div class="fill" style="height:' + Math.max(8, Math.round(w.v / maxv * 100)) + '%;animation-delay:' + (i * 50) + 'ms"></div><span>' + w.l + '</span></div>').join('') + '</div>' +
+    '<span class="tag c">' + ico('bolt', 'sm') + 'O‘rtacha ' + Math.round(week.reduce((a, w) => a + w.v, 0) / 7) + '/kun</span></div>' +
+    '<div class="chart">' + week.map((w, i) => '<div class="b"><div class="fill" style="height:' + Math.max(8, Math.round(w.v / maxv * 100)) + '%;animation-delay:' + (i * 50) + 'ms"></div><span>' + w.l + '</span></div>').join('') + '</div>' +
     '<div class="divider"></div>' +
     '<div class="grid g4" style="gap:10px"><div class="card tight soft tc"><div class="big">' + k.subs + '</div><div class="xs muted">jami topshiriq</div></div>' +
     '<div class="card tight soft tc"><div class="big">' + k.accepted + '</div><div class="xs muted">qabul qilindi</div></div>' +
@@ -2684,7 +2597,7 @@ function vAdmin() {
     '<div class="col" style="gap:9px">' + top.map((s, i) => '<div class="lrow"><div class="rank r' + (i + 1) + '">' + (i + 1) + '</div>' + avatar(s, 'xs') +
       '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s.name) + '</div><div class="xs muted">' + (myGroup(s) ? myGroup(s).name : '—') + ' • ' + s.streak + ' kun</div></div>' +
       '<b class="nowrap">' + nf(s.wxp) + '</b></div>').join('') + '</div>' +
-    '<div class="divider"></div><div class="row between small"><span class="muted">Jamoalar yetakchisi</span><b>' + esc([...S.groups].sort((a, b) => b.xp - a.xp)[0].name) + '</b></div></div></div>';
+    '<div class="divider"></div><div class="row between small"><span class="muted">Jamoalar yetakchisi</span><b>' + esc(topGroup() ? topGroup().name : '—') + '</b></div></div></div>';
 
   h += '<div class="grid g2">' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('task') + 'Tekshirish navbati</h2>' +
@@ -2706,8 +2619,8 @@ function vAdmin() {
 
   h += '<div class="grid g2">' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('spark') + 'So‘nggi harakatlar</h2></div>' +
-    '<div class="col" style="gap:0">' + S.activity.map(a => '<div class="wall-item"><div class="lead" style="width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--panel-3);border:1px solid var(--line);color:var(--txt2)">' + ico('spark', 'sm') + '</div>' +
-      '<div><div class="small"><b>' + esc(a.who) + '</b> ' + esc(a.what) + '</div><div class="xs muted">' + esc(a.at) + '</div></div></div>').join('') + '</div></div>' +
+    '<div class="col" style="gap:0">' + (S.activity.length ? S.activity.map(a => '<div class="wall-item"><div class="lead" style="width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--panel-3);border:1px solid var(--line);color:var(--txt2)">' + ico('spark', 'sm') + '</div>' +
+      '<div><div class="small"><b>' + esc(a.who) + '</b> ' + esc(a.what) + '</div><div class="xs muted">' + esc(a.at) + '</div></div></div>').join('') : '<div class="small muted" style="padding:10px 0">Yangiliklar yo‘q — talabalar ishlagach shu yerda ko‘rinadi.</div>') + '</div></div>' +
 
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('flag') + 'Jamoalar holati</h2>' +
     '<button class="btn btn-xs btn-ghost" data-act="go" data-route="adminGroups">Boshqarish' + ico('right', 'sm') + '</button></div>' +
@@ -2731,6 +2644,10 @@ function vStudents() {
   let h = '<div class="page-head"><div><h1 class="h1">Talabalar</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Guruh, daraja va faollik bo‘yicha kuzatuv. Profilni ochib vazifa, deadline va baholarni ko‘rish mumkin.</p></div>' +
     '<button class="btn btn-primary btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button></div>';
+
+  if (!S.students.length) return h + emptyCard('users-plus', 'Hali talaba yo‘q',
+    'Birinchi talabani qo‘shing: ism-familiya va HEMIS ID (12 xona) kifoya. Tizim unikal nick beradi, siz kirish kartochkasini chop etib berasiz.',
+    actionAllowed('students') ? '<button class="btn btn-primary" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' : '');
 
   h += '<div class="grid g4">' +
     kpi('users', S.students.length, 'Jami talaba', S.groups.length + ' jamoada', '') +
@@ -2781,8 +2698,11 @@ function vAdminTasks() {
   const subs = f === 'all' ? sorted : sorted.filter(p => p.status === f);
   let h = '<div class="page-head"><div><h1 class="h1">Vazifalar</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Vazifa bering, tekshiring, baho va izoh yozing. Deadline’larni jamoa bo‘yicha boshqaring.</p></div>' +
-    '<div class="row wrap" style="gap:9px"><button class="btn btn-primary btn-sm" data-act="new-task">' + ico('plus', 'sm') + 'Yangi vazifa</button>' +
-    '<button class="btn btn-soft btn-sm" data-act="deadline-open" data-id="">' + ico('clock', 'sm') + 'Deadline belgilash</button></div></div>';
+    '<div class="row wrap" style="gap:9px">' + (actionAllowed('tasks') ? '<button class="btn btn-primary btn-sm" data-act="new-task">' + ico('plus', 'sm') + 'Yangi vazifa</button>' +
+    '<button class="btn btn-soft btn-sm" data-act="deadline-open" data-id="">' + ico('clock', 'sm') + 'Deadline belgilash</button>' : '') + '</div></div>';
+  if (!S.tasks.length) return h + emptyCard('task', 'Hali vazifa berilmagan',
+    'Vazifa 6 moduldan biriga bog‘lanadi va belgilangan deadline bilan talabalarga tushadi. Natijalar shu sahifada tekshiriladi.',
+    actionAllowed('tasks') ? '<button class="btn btn-primary" data-act="new-task">' + ico('plus', 'sm') + 'Birinchi vazifani berish</button>' : '');
 
   h += '<div class="grid g4">' +
     kpi('task', S.submissions.length, 'Topshiriqlar', reviewQueue().length + ' navbatda', '') +
@@ -2798,7 +2718,7 @@ function vAdminTasks() {
       const acc = rel.filter(p => p.status === 'accepted').length;
       const rev = rel.filter(p => p.status === 'in_review').length;
       const lateN = rel.filter(p => p.status === 'late').length + S.students.filter(s => !subOf(s, t.id) && timeLeft(dueOf(s, t)).late).length;
-      const done = Math.round((acc / S.students.length) * 100);
+      const done = S.students.length ? Math.round((acc / S.students.length) * 100) : 0;
       return '<div class="trow"><div class="row" style="gap:10px;min-width:0"><div class="lead" style="width:36px;height:36px">' + ico(mm.icon, 'sm') + '</div>' +
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(t.title) + '</div>' +
         '<div class="xs muted">' + mm.n + '-modul • ' + fmtFull(t.dl) + '</div></div></div>' +
@@ -2865,10 +2785,14 @@ function vAdminGroups() {
     '<p class="t2 small" style="margin:6px 0 0">Jamoa tuzish, a’zolarni biriktirish va mentor juftlash. Jamoa = startap mashqi.</p></div>' +
     '<button class="btn btn-primary btn-sm" data-act="new-group">' + ico('flag', 'sm') + 'Yangi jamoa</button></div>';
 
+  if (!S.groups.length) return h + emptyCard('flag', 'Hali jamoa tuzilmagan',
+    'Jamoa — startap mashqi maydoni: 3–4 talaba, bitta loyiha va mentor. Talabalar qo‘shilgach jamoalarni tuzasiz.',
+    actionAllowed('groups') ? '<button class="btn btn-primary" data-act="new-group">' + ico('flag', 'sm') + 'Yangi jamoa</button>' : '');
+
   h += '<div class="grid g4">' +
     kpi('flag', S.groups.length, 'Jamoalar', S.groups.reduce((a, g) => a + g.members.length, 0) + ' a’zo', '') +
     kpi('users-plus', free.length, 'Biriktirilmagan', 'Yangi a’zolar', free.length ? 'a' : '') +
-    kpi('trophy', esc([...S.groups].sort((a, b) => b.xp - a.xp)[0].name), 'Yetakchi jamoa', nf([...S.groups].sort((a, b) => b.xp - a.xp)[0].xp) + ' XP', 'c') +
+    kpi('trophy', esc(topGroup() ? topGroup().name : '—'), 'Yetakchi jamoa', topGroup() ? nf(topGroup().xp) + ' XP' : 'jamoa yo‘q', 'c') +
     kpi('target', S.gallery.length, 'Galereyadagi loyiha', 'Demo Day’ga tayyor', '') + '</div>';
 
   if (free.length) h += '<div class="card" style="border-color:rgba(198,255,79,.3);background:linear-gradient(120deg,rgba(198,255,79,.07),transparent 60%)"><div class="row wrap between" style="gap:12px">' +
@@ -2911,6 +2835,9 @@ function vAdminDeadlines() {
   }));
   const late = lateStudents();
   const today = todayISO();
+  if (!S.tasks.length) return emptyCard('cal', 'Deadline’lar hali belgilanmagan',
+    'Vazifa yaratilganda uning sanasi shu kalendarga tushadi; jamoa uchun alohida sanalar ham belgilashingiz mumkin.',
+    actionAllowed('tasks') ? '<button class="btn btn-primary" data-act="new-task">' + ico('plus', 'sm') + 'Vazifa berish</button>' : '');
 
   let h = '<div class="page-head"><div><h1 class="h1">Deadline boshqaruvi</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Umumiy va jamoa uchun alohida sanalar. Kechikkanlarni bir joydan ko‘rasiz.</p></div>' +
@@ -2953,7 +2880,7 @@ function vAdminDeadlines() {
 function vStats() {
   const k = kpisAdmin();
   const modStats = S.modules.map(m => { const done = S.students.filter(s => modulePct(s, m.id).pct === 100).length;
-    return { m, done, pct: Math.round(done / S.students.length * 100) }; });
+    return { m, done, pct: S.students.length ? Math.round(done / S.students.length * 100) : 0 }; });
   const deployed = S.students.filter(s => ['t4', 't5'].some(t => { const p = subOf(s, t); return p && p.status === 'accepted'; })).length;
   const grads = S.students.filter(s => certsOf(s).length > 0).length;
   const byGroup = [...S.groups].sort((a, b) => b.xp - a.xp);
@@ -2963,6 +2890,8 @@ function vStats() {
   let h = '<div class="page-head"><div><h1 class="h1">Statistika</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Asosiy ko‘rsatkichlar: faollik, intizom, modul tugatish va loyiha chiqarish.</p></div>' +
     (actionAllowed('stats') ? '<button class="btn btn-soft btn-sm" data-act="export">' + ico('download', 'sm') + 'Hisobotni yuklab olish</button>' : '') + '</div>';
+  if (!S.students.length) return h + emptyCard('trend', 'Statistika uchun ma’lumot yo‘q',
+    'Talabalar qo‘shilib, vazifalar topshirila boshlagach bu yerda faollik, intizom va modul tugatish ko‘rsatkichlari paydo bo‘ladi.');
 
   h += '<div class="grid g4">' +
     kpi('users', k.active + '/' + k.total, 'Haftalik faol talaba', activityPct() + '%', 'c') +
@@ -3000,7 +2929,7 @@ function vStats() {
       ['clock', 'Kechikish', k.lateSt + ' ta kechikkan topshiriq — avatar/telefon orqali bog‘laning'],
       ['rocket', 'Loyiha bosqichi', deployed + ' talaba loyihasini jonli havola bilan chiqargan'],
       ['users', 'Jamoa balansi', 'Har jamoaga 3 a’zo: 1 builder, 1 dizayner, 1 growth'],
-      ['trophy', 'Musobaqa', 'Haftalik reyting g‘olibi: ' + esc([...S.students].sort((a, b) => b.wxp - a.wxp)[0].name)],
+      ['trophy', 'Musobaqa', S.students.length ? 'Haftalik reyting g‘olibi: ' + esc([...S.students].sort((a, b) => b.wxp - a.wxp)[0].name) : 'Talabalar qo‘shilgach reyting boshlanadi'],
       ['cal', 'Offline kun', 'Oyiga bir marta offline demo-kun — keyingisi 28-noyabr']
     ].map(x => '<div class="card tight soft"><div class="row" style="gap:9px">' + ico(x[0], 'sm') + '<b class="small">' + esc(x[1]) + '</b></div>' +
       '<div class="xs muted" style="margin-top:8px">' + esc(x[2]) + '</div></div>').join('') + '</div></div>';
@@ -3089,7 +3018,7 @@ function vAdminSettings() {
     '<button class="btn btn-soft btn-block" data-act="export">' + ico('doc', 'sm') + 'Statistika hisoboti (CSV, Excel uchun)</button>' +
     '<div class="field"><label>Zaxiradan tiklash (.json)</label><input class="inp" type="file" id="import-json" accept="application/json,.json"></div>' +
     '<div class="divider"></div>' +
-    '<button class="btn btn-danger btn-block" data-act="reset-confirm">' + ico('refresh', 'sm') + 'Demo ma’lumotlarga qaytarish</button>' +
+    '<button class="btn btn-danger btn-block" data-act="reset-confirm">' + ico('trash', 'sm') + 'Barcha ma’lumotni o‘chirish (noldan boshlash)</button>' +
     '</div></div>' +
 
     /* mentorlar */
@@ -3114,7 +3043,7 @@ function vAdminSettings() {
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('flag') + 'Platforma haqida</h2></div>' +
     '<div class="col" style="gap:10px">' +
     '<div class="row between small"><span class="muted">Versiya</span><b>v' + APP_VERSION + '</b></div>' +
-    '<div class="row between small"><span class="muted">Ma’lumot manbai</span><b>Brauzer xotirasi (demo)</b></div>' +
+    '<div class="row between small"><span class="muted">Ma’lumot manbai</span><b>Brauzer xotirasi (localStorage)</b></div>' +
     '<div class="row between small"><span class="muted">Hosting</span><b>Cloudflare Pages</b></div>' +
     '<div class="row between small"><span class="muted">Kod</span><b>github.com/Asilbek-ops-afk/ai-leaders-platform</b></div>' +
     '<div class="divider"></div>' +
@@ -3153,7 +3082,7 @@ function vAdminAdmins() {
       const perms = (a.perms || []).includes('__all') ? 'Barcha huquqlar' : (a.perms || []).map(p => (ADMIN_PERMS.find(x => x[0] === p) || [p, p])[1]).join(', ') || '—';
       return '<div class="trow">' +
         '<div class="row" style="gap:11px;min-width:0">' + avatar({ id: a.id, name: a.name, act: a.status === 'active', last: 0 }, 'xs') +
-        '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(a.name) + (a.demo ? ' <span class="tag">namuna</span>' : '') + '</div>' +
+        '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(a.name) + '</div>' +
         '<div class="xs muted ellip">@' + esc(a.nick) + ' • ' + esc(a.email || '—') + '</div></div></div>' +
         '<span class="cell-hide"><span class="tag ' + (a.adminRole === 'founder' ? 'a' : a.adminRole === 'head-mentor' ? 'p' : '') + '">' + ico(rl.i, 'sm') + esc(rl.l) + '</span></span>' +
         '<span class="cell-hide xs muted ellip">' + esc(perms) + '</span>' +
@@ -3203,7 +3132,7 @@ function adminFormModal(id) {
 function loginCardModal(accId) {
   const a = accById(accId);
   if (!a) return;
-  openModal(mhead('Kirish kartochkasi', (a.role === 'admin' ? 'Admin akkaunti' : 'Talaba akkaunti') + ' • ' + (a.demo ? 'namuna' : 'haqiqiy')) +
+  openModal(mhead('Kirish kartochkasi', (a.role === 'admin' ? 'Admin akkaunti' : 'Talaba akkaunti')) +
     '<div class="card soft" id="loginCard" style="background:linear-gradient(135deg,rgba(124,92,255,.16),rgba(34,211,238,.10));border-color:rgba(124,92,255,.34)">' +
     '<div class="row between" style="gap:12px"><div class="row" style="gap:11px">' + avatar({ id: a.id, name: a.name, act: true, last: 0 }, 'sm') +
     '<div><div class="h3">' + esc(a.name) + '</div><div class="xs muted">' + esc(a.role === 'admin' ? (ADMIN_ROLES[a.adminRole] || { l: 'Admin' }).l : 'Talaba') + (a.groupId ? ' • ' + esc((groupOf(a.groupId) || {}).name || '') : '') + '</div></div></div>' +
@@ -3261,7 +3190,27 @@ function vAuth() {
       '<button class="btn btn-ghost btn-sm btn-block" style="margin-top:10px" data-act="auth-back">' + ico('left', 'sm') + 'Orqaga</button>' +
       '</div></div></div>';
   }
-  const demoAccs = accounts().filter(a => a.demo);
+  /* Birinchi ishga tushirish: hali hech qanday akkaunt yo'q — Founder o'zi yaratadi */
+  if (needsSetup()) {
+    return '<div class="auth">' +
+      '<div class="auth-art">' + authArt() + '</div>' +
+      '<div class="auth-form"><div class="inner">' +
+      '<span class="tag a" style="margin-bottom:12px">' + ico('rocket', 'sm') + 'Birinchi ishga tushirish</span>' +
+      '<h2 class="h1" style="font-size:24px">Founder akkauntini yaratamiz</h2>' +
+      '<p class="small muted" style="margin:8px 0 16px">Platforma toza holatda ishga tushdi. ' +
+      'Sizning akkauntingiz <b>to‘liq huquqli Founder</b> bo‘ladi: talaba qo‘shish, jamoa tuzish, dars va vazifa berish, adminlarni tayinlash.</p>' +
+      '<form data-form="setup-founder" class="col" style="gap:13px">' +
+      '<div class="field"><label>Ism va familiya</label><input class="inp" name="name" required placeholder="Masalan: Asilbek Yusupov"></div>' +
+      '<div class="field"><label>Email (kirish uchun)</label><input class="inp" name="email" type="email" required placeholder="ism@aileaders.uz"></div>' +
+      '<div class="grid g2" style="gap:12px">' +
+      '<div class="field"><label>Parol</label><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"></div>' +
+      '<div class="field"><label>Parolni takrorlang</label><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password" placeholder="Xuddi shu parol"></div></div>' +
+      (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
+      '<button class="btn btn-primary btn-block" type="submit">' + ico('check', 'sm') + 'Akkauntni yaratish va kirish</button>' +
+      '</form>' +
+      '<div class="inp-hint" style="margin-top:12px">Parolni hech kimga aytmang. Keyinchalik «Adminlar» bo‘limidan boshqa admin va mentorlarni qo‘shasiz.</div>' +
+      '</div></div></div>';
+  }
   return '<div class="auth">' +
     '<div class="auth-art">' + authArt() + '</div>' +
 
@@ -3292,22 +3241,12 @@ function vAuth() {
       '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Admin panelga kirish</button>' +
       '</form>') +
 
-    (demoAccs.length ?
-      '<div class="auth-demo"><div class="row between" style="gap:10px"><span class="xs" style="font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Namuna akkauntlar</span>' +
-      '<span class="tag">demo</span></div>' +
-      '<p class="xs muted" style="margin:8px 0 10px">Ko‘rsatish uchun: parolsiz ochiladi. Haqiqiy talabalar yuqoridagi forma orqali kiradi.</p>' +
-      '<div class="row wrap" style="gap:8px">' +
-      '<button class="chip" data-act="quick" data-r="student" data-s="s1">' + ico('user', 'sm') + 'falcon (talaba)</button>' +
-      '<button class="chip" data-act="quick" data-r="admin">' + ico('shield', 'sm') + 'bekzod (admin)</button>' +
-      '<button class="chip" data-act="sample-accounts">' + ico('grid', 'sm') + 'Barcha namunalar (25)</button>' +
-      '</div></div>' : '') +
-
     '<div class="row" style="gap:8px;margin-top:16px;justify-content:center"><span class="xs muted">© 2026 AI Leaders Startup Club • Toshkent</span></div>' +
     '</div></div></div>';
 }
 /* Kirish ekranining chap tomoni (brend + tavsif) */
 function authArt() {
-  const nSt = S.students.length, nG = S.groups.length, nL = S.lessons.length;
+  const nMod = S.modules.length, nL = S.lessons.length;
   return '<div class="row auth-brand" style="gap:14px"><svg style="width:54px;height:54px" viewBox="0 0 64 64"><defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
     '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="rgba(10,15,30,.7)" stroke="url(#ag)" stroke-width="2.6" stroke-linejoin="round"/>' +
     '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#ag)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
@@ -3329,13 +3268,14 @@ function authArt() {
       '<div class="feat-ic">' + ico(x[0], 'sm') + '</div>' +
       '<div><div class="small" style="font-weight:750">' + esc(x[1]) + '</div><div class="xs muted">' + esc(x[2]) + '</div></div></div>').join('') +
     '</div></div>' +
-    '<div class="grid g4 auth-stats">' + [[nf(nSt), 'talaba'], [nf(nG), 'jamoa'], [nf(nL), 'dars'], ['4', 'loyiha jonli']].map(x =>
+    '<div class="grid g4 auth-stats">' + [[nf(nMod), 'modul'], [nf(nL), 'dars'], ['6', 'deadline'], ['0–100', 'baholash']].map(x =>
       '<div class="card tight soft tc"><div class="big">' + x[0] + '</div><div class="xs muted">' + x[1] + '</div></div>').join('') + '</div>';
 }
 
 /* ---------- Xabar modali ---------- */
 function msgModal(id) {
-  const p = id === 'admin' ? { name: 'Bekzod Aliyev', role: 'Founder • Admin', tg: '@bekzod' }
+  const fa = founderAcc();
+  const p = id === 'admin' ? (fa ? { name: fa.name, role: (ADMIN_ROLES[fa.adminRole] || { l: 'Admin' }).l + ' • Admin', tg: '@' + fa.nick } : { name: 'AI Leaders', role: 'Klub', tg: '@aileaders' })
     : (get(S.students, id) || get(S.mentors, id) || { name: 'AI Leaders', role: 'Klub', tg: '@aileaders' });
   openModal(mhead('Xabar yozish', p.name + ' • ' + (p.tg || p.role || '')) +
     '<div class="card soft" style="max-height:190px;overflow:auto"><div class="col" style="gap:12px">' +
@@ -3369,8 +3309,8 @@ function searchModal(q) {
   const s = S.students.filter(x => x.name.toLowerCase().includes(ql) || (myGroup(x) || {}).name && myGroup(x).name.toLowerCase().includes(ql)).slice(0, 5);
   const g = S.groups.filter(x => x.name.toLowerCase().includes(ql) || x.project.toLowerCase().includes(ql)).slice(0, 3);
   openModal(mhead('Qidiruv: “' + q + '”', l.length + t.length + s.length + g.length + ' natija') +
-    (l.length ? '<div class="up muted" style="margin-bottom:8px">Darslar</div><div class="col" style="gap:7px;margin-bottom:14px">' + l.map(x => '<button class="lrow press" style="width:100%;text-align:left" data-act="' + (isAdmin() ? 'noop' : 'lesson-open') + '" data-id="' + x.id + '"><div class="lead">' + ico('book', 'sm') + '</div><div class="grow"><div class="small" style="font-weight:750">' + esc(x.t) + '</div><div class="xs muted">' + x.dur + ' daq • ' + fmtD(x.d) + '</div></div></button>').join('') + '</div>' : '') +
-    (t.length ? '<div class="up muted" style="margin-bottom:8px">Vazifalar</div><div class="col" style="gap:7px;margin-bottom:14px">' + t.map(x => '<button class="lrow press" style="width:100%;text-align:left" data-act="' + (isAdmin() ? 'noop' : 'task-open') + '" data-id="' + x.id + '"><div class="lead">' + ico('task', 'sm') + '</div><div class="grow"><div class="small" style="font-weight:750">' + esc(x.title) + '</div><div class="xs muted">Deadline: ' + fmtFull(x.dl) + '</div></div></button>').join('') + '</div>' : '') +
+    (l.length ? '<div class="up muted" style="margin-bottom:8px">Darslar</div><div class="col" style="gap:7px;margin-bottom:14px">' + l.map(x => '<button class="lrow press" style="width:100%;text-align:left" data-act="' + 'lesson-open' + '" data-id="' + x.id + '"><div class="lead">' + ico('book', 'sm') + '</div><div class="grow"><div class="small" style="font-weight:750">' + esc(x.t) + '</div><div class="xs muted">' + x.dur + ' daq • ' + fmtD(x.d) + '</div></div></button>').join('') + '</div>' : '') +
+    (t.length ? '<div class="up muted" style="margin-bottom:8px">Vazifalar</div><div class="col" style="gap:7px;margin-bottom:14px">' + t.map(x => '<button class="lrow press" style="width:100%;text-align:left" data-act="' + 'task-open' + '" data-id="' + x.id + '"><div class="lead">' + ico('task', 'sm') + '</div><div class="grow"><div class="small" style="font-weight:750">' + esc(x.title) + '</div><div class="xs muted">Deadline: ' + fmtFull(x.dl) + '</div></div></button>').join('') + '</div>' : '') +
     (s.length ? '<div class="up muted" style="margin-bottom:8px">Talabalar</div><div class="col" style="gap:7px;margin-bottom:14px">' + s.map(x => '<button class="lrow press" style="width:100%;text-align:left" data-act="' + (isAdmin() ? 'student-open' : 'msg') + '" data-id="' + x.id + '"><div class="lead">' + ico('user', 'sm') + '</div><div class="grow"><div class="small" style="font-weight:750">' + esc(x.name) + '</div><div class="xs muted">' + esc(myGroup(x) ? myGroup(x).name : '—') + ' • ' + nf(x.xp) + ' XP</div></div></button>').join('') + '</div>' : '') +
     (g.length ? '<div class="up muted" style="margin-bottom:8px">Jamoalar</div><div class="col" style="gap:7px">' + g.map(x => '<div class="lrow"><div class="lead">' + ico('flag', 'sm') + '</div><div class="grow"><div class="small" style="font-weight:750">' + esc(x.name) + '</div><div class="xs muted ellip">' + esc(x.project) + '</div></div></div>').join('') + '</div>' : '') +
     (!l.length && !t.length && !s.length && !g.length ? '<div class="empty">Hech narsa topilmadi. Boshqa so‘z bilan urinib ko‘ring.</div>' : ''), 'wide');
@@ -3447,7 +3387,7 @@ function permGate(route) {
     '<div style="margin-top:10px;font-weight:750;font-size:16px">' + (isF ? 'Bu bo‘lim faqat Founder uchun ochiq' : '«' + esc(sec) + '» bo‘limi sizga yopiq') + '</div>' +
     '<div class="small muted" style="margin-top:8px;max-width:460px;margin-left:auto;margin-right:auto;line-height:1.65">' +
     'Sizning rolingiz: <b>' + esc((ADMIN_ROLES[me.adminRole] || { l: 'Admin' }).l) + '</b>. Kirish uchun ' + esc(needName) + ' kerak. ' +
-    'Ruxsatni <b>Founder</b> (bekzod@aileaders.uz) yoki bosh mentor beradi.</div>' +
+    'Ruxsatni <b>Founder</b>' + (founderAcc() && founderAcc().email ? ' (' + esc(founderAcc().email) + ')' : '') + ' yoki bosh mentor beradi.</div>' +
     '<div class="row wrap" style="gap:10px;justify-content:center;margin-top:16px">' +
     '<button class="btn btn-primary" data-act="perm-ask" data-route="' + esc(route) + '">' + ico('bell', 'sm') + 'Ruxsat so‘rash</button>' +
     '<button class="btn btn-soft" data-act="go" data-route="admin">' + ico('grid', 'sm') + 'Dashboardga qaytish</button>' +
@@ -3468,7 +3408,7 @@ function contentFoot() {
     '<nav class="cf-links" aria-label="Tezkor havolalar">' + links.map(l =>
       '<a href="#" data-act="go" data-route="' + l[0] + '">' + esc(l[1]) + '</a>').join('') + '</nav>' +
     '<div class="cf-meta"><span>© ' + new Date().getFullYear() + ' · Toshkent</span>' +
-    '<span class="cf-dot">•</span><span>v' + APP_VERSION + ' · demo rejim</span>' +
+    '<span class="cf-dot">•</span><span>v' + APP_VERSION + ' · MVP</span>' +
     '<button class="cf-help" data-act="shortcuts" title="Klaviatura yorliqlari">' + ico('help', 'sm') + '<span>Yorliqlar</span></button></div></footer>';
 }
 function renderApp() {
@@ -3498,20 +3438,10 @@ function finishLogin(acc, silent) {
   const okWant = want && (acc.role === 'admin' ? ADMIN_ONLY : STUDENT_ONLY).includes(want);
   UI.route = okWant ? want : (acc.role === 'admin' ? 'admin' : 'home');
   UI.pendingGo = null;
-  closeModal();   /* namuna paneli/kirish oynasi ochiq qolmasin */
+  closeModal();   /* kirish/parol oynasi ochiq qolmasin */
   save(); paint();
   if (!silent) toast('ok', acc.role === 'admin' ? 'Admin panel ochildi' : 'Xush kelibsiz, ' + acc.name.split(' ')[0] + '!',
     acc.role === 'admin' ? 'Rol: ' + (ADMIN_ROLES[acc.adminRole] || { l: 'Admin' }).l : 'Nick: @' + acc.nick + ' • bugungi reja Bosh sahifada.');
-}
-/* Namuna (demo) akkauntlar bilan tez kirish — faqat namuna rejimida */
-function login(role, stId) {
-  let acc = null;
-  if (role === 'student') acc = accounts().find(a => a.role === 'student' && a.studentId === (stId || S.user)) || accounts().find(a => a.role === 'student');
-  else acc = accounts().find(a => a.role === 'admin') || null;
-  if (acc) { finishLogin(acc, true); return acc; }
-  S.role = role; if (stId) S.user = stId;
-  UI.authShow = false; save(); paint();
-  return null;
 }
 
 /* ---------- Eventlar ---------- */
@@ -3556,7 +3486,7 @@ document.addEventListener('click', e => {
       paint(true); break;
     }
     case 'reset-confirm': if (!actionAllowed('settings')) { permDenied('settings'); break; }
-      confirmModal('Namuna ma’lumotlarni tiklash?', 'Namunaviy topshiriq, baho va a’zolar o‘chib, boshlang‘ich holat qaytadi. HAQIQIY akkauntlar saqlab qolinadi. Bu amalni qaytarib bo‘lmaydi.', 'reset-do', '', true); break;
+      confirmModal('Barcha ma’lumotni o‘chirish?', 'Talabalar, jamoalar, vazifalar, baholar va akkauntlar butunlay o‘chadi — platforma noldan boshlanadi va Founder akkauntini qaytadan yaratasiz. Avval zaxira nusxa olishni tavsiya qilamiz. Bu amalni qaytarib bo‘lmaydi.', 'reset-do', '', true); break;
     case 'reset-do': resetAll(); break;
     case 'install': {
       const ev = UI.installEvt;
@@ -3565,7 +3495,6 @@ document.addEventListener('click', e => {
       break;
     }
     case 'export-json': downloadState(); break;
-    if (!actionAllowed('settings')) { permDenied('settings'); break; }
     case 'export-my': exportMyCSV(); break;
     case 'lesson-edit': editLessonModal(id); break;
     case 'review-edit': reviewEditModal(t.dataset.sub); break;
@@ -3607,7 +3536,6 @@ document.addEventListener('click', e => {
       if (S.user === id) S.user = S.students[0].id;
       toast('warn', 'Talaba chiqarildi', stx.name); save(); closeModal(); paint(true); break;
     }
-    case 'noop': toast('info', 'Bu bo‘lim hozircha yopiq', 'Tez orada ochiladi.'); break;
     case 'locked': toast('warn', 'Dars yopiq', 'Oldingi modul vazifasi qabul qilingach ochiladi.'); break;
     case 'filter-s': UI.studentsFilter = t.dataset.f; paint(true); break;
     case 'close-modal': closeModal(); break;
@@ -3626,20 +3554,9 @@ document.addEventListener('click', e => {
        ['check', 'Birinchi kirish', 'Akkaunt yangi ochilgan bo‘lsa, tizim parolni o‘zingiz o‘rnatishni taklif qiladi.']
       ].map(x => '<div class="lrow"><div class="lead">' + ico(x[0]) + '</div><div><div class="small" style="font-weight:750">' + esc(x[1]) + '</div><div class="xs muted">' + esc(x[2]) + '</div></div></div>').join('') +
       '</div>', 'narrow'); break;
-    case 'switch': {
-      if (!meAcc() || !meAcc().demo) { toast('warn', 'Ruxsat yo‘q', 'Rolni almashtirish faqat namuna rejimida ishlaydi.'); break; }
-      const n = isAdmin() ? 'student' : 'admin';
-      S.role = n; UI.route = n === 'admin' ? 'admin' : 'home'; UI.module = null;
-      const dAcc = accounts().find(a => a.demo && a.role === n);
-      if (dAcc) { S.session = { acc: dAcc.id, at: Date.now() }; if (dAcc.studentId) S.user = dAcc.studentId; }
-      save(); paint();
-      toast('info', n === 'admin' ? 'Admin rejimi' : 'Student rejimi', 'Rol almashtirildi.');
-      break;
-    }
     case 'reset': resetAll(); break;
     case 'notifs': notifModal(); paint(true); break;
     case 'pick-role': UI.authRole = t.dataset.r; paint(); break;
-    case 'quick': login(t.dataset.r, t.dataset.s); break;
     case 'quest': {
       const q = ensureQuests(st());
       if (q.done.includes(id)) { toast('info', 'Bajarilgan', 'Bu topshiriq bugun allaqachon bajarildi.'); break; }
@@ -3771,14 +3688,10 @@ document.addEventListener('click', e => {
       break;
     }
     case 'new-task': createTaskModal(); break;
-    if (!actionAllowed('tasks')) { permDenied('tasks'); break; }
     case 'new-lesson': createLessonModal(); break;
-    if (!actionAllowed('content')) { permDenied('content'); break; }
     case 'new-lesson-mod': createLessonModal(t.dataset.id); break;
     case 'new-module': createModuleModal(); break;
-    if (!actionAllowed('content')) { permDenied('content'); break; }
     case 'new-student': addStudentModal(); break;
-    if (!actionAllowed('students')) { permDenied('students'); break; }
     case 'admin-edit': adminFormModal(id); break;
     case 'admin-block': {
       const a2 = accById(id);
@@ -3800,13 +3713,10 @@ document.addEventListener('click', e => {
       break;
     }
     case 'login-card': loginCardModal(id); break;
-    case 'sample-accounts': sampleModal(); break;
     case 'perm-ask': toast('ok', 'So‘rov yuborildi', 'Founderga «' + ((navDefs[id] || {}).l || id) + '» bo‘limi uchun so‘rov yozildi.'); break;
     case 'pass-change': passChangeModal(); break;
-    case 'quick-acc': { const a4 = accById(id); if (a4) { finishLogin(a4, true); toast('info', 'Namuna: ' + (ADMIN_ROLES[a4.adminRole] || { l: 'talaba' }).l, a4.name + ' • @' + a4.nick); } break; }
     case 'pass-reset': {
-      if (!actionAllowed('students')) { permDenied('students'); break; }
-      const a5 = accById(id);
+        const a5 = accById(id);
       if (!a5) break;
       passReset(id); paint(true); loginCardModal(id);
       toast('ok', 'Parol tiklandi', a5.name + ' keyingi kirishda yangi parol o‘rnatadi.');
@@ -3868,7 +3778,6 @@ document.addEventListener('click', e => {
       break;
     }
     case 'export': exportCSV(); break;
-    if (!actionAllowed('stats')) { permDenied('stats'); break; }
     default: break;
   }
 });
@@ -3904,6 +3813,16 @@ document.addEventListener('submit', e => {
     toast('ok', 'Parol yangilandi', 'Keyingi kirishda yangi parolni ishlatasiz.');
     return;
   }
+  if (kind === 'setup-founder') {
+    const p1 = String(fd.get('p1') || ''), p2 = String(fd.get('p2') || '');
+    if (p1 !== p2) { UI.authErr = 'Parollar bir-biriga mos kelmadi. Qayta yozing.'; paint(true); return; }
+    const r = createFounderAccount({ name: fd.get('name'), email: fd.get('email'), pass: p1 });
+    if (r.err) { UI.authErr = r.msg || 'Xatolik yuz berdi.'; paint(true); return; }
+    UI.authErr = '';
+    finishLogin(r.acc);
+    toast('ok', 'Founder akkaunti yaratildi', 'Xush kelibsiz, ' + r.acc.name.split(' ')[0] + '! Birinchi qadam — talaba qo‘shish.');
+    return;
+  }
   if (kind === 'first-pass') {
     const acc = accById(f.dataset.acc);
     const p1 = String(fd.get('p1') || ''), p2 = String(fd.get('p2') || '');
@@ -3915,10 +3834,9 @@ document.addEventListener('submit', e => {
     toast('ok', 'Parol o‘rnatildi', 'Keyingi kirishlarda shu paroldan foydalanasiz.');
     return;
   }
-  if (kind === 'login') { login(UI.authRole, fd.get('who') || S.user); return; }
   if (kind === 'msg') {
-    toast('ok', 'Xabar yuborildi', 'Demo rejim: xabar yuborilgan deb belgilandi.'); closeModal();
-    S.activity.unshift({ who: isAdmin() ? 'Bekzod Aliyev' : me().name, what: 'xabar yubordi', at: 'hozir' }); save(); return;
+    toast('ok', 'Xabar yuborildi', 'Xabar qabul qilindi va tarixda saqlandi.'); closeModal();
+    S.activity.unshift({ who: isAdmin() ? (meAcc() ? meAcc().name : 'Admin') : me().name, what: 'xabar yubordi', at: 'hozir' }); save(); return;
   }
   if (kind === 'profile') {
     const s0 = me();
@@ -3940,7 +3858,7 @@ document.addEventListener('submit', e => {
       toast('ok', 'Topshiriq yuborildi', 'Holat: tekshirilmoqda. +40 XP');
       closeModal(); save(); paint(true);
     };
-    /* 900 KB'gacha fayl to‘g‘ridan-to‘g‘ri saqlanadi (demo rejim) */
+    /* 900 KB'gacha fayl to‘g‘ridan-to‘g‘ri brauzer xotirasida saqlanadi */
     if (fl && fl.size <= 900 * 1024) {
       const r = new FileReader();
       r.onload = () => finish(r.result);
@@ -3974,12 +3892,12 @@ document.addEventListener('submit', e => {
     const p = get(S.submissions, f.dataset.sub);
     const wasAccepted = p.status === 'accepted';
     p.score = Math.max(0, Math.min(100, parseInt(fd.get('score'), 10) || 0));
-    p.status = fd.get('status'); p.fb = fd.get('fb') || 'Ko‘rib chiqildi.'; p.rev = isAdmin() ? 'Bekzod Aliyev (mentor)' : me().name;
+    p.status = fd.get('status'); p.fb = fd.get('fb') || 'Ko‘rib chiqildi.'; p.rev = isAdmin() ? ((meAcc() ? meAcc().name : 'Admin') + ' (mentor)') : me().name;
     const s0 = get(S.students, p.st);
     pushNotif(p.st, 'Vazifa baholandi', taskOf(p.task).title + ' — ' + p.score + '/100. Izohni o‘qing.', 'star');
     if (p.status === 'accepted' && !wasAccepted) { s0.xp += 60; toast('ok', 'Qabul qilindi', s0.name + 'ga +60 XP va izoh yuborildi.'); }
     else toast('warn', 'Qayta ishlashga yuborildi', s0.name + 'ga izoh bilan qaytarildi.');
-    S.activity.unshift({ who: 'Bekzod Aliyev', what: '“' + taskOf(p.task).title + '”ni baholadi (' + p.score + ')', at: 'hozir' });
+    S.activity.unshift({ who: (meAcc() ? meAcc().name : 'Admin'), what: '“' + taskOf(p.task).title + '”ni baholadi (' + p.score + ')', at: 'hozir' });
     closeModal(); save(); paint(true); return;
   }
   if (kind === 'new-task') {
@@ -3988,7 +3906,7 @@ document.addEventListener('submit', e => {
     const to = fd.get('to');
     if (to === 'all') S.students.forEach(s => pushNotif(s.id, 'Yangi vazifa', t2.title + ' • deadline ' + fmtFull(t2.dl), 'task'));
     else { const g = groupOf(to); if (g) g.members.forEach(sid => pushNotif(sid, 'Jamoa vazifasi', t2.title + ' • ' + g.name, 'task')); g.dl[t2.id] = t2.dl; }
-    S.activity.unshift({ who: 'Bekzod Aliyev', what: 'yangi vazifa berdi: ' + t2.title, at: 'hozir' });
+    S.activity.unshift({ who: (meAcc() ? meAcc().name : 'Admin'), what: 'yangi vazifa berdi: ' + t2.title, at: 'hozir' });
     toast('ok', 'Vazifa yuborildi', t2.title + ' • deadline ' + fmtFull(t2.dl)); closeModal(); save(); paint(true); return;
   }
   if (kind === 'new-lesson') {

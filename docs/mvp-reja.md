@@ -75,7 +75,7 @@ Rejani boshlash uchun 4 ta savolga javob kerak (keyingi xabarda so'rayman):
 
 1. **Baza:** Supabase (tavsiya) / Cloudflare D1 / hozircha lokal.
 2. **Kirish usuli:** email+parol / telefon+parol / Telegram kod.
-3. **Hozirgi demo ma'lumotlar** (18 talaba, 6 jamoa) taqdiri.
+3. ~~Hozirgi demo ma'lumotlar taqdiri~~ → **hal qilindi (v2.0.0): namuna ma'lumot butunlay o'chirildi.**
 4. **MVP qamrovi:** asosiy / +Telegram eslatmalar / +to'liq Telegram bot.
 
 > Savollarga javob bergach, 1-bosqichdan darhol boshlaymiz. Real ma'lumotlar jadvali (talaba ismlari, telefonlari, jamoalar)
@@ -89,7 +89,7 @@ Rejani boshlash uchun 4 ta savolga javob kerak (keyingi xabarda so'rayman):
 |---|---|---|
 | Ma'lumotlar bazasi | **Hozircha lokal** (brauzer xotirasi) | Login tizimi shunday quriladiki, keyin bazaga o'tilganda qayta yozilmaydi. Baza kalitlari tayyor bo'lsa — 15 daqiqada ulanadi. |
 | Kirish usuli | **HEMIS ID + unikal nick** | Talaba bizga HEMIS ID topshiradi → biz bazaga kiritamiz → har bir HEMIS ID uchun **bitta alohida nick** beriladi (21-school uslubida). Bitta HEMIS ID = bitta foydalanuvchi. |
-| Demo ma'lumotlar | **Real ma'lumot kelguncha qolsin** | Siz jadvalni berganingizda ustiga real ma'lumot qo'shiladi, namunalar keyin o'chiriladi. |
+| Namuna ma'lumotlar | **Butunlay olib tashlandi (v2.0.0)** | Platforma bo'sh boshlanadi: birinchi ochilishda **Founder akkaunti** yaratiladi. Namuna ma'lumot faqat `tools/tests/fixtures.js` ichida (test uchun). |
 | MVP qamrovi | **Asosiy** | Baza + login + talaba kabineti + admin panel + fayl yuklash + xavfsizlik. |
 
 ### Muhim eslatma (lokal rejim)
@@ -108,14 +108,14 @@ o'tish **15 daqiqalik ish** (sxema va login tizimi shunga tayyor quriladi).
 
 ## 8. Real ma'lumotlarni qabul qilish tartibi (tayyor)
 
-Namunalar hozircha turadi (`demo: true` belgisi bilan). Siz to'liq bazani berganingizda quyidagi tartibda almashtiraman:
+Platformada namuna ma'lumot **yo'q** (v2.0.0 da butunlay olib tashlandi). Siz to'liq bazani berganingizda quyidagi tartibda yuklaymiz:
 
 | # | Qadam | Kim | Vaqt |
 |---|---|---|---|
 | 1 | Ma'lumot faylini yuborasiz (Excel / CSV / Google Sheet) | Siz | — |
 | 2 | `node tools/import-talabalar.js <fayl> --write` — tekshiruv + nick generatsiyasi | Men | 2 daq |
 | 3 | Hisobotdagi xatolarni tuzatamiz (12 xona bo'lmagan HEMIS, takrorlar, bo'sh ism) | Birga | 5 daq |
-| 4 | Namuna talabalar/akkauntlar o'chiriladi, real ma'lumot seed'ga joylanadi | Men | 20 daq |
+| 4 | Real ma'lumot bazaga joylanadi (`--write`), har biriga nick + kirish kartochkasi | Men | 20 daq |
 | 5 | Jamoalar va mentorlar haqiqiy ro'yxatga moslanadi | Men | 10 daq |
 | 6 | Har talaba uchun **Kirish kartochkasi** (nick + HEMIS) tayyorlanadi | Men | 5 daq |
 | 7 | Testlar (261 ta) + qayta deploy + jonli tekshiruv | Men | 15 daq |
@@ -139,5 +139,6 @@ Namunalar hozircha turadi (`demo: true` belgisi bilan). Siz to'liq bazani bergan
 - Har talabaga ilovadagi bir xil so'z ro'yxatidan **unikal nick** beriladi
 - `--write` bilan `data/talabalar.json` yoziladi (keyingi qadamga tayyor)
 
-**Adminlar (7 kishi) bo'yicha ham shu tartib:** ism + email + rol → men ularni kiritaman, har biriga kirish kartochkasi tayyorlanadi.
-Hozirgi 7 ta namuna admin (`bekzod`, `malika`, ...) real ro'yxat kelganda almashtiriladi.
+**Adminlar bo'yicha ham shu tartib:** ism + email + rol (7 rol mavjud: founder, bosh mentor, mentor, kontent menejer, kurator va h.k.)
+→ platformada **Adminlar → Admin qo'shish** orqali kiritamiz, har biriga kirish kartochkasi va ruxsatlar to'plami beriladi.
+Hozir faqat siz yaratgan Founder akkaunti mavjud.

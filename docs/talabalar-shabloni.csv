@@ -1,4 +1,7 @@
 ism_familiya,hemis_id,telefon,jamoa,telegram,maqsad
-NAMUNA: Dilshod Rahimov,123456789012,+998901112233,Nova,@dilshod_r,SaaS loyihani ishga tushirish
-NAMUNA: Aziza Karimova,123456789013,+998901112234,Nova,@aziza_k,Frontend dasturchi bo'lish
-NAMUNA: Jasur Toshmatov,123456789014,+998901112235,Orbit,@jasur_t,Startap asoschisi bo'lish
+# Har bir talaba uchun bitta qator. NAMUNA qatorlar olib tashlangan (v2.0.0) — haqiqiy ro'yxatni shu faylga yozing.
+# Majburiy: ism_familiya (kamida 3 belgi), hemis_id (12 xona, takrorlanmasin).
+# Ixtiyoriy: telefon, jamoa (jamoa avtomatik yaratiladi), telegram, maqsad.
+#
+# Yuklash:  node tools/import-talabalar.js docs/talabalar-shabloni.csv            (sinov)
+#           node tools/import-talabalar.js docs/talabalar-shabloni.csv --write    (bazaga yozish)

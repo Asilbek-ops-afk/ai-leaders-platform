@@ -7,10 +7,11 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **310 ta tekshiruv, 0 xato** |
+| 🧪 **Testlar** | `npm test` → **349 ta tekshiruv, 0 xato** |
 | 🔐 **Kirish** | Talaba: **HEMIS ID yoki nick** + parol • Admin: email + parol |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
-| 📦 **Hajm** | Bitta `index.html` (~288 KB), tashqi kutubxonasiz |
+| 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
+| 📦 **Hajm** | Bitta `index.html` (~330 KB), tashqi kutubxonasiz |
 
 ---
 
@@ -24,7 +25,7 @@
 7. [Ishga tushirish va buyruqlar](#ishga-tushirish)
 8. [Testlar va skrinshotlar](#testlar)
 9. [Real bazaga o'tish (Supabase)](#real-bazaga-otish)
-10. [Demo ma'lumotlar](#demo-maʼlumotlar)
+10. [Birinchi ishga tushirish](#birinchi-ishga-tushirish)
 11. [Yo'l xaritasi](#yol-xaritasi)
 
 ---
@@ -144,8 +145,11 @@ ai-leaders/
 ├── tools/
 │   ├── make-assets.py         # ikon va OG rasmni generatsiya qiladi (Pillow)
 │   └── tests/
-│       ├── run.js             # 310 ta avtomatik test (jsdom)
-│       └── screens.js         # 28 ta skrinshot (playwright) → docs/screens/
+│       ├── run.js             # 349 ta avtomatik test (jsdom)
+│       ├── layout.js          # 119 joylashuv (overflow) tekshiruvi (playwright)
+│       ├── live.js            # 18 ta jonli sayt tekshiruvi
+│       ├── fixtures.js        # test uchun namuna ma'lumot (manba kodda YO'Q)
+│       └── screens.js         # 75 qadam / 65 skrinshot (playwright) → docs/screens/
 ├── docs/
 │   ├── ishga-tushirish-rejasi.md   # 30 kunlik klub ishga tushirish rejasi + metrikalar
 │   └── screens/                    # desktop + mobil skrinshotlar
@@ -170,7 +174,8 @@ git clone https://github.com/Asilbek-ops-afk/ai-leaders-platform.git
 cd ai-leaders-platform
 
 npm run build       # src → index.html + dist/
-npm test            # 310 ta avtomatik test (jsdom kerak: npm install)
+npm test            # 349 ta avtomatik test (jsdom kerak: npm install)
+npm run test:layout # 119 ta joylashuv tekshiruvi (playwright: npx playwright install chromium)
 npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
 npm run check       # sintaksis tekshiruvi
 
@@ -193,38 +198,39 @@ npm run deploy                       # build + wrangler pages deploy dist/
 Loyihada ikki darajali sifat nazorati bor:
 
 **1) `npm test` — funksional testlar (jsdom, haqiqiy DOM)**
-20 guruh, **310 ta tekshiruv**: kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
+21 guruh, **349 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
+kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
 vazifa topshirish → tekshirish → baholash zanjiri, modul qulfi, quiz, kunlik questlar,
 fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, eksport/zaxira,
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**61 ta skrinshot**: 15 desktop sahifa (3 tasi kirish ekrani), 6 mobil ko'rinish, 7 modal/light-tema holati va **10 noutbuk ko'rinishi**
+**65 ta skrinshot** (75 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi** va **v2.0.0 bo'sh platforma holatlari**
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 
 **3) `npm run test:layout` — joylashuv tekshiruvi (playwright)**
-7 o'lcham (390×844 → 1920×1080) × 14 sahifa: gorizontal toshish (overflow) bo'lmasligini o'lchaydi.
+7 o'lcham (390×844 → 1920×1080) × 17 sahifa (7 admin + 7 talaba + 3 bo'sh platforma): gorizontal toshish (overflow) bo'lmasligini o'lchaydi.
 Admin va talaba bo'limlari ketma-ket ochiladi, har biri uchun `document.scrollWidth` solishtiriladi.
 
 **4) `node tools/tests/live.js [url]` — jonli sayt tekshiruvi**
 18 ta tekshiruv: sahifa yuklanishi, brend, SEO/PWA teglari, manifest, service worker, rasm va sarlavha (header) sozlamalari.
 
 **5) `npm run test:remote` — jonli saytda to'liq funksional testlar**
-Xuddi `npm test` kabi 195 ta tekshiruv, lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
+Xuddi `npm test` kabi to'liq to'plam (349 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
 (`TEST_URL=<url> node tools/tests/run.js`). Deploydan keyin «haqiqatan shu versiya chiqdimi?» degan savolga javob beradi.
 
 ---
 
 ## Real bazaga o'tish
 
-Demo rejimda barcha ma'lumot brauzer xotirasida (`localStorage`, kalit `ai-leaders-platform-v1`) saqlanadi.
+Hozircha barcha ma'lumot brauzer xotirasida (`localStorage`, kalit `ai-leaders-platform-v1`) saqlanadi.
 Real ko'p foydalanuvchili ish uchun:
 
 1. **Supabase** loyihasi oching → SQL Editor → `schema/supabase.sql` ni to'liq ishga tushiring.
    Sxemada tayyor: **19 jadval**, 3 ta view (statistika, reyting, kechikkanlar), **RLS siyosatlari**
    (talaba faqat o'zini ko'radi, mentor hammasini), PL/pgSQL funksiyalar (`fn_complete_lesson`, `fn_module_unlocked`),
-   Storage siyosatlari va demo seed ma'lumot.
+   Storage siyosatlari va zaxira jadval to'ldirish yo'riqnomasi.
 2. `src/app-1-core.js` dagi **`loadState()`** va **`save()`** funksiyalarini Supabase chaqiruvlariga almashtiring —
    qolgan kod (butun UI) o'zgarishsiz qoladi, chunki butun holat bitta `S` obyektida.
 3. Fayllar uchun Supabase Storage (`submissions` bucket) ishlatilsin — hozir kichik fayllar dataURL sifatida saqlanadi.
@@ -232,22 +238,36 @@ Real ko'p foydalanuvchili ish uchun:
 
 ---
 
-## Demo ma'lumotlar
+## Birinchi ishga tushirish
 
-| Nima | Soni |
+Platformada **hech qanday namuna (demo) ma'lumot yo'q** — birinchi ochilganda maxsus ekran chiqadi
+va siz **Founder akkauntini** yaratasiz (ism, email, parol). Founder — platformaning to'liq huquqli egasi:
+talaba qo'shadi, jamoa tuzadi, vazifa beradi, adminlarni tayinlaydi.
+
+| Qadam | Nima qilinadi |
 |---|---|
-| Talabalar | 18 (5 jamoada + 3 jamoasiz) |
-| Mentorlar | 3 (AI / Product / Design) |
-| Modullar / darslar | 6 / 29 |
-| Vazifalar / topshiriqlar | 6 / 38 |
-| Jamoalar / loyihalar | 6 / 4 galereyada |
+| 1 | **Talaba qo'shish** — admin HEMIS ID (12 xona) kiritadi, tizim unikal nick beradi, kirish kartochkasi chiqadi |
+| 2 | **Jamoa tuzish** — 3–4 talaba, mentor juftligi, jamoa devori |
+| 3 | **Vazifa + deadline** — modulga bog'lanadi, talabalar topshiradi, admin/mentor baholaydi |
+| 4 | **Admin va mentor qo'shish** — har biriga alohida rol va ruxsat beriladi |
 
-Demo sanalari **bugunga nisbatan siljitilgan** — ya'ni sayt har doim "tirik" ko'rinadi:
-yaqin deadline'lar, kechikkanlar va haftalik reyting doim mavjud.
-Demoni tiklash: yon paneldagi ↻ tugmasi yoki `localStorage.removeItem('ai-leaders-platform-v1')`.
+**Real talabalar ro'yxatini ommaviy yuklash** (CSV: ism, HEMIS ID, telefon, jamoa, telegram, maqsad):
 
-**Demo hisoblar:** AUTH ekranida "Talaba" yoki "Admin" rolini tanlang (parol talab qilinmaydi).
-Tezkirish tugmalari: Dilshod (student), Jasur (faol student), Bekzod (admin).
+```bash
+node tools/import-talabalar.js docs/talabalar-shabloni.csv          # sinov (yozmaydi)
+node tools/import-talabalar.js docs/talabalar-shabloni.csv --write   # bazaga yozadi
+```
+
+Avval platformada Founder akkaunti bo'lishi kerak (`tools/import-talabalar.js` mavjud holatni
+`localStorage` zaxirasidan oladi yoki brauzerdan eksport qilingan JSON bilan ishlaydi).
+
+**Namuna ma'lumot faqat testlarda:** `tools/tests/fixtures.js` (18 talaba, 7 admin, 6 jamoa,
+topshiriqlar, deadline'lar). U **manba kodga (`src/`) kirmaydi** — `npm test` ichidagi statik qo'riqchi
+buni har safar tekshiradi (`21. Statik qo'riqchi` guruhi).
+
+**Eski versiyadan yangilanish:** ilgari ochilgan brauzerlarda namuna ma'lumot bo'lsa, sayt birinchi
+yuklanishida ular **avtomatik o'chiriladi** (haqiqiy akkauntlar va ularning profillari saqlanadi),
+keyin Founder ekrani chiqadi.
 
 ---
 
@@ -266,4 +286,4 @@ Tezkirish tugmalari: Dilshod (student), Jasur (faol student), Bekzod (admin).
 
 ---
 
-© 2026 **AI Leaders Startup Club** — Toshkent. Demo loyiha; brend, dizayn va kod ushbu klub uchun yaratilgan.
+© 2026 **AI Leaders Startup Club** — Toshkent. Brend, dizayn va kod ushbu klub uchun yaratilgan.

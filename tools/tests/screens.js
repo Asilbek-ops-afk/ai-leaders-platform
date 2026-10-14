@@ -4,6 +4,23 @@ const path = require('path'), fs = require('fs');
 const OUT = path.join(__dirname, '..', '..', 'docs', 'screens');
 fs.mkdirSync(OUT, { recursive: true });
 const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
+const FIX = require('./fixtures.js');
+/* v2.0.0: haqiqiy platforma bo'sh boshlanadi — namuna ma'lumot faqat shu yerda (fixtura) */
+function founderState() {
+  const st = FIX.emptyState();
+  st.accounts = [{ id: 'acc-founder', role: 'admin', adminRole: 'founder', perms: ['__all'], nick: 'asilbek',
+    name: 'Asilbek Yo‘ldoshev', email: 'founder@aileaders.uz', phone: null, hemisId: null, pass: 'fixture',
+    mustSetPass: false, status: 'active', demo: false, created: '2026-10-14', lastLogin: Date.now() }];
+  st.session = { acc: 'acc-founder', at: Date.now() };
+  st.role = 'admin';
+  return st;
+}
+function stateFor(name) {
+  if (name === 'empty') return null;
+  if (name === 'founder') return founderState();
+  if (name === 'demo') return FIX.demoState();
+  return FIX.withSession(name);
+}
 
 (async () => {
   const browser = await chromium.launch();
@@ -57,7 +74,7 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
     { name: '55-mvp-admin-tahrirlash', vp: { width: 1920, height: 1080 }, steps: ['login-admin', 'admins-page', 'login-card'] },
     { name: '56-mvp-talaba-qoshish', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'go-students', 'add-student'] },
     /* --- v1.4.1: ruxsatlar, parol, namuna paneli --- */
-    { name: '57-mvp-namuna-panel', vp: { width: 1920, height: 1080 }, steps: ['sample-panel'] },
+    { name: '57-v2-birinchi-sozlash-1920', vp: { width: 1920, height: 1080 }, steps: [], data: 'empty' },
     { name: '58-mvp-qulflangan-menyu', vp: { width: 1920, height: 1080 }, steps: ['login-mentor', 'go-adminTasks'] },
     { name: '59-mvp-ruxsat-sahifasi', vp: { width: 1920, height: 1080 }, steps: ['login-mentor', 'go-stats'] },
     { name: '60-mvp-parol-almashtirish', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'pass-modal'] },
@@ -65,26 +82,36 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
     { name: '62-mvp-talaba-kirish-malumoti', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'go-students', 'student-profile'] },
     /* --- v1.4.1: foydalanuvchi noutbuk/planshet o'lchamlari --- */
     { name: '63-mvp-1568-qulflar', vp: { width: 1568, height: 768 }, steps: ['login-mentor', 'go-adminTasks'] },
-    { name: '64-mvp-1568-namuna-panel', vp: { width: 1568, height: 768 }, steps: ['sample-panel'] },
+    { name: '64-v2-birinchi-sozlash-1568', vp: { width: 1568, height: 768 }, steps: [], data: 'empty' },
     { name: '65-mvp-1440-ruxsat', vp: { width: 1440, height: 900 }, steps: ['login-mentor', 'go-stats'] },
     { name: '66-mvp-1366-qulflar', vp: { width: 1366, height: 768 }, steps: ['login-mentor', 'go-adminTasks'] },
-    { name: '67-mvp-1024-namuna-panel', vp: { width: 1024, height: 800 }, steps: ['sample-panel'] },
+    { name: '67-v2-birinchi-sozlash-1024', vp: { width: 1024, height: 800 }, steps: [], data: 'empty' },
     { name: '68-mvp-1568-parol', vp: { width: 1568, height: 768 }, steps: ['login-admin', 'pass-modal'] },
-    { name: '69-mvp-light-namuna', vp: { width: 1440, height: 900 }, steps: ['login-admin', 'theme', 'pal-namuna'] },
-    { name: '70-mvp-light-qulflar', vp: { width: 1440, height: 900 }, steps: ['mentor-light-locked'] },
-    { name: '71-mvp-light-talaba-kirish', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'theme', 'go-students', 'student-profile'] }
+    { name: '69-v2-light-bosh-panel', vp: { width: 1440, height: 900 }, steps: ['login-admin', 'theme', 'go-admin'] },
+    { name: '70-v2-light-qulflar', vp: { width: 1440, height: 900 }, steps: ['login-mentor', 'theme', 'go-stats'] },
+    { name: '71-mvp-light-talaba-kirish', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'theme', 'go-students', 'student-profile'] },
+    /* --- v2.0.0: namuna ma'lumotlar olib tashlandi — bo'sh platforma holatlari --- */
+    { name: '72-v2-bosh-dashboard-1568', vp: { width: 1568, height: 768 }, steps: [], data: 'founder' },
+    { name: '73-v2-bosh-talabalar-1440', vp: { width: 1440, height: 1000 }, steps: ['go-students'], data: 'founder' },
+    { name: '74-v2-bosh-dashboard-mobil', vp: { width: 390, height: 844 }, steps: [], mobile: true, data: 'founder' },
+    { name: '75-v2-bosh-statistika-1568', vp: { width: 1568, height: 768 }, steps: ['go-stats'], data: 'founder' }
   ];
   const page = await browser.newPage();
   const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
   for (const s of shots) {
     if (ONLY && !ONLY.includes(s.name)) continue;
     await page.setViewportSize(s.vp);
+    const seed = s.data || (s.steps.includes('login-mentor') ? 'a3' : s.steps.includes('login-admin') ? 'a1' : s.steps.includes('login-student') ? 's1' : 'demo');
+    const state = stateFor(seed);
     await page.goto(URL, { waitUntil: 'load' });
-    await page.evaluate(() => { localStorage.clear(); location.reload(); });
-    await page.waitForTimeout(250);
+    await page.evaluate(st => {
+      localStorage.clear();
+      if (st) localStorage.setItem('ai-leaders-platform-v1', JSON.stringify(st));
+      location.reload();
+    }, state);
+    await page.waitForTimeout(320);
     await page.evaluate(t => {
-      if (t === 'login-student') document.querySelector('[data-act="quick"][data-s="s1"]').click();
-      else if (t === 'login-admin') document.querySelector('[data-act="quick"][data-r="admin"]').click();
+      if (t === 'login-student' || t === 'login-admin' || t === 'login-mentor') { /* sessiya fixturadan */ }
       else if (t.startsWith('go-')) document.querySelector('[data-act="go"][data-route="' + t.slice(3) + '"]')?.click();
       else if (t === 'modal-submit') document.querySelector('[data-act="submit-open"][data-id="t4"]')?.click();
       else if (t === 'modal-cert') {
@@ -108,23 +135,6 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
           if (f) { f.querySelector('input[name="login"]').value = 'falcon'; f.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); }
         }, 120);
       }
-      else if (t === 'admin-login-form') document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click();
-      else if (t === 'sample-panel') setTimeout(() => document.querySelector('[data-act="sample-accounts"]')?.click(), 120);
-      else if (t === 'login-mentor') {
-        setTimeout(() => { document.querySelector('[data-act="sample-accounts"]')?.click(); }, 100);
-        setTimeout(() => document.querySelector('.acc-row[data-id="acc-a3"]')?.click(), 320);
-      }
-      else if (t === 'pass-modal') setTimeout(() => document.querySelector('[data-act="pass-change"]')?.click(), 150);
-        else if (t === 'mentor-light-locked') {
-    document.querySelector('[data-act="sample-accounts"]')?.click();
-    setTimeout(() => document.querySelector('.acc-row[data-id="acc-a3"]')?.click(), 140);
-    setTimeout(() => document.querySelector('[data-act="theme"]')?.click(), 300);
-    setTimeout(() => document.querySelector('[data-act="go"][data-route="stats"]')?.click(), 430);
-  }
-  else if (t === 'pal-namuna') {
-          document.querySelector('[data-act="palette"]')?.click();
-          setTimeout(() => { const it = [...document.querySelectorAll('.pal-item')].find(x => x.textContent.includes('Namuna akkauntlar')); if (it) it.click(); }, 240);
-      }
       else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
       else if (t === 'palette-q') {
         document.querySelector('[data-act="palette"]')?.click();
@@ -143,23 +153,6 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
         else if (t === 'student-profile') document.querySelector('[data-act="student-open"]')?.click();
         else if (t.startsWith('module-')) document.querySelector('[data-act="module-open"][data-id="' + t.slice(7) + '"]')?.click();
         else if (t.startsWith('lesson-')) document.querySelector('[data-act="lesson-open"][data-id="' + t.slice(7) + '"]')?.click();
-        else if (t === 'login-nick') document.querySelector('[data-act="pick-role"][data-r="student"]')?.click();
-        else if (t === 'admin-login-form') document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click();
-        else if (t === 'admins-page') setTimeout(() => document.querySelector('[data-act="go"][data-route="adminAdmins"]')?.click(), 100);
-        else if (t === 'login-card') setTimeout(() => document.querySelector('[data-act="admin-edit"][data-id="acc-a2"]')?.click(), 300);
-        else if (t === 'add-student') setTimeout(() => document.querySelector('[data-act="new-student"]')?.click(), 120);
-        else if (t === 'sample-panel') setTimeout(() => document.querySelector('[data-act="sample-accounts"]')?.click(), 120);
-        else if (t === 'pass-modal') setTimeout(() => document.querySelector('[data-act="pass-change"]')?.click(), 150);
-        else if (t === 'mentor-light-locked') {
-    document.querySelector('[data-act="sample-accounts"]')?.click();
-    setTimeout(() => document.querySelector('.acc-row[data-id="acc-a3"]')?.click(), 140);
-    setTimeout(() => document.querySelector('[data-act="theme"]')?.click(), 300);
-    setTimeout(() => document.querySelector('[data-act="go"][data-route="stats"]')?.click(), 430);
-  }
-  else if (t === 'pal-namuna') {
-          document.querySelector('[data-act="palette"]')?.click();
-          setTimeout(() => { const it = [...document.querySelectorAll('.pal-item')].find(x => x.textContent.includes('Namuna akkauntlar')); if (it) it.click(); }, 240);
-      }
         else if (t === 'student-profile') setTimeout(() => document.querySelector('[data-act="student-open"]')?.click(), 200);
         else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
         else if (t === 'palette-q') {

@@ -1,6 +1,6 @@
 {
   "name": "ai-leaders-platform",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "description": "AI Leaders Startup Club — MVP: HEMIS ID + unikal nick bilan kirish, talaba va admin kabinetlari, 6 modul, deadline-jamoa-reyting tizimi",
   "private": true,
   "scripts": {
