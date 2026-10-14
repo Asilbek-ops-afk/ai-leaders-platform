@@ -157,7 +157,7 @@ function vAdmin() {
     kpi('alert', late.length, 'Kechikkanlar', 'Deadline o‘tgan', 'r') +
     kpi('star', k.avg, 'O‘rtacha baho', k.subs + ' topshiriq', 'a') + '</div>';
 
-  h += '<div class="grid" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)">' +
+  h += '<div class="grid split-15">' +
     '<div class="card stretch"><div class="card-h"><h2 class="h2">' + ico('trend') + 'Haftalik topshirish faolligi</h2>' +
     '<span class="tag c">' + ico('bolt', 'sm') + 'O‘rtacha ' + Math.round(S.weekly.reduce((a, w) => a + w.v, 0) / 7) + '/kun</span></div>' +
     '<div class="chart">' + S.weekly.map((w, i) => '<div class="b"><div class="fill" style="height:' + Math.max(8, Math.round(w.v / maxv * 100)) + '%;animation-delay:' + (i * 50) + 'ms"></div><span>' + w.l + '</span></div>').join('') + '</div>' +
@@ -410,7 +410,7 @@ function vAdminDeadlines() {
     kpi('alert', late.length, 'Kechikkan topshiriq', late.length ? 'Eslatma yuborish kerak' : 'Hammasi joyida', 'r') +
     kpi('check-c', onTimePct() + '%', 'O‘z vaqtida', 'Topshirish intizomi', 'a') + '</div>';
 
-  h += '<div class="grid" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">' +
+  h += '<div class="grid split-13">' +
     '<div class="card"><div class="card-h"><div class="row" style="gap:8px">' +
     '<button class="btn-icon" style="width:36px;height:36px" data-act="cal-prev">' + ico('left', 'sm') + '</button>' +
     '<h2 class="h2" style="min-width:150px;text-align:center">' + esc(cal.label) + '</h2>' +

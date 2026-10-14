@@ -14,7 +14,8 @@
     "test:live": "node tools/tests/live.js",
     "test:screens": "node tools/tests/screens.js",
     "test:remote": "TEST_URL=https://ai-leaders-platform.pages.dev node tools/tests/run.js",
-    "import": "node tools/import-talabalar.js"
+    "import": "node tools/import-talabalar.js",
+    "test:layout": "node tools/tests/layout.js"
   },
   "author": "AI Leaders",
   "license": "UNLICENSED",

@@ -220,7 +220,7 @@ function vModule(mid) {
 
   if (lock) h += '<div class="card" style="border-color:rgba(255,180,58,.34)"><div class="row">' + ico('lock') + '<div>Bu modul hali yopiq. Avvalgi modulning vazifasi qabul qilinishi kerak.</div></div></div>';
 
-  h += '<div class="grid" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">' +
+  h += '<div class="grid split-16">' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('book') + 'Darslar ro‘yxati</h2>' +
     '<span class="small muted">' + mp.done + '/' + mp.total + '</span></div>' + bar(mp.pct) +
     '<div class="col" style="gap:4px;margin-top:12px">' + ls.map((l, i) => {
@@ -405,7 +405,7 @@ function vDeadlines() {
 
   if (!isCal) {
     h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('cal') + 'Haftalik lenta</h2><span class="small muted">' + fmtFull(today) + '</span></div>' +
-      '<div class="grid" style="grid-template-columns:repeat(7,minmax(0,1fr));gap:8px" id="week-strip">' + strip.map(dt => {
+      '<div class="grid strip7" id="week-strip">' + strip.map(dt => {
         const ds = isoDate(dt), items = map[ds] || [], isToday = ds === today, past = ds < today;
         return '<div class="card tight" style="min-height:150px;' + (isToday ? 'border-color:var(--brand-2);box-shadow:0 0 0 1px rgba(34,211,238,.35) inset;' : past ? 'opacity:.75;' : '') + '">' +
           '<div class="row between" style="margin-bottom:8px"><span class="xs muted" style="font-weight:800">' + UZ_D[(dt.getDay() + 6) % 7] + '</span>' +

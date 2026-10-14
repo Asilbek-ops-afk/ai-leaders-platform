@@ -203,10 +203,14 @@ sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'d
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 
-**3) `node tools/tests/live.js [url]` — jonli sayt tekshiruvi**
+**3) `npm run test:layout` — joylashuv tekshiruvi (playwright)**
+7 o'lcham (390×844 → 1920×1080) × 14 sahifa: gorizontal toshish (overflow) bo'lmasligini o'lchaydi.
+Admin va talaba bo'limlari ketma-ket ochiladi, har biri uchun `document.scrollWidth` solishtiriladi.
+
+**4) `node tools/tests/live.js [url]` — jonli sayt tekshiruvi**
 18 ta tekshiruv: sahifa yuklanishi, brend, SEO/PWA teglari, manifest, service worker, rasm va sarlavha (header) sozlamalari.
 
-**4) `npm run test:remote` — jonli saytda to'liq funksional testlar**
+**5) `npm run test:remote` — jonli saytda to'liq funksional testlar**
 Xuddi `npm test` kabi 195 ta tekshiruv, lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
 (`TEST_URL=<url> node tools/tests/run.js`). Deploydan keyin «haqiqatan shu versiya chiqdimi?» degan savolga javob beradi.
 

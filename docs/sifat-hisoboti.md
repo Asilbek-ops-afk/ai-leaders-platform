@@ -255,7 +255,20 @@ parolni o'zi almashtiradi, admin esa talabaning parolini tiklaydi, namuna va rea
 | 3 | **"Yaxshi kun, Bekzod" — boshqa admin kirganda ham founder ismi** | Sarlavha qotib yozilgan edi → endi sessiyadagi adminning ismi + **rol va huquqlar qatori** (masalan `Mentor • Huquqlar: Talabalar, Vazifalar`) |
 | 4 | **Namuna akkaunt bilan kirilganda namuna paneli ochiq qolardi** | `finishLogin()` modalni yopmasdi → endi har kirishda panellar yopiladi |
 
-### B. Nima qo'shildi
+### B. Joylashuv (layout) tekshiruvi — 7 o'lcham × 17 sahifa
+
+Maxsus vosita yozildi: `npm run test:layout` (`tools/tests/layout.js`, playwright) — **7 o'lchamda
+(390×844, 768×1024, 1024×800, 1366×768, 1568×768, 1440×900, 1920×1080) 14 sahifani** ochib,
+gorizontal toshishni (overflow) o'lchaydi. Topilgan va tuzatilgan 3 ta turdagi nuqson:
+
+| # | Muammo | Sabab va tuzatish |
+|---|---|---|
+| 5 | **Admin dashboardida KPI raqamlari yo'q** | `app-3-admin.js` da `kpi()` ikkinchi marta e'lon qilinib, asosiy funksiyani bosib ketgan — takroriy e'lon o'chirildi, **statik test** qo'shildi (bunday xato qaytmasin) |
+| 6 | **Foydalanuvchi noutbuklarida (1366–1568) talaba bosh sahifasi yon ustuni 15–19 px tashqariga chiqardi** | Yon ustun kartalari `min-width` bilan qisqarmasdi → `.card{min-width:0}`, `.card>*{min-width:0}`, `.card-h{flex-wrap:wrap}` va `.wide-split` uchun aniq `minmax(0,1fr)` ustun |
+| 7 | **Telefonda admin panel yuqori paneli 38 px toshardi** | Topbar'dagi «Sozlamalar» tugmasi mobil uchun yashirilmagan + qidiruv maydoni `min-width:180px` bilan qotib qolgan → `.hide-sm` va ixcham mobil topbar |
+| 8 | **Telefonda «Haftalik lenta» 7 kun siqilib o'qilmas holga kelardi** | Inline uslub o'rniga `.strip7` klassi: telefonda yonma-yon skroll (har kun ≥86 px) |
+
+### C. Nima qo'shildi
 
 | # | Qism | Tafsilot |
 |---|---|---|
@@ -275,8 +288,9 @@ parolni o'zi almashtiradi, admin esa talabaning parolini tiklaydi, namuna va rea
 | Daraja | Natija |
 |---|---|
 | Funksional testlar | ✔ **310 ta, 0 xato** (20-guruh: ruxsatlar, parol, namuna paneli, reset — 49 yangi tekshiruv) |
+| Joylashuv testi | ✔ **`npm run test:layout` — 7 o'lcham × 14 sahifa, 98 tekshiruv, 0 toshish** |
 | Statik himoya | ✔ Takroriy funksiya nomlarini topadigan test (shadowing xatosi qaytmasin) |
-| O'lchamlar | ✔ 1920×1080, 1568×768 (foydalanuvchi noutbuki), 1440×900, 1366×768, 1024×800, 390×844 |
+| O'lchamlar | ✔ 1920×1080, 1568×768 (foydalanuvchi noutbuki), 1440×900, 1366×768, 1024×800, 768×1024, 390×844 — qo'lda tekshiruv: 7 o'lcham × 17 sahifa, hammasi 0 toshish |
 | Rollar sinovi | ✔ Founder/mentor/kontent/kurator: ko'rinadigan bo'limlar, bloklangan amallar, qulflar |
 | Parol oqimi | ✔ Eski parol tekshiruvi, qisqa parol rad etilishi, mos kelmagan takror, tiklashdan keyin birinchi kirish |
 

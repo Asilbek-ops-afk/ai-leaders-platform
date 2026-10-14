@@ -134,6 +134,9 @@ a{color:inherit;text-decoration:none}
 .g3{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
 .g4{grid-template-columns:repeat(auto-fit,minmax(168px,1fr))}
 .g5{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.split-13{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.split-15{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.split-16{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
 .hide-sm{display:initial}
 .only-sm{display:none}
 .ellip{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -490,6 +493,8 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 }
 @media(max-width:980px){
   .app{grid-template-columns:minmax(0,1fr)}
+  /* dashboard juftliklari telefonda bir ustunga tushadi (inline uslub o'rniga klass) */
+  .split-13,.split-15,.split-16{grid-template-columns:minmax(0,1fr)}
   .sidebar{display:none}
   .topbar{position:sticky;padding:10px 13px}
   .topbar .mobile-brand{display:flex}
@@ -559,8 +564,12 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 }
 
 /* --- 3. Keng layout: asosiy ustun + yon ustun (rail) --- */
-.wide-split{display:grid;gap:14px}
+.wide-split{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
 .wide-main,.wide-rail{display:grid;gap:14px;min-width:0;align-content:start}
+/* karta ustun ichida hech qachon tashqariga chiqmasin */
+.card{min-width:0}
+.card>*{min-width:0}
+.card-h{flex-wrap:wrap;row-gap:8px}
 @media (min-width:1280px){
   .wide-split{grid-template-columns:minmax(0,1fr) 372px;align-items:start}
 }
@@ -674,6 +683,13 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 .totop{position:fixed;right:24px;bottom:24px;z-index:55;width:44px;height:44px;border-radius:14px;background:var(--panel);border:1px solid var(--line-2);color:var(--txt2);box-shadow:var(--sh-lift);display:none;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
 .totop.show{opacity:1;pointer-events:auto}
 .totop:hover{color:var(--txt);border-color:var(--brand-2)}
+@media(max-width:980px){
+  /* topbar telefonda bir qatorga sig‘adi: brend + ixcham qidiruv + 2 tugma */
+  .topbar{gap:7px}
+  .topbar .searchbar{min-width:0;flex:1 1 auto;padding:8px 12px}
+  .topbar .searchbar input{min-width:0;width:100%}
+  .topbar .mobile-brand{flex:0 0 auto}
+}
 @media (min-width:981px){ .totop{display:inline-flex} }
 
 /* --- 9. Noutbukda kursorni aniq ko‘rsatish --- */
@@ -706,6 +722,13 @@ a[target="_blank"]{word-break:break-word}
   .mback{position:static;background:#fff;padding:0;display:block}
   .mbox{max-width:none;box-shadow:none;border:0;padding:0}
   .cert{color:#0A1024;background:#fff;border-color:#0A1024}
+}
+/* ---------- haftalik lenta (7 kun) ---------- */
+.strip7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+@media(max-width:760px){
+  /* telefonda siqilib buzilmasin: yonma-yon skroll */
+  .strip7{grid-template-columns:repeat(7,minmax(86px,1fr));overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .strip7::-webkit-scrollbar{display:none}
 }
 </style><style>/*__CSS__*/</style>
 </head>
@@ -1346,7 +1369,7 @@ function topbar() {
     '<button class="btn-icon" data-act="notifs" aria-label="Bildirishnomalar">' + ico('bell', 'sm') + (un ? '<i class="dot"></i>' : '') + '</button>' +
     '<button class="btn-icon" data-act="theme" aria-label="Mavzu">' + ico(UI.theme === 'dark' ? 'sun' : 'moon', 'sm') + '</button>' +
     (UI.installEvt ? '<button class="btn-icon hide-sm" data-act="install" title="Ilovani o‘rnatish">' + ico('download', 'sm') + '</button>' : '') +
-    (isAdmin() ? '<button class="btn-icon" data-act="go-settings" title="Sozlamalar" aria-label="Sozlamalar">' + ico('settings', 'sm') + '</button>' : '') +
+    (isAdmin() ? '<button class="btn-icon hide-sm" data-act="go-settings" title="Sozlamalar" aria-label="Sozlamalar">' + ico('settings', 'sm') + '</button>' : '') +
     '<button class="btn-icon hide-sm" data-act="shortcuts" title="Klaviatura yorliqlari (?)" aria-label="Klaviatura yorliqlari">' + ico('help', 'sm') + '</button>' +
     ((meAcc() && meAcc().demo) ? '<button class="btn-icon hide-sm" data-act="switch" title="Namuna rejimi: rolni almashtirish">' + ico('refresh', 'sm') + '</button>' : '') +
     '</header>';
@@ -2110,7 +2133,7 @@ function vModule(mid) {
 
   if (lock) h += '<div class="card" style="border-color:rgba(255,180,58,.34)"><div class="row">' + ico('lock') + '<div>Bu modul hali yopiq. Avvalgi modulning vazifasi qabul qilinishi kerak.</div></div></div>';
 
-  h += '<div class="grid" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">' +
+  h += '<div class="grid split-16">' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('book') + 'Darslar ro‘yxati</h2>' +
     '<span class="small muted">' + mp.done + '/' + mp.total + '</span></div>' + bar(mp.pct) +
     '<div class="col" style="gap:4px;margin-top:12px">' + ls.map((l, i) => {
@@ -2295,7 +2318,7 @@ function vDeadlines() {
 
   if (!isCal) {
     h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('cal') + 'Haftalik lenta</h2><span class="small muted">' + fmtFull(today) + '</span></div>' +
-      '<div class="grid" style="grid-template-columns:repeat(7,minmax(0,1fr));gap:8px" id="week-strip">' + strip.map(dt => {
+      '<div class="grid strip7" id="week-strip">' + strip.map(dt => {
         const ds = isoDate(dt), items = map[ds] || [], isToday = ds === today, past = ds < today;
         return '<div class="card tight" style="min-height:150px;' + (isToday ? 'border-color:var(--brand-2);box-shadow:0 0 0 1px rgba(34,211,238,.35) inset;' : past ? 'opacity:.75;' : '') + '">' +
           '<div class="row between" style="margin-bottom:8px"><span class="xs muted" style="font-weight:800">' + UZ_D[(dt.getDay() + 6) % 7] + '</span>' +
@@ -2646,7 +2669,7 @@ function vAdmin() {
     kpi('alert', late.length, 'Kechikkanlar', 'Deadline o‘tgan', 'r') +
     kpi('star', k.avg, 'O‘rtacha baho', k.subs + ' topshiriq', 'a') + '</div>';
 
-  h += '<div class="grid" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)">' +
+  h += '<div class="grid split-15">' +
     '<div class="card stretch"><div class="card-h"><h2 class="h2">' + ico('trend') + 'Haftalik topshirish faolligi</h2>' +
     '<span class="tag c">' + ico('bolt', 'sm') + 'O‘rtacha ' + Math.round(S.weekly.reduce((a, w) => a + w.v, 0) / 7) + '/kun</span></div>' +
     '<div class="chart">' + S.weekly.map((w, i) => '<div class="b"><div class="fill" style="height:' + Math.max(8, Math.round(w.v / maxv * 100)) + '%;animation-delay:' + (i * 50) + 'ms"></div><span>' + w.l + '</span></div>').join('') + '</div>' +
@@ -2899,7 +2922,7 @@ function vAdminDeadlines() {
     kpi('alert', late.length, 'Kechikkan topshiriq', late.length ? 'Eslatma yuborish kerak' : 'Hammasi joyida', 'r') +
     kpi('check-c', onTimePct() + '%', 'O‘z vaqtida', 'Topshirish intizomi', 'a') + '</div>';
 
-  h += '<div class="grid" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">' +
+  h += '<div class="grid split-13">' +
     '<div class="card"><div class="card-h"><div class="row" style="gap:8px">' +
     '<button class="btn-icon" style="width:36px;height:36px" data-act="cal-prev">' + ico('left', 'sm') + '</button>' +
     '<h2 class="h2" style="min-width:150px;text-align:center">' + esc(cal.label) + '</h2>' +
