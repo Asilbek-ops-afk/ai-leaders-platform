@@ -103,3 +103,41 @@ o'tish **15 daqiqalik ish** (sxema va login tizimi shunga tayyor quriladi).
 3. Admin **"Kirish kartochkasi"** ni ko'radi: *Nick + parol* → chop etish / nusxalash / Telegramga yuborish.
 4. **Talaba kirishi**: Nick (yoki HEMIS ID) + parol. HEMIS ID tashqariga oshkor qilinmaydi — faqat baza ichida saqlanadi.
 5. Bir HEMIS ID ikkinchi marta kiritilsa — tizim ogohlantiradi (takror taqiqlanadi).
+
+---
+
+## 8. Real ma'lumotlarni qabul qilish tartibi (tayyor)
+
+Namunalar hozircha turadi (`demo: true` belgisi bilan). Siz to'liq bazani berganingizda quyidagi tartibda almashtiraman:
+
+| # | Qadam | Kim | Vaqt |
+|---|---|---|---|
+| 1 | Ma'lumot faylini yuborasiz (Excel / CSV / Google Sheet) | Siz | — |
+| 2 | `node tools/import-talabalar.js <fayl> --write` — tekshiruv + nick generatsiyasi | Men | 2 daq |
+| 3 | Hisobotdagi xatolarni tuzatamiz (12 xona bo'lmagan HEMIS, takrorlar, bo'sh ism) | Birga | 5 daq |
+| 4 | Namuna talabalar/akkauntlar o'chiriladi, real ma'lumot seed'ga joylanadi | Men | 20 daq |
+| 5 | Jamoalar va mentorlar haqiqiy ro'yxatga moslanadi | Men | 10 daq |
+| 6 | Har talaba uchun **Kirish kartochkasi** (nick + HEMIS) tayyorlanadi | Men | 5 daq |
+| 7 | Testlar (261 ta) + qayta deploy + jonli tekshiruv | Men | 15 daq |
+
+**Kerakli ustunlar (shablon: `docs/talabalar-shabloni.csv`):**
+
+| Ustun | Majburiy? | Izoh |
+|---|---|---|
+| `ism_familiya` | ✅ | To'liq ism |
+| `hemis_id` | ✅ | Aynan 12 xona raqam |
+| `telefon` | ➖ | Takrorlanmasa yaxshi |
+| `jamoa` | ➖ | Bo'sh qolsa «jamoasiz» |
+| `telegram` | ➖ | @username |
+| `maqsad` | ➖ | Nima uchun o'qiyapti |
+
+**Vosita imkoniyatlari** (`tools/import-talabalar.js`):
+- Ajratuvchi: `,` `;` yoki Tab — avtomatik aniqlanadi (Excel'dan saqlangan CSV ham ishlaydi)
+- Ustunlarning turli nomlarini taniydi (`ism`, `F.I.Sh`, `name`, `talaba`...)
+- Xatolar: 12 xona bo'lmagan HEMIS, takrorlangan HEMIS, bo'sh/qisqa ism → **import qilinmaydi**
+- Ogohlantirishlar: telefonsiz talaba, takrorlangan telefon, jamoasiz talaba
+- Har talabaga ilovadagi bir xil so'z ro'yxatidan **unikal nick** beriladi
+- `--write` bilan `data/talabalar.json` yoziladi (keyingi qadamga tayyor)
+
+**Adminlar (7 kishi) bo'yicha ham shu tartib:** ism + email + rol → men ularni kiritaman, har biriga kirish kartochkasi tayyorlanadi.
+Hozirgi 7 ta namuna admin (`bekzod`, `malika`, ...) real ro'yxat kelganda almashtiriladi.
