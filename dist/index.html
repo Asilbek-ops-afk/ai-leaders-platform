@@ -827,7 +827,7 @@ a[target="_blank"]{word-break:break-word}
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -964,6 +964,24 @@ function purgeDemoState(p) {
   base.meta.purgedAt = todayISO();
   return base;
 }
+/* Yetim ssilkalarni tozalash: jamoa a'zosi, do'stlar, topshiriqlar — hammasi mavjud
+   talabalarga bog'lanadi. Bu invariant butun interfeysda null-tekshiruvlarni yo'q qiladi. */
+function pruneOrphans(st0) {
+  const st = st0 || S;
+  const ids = new Set((st.students || []).map(x => x.id));
+  const gids = new Set((st.groups || []).map(g => g.id));
+  (st.groups || []).forEach(g => { g.members = (g.members || []).filter(id => ids.has(id)); });
+  (st.students || []).forEach(x => { if (x.group && !gids.has(x.group)) x.group = ''; });
+  ['friends', 'incoming', 'sent'].forEach(k => {
+    if (st[k]) Object.keys(st[k]).forEach(id => {
+      if (!ids.has(id)) { delete st[k][id]; return; }
+      st[k][id] = (st[k][id] || []).filter(f => ids.has(f));
+    });
+  });
+  if (Array.isArray(st.submissions)) st.submissions = st.submissions.filter(p => ids.has(p.st));
+  if (st.notifs) Object.keys(st.notifs).forEach(id => { if (!ids.has(id)) delete st.notifs[id]; });
+  return st;
+}
 function loadState() {
   try {
     const raw = localStorage.getItem(VKEY);
@@ -982,7 +1000,7 @@ function loadState() {
     if (!Array.isArray(p.accounts)) p.accounts = [];
     if (p.session && !p.accounts.some(a => a.id === p.session.acc)) p.session = null;
     if (!p.session) p.session = null;
-    return p;
+    return pruneOrphans(p);
   } catch (e) { return blankState(); }
 }
 function save() { try { localStorage.setItem(VKEY, JSON.stringify(S)); } catch (e) { } }
@@ -1030,6 +1048,14 @@ function weeklyData() {
   const base = Math.round(tot / 7);
   return DAY_L.map((l, i) => ({ l, v: base ? Math.round(base * (0.74 + i * 0.085)) : 0 }));
 }
+/* Oxirgi modul (yakuniy loyiha moduli) va uning vazifalari — id'lar qattiq yozilmaydi */
+const lastModuleId = () => (S.modules.length ? S.modules[S.modules.length - 1].id : null);
+const projTasks = () => S.tasks.filter(t => t.m === lastModuleId());
+/* Talaba yakuniy modulda qabul qilingan ish topshirganmi? */
+const hasDeployed = st => projTasks().some(t => { const p = subOf(st, t.id); return p && p.status === 'accepted'; });
+/* Talaba yakuniy modulda birorta ish topshirganmi? */
+const hasFinalWork = st => projTasks().some(t => !!subOf(st, t.id));
+
 /* Eng yuqori XP'li jamoa (bo'sh bo'lsa null) */
 const topGroup = () => (S.groups.length ? [...S.groups].sort((a, b) => b.xp - a.xp)[0] : null);
 /* Bo'sh holat kartasi: ikonka + sarlavha + matn + ixtiyoriy tugma */
@@ -1072,9 +1098,9 @@ function medal(st) {
 function myBadges(st) {
   const a = acceptedOf(st);
   const p2 = modulePct(st, 'm2');
-  const deployed = ['t4', 't5'].some(t => { const s = subOf(st, t); return s && s.status === 'accepted'; });
+  const deployed = hasDeployed(st);
   const m1 = modulePct(st, 'm1');
-  const own = { b1: m1.done >= 1, b2: p2.pct === 100, b3: a >= 3, b4: st.streak >= 7, b5: (S.walls[(myGroup(st) || {}).id] || []).some(w => w.who === st.id), b6: deployed, b7: a >= 5, b8: !!subOf(st, 't6') };
+  const own = { b1: m1.done >= 1, b2: p2.pct === 100, b3: a >= 3, b4: st.streak >= 7, b5: (S.walls[(myGroup(st) || {}).id] || []).some(w => w.who === st.id), b6: deployed, b7: a >= 5, b8: hasFinalWork(st) };
   return S.badges.map(b => ({ ...b, own: !!own[b.id] }));
 }
 function certsOf(st) {
@@ -1110,7 +1136,7 @@ function activityPct() { return S.students.length ? Math.round(activeCount() / S
 /* ---------- 5. UI holati ---------- */
 const UI = { route: 'home', authShow: false, authRole: 'student', authErr: '', firstPass: null, newCard: null, theme: 'dark', cal: 0, calMonthly: false,
   taskFilter: 'all', studentsFilter: 'all', friendTab: 'friends', search: '', reviewFilter: 'all',
-  module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 } };
+  module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 }, csvReport: null };
 
 function toast(kind, title, text) {
   const map = { ok: 'check-c', warn: 'alert', err: 'x', info: 'spark' };
@@ -1523,6 +1549,102 @@ function createFounderAccount(data) {
   accounts().push(acc); save();
   return { ok: true, acc };
 }
+/* ---------- 3b. Talaba yaratish (bitta joydan: forma ham, CSV import ham) ---------- */
+function addStudentRecord(d) {
+  const res = createStudentAccount(d);
+  if (res.err) return res;
+  const s0 = { id: uid('s'), name: String(d.name || '').trim(), tg: String(d.tg || '').trim() || '@talaba',
+    phone: String(d.phone || '').trim() || '+998', group: d.groupId || '',
+    xp: 0, wxp: 0, streak: 0, coins: 0, level: 'junior', act: true, score: 0, joined: todayISO(),
+    bio: d.bio || 'Yangi a’zo.', goal: String(d.goal || '').trim() || 'Birinchi loyihani chiqarish', done: [], last: 0 };
+  S.students.push(s0);
+  res.acc.studentId = s0.id; res.acc.groupId = s0.group || null;
+  if (s0.group) { const g = groupOf(s0.group); if (g) g.members.push(s0.id); }
+  S.friends[s0.id] = []; S.incoming[s0.id] = []; S.sent[s0.id] = [];
+  save();
+  return { ok: true, acc: res.acc, student: s0 };
+}
+/* ---------- 3c. CSV import: ustunlarni tanish + tekshirish + bazaga qo'shish ---------- */
+const CSV_ALIASES = {
+  name: ['ism', 'ism_familiya', 'fish', 'f.i.sh', 'f.i.o', 'fish', 'name', 'talaba', 'talaba f.i.sh', 'fullname'],
+  hemis: ['hemis', 'hemis_id', 'hemisid', 'hemis id', 'id'],
+  phone: ['telefon', 'tel', 'phone', 'raqam'],
+  group: ['jamoa', 'guruh', 'group', 'team'],
+  tg: ['telegram', 'tg', 'username'],
+  goal: ['maqsad', 'goal', 'maqsadi']
+};
+function csvDelim(line) { const c = [',', ';', '\t']; let best = ',', n = 0; c.forEach(x => { const k = line.split(x).length; if (k > n) { n = k; best = x; } }); return best; }
+function parseCSV(text) {
+  const clean = String(text || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+  const lines = clean.split('\n').filter(l => l.trim() !== '' && !l.trim().startsWith('#'));
+  if (!lines.length) return [];
+  const sep = csvDelim(lines[0]);
+  const rows = []; let cur = [], cell = '', q = false;
+  const pushCell = () => { cur.push(cell.trim()); cell = ''; };
+  for (const line of lines) {
+    q = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (q) { if (ch === '"' && line[i + 1] === '"') { cell += '"'; i++; } else if (ch === '"') q = false; else cell += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === sep) pushCell();
+      else cell += ch;
+    }
+    pushCell(); rows.push(cur); cur = [];
+  }
+  return rows;
+}
+function csvMapHeader(row) {
+  const map = {};
+  row.forEach((h, i) => {
+    const k = String(h || '').toLowerCase().replace(/["']/g, '').trim();
+    Object.keys(CSV_ALIASES).forEach(f => { if (map[f] === undefined && CSV_ALIASES[f].includes(k)) map[f] = i; });
+  });
+  return map;
+}
+/* CSV matnini tekshirib tayyor qatorlar + xato/ogohlantirishlar qaytaradi */
+function csvStudentsReport(text) {
+  const rows = parseCSV(text);
+  if (rows.length < 2) return { fatal: 'Faylda sarlavha va kamida bitta talaba qatori bo‘lishi kerak.' };
+  const map = csvMapHeader(rows[0]);
+  if (map.name === undefined || map.hemis === undefined) return { fatal: 'Majburiy ustunlar topilmadi: «ism_familiya» va «hemis_id». Shablon: docs/talabalar-shabloni.csv' };
+  const ok = [], errors = [], warns = [], seen = {}, seenPhone = {};
+  rows.slice(1).forEach((r, i) => {
+    const line = i + 2;
+    const g = f => (map[f] === undefined ? '' : String(r[map[f]] || '').trim());
+    const name = g('name'), hemis = digitsOnly(g('hemis')), phone = g('phone'), group = g('group');
+    if (name.length < 3) { errors.push(line + '-qator: ism juda qisqa («' + name + '»).'); return; }
+    if (!validHemis(hemis)) { errors.push(line + '-qator: HEMIS ID 12 xona emas («' + g('hemis') + '»).'); return; }
+    if (accByHemis(hemis)) { errors.push(line + '-qator: ' + name + ' — bu HEMIS ID band (' + accByHemis(hemis).nick + ').'); return; }
+    if (seen[hemis]) { errors.push(line + '-qator: ' + name + ' — faylda takrorlangan HEMIS ID.'); return; }
+    seen[hemis] = 1;
+    if (phone && (seenPhone[phone] || accounts().some(a => a.phone && a.phone === phone))) warns.push(line + '-qator: ' + name + ' — telefon boshqa talabada ham bor.');
+    if (phone) seenPhone[phone] = 1;
+    if (!phone) warns.push(line + '-qator: ' + name + ' — telefon yo‘q.');
+    if (!group) warns.push(line + '-qator: ' + name + ' — jamoasiz (keyin biriktirish mumkin).');
+    ok.push({ name, hemisId: hemis, phone, group, tg: g('tg'), goal: g('goal') });
+  });
+  const groups = [...new Set(ok.map(x => x.group).filter(Boolean))];
+  return { ok, groups, errors, warns };
+}
+/* Tekshirilgan qatorlarni bazaga qo'shadi (jamoa kerak bo'lsa avtomatik yaratiladi) */
+function importStudents(report) {
+  const gMap = {};
+  const created = [];
+  let newGroups = 0;
+  report.groups.forEach(gName => {
+    const found = S.groups.find(g => String(g.name).toLowerCase() === String(gName).toLowerCase());
+    const g = found || { id: uid('g'), name: gName, project: '', members: [], mentor: null, xp: 0, dl: {}, color: 'p' };
+    if (!found) { S.groups.push(g); newGroups++; }
+    gMap[gName] = g.id;
+  });
+  report.ok.forEach(row => {
+    const res = addStudentRecord({ name: row.name, phone: row.phone, hemisId: row.hemisId, groupId: row.group ? gMap[row.group] : '', tg: row.tg, goal: row.goal });
+    if (res.ok) created.push(res);
+  });
+  save();
+  return { created, newGroups };
+}
 function createStudentAccount(data) {
   const name = String(data.name || '').trim(), phone = String(data.phone || '').trim(), hemis = digitsOnly(data.hemisId);
   if (name.length < 3) return { err: 'name', msg: 'Ism-familiyani to‘liq kiriting.' };
@@ -1721,7 +1843,8 @@ function subViewModal(p) {
 }
 function teamModal(g) {
   const m = mentorOf(g.mentor);
-  const task = S.tasks.find(t => { const s = S.submissions.find(p => p.task === t.id && g.members.includes(p.st)); return !!s; }) || S.tasks[2];
+  const task = S.tasks.find(t => { const s = S.submissions.find(p => p.task === t.id && g.members.includes(p.st)); return !!s; })
+    || projTasks()[0] || (S.tasks.length ? S.tasks[S.tasks.length - 1] : null);
   openModal(
     mhead(g.name + ' jamoasi', g.project) +
     '<div class="row wrap" style="gap:8px;margin-bottom:12px"><span class="tag p">' + ico('trophy', 'sm') + 'Reyting #' + teamRank(g.id) + '</span>' +
@@ -1729,8 +1852,9 @@ function teamModal(g) {
     (m ? '<span class="tag c">' + ico('user', 'sm') + esc(m.name) + '</span>' : '') + '</div>' +
     '<div class="grid g3" style="margin-bottom:12px">' + g.members.map(id => { const st = get(S.students, id); return '<div class="card tight soft"><div class="row">' + avatar(st, 'sm') + '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(st.name) + '</div><div class="xs muted">' + nf(st.xp) + ' XP • ' + (onl(st) ? 'onlayn' : st.last + ' kun oldin') + '</div></div></div></div>'; }).join('') + '</div>' +
     '<div class="card soft"><div class="up muted" style="margin-bottom:8px">Jamoaviy loyiha holati</div>' +
-    '<div class="h3">' + esc(task.title) + '</div><div class="small muted" style="margin:4px 0 10px">Deadline: ' + fmtFull(g.dl[task.id] || task.dl) + '</div>' +
-    '<div class="col" style="gap:9px">' + g.members.map(id => { const st = get(S.students, id); const p = subOf(st, task.id); const s = p ? STATUS[p.status] : STATUS.none; return '<div class="row small"><span class="grow ellip">' + esc(st.name) + '</span><span class="tag ' + (p && p.status === 'accepted' ? 'g' : '') + '">' + ico('user', 'sm') + esc(s.l) + '</span></div>'; }).join('') + '</div></div>' +
+    '<div class="h3">' + esc(task ? task.title : 'Jamoaviy vazifa hali berilmagan') + '</div>' +
+    '<div class="small muted" style="margin:4px 0 10px">' + (task ? 'Deadline: ' + fmtFull(g.dl[task.id] || task.dl) : 'Deadline vazifa bilan birga belgilanadi') + '</div>' +
+    '<div class="col" style="gap:9px">' + g.members.map(id => { const st = get(S.students, id); const p = task ? subOf(st, task.id) : null; const s = p ? STATUS[p.status] : STATUS.none; return '<div class="row small"><span class="grow ellip">' + esc(st.name) + '</span><span class="tag ' + (p && p.status === 'accepted' ? 'g' : '') + '">' + ico('user', 'sm') + esc(s.l) + '</span></div>'; }).join('') + '</div></div>' +
     '<div class="row" style="margin-top:14px"><button class="btn btn-primary grow" data-act="go-team">' + ico('users', 'sm') + 'Jamoa sahifasiga o‘tish</button></div>', 'wide');
 }
 function teamSubmitModal(task) {
@@ -2107,8 +2231,8 @@ function vTeam() {
     emptyCard('users', 'Sizga hali jamoa biriktirilmagan', 'Administrator jamoani tuzgach shu yerda devor, a’zolar va jamoaviy topshiriq ko‘rinadi.');
   const m = mentorOf(g.mentor);
   const walls = S.walls[g.id] || [];
-  const task = S.tasks.find(t => t.m === 'm6') || S.tasks[2];
-  const teamScore = Math.round(g.members.reduce((a, id) => a + get(S.students, id).wxp, 0) / g.members.length);
+  const task = projTasks()[0] || (S.tasks.length ? S.tasks[S.tasks.length - 1] : null);
+  const teamScore = Math.round(g.members.reduce((a, id) => a + get(S.students, id).wxp, 0) / Math.max(1, g.members.length));
   const roles = ['Founder', 'Builder', 'Designer', 'Growth'];
 
   let h = '<div class="page-head"><div><h1 class="h1">Team</h1>' +
@@ -2122,10 +2246,10 @@ function vTeam() {
     '<div class="grid g3" style="gap:10px;min-width:280px;flex:1">' +
     '<div class="card tight soft tc"><div class="big">' + nf(g.xp) + '</div><div class="xs muted">jamoa XP</div></div>' +
     '<div class="card tight soft tc"><div class="big">' + teamScore + '</div><div class="xs muted">haftalik XP / a’zo</div></div>' +
-    '<div class="card tight soft tc"><div class="big">' + timeLeft(g.dl[task.id] || task.dl).txt.split(' ')[0] + '</div><div class="xs muted">kun deadline’gacha</div></div>' +
+    '<div class="card tight soft tc"><div class="big">' + (task ? timeLeft(g.dl[task.id] || task.dl).txt.split(' ')[0] : '—') + '</div><div class="xs muted">kun deadline’gacha</div></div>' +
     '</div></div>' +
     '<div class="divider"></div>' +
-    '<div class="row wrap between" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('flag', 'sm') + 'Jamoaviy vazifa: <b>' + esc(task.title) + '</b></div>' +
+    '<div class="row wrap between" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('flag', 'sm') + (task ? 'Jamoaviy vazifa: <b>' + esc(task.title) + '</b>' : 'Jamoaviy vazifa hali berilmagan — administrator vazifa bergach shu yerda ko‘rinadi.') + '</div>' +
     '<span class="small muted">Mentor: ' + (m ? esc(m.name) : '—') + '</span></div></div>';
 
   h += '<div class="grid g2">' +
@@ -2150,13 +2274,13 @@ function vTeam() {
     '<button class="btn btn-primary btn-sm" data-act="wall-post">' + ico('send', 'sm') + 'Yuborish</button></div></div></div>';
 
   h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('target') + 'Jamoaviy loyiha holati</h2><span class="tag a">' + ico('bolt', 'sm') + 'Hafta 6</span></div>' +
-    '<div class="grid g3">' + g.members.map(id => { const s = get(S.students, id); const p = subOf(s, task.id); const v = p ? STATUS[p.status] : STATUS.none;
+    '<div class="grid g3">' + g.members.map(id => { const s = get(S.students, id); const p = task ? subOf(s, task.id) : null; const v = p ? STATUS[p.status] : STATUS.none;
       return '<div class="card tight soft"><div class="row" style="gap:9px">' + avatar(s, 'xs') + '<div class="small ellip grow" style="font-weight:700">' + esc(s.name.split(' ')[0]) + '</div></div>' +
       '<div class="row between" style="margin-top:9px"><span class="tag ' + (p && p.status === 'accepted' ? 'g' : '') + '">' + esc(v.l) + '</span>' +
       '<span class="xs muted">' + (p ? fmtD(p.at) : '—') + '</span></div></div>'; }).join('') + '</div>' +
     '<div class="divider"></div>' +
-    '<div class="row wrap between" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('cal', 'sm') + 'Jamoaviy deadline: <b>' + fmtFull(g.dl[task.id] || task.dl) + '</b></div>' +
-    '<button class="btn btn-sm btn-soft" data-act="team-submit" data-id="' + task.id + '">' + ico('upload', 'sm') + 'Jamoaviy topshirish</button></div></div>';
+    '<div class="row wrap between" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('cal', 'sm') + (task ? 'Jamoaviy deadline: <b>' + fmtFull(g.dl[task.id] || task.dl) + '</b>' : 'Deadline vazifa bilan birga belgilanadi') + '</div>' +
+    (task ? '<button class="btn btn-sm btn-soft" data-act="team-submit" data-id="' + task.id + '">' + ico('upload', 'sm') + 'Jamoaviy topshirish</button>' : '') + '</div></div>';
   return h;
 }
 
@@ -2492,6 +2616,54 @@ function addStudentModal() {
     '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('plus', 'sm') + 'Qo‘shish</button>' +
     '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>', 'narrow');
 }
+/* CSV import oynasi: fayl tanlanadi → hisobot → tasdiqlansa bazaga qo'shiladi */
+function csvImportModal(report) {
+  let body = '';
+  if (!report) {
+    body = '<div class="card soft tight" style="background:rgba(124,92,255,.10);border-color:rgba(124,92,255,.28)">' +
+      '<div class="row" style="gap:10px">' + ico('upload', 'sm') +
+      '<div><div class="small" style="font-weight:750">CSV fayl: ism, HEMIS ID, telefon, jamoa…</div>' +
+      '<div class="xs muted" style="margin-top:3px">Ustunlar: <b>ism_familiya, hemis_id</b> (majburiy) • telefon, jamoa, telegram, maqsad (ixtiyoriy). ' +
+      'Jamoa nomi yangi bo‘lsa — avtomatik yaratiladi. Har talabaga unikal nick beriladi.</div></div></div></div>' +
+      '<div class="field" style="margin-top:14px"><label>Faylni tanlang (.csv)</label>' +
+      '<input class="inp" type="file" id="import-csv" accept=".csv,text/csv"></div>' +
+      '<div class="xs muted" style="margin-top:6px">Shablon: <b>docs/talabalar-shabloni.csv</b> (Excel’da «Save as CSV»).</div>';
+  } else {
+    const ok = report.ok, errs = report.errors || [], warns = report.warns || [];
+    body = '<div class="grid g3" style="gap:10px">' +
+      '<div class="card tight soft tc"><div class="big" style="color:var(--ok)">' + ok.length + '</div><div class="xs muted">qabul qilinadi</div></div>' +
+      '<div class="card tight soft tc"><div class="big" style="color:' + (warns.length ? 'var(--warn)' : 'var(--txt)') + '">' + warns.length + '</div><div class="xs muted">ogohlantirish</div></div>' +
+      '<div class="card tight soft tc"><div class="big" style="color:' + (errs.length ? 'var(--danger)' : 'var(--txt)') + '">' + errs.length + '</div><div class="xs muted">xato (o‘tkazib yuboriladi)</div></div></div>' +
+      (report.groups.length ? '<div class="small t2" style="margin-top:10px">Jamoalar: <b>' + esc(report.groups.join(', ')) + '</b></div>' : '') +
+      (errs.length ? '<div class="divider"></div><div class="up muted" style="margin-bottom:6px">Xatolar</div><div class="col" style="gap:5px;max-height:150px;overflow:auto">' +
+        errs.slice(0, 12).map(e => '<div class="xs" style="color:var(--danger)">• ' + esc(e) + '</div>').join('') +
+        (errs.length > 12 ? '<div class="xs muted">… yana ' + (errs.length - 12) + ' ta</div>' : '') + '</div>' : '') +
+      (warns.length ? '<div class="divider"></div><div class="up muted" style="margin-bottom:6px">Ogohlantirishlar</div><div class="col" style="gap:5px;max-height:120px;overflow:auto">' +
+        warns.slice(0, 8).map(e => '<div class="xs muted">• ' + esc(e) + '</div>').join('') +
+        (warns.length > 8 ? '<div class="xs muted">… yana ' + (warns.length - 8) + ' ta</div>' : '') + '</div>' : '');
+  }
+  const footer = report
+    ? '<form data-form="csv-import" style="margin-top:14px"><div class="row" style="gap:10px">' +
+      '<button class="btn btn-primary grow" type="submit"' + (report.ok.length ? '' : ' disabled') + '>' + ico('check', 'sm') + 'Import qilish (' + report.ok.length + ')' + '</button>' +
+      '<button class="btn btn-soft" type="button" data-act="import-csv">' + ico('upload', 'sm') + 'Boshqa fayl</button>' +
+      '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>'
+    : '';
+  openModal(mhead('CSV orqali talaba import qilish', report ? 'Tekshiruv natijasi — tasdiqlasangiz bazaga qo‘shiladi' : 'Tayyor ro‘yxatni bir yo‘la yuklash') + body + footer, 'narrow');
+}
+/* Import hisoboti + yangi kirish kartochkalari ro'yxati */
+function csvDoneModal(res) {
+  openModal(mhead('Import yakunlandi', res.created.length + ' talaba qo‘shildi' + (res.newGroups ? ' • ' + res.newGroups + ' yangi jamoa' : '')) +
+    '<div class="card soft tight" style="background:rgba(34,211,238,.10);border-color:rgba(34,211,238,.28)">' +
+    '<div class="xs muted">Har bir talaba kirish kartochkasini oldi: nick + HEMIS ID bilan kiradi, parolni birinchi kirishda o‘zi o‘rnatadi. ' +
+    'Kartochkalarni chop etish uchun «Chop etish / PDF» tugmasidan foydalaning.</div></div>' +
+    '<div class="col" style="gap:7px;margin-top:12px;max-height:280px;overflow:auto">' +
+    res.created.map(x => '<div class="lrow"><div class="lead">' + ico('key', 'sm') + '</div>' +
+      '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(x.student.name) + '</div>' +
+      '<div class="xs muted">@' + esc(x.acc.nick) + ' • HEMIS: ' + esc(x.acc.hemisId) + (x.student.group ? ' • ' + esc((groupOf(x.student.group) || {}).name || '') : '') + '</div></div>' +
+      '<button class="btn btn-xs btn-soft" data-act="login-card" data-id="' + esc(x.acc.id) + '">' + ico('doc', 'sm') + 'Kartochka</button></div>').join('') +
+    '</div><div class="row" style="gap:10px;margin-top:14px"><button class="btn btn-primary grow" data-act="print">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
+    '<button class="btn btn-ghost" data-act="close-modal">Yopish</button></div>', 'wide');
+}
 function createGroupModal() {
   openModal(mhead('Yangi jamoa tuzish', '3–4 kishilik startap jamoasi') +
     '<form data-form="new-group" class="col" style="gap:13px">' +
@@ -2643,11 +2815,14 @@ function vStudents() {
     : myGroup(s) && myGroup(s).id === f);
   let h = '<div class="page-head"><div><h1 class="h1">Talabalar</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Guruh, daraja va faollik bo‘yicha kuzatuv. Profilni ochib vazifa, deadline va baholarni ko‘rish mumkin.</p></div>' +
-    '<button class="btn btn-primary btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button></div>';
+    '<div class="row wrap" style="gap:9px">' +
+    (actionAllowed('students') ? '<button class="btn btn-soft btn-sm" data-act="import-csv">' + ico('upload', 'sm') + 'CSV import</button>' : '') +
+    (actionAllowed('students') ? '<button class="btn btn-primary btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' : '') + '</div></div>';
 
   if (!S.students.length) return h + emptyCard('users-plus', 'Hali talaba yo‘q',
-    'Birinchi talabani qo‘shing: ism-familiya va HEMIS ID (12 xona) kifoya. Tizim unikal nick beradi, siz kirish kartochkasini chop etib berasiz.',
-    actionAllowed('students') ? '<button class="btn btn-primary" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' : '');
+    'Birinchi talabani qo‘shing (ism-familiya + HEMIS ID) yoki tayyor ro‘yxatni CSV fayl bilan bir yo‘la yuklang. Tizim har biriga unikal nick beradi va kirish kartochkalarini chiqaradi.',
+    actionAllowed('students') ? '<button class="btn btn-primary" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' +
+      '<button class="btn btn-soft" data-act="import-csv">' + ico('upload', 'sm') + 'CSV import</button>' : '');
 
   h += '<div class="grid g4">' +
     kpi('users', S.students.length, 'Jami talaba', S.groups.length + ' jamoada', '') +
@@ -2802,8 +2977,8 @@ function vAdminGroups() {
 
   h += '<div class="grid g2">' + S.groups.map(g => {
     const m = mentorOf(g.mentor);
-    const task = S.tasks[2];
-    const donePct = Math.round(g.members.filter(id => { const p = subOf(get(S.students, id), task.id); return p && p.status === 'accepted'; }).length / g.members.length * 100);
+    const task = projTasks()[0] || (S.tasks.length ? S.tasks[S.tasks.length - 1] : null);
+    const donePct = task && g.members.length ? Math.round(g.members.filter(id => { const p = subOf(get(S.students, id), task.id); return p && p.status === 'accepted'; }).length / g.members.length * 100) : 0;
     return '<div class="card"><div class="card-h"><div class="row" style="gap:12px">' + crest(g, 46) +
       '<div><div class="row" style="gap:7px"><h2 class="h2">' + esc(g.name) + '</h2><span class="tag ' + (teamRank(g.id) === 1 ? 'a' : '') + '">#' + teamRank(g.id) + '</span></div>' +
       '<div class="xs muted ellip" style="max-width:230px">' + esc(g.project) + '</div></div></div>' +
@@ -2881,7 +3056,7 @@ function vStats() {
   const k = kpisAdmin();
   const modStats = S.modules.map(m => { const done = S.students.filter(s => modulePct(s, m.id).pct === 100).length;
     return { m, done, pct: S.students.length ? Math.round(done / S.students.length * 100) : 0 }; });
-  const deployed = S.students.filter(s => ['t4', 't5'].some(t => { const p = subOf(s, t); return p && p.status === 'accepted'; })).length;
+  const deployed = S.students.filter(s => hasDeployed(s)).length;
   const grads = S.students.filter(s => certsOf(s).length > 0).length;
   const byGroup = [...S.groups].sort((a, b) => b.xp - a.xp);
   const maxg = Math.max(...byGroup.map(g => g.xp));
@@ -3475,6 +3650,7 @@ document.addEventListener('click', e => {
     case 'go': e.preventDefault(); go(t.dataset.route); break;
     case 'go-team': go(isAdmin() ? 'adminGroups' : 'team'); break;
     case 'go-settings': go('settings'); break;
+    case 'import-csv': csvImportModal(UI.csvReport || null); break;
     case 'palette': openPalette(); break;
     case 'pal-run': { const it = (PAL.visible || [])[parseInt(t.dataset.idx, 10)]; if (it) runPalette(it.act); break; }
     case 'shortcuts': shortcutsModal(); break;
@@ -3938,18 +4114,20 @@ document.addEventListener('submit', e => {
     const m = { id: uid('m'), n: S.modules.length + 1, title: fd.get('title'), desc: fd.get('desc') || '', icon: 'spark' };
     S.modules.push(m); toast('ok', 'Yangi modul qo‘shildi', m.n + '-modul: ' + m.title); closeModal(); save(); paint(true); return;
   }
+  if (kind === 'csv-import') {
+    const rep = UI.csvReport;
+    if (!rep || !rep.ok.length) { toast('warn', 'Import qilinmadi', 'Avval CSV faylni tanlang.'); closeModal(); return; }
+    const res = importStudents(rep);
+    UI.csvReport = null;
+    toast('ok', 'Import yakunlandi', res.created.length + ' talaba qo‘shildi' + (res.newGroups ? ', ' + res.newGroups + ' yangi jamoa' : '') + '.');
+    if (res.created.length) csvDoneModal(res); else closeModal();
+    paint(true); return;
+  }
   if (kind === 'new-student') {
-    /* 1) Akkaunt: HEMIS ID tekshiriladi + unikal nick beriladi */
-    const res = createStudentAccount({ name: fd.get('name'), phone: fd.get('phone'), hemisId: fd.get('hemis'), groupId: fd.get('group') });
+    const res = addStudentRecord({ name: fd.get('name'), phone: fd.get('phone'), hemisId: fd.get('hemis'), groupId: fd.get('group'), tg: fd.get('tg'), goal: fd.get('goal') });
     if (res.err) { toast('warn', 'Qo‘shilmadi', res.msg); return; }
-    /* 2) Talaba profili akkauntga bog'lanadi */
-    const s = { id: uid('s'), name: fd.get('name'), tg: fd.get('tg') || '@talaba', phone: fd.get('phone') || '+998', group: fd.get('group') || '', xp: 0, wxp: 0, streak: 0, coins: 0, level: 'junior', act: true, score: 0, joined: todayISO(), bio: 'Yangi a’zo.', goal: fd.get('goal') || 'Birinchi loyihani chiqarish', done: [], last: 0 };
-    S.students.push(s);
-    res.acc.studentId = s.id; res.acc.groupId = s.group || null;
-    if (s.group) { const g = groupOf(s.group); if (g) g.members.push(s.id); }
-    S.friends[s.id] = []; S.incoming[s.id] = []; S.sent[s.id] = [];
-    save(); closeModal();
-    toast('ok', 'Talaba qo‘shildi', s.name + ' • nick: @' + res.acc.nick);
+    closeModal();
+    toast('ok', 'Talaba qo‘shildi', res.student.name + ' • nick: @' + res.acc.nick);
     loginCardModal(res.acc.id); paint(true); return;
   }
   if (kind === 'new-admin' || kind === 'admin-edit') {
@@ -4004,6 +4182,18 @@ document.addEventListener('change', e => {
   }
   const imp = e.target.closest('#import-json');
   if (imp && imp.files && imp.files[0]) { importState(imp.files[0]); return; }
+  const csv = e.target.closest('#import-csv');
+  if (csv && csv.files && csv.files[0]) {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const rep = csvStudentsReport(String(fr.result || ''));
+      if (rep.fatal) { toast('warn', 'Fayl o‘qilmadi', rep.fatal); return; }
+      UI.csvReport = rep;
+      csvImportModal(rep);
+    };
+    fr.readAsText(csv.files[0], 'utf-8');
+    return;
+  }
   const t = e.target.closest('[data-act="move-student"]');
   if (t && t.value) {
     const fromId = t.dataset.g, toId = t.value, to = groupOf(toId);

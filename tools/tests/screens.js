@@ -94,7 +94,8 @@ function stateFor(name) {
     { name: '72-v2-bosh-dashboard-1568', vp: { width: 1568, height: 768 }, steps: [], data: 'founder' },
     { name: '73-v2-bosh-talabalar-1440', vp: { width: 1440, height: 1000 }, steps: ['go-students'], data: 'founder' },
     { name: '74-v2-bosh-dashboard-mobil', vp: { width: 390, height: 844 }, steps: [], mobile: true, data: 'founder' },
-    { name: '75-v2-bosh-statistika-1568', vp: { width: 1568, height: 768 }, steps: ['go-stats'], data: 'founder' }
+    { name: '75-v2-bosh-statistika-1568', vp: { width: 1568, height: 768 }, steps: ['go-stats'], data: 'founder' },
+    { name: '76-v2-csv-import', vp: { width: 1568, height: 768 }, steps: ['go-students', 'csv-import'], data: 'founder' }
   ];
   const page = await browser.newPage();
   const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
@@ -135,6 +136,7 @@ function stateFor(name) {
           if (f) { f.querySelector('input[name="login"]').value = 'falcon'; f.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); }
         }, 120);
       }
+      else if (t === 'csv-import') setTimeout(() => document.querySelector('[data-act="import-csv"]')?.click(), 120);
       else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
       else if (t === 'palette-q') {
         document.querySelector('[data-act="palette"]')?.click();
@@ -154,6 +156,7 @@ function stateFor(name) {
         else if (t.startsWith('module-')) document.querySelector('[data-act="module-open"][data-id="' + t.slice(7) + '"]')?.click();
         else if (t.startsWith('lesson-')) document.querySelector('[data-act="lesson-open"][data-id="' + t.slice(7) + '"]')?.click();
         else if (t === 'student-profile') setTimeout(() => document.querySelector('[data-act="student-open"]')?.click(), 200);
+        else if (t === 'csv-import') setTimeout(() => document.querySelector('[data-act="import-csv"]')?.click(), 120);
         else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
         else if (t === 'palette-q') {
           document.querySelector('[data-act="palette"]')?.click();

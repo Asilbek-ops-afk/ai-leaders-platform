@@ -65,12 +65,18 @@ window.AIL = {
   closePalette: () => closeModal(),
   closeModal: () => closeModal(),
   needsSetup: () => needsSetup(),
+  csvReport: t2 => { const r = csvStudentsReport(t2); return { ok: r.ok || [], groups: r.groups || [], errors: r.errors || [], warns: r.warns || [], fatal: r.fatal || null }; },
   founder: () => { const a = founderAcc(); return a ? { id: a.id, name: a.name, nick: a.nick } : null; },
   createFounder: o => { const r = createFounderAccount(o || {}); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', acc: r.acc ? JSON.parse(JSON.stringify(r.acc)) : null }; },
   reset: () => resetAll(),
   passResetById: id => passReset(id),
   saveNow: () => save(),
   loginAs: id => { const a = accById(id); if (a) finishLogin(a, true); },
+  prune: o => {
+    if (o) { const r = pruneOrphans(o); return JSON.parse(JSON.stringify(r)); }
+    pruneOrphans(); save(); return null;
+  },
+  addStudent: d2 => { const r = addStudentRecord(d2); return r.ok ? { ok: true, acc: { id: r.acc.id, nick: r.acc.nick, hemisId: r.acc.hemisId }, s: r.student.id } : { ok: false, err: r.err, msg: r.msg }; },
   version: () => APP_VERSION
 };`;
 
@@ -806,7 +812,7 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 2.0.0', B.w.AIL.version() === '2.0.0');
+t('versiya 2.1.0', B.w.AIL.version() === '2.1.0');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ================= 17. KIRISH EKRANI TUZILISHI (noutbuk/planshet) ================= */
@@ -1095,6 +1101,160 @@ t('qidiruv maydoni fokus halqasi CSSda bor', D.d.documentElement.innerHTML.inclu
 t('JS xatosi yo‘q (dizayn)', D.errors.length === 0);
 }
 
+/* ================= 22. CSV IMPORT: HAQIQIY RO'YXATNI YUKLASH ================ */
+group('22. CSV import: haqiqiy talaba ro‘yxatini yuklash');
+{
+  const Q = bootE();   /* bo'sh platforma + founder */
+  Q.d.querySelector('[data-form="setup-founder"] input[name="name"]').value = 'Asil Bek';
+  Q.d.querySelector('[data-form="setup-founder"] input[name="email"]').value = 'asil@aileaders.uz';
+  Q.d.querySelector('[data-form="setup-founder"] input[name="p1"]').value = 'parol1234';
+  Q.d.querySelector('[data-form="setup-founder"] input[name="p2"]').value = 'parol1234';
+  Q.submit('[data-form="setup-founder"]');
+  Q.w.AIL.go('students');
+
+  /* — sof parser: to'liq to'g'ri fayl — */
+  t('CSV: sarlavha va izoh qatorlari', (() => {
+    const rep = Q.w.AIL.csvReport('ism_familiya,hemis_id,telefon,jamoa,telegram,maqsad\n# izoh qatori\nDilnoza Karimova,123456789012,+998901112233,Nova,@d,Startap\nOtabek Ruzimov,123456789013,,Orbit,,\n');
+    return rep.ok.length === 2 && rep.groups.length === 2 && rep.errors.length === 0 && rep.warns.length === 1;
+  })());
+  t('CSV: noto‘g‘ri HEMIS xato sifatida qaytadi', (() => {
+    const rep = Q.w.AIL.csvReport('ism_familiya,hemis_id\nKimdir Kimdirov,12345\n');
+    return rep.ok.length === 0 && rep.errors.length === 1 && /12 xona emas/.test(rep.errors[0]);
+  })());
+  t('CSV: qisqa ism xato', (() => Q.w.AIL.csvReport('ism_familiya,hemis_id\nAl,123456789012\n').errors.length === 1)());
+  t('CSV: faylda takrorlangan HEMIS xato', (() => {
+    const rep = Q.w.AIL.csvReport('ism_familiya,hemis_id\nAli Validov,123456789012\nVali Aliyev,123456789012\n');
+    return rep.ok.length === 1 && rep.errors.length === 1 && /takrorlangan/.test(rep.errors[0]);
+  })());
+  t('CSV: majburiy ustunlar yo‘q bo‘lsa ogohlantiradi', (() => {
+    const rep = Q.w.AIL.csvReport('a,b\n1,2\n');
+    return !!rep.fatal && /Majburiy ustunlar/.test(rep.fatal);
+  })());
+  t('CSV: ustun nomlari har xil yozilishda tanaladi (f.i.sh, HEMIS ID, guruh)', (() => {
+    const rep = Q.w.AIL.csvReport('F.I.Sh;HEMIS ID;Guruh\nJasur Toshmatov;123456789099;Nova\n');
+    return rep.ok.length === 1 && rep.ok[0].name === 'Jasur Toshmatov' && rep.groups[0] === 'Nova';
+  })());
+
+  /* — UI oqimi: fayl tanlash → hisobot → import — */
+  t('«CSV import» tugmasi bo‘sh holatda ham ko‘rinadi', !!Q.d.querySelector('[data-act="import-csv"]'));
+  Q.click('[data-act="import-csv"]');
+  t('import oynasi fayl maydonini ko‘rsatadi', Q.hasModal('CSV orqali talaba import qilish') && !!Q.d.querySelector('#import-csv'));
+  /* fayl tanlash (FileReader asinxron) */
+  const csv = 'ism_familiya,hemis_id,telefon,jamoa,telegram,maqsad\n' +
+    'Nodira Karimova,555444333222,+998901234567,Nova,@nodira,Birinchi loyiha\n' +
+    'Rustam Aliyev,555444333111,+998901234568,Orbit,@rustam,Startap\n' +
+    'Xato Qator,12345,,,\n';
+  const fileInp = Q.d.querySelector('#import-csv');
+  const fl = new Q.w.File([csv], 'talabalar.csv', { type: 'text/csv' });
+  Object.defineProperty(fileInp, 'files', { value: [fl], configurable: true });
+  fileInp.dispatchEvent(new Q.w.Event('change', { bubbles: true }));
+  /* — hisobot va tasdiqlash — */
+  {
+    await new Promise(r => setTimeout(r, 150));
+    t('hisobot: 2 qabul, 1 xato ko‘rsatildi', (() => {
+      const mb = Q.d.querySelector('.mbox');
+      return !!mb && /qabul qilinadi/.test(mb.textContent) && Q.hasModal('Tekshiruv natijasi') && /12 xona emas/.test(mb.textContent);
+    })());
+    Q.submit('[data-form="csv-import"]');
+    t('import bazaga yozildi (2 talaba, 2 yangi jamoa)', Q.w.AIL.S.students.length === 2 && Q.w.AIL.S.groups.length === 2 && Q.w.AIL.S.groups.every(g => g.members.length === 1));
+    t('har talabaga akkaunt + unikal nick + HEMIS bog‘landi', (() => {
+      const accs = Q.w.AIL.S.accounts.filter(a => a.demo === false && a.role === 'student');
+      const nicks = accs.map(a => a.nick);
+      return accs.length === 2 && new Set(nicks).size === 2
+        && accs.every(a => a.mustSetPass === true && a.pass === null && /^\d{12}$/.test(a.hemisId) && !!Q.w.AIL.S.students.find(x => x.id === a.studentId));
+    })());
+    t('yakuniy oynada kirish kartochkalari ro‘yxati', (() => {
+      const mb = Q.d.querySelector('.mbox');
+      return !!mb && /Import yakunlandi/.test(mb.textContent) && mb.querySelectorAll('[data-act="login-card"]').length === 2;
+    })());
+    t('kartochka ochiladi (nick + HEMIS)', (() => {
+      Q.d.querySelector('.mbox [data-act="login-card"]').dispatchEvent(new Q.w.MouseEvent('click', { bubbles: true }));
+      const mb = Q.d.querySelector('.mbox');
+      return !!mb && /Kirish kartochkasi/.test(mb.textContent) && /HEMIS ID/.test(mb.textContent) && /Nick \(login\)/.test(mb.textContent);
+    })());
+    Q.w.AIL.closeModal();
+    Q.w.AIL.go('students');
+    t('talabalar jadvali va KPI yangilandi', Q.has('Nodira Karimova') && !Q.has('Hali talaba yo‘q') && !/NaN|undefined/.test(Q.txt()));
+    t('bir xil HEMIS ikkinchi marta import qilinmaydi', (() => {
+      const rep = Q.w.AIL.csvReport('ism_familiya,hemis_id\nBoshqa Odam,555444333222\n');
+      return rep.ok.length === 0 && rep.errors.length === 1 && /band/.test(rep.errors[0]);
+    })());
+    t('jamoa filtri CSV jamoalarini ko‘rsatadi', (() => {
+      const btns = [...Q.d.querySelectorAll('[data-act="filter-s"]')].map(x => x.textContent);
+      return btns.some(x => /Nova/.test(x)) && btns.some(x => /Orbit/.test(x));
+    })());
+    t('JS xatosi yo‘q (CSV import)', Q.errors.length === 0);
+  }
+}
+
+/* ========= 23. BO'SH TUZILMALAR VA YETIM A'ZOLAR (REGRESSIYA) ============= */
+group('23. Bo‘sh tuzilmalar: vazifasiz jamoa, yetim a’zo, NaN yo‘q');
+{
+  const Q = bootE();
+  Q.d.querySelector('[data-form="setup-founder"] input[name="name"]').value = 'Test Founder';
+  Q.d.querySelector('[data-form="setup-founder"] input[name="email"]').value = 't@aileaders.uz';
+  Q.d.querySelector('[data-form="setup-founder"] input[name="p1"]').value = 'parol1234';
+  Q.d.querySelector('[data-form="setup-founder"] input[name="p2"]').value = 'parol1234';
+  Q.submit('[data-form="setup-founder"]');
+
+  /* — sof funksiya: yetim ssilkalar tozalanadi — */
+  t('pruneOrphans: yetim a’zo/do‘st/topshiriq/bildirishnoma olib tashlanadi', (() => {
+    const r = Q.w.AIL.prune({
+      students: [{ id: 's1' }],
+      groups: [{ id: 'g1', members: ['s1', 'gone'] }],
+      friends: { s1: ['gone', 's1'], gone: ['s1'] },
+      incoming: {}, sent: {},
+      submissions: [{ st: 'gone', task: 't1' }, { st: 's1', task: 't1' }],
+      notifs: { gone: [{ t: 'x' }], s1: [{ t: 'y' }] }
+    });
+    return r.groups[0].members.join() === 's1'
+      && r.friends.s1.join() === 's1' && r.friends.gone === undefined
+      && r.submissions.length === 1 && r.submissions[0].st === 's1'
+      && r.notifs.gone === undefined && r.notifs.s1.length === 1;
+  })());
+
+  /* — UI: vazifa yo'q, jamoa bor — jamoalar sahifasi va KPI yiqilmasin — */
+  Q.w.AIL.go('adminGroups');
+  Q.click('[data-act="new-group"]');
+  Q.set('[data-form="new-group"] input[name="name"]', 'Yolg‘iz');
+  Q.set('[data-form="new-group"] input[name="project"]', 'Birinchi g‘oya');
+  Q.submit('[data-form="new-group"]');
+  t('vazifasiz jamoa yaratildi', Q.has('Yolg‘iz') && !Q.has('Hali jamoa tuzilmagan'));
+  t('jamoalar kartasi vazifasiz ham toza (NaN yo‘q)', !/NaN|undefined/.test(Q.txt()));
+  Q.click('[data-act="group-open"]');
+  t('jamoa oynasi vazifasiz ham ochiladi', Q.hasModal('Yolg‘iz jamoasi') && !/NaN/.test(Q.d.querySelector('.mbox').textContent));
+  Q.w.AIL.closeModal();
+  Q.w.AIL.go('stats');
+  t('statistika vazifasiz ham raqam beradi', !/NaN|undefined/.test(Q.txt()));
+  Q.w.AIL.go('adminTasks');
+  t('vazifalar bo‘limi bo‘sh holat kartasini ko‘rsatadi', Q.has('Hali vazifa berilmagan'));
+
+  /* — UI: talaba qo‘shib, keyin o‘chirish — jamoadan ham chiqadi — */
+  Q.w.AIL.go('students');
+  Q.click('[data-act="new-student"]');
+  Q.set('[data-form="new-student"] input[name="name"]', 'Ali Valiyev');
+  Q.set('[data-form="new-student"] input[name="hemis"]', '999888777666');
+  const gSel = Q.d.querySelector('[data-form="new-student"] select[name="group"]');
+  gSel.value = Q.w.AIL.S.groups[0].id;
+  Q.submit('[data-form="new-student"]');
+  t('talaba jamoa bilan qo‘shildi', Q.w.AIL.S.students.length === 1 && Q.w.AIL.S.groups[0].members.length === 1);
+  Q.w.AIL.closeModal();
+  Q.w.AIL.go('adminGroups');
+  t('jamoa kartasida talaba ko‘rinadi', Q.has('Ali'));
+  Q.w.AIL.go('students');
+  Q.click('[data-act="student-open"]');
+  Q.click('[data-act="delete-student"]');
+  Q.click('[data-act="delete-student-do"]');
+  t('talaba o‘chirilganda jamoadan ham chiqadi', Q.w.AIL.S.students.length === 0 && Q.w.AIL.S.groups[0].members.length === 0);
+  Q.w.AIL.go('adminGroups');
+  t('o‘chirishdan keyin jamoalar sahifasi ishlaydi', Q.has('Yolg‘iz') && !/NaN|undefined/.test(Q.txt()));
+  Q.w.AIL.go('admin');
+  t('dashboard yana bo‘sh holat qadamlarini ko‘rsatadi', Q.has('Boshlash — 4 qadam'));
+  Q.w.AIL.go('stats');
+  t('statistika bo‘sh holat kartasi (raqamlar bilan yiqilmaydi)', !/NaN|undefined/.test(Q.txt()) && Q.has('Statistika'));
+  t('JS xatosi yo‘q (bo‘sh tuzilmalar)', Q.errors.length === 0);
+}
+
 /* ============= 21. STATIK QO'RIQCHI: MANBA KODDA NAMUNA MA'LUMOT YO'Q ======= */
 group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
 {
@@ -1113,11 +1273,11 @@ group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
   t('src fixtura faylini chaqirmaydi', !/fixtures/.test(srcAll) && !/require\(/.test(srcAll));
   t('tozalash funksiyasi mavjud (purgeDemoState)', /function purgeDemoState\(/.test(srcAll) && /needsSetup/.test(srcAll) && /function createFounderAccount\(/.test(srcAll));
   t('qurilgan index.html ham namuna ismlaridan xoli', stNames.every(x => !HTML.includes(x)) && adNames.every(x => !HTML.includes(x)));
-  t('versiya izchil (src = sw.js = package.json = 2.0.0)', (() => {
+  t('versiya izchil (src = sw.js = package.json = 2.1.0)', (() => {
     const ver = /const APP_VERSION = '([^']+)'/.exec(srcAll)[1];
     const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-    return ver === '2.0.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
+    return ver === '2.1.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
   })());
 }
 

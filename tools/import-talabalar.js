@@ -4,7 +4,7 @@
    ----------------------------------------------------------------------------
    Ishlatish:
      node tools/import-talabalar.js data/talabalar.csv            # tekshirish + hisobot
-     node tools/import-talabalar.js data/talabalar.csv --write    # data/talabalar.json yozadi
+     node tools/import-talabalar.js data/talabalar.csv --write    # tekshirilgan ro'yxat arxivi (data/talabalar.json)
      node tools/import-talabalar.js data/talabalar.xlsx           # (avval CSV ga o'giring)
 
    Nima qiladi:
@@ -196,7 +196,9 @@ function main() {
     fs.mkdirSync(path.dirname(outFile), { recursive: true });
     fs.writeFileSync(outFile, JSON.stringify(out, null, 2) + '\n', 'utf8');
     console.log('✔ Yozildi: ' + path.relative(ROOT, outFile) + '  (' + ok.length + ' talaba, ' + out.groups.length + ' jamoa)\n');
-    console.log('  Keyingi qadam: bu fayl ilova seed‘iga joylanadi (namunalar o‘chirilib) va sayt qayta deploy qilinadi.\n');
+    console.log('  Eslatma: endi xuddi shu CSV ni to‘g‘ridan-to‘g‘ri platformada yuklash mumkin —');
+    console.log('  Admin → Talabalar → «CSV import» (hisobot ko‘rsatiladi, tasdiqlagach akkauntlar va kartochkalar tayyor).');
+    console.log('  Bu fayl esa tekshirilgan ro‘yxat arxivi sifatida saqlanadi.\n');
   }
   process.exit(errors.length ? 1 : 0);
 }

@@ -108,7 +108,11 @@ o'tish **15 daqiqalik ish** (sxema va login tizimi shunga tayyor quriladi).
 
 ## 8. Real ma'lumotlarni qabul qilish tartibi (tayyor)
 
-Platformada namuna ma'lumot **yo'q** (v2.0.0 da butunlay olib tashlandi). Siz to'liq bazani berganingizda quyidagi tartibda yuklaymiz:
+Platformada namuna ma'lumot **yo'q** (v2.0.0 da butunlay olib tashlandi). Haqiqiy ro'yxat endi **platformaning o'zida** yuklanadi (v2.1.0):
+
+**Admin → Talabalar → «CSV import»** → fayl tanlanadi → tekshiruv hisoboti (qabul/xato/ogohlantirish)
+→ tasdiqlangach talabalar, akkauntlar va jamoalar avtomatik yaratiladi, kirish kartochkalari chiqadi.
+Kod o'zgartirish yoki qayta deploy **kerak emas**. (CLI varianti `tools/import-talabalar.js` arxiv sifatida qoladi.)
 
 | # | Qadam | Kim | Vaqt |
 |---|---|---|---|

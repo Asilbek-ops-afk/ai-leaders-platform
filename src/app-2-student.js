@@ -315,8 +315,8 @@ function vTeam() {
     emptyCard('users', 'Sizga hali jamoa biriktirilmagan', 'Administrator jamoani tuzgach shu yerda devor, a’zolar va jamoaviy topshiriq ko‘rinadi.');
   const m = mentorOf(g.mentor);
   const walls = S.walls[g.id] || [];
-  const task = S.tasks.find(t => t.m === 'm6') || S.tasks[2];
-  const teamScore = Math.round(g.members.reduce((a, id) => a + get(S.students, id).wxp, 0) / g.members.length);
+  const task = projTasks()[0] || (S.tasks.length ? S.tasks[S.tasks.length - 1] : null);
+  const teamScore = Math.round(g.members.reduce((a, id) => a + get(S.students, id).wxp, 0) / Math.max(1, g.members.length));
   const roles = ['Founder', 'Builder', 'Designer', 'Growth'];
 
   let h = '<div class="page-head"><div><h1 class="h1">Team</h1>' +
@@ -330,10 +330,10 @@ function vTeam() {
     '<div class="grid g3" style="gap:10px;min-width:280px;flex:1">' +
     '<div class="card tight soft tc"><div class="big">' + nf(g.xp) + '</div><div class="xs muted">jamoa XP</div></div>' +
     '<div class="card tight soft tc"><div class="big">' + teamScore + '</div><div class="xs muted">haftalik XP / a’zo</div></div>' +
-    '<div class="card tight soft tc"><div class="big">' + timeLeft(g.dl[task.id] || task.dl).txt.split(' ')[0] + '</div><div class="xs muted">kun deadline’gacha</div></div>' +
+    '<div class="card tight soft tc"><div class="big">' + (task ? timeLeft(g.dl[task.id] || task.dl).txt.split(' ')[0] : '—') + '</div><div class="xs muted">kun deadline’gacha</div></div>' +
     '</div></div>' +
     '<div class="divider"></div>' +
-    '<div class="row wrap between" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('flag', 'sm') + 'Jamoaviy vazifa: <b>' + esc(task.title) + '</b></div>' +
+    '<div class="row wrap between" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('flag', 'sm') + (task ? 'Jamoaviy vazifa: <b>' + esc(task.title) + '</b>' : 'Jamoaviy vazifa hali berilmagan — administrator vazifa bergach shu yerda ko‘rinadi.') + '</div>' +
     '<span class="small muted">Mentor: ' + (m ? esc(m.name) : '—') + '</span></div></div>';
 
   h += '<div class="grid g2">' +
@@ -358,13 +358,13 @@ function vTeam() {
     '<button class="btn btn-primary btn-sm" data-act="wall-post">' + ico('send', 'sm') + 'Yuborish</button></div></div></div>';
 
   h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('target') + 'Jamoaviy loyiha holati</h2><span class="tag a">' + ico('bolt', 'sm') + 'Hafta 6</span></div>' +
-    '<div class="grid g3">' + g.members.map(id => { const s = get(S.students, id); const p = subOf(s, task.id); const v = p ? STATUS[p.status] : STATUS.none;
+    '<div class="grid g3">' + g.members.map(id => { const s = get(S.students, id); const p = task ? subOf(s, task.id) : null; const v = p ? STATUS[p.status] : STATUS.none;
       return '<div class="card tight soft"><div class="row" style="gap:9px">' + avatar(s, 'xs') + '<div class="small ellip grow" style="font-weight:700">' + esc(s.name.split(' ')[0]) + '</div></div>' +
       '<div class="row between" style="margin-top:9px"><span class="tag ' + (p && p.status === 'accepted' ? 'g' : '') + '">' + esc(v.l) + '</span>' +
       '<span class="xs muted">' + (p ? fmtD(p.at) : '—') + '</span></div></div>'; }).join('') + '</div>' +
     '<div class="divider"></div>' +
-    '<div class="row wrap between" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('cal', 'sm') + 'Jamoaviy deadline: <b>' + fmtFull(g.dl[task.id] || task.dl) + '</b></div>' +
-    '<button class="btn btn-sm btn-soft" data-act="team-submit" data-id="' + task.id + '">' + ico('upload', 'sm') + 'Jamoaviy topshirish</button></div></div>';
+    '<div class="row wrap between" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('cal', 'sm') + (task ? 'Jamoaviy deadline: <b>' + fmtFull(g.dl[task.id] || task.dl) + '</b>' : 'Deadline vazifa bilan birga belgilanadi') + '</div>' +
+    (task ? '<button class="btn btn-sm btn-soft" data-act="team-submit" data-id="' + task.id + '">' + ico('upload', 'sm') + 'Jamoaviy topshirish</button>' : '') + '</div></div>';
   return h;
 }
 

@@ -312,6 +312,7 @@ document.addEventListener('click', e => {
     case 'go': e.preventDefault(); go(t.dataset.route); break;
     case 'go-team': go(isAdmin() ? 'adminGroups' : 'team'); break;
     case 'go-settings': go('settings'); break;
+    case 'import-csv': csvImportModal(UI.csvReport || null); break;
     case 'palette': openPalette(); break;
     case 'pal-run': { const it = (PAL.visible || [])[parseInt(t.dataset.idx, 10)]; if (it) runPalette(it.act); break; }
     case 'shortcuts': shortcutsModal(); break;
@@ -775,18 +776,20 @@ document.addEventListener('submit', e => {
     const m = { id: uid('m'), n: S.modules.length + 1, title: fd.get('title'), desc: fd.get('desc') || '', icon: 'spark' };
     S.modules.push(m); toast('ok', 'Yangi modul qo‘shildi', m.n + '-modul: ' + m.title); closeModal(); save(); paint(true); return;
   }
+  if (kind === 'csv-import') {
+    const rep = UI.csvReport;
+    if (!rep || !rep.ok.length) { toast('warn', 'Import qilinmadi', 'Avval CSV faylni tanlang.'); closeModal(); return; }
+    const res = importStudents(rep);
+    UI.csvReport = null;
+    toast('ok', 'Import yakunlandi', res.created.length + ' talaba qo‘shildi' + (res.newGroups ? ', ' + res.newGroups + ' yangi jamoa' : '') + '.');
+    if (res.created.length) csvDoneModal(res); else closeModal();
+    paint(true); return;
+  }
   if (kind === 'new-student') {
-    /* 1) Akkaunt: HEMIS ID tekshiriladi + unikal nick beriladi */
-    const res = createStudentAccount({ name: fd.get('name'), phone: fd.get('phone'), hemisId: fd.get('hemis'), groupId: fd.get('group') });
+    const res = addStudentRecord({ name: fd.get('name'), phone: fd.get('phone'), hemisId: fd.get('hemis'), groupId: fd.get('group'), tg: fd.get('tg'), goal: fd.get('goal') });
     if (res.err) { toast('warn', 'Qo‘shilmadi', res.msg); return; }
-    /* 2) Talaba profili akkauntga bog'lanadi */
-    const s = { id: uid('s'), name: fd.get('name'), tg: fd.get('tg') || '@talaba', phone: fd.get('phone') || '+998', group: fd.get('group') || '', xp: 0, wxp: 0, streak: 0, coins: 0, level: 'junior', act: true, score: 0, joined: todayISO(), bio: 'Yangi a’zo.', goal: fd.get('goal') || 'Birinchi loyihani chiqarish', done: [], last: 0 };
-    S.students.push(s);
-    res.acc.studentId = s.id; res.acc.groupId = s.group || null;
-    if (s.group) { const g = groupOf(s.group); if (g) g.members.push(s.id); }
-    S.friends[s.id] = []; S.incoming[s.id] = []; S.sent[s.id] = [];
-    save(); closeModal();
-    toast('ok', 'Talaba qo‘shildi', s.name + ' • nick: @' + res.acc.nick);
+    closeModal();
+    toast('ok', 'Talaba qo‘shildi', res.student.name + ' • nick: @' + res.acc.nick);
     loginCardModal(res.acc.id); paint(true); return;
   }
   if (kind === 'new-admin' || kind === 'admin-edit') {
@@ -841,6 +844,18 @@ document.addEventListener('change', e => {
   }
   const imp = e.target.closest('#import-json');
   if (imp && imp.files && imp.files[0]) { importState(imp.files[0]); return; }
+  const csv = e.target.closest('#import-csv');
+  if (csv && csv.files && csv.files[0]) {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const rep = csvStudentsReport(String(fr.result || ''));
+      if (rep.fatal) { toast('warn', 'Fayl o‘qilmadi', rep.fatal); return; }
+      UI.csvReport = rep;
+      csvImportModal(rep);
+    };
+    fr.readAsText(csv.files[0], 'utf-8');
+    return;
+  }
   const t = e.target.closest('[data-act="move-student"]');
   if (t && t.value) {
     const fromId = t.dataset.g, toId = t.value, to = groupOf(toId);

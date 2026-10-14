@@ -90,6 +90,54 @@ function addStudentModal() {
     '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('plus', 'sm') + 'Qo‘shish</button>' +
     '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>', 'narrow');
 }
+/* CSV import oynasi: fayl tanlanadi → hisobot → tasdiqlansa bazaga qo'shiladi */
+function csvImportModal(report) {
+  let body = '';
+  if (!report) {
+    body = '<div class="card soft tight" style="background:rgba(124,92,255,.10);border-color:rgba(124,92,255,.28)">' +
+      '<div class="row" style="gap:10px">' + ico('upload', 'sm') +
+      '<div><div class="small" style="font-weight:750">CSV fayl: ism, HEMIS ID, telefon, jamoa…</div>' +
+      '<div class="xs muted" style="margin-top:3px">Ustunlar: <b>ism_familiya, hemis_id</b> (majburiy) • telefon, jamoa, telegram, maqsad (ixtiyoriy). ' +
+      'Jamoa nomi yangi bo‘lsa — avtomatik yaratiladi. Har talabaga unikal nick beriladi.</div></div></div></div>' +
+      '<div class="field" style="margin-top:14px"><label>Faylni tanlang (.csv)</label>' +
+      '<input class="inp" type="file" id="import-csv" accept=".csv,text/csv"></div>' +
+      '<div class="xs muted" style="margin-top:6px">Shablon: <b>docs/talabalar-shabloni.csv</b> (Excel’da «Save as CSV»).</div>';
+  } else {
+    const ok = report.ok, errs = report.errors || [], warns = report.warns || [];
+    body = '<div class="grid g3" style="gap:10px">' +
+      '<div class="card tight soft tc"><div class="big" style="color:var(--ok)">' + ok.length + '</div><div class="xs muted">qabul qilinadi</div></div>' +
+      '<div class="card tight soft tc"><div class="big" style="color:' + (warns.length ? 'var(--warn)' : 'var(--txt)') + '">' + warns.length + '</div><div class="xs muted">ogohlantirish</div></div>' +
+      '<div class="card tight soft tc"><div class="big" style="color:' + (errs.length ? 'var(--danger)' : 'var(--txt)') + '">' + errs.length + '</div><div class="xs muted">xato (o‘tkazib yuboriladi)</div></div></div>' +
+      (report.groups.length ? '<div class="small t2" style="margin-top:10px">Jamoalar: <b>' + esc(report.groups.join(', ')) + '</b></div>' : '') +
+      (errs.length ? '<div class="divider"></div><div class="up muted" style="margin-bottom:6px">Xatolar</div><div class="col" style="gap:5px;max-height:150px;overflow:auto">' +
+        errs.slice(0, 12).map(e => '<div class="xs" style="color:var(--danger)">• ' + esc(e) + '</div>').join('') +
+        (errs.length > 12 ? '<div class="xs muted">… yana ' + (errs.length - 12) + ' ta</div>' : '') + '</div>' : '') +
+      (warns.length ? '<div class="divider"></div><div class="up muted" style="margin-bottom:6px">Ogohlantirishlar</div><div class="col" style="gap:5px;max-height:120px;overflow:auto">' +
+        warns.slice(0, 8).map(e => '<div class="xs muted">• ' + esc(e) + '</div>').join('') +
+        (warns.length > 8 ? '<div class="xs muted">… yana ' + (warns.length - 8) + ' ta</div>' : '') + '</div>' : '');
+  }
+  const footer = report
+    ? '<form data-form="csv-import" style="margin-top:14px"><div class="row" style="gap:10px">' +
+      '<button class="btn btn-primary grow" type="submit"' + (report.ok.length ? '' : ' disabled') + '>' + ico('check', 'sm') + 'Import qilish (' + report.ok.length + ')' + '</button>' +
+      '<button class="btn btn-soft" type="button" data-act="import-csv">' + ico('upload', 'sm') + 'Boshqa fayl</button>' +
+      '<button class="btn btn-ghost" type="button" data-act="close-modal">Bekor</button></div></form>'
+    : '';
+  openModal(mhead('CSV orqali talaba import qilish', report ? 'Tekshiruv natijasi — tasdiqlasangiz bazaga qo‘shiladi' : 'Tayyor ro‘yxatni bir yo‘la yuklash') + body + footer, 'narrow');
+}
+/* Import hisoboti + yangi kirish kartochkalari ro'yxati */
+function csvDoneModal(res) {
+  openModal(mhead('Import yakunlandi', res.created.length + ' talaba qo‘shildi' + (res.newGroups ? ' • ' + res.newGroups + ' yangi jamoa' : '')) +
+    '<div class="card soft tight" style="background:rgba(34,211,238,.10);border-color:rgba(34,211,238,.28)">' +
+    '<div class="xs muted">Har bir talaba kirish kartochkasini oldi: nick + HEMIS ID bilan kiradi, parolni birinchi kirishda o‘zi o‘rnatadi. ' +
+    'Kartochkalarni chop etish uchun «Chop etish / PDF» tugmasidan foydalaning.</div></div>' +
+    '<div class="col" style="gap:7px;margin-top:12px;max-height:280px;overflow:auto">' +
+    res.created.map(x => '<div class="lrow"><div class="lead">' + ico('key', 'sm') + '</div>' +
+      '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(x.student.name) + '</div>' +
+      '<div class="xs muted">@' + esc(x.acc.nick) + ' • HEMIS: ' + esc(x.acc.hemisId) + (x.student.group ? ' • ' + esc((groupOf(x.student.group) || {}).name || '') : '') + '</div></div>' +
+      '<button class="btn btn-xs btn-soft" data-act="login-card" data-id="' + esc(x.acc.id) + '">' + ico('doc', 'sm') + 'Kartochka</button></div>').join('') +
+    '</div><div class="row" style="gap:10px;margin-top:14px"><button class="btn btn-primary grow" data-act="print">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
+    '<button class="btn btn-ghost" data-act="close-modal">Yopish</button></div>', 'wide');
+}
 function createGroupModal() {
   openModal(mhead('Yangi jamoa tuzish', '3–4 kishilik startap jamoasi') +
     '<form data-form="new-group" class="col" style="gap:13px">' +
@@ -241,11 +289,14 @@ function vStudents() {
     : myGroup(s) && myGroup(s).id === f);
   let h = '<div class="page-head"><div><h1 class="h1">Talabalar</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Guruh, daraja va faollik bo‘yicha kuzatuv. Profilni ochib vazifa, deadline va baholarni ko‘rish mumkin.</p></div>' +
-    '<button class="btn btn-primary btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button></div>';
+    '<div class="row wrap" style="gap:9px">' +
+    (actionAllowed('students') ? '<button class="btn btn-soft btn-sm" data-act="import-csv">' + ico('upload', 'sm') + 'CSV import</button>' : '') +
+    (actionAllowed('students') ? '<button class="btn btn-primary btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' : '') + '</div></div>';
 
   if (!S.students.length) return h + emptyCard('users-plus', 'Hali talaba yo‘q',
-    'Birinchi talabani qo‘shing: ism-familiya va HEMIS ID (12 xona) kifoya. Tizim unikal nick beradi, siz kirish kartochkasini chop etib berasiz.',
-    actionAllowed('students') ? '<button class="btn btn-primary" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' : '');
+    'Birinchi talabani qo‘shing (ism-familiya + HEMIS ID) yoki tayyor ro‘yxatni CSV fayl bilan bir yo‘la yuklang. Tizim har biriga unikal nick beradi va kirish kartochkalarini chiqaradi.',
+    actionAllowed('students') ? '<button class="btn btn-primary" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>' +
+      '<button class="btn btn-soft" data-act="import-csv">' + ico('upload', 'sm') + 'CSV import</button>' : '');
 
   h += '<div class="grid g4">' +
     kpi('users', S.students.length, 'Jami talaba', S.groups.length + ' jamoada', '') +
@@ -400,8 +451,8 @@ function vAdminGroups() {
 
   h += '<div class="grid g2">' + S.groups.map(g => {
     const m = mentorOf(g.mentor);
-    const task = S.tasks[2];
-    const donePct = Math.round(g.members.filter(id => { const p = subOf(get(S.students, id), task.id); return p && p.status === 'accepted'; }).length / g.members.length * 100);
+    const task = projTasks()[0] || (S.tasks.length ? S.tasks[S.tasks.length - 1] : null);
+    const donePct = task && g.members.length ? Math.round(g.members.filter(id => { const p = subOf(get(S.students, id), task.id); return p && p.status === 'accepted'; }).length / g.members.length * 100) : 0;
     return '<div class="card"><div class="card-h"><div class="row" style="gap:12px">' + crest(g, 46) +
       '<div><div class="row" style="gap:7px"><h2 class="h2">' + esc(g.name) + '</h2><span class="tag ' + (teamRank(g.id) === 1 ? 'a' : '') + '">#' + teamRank(g.id) + '</span></div>' +
       '<div class="xs muted ellip" style="max-width:230px">' + esc(g.project) + '</div></div></div>' +
@@ -479,7 +530,7 @@ function vStats() {
   const k = kpisAdmin();
   const modStats = S.modules.map(m => { const done = S.students.filter(s => modulePct(s, m.id).pct === 100).length;
     return { m, done, pct: S.students.length ? Math.round(done / S.students.length * 100) : 0 }; });
-  const deployed = S.students.filter(s => ['t4', 't5'].some(t => { const p = subOf(s, t); return p && p.status === 'accepted'; })).length;
+  const deployed = S.students.filter(s => hasDeployed(s)).length;
   const grads = S.students.filter(s => certsOf(s).length > 0).length;
   const byGroup = [...S.groups].sort((a, b) => b.xp - a.xp);
   const maxg = Math.max(...byGroup.map(g => g.xp));

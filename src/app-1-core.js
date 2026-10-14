@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -144,6 +144,24 @@ function purgeDemoState(p) {
   base.meta.purgedAt = todayISO();
   return base;
 }
+/* Yetim ssilkalarni tozalash: jamoa a'zosi, do'stlar, topshiriqlar — hammasi mavjud
+   talabalarga bog'lanadi. Bu invariant butun interfeysda null-tekshiruvlarni yo'q qiladi. */
+function pruneOrphans(st0) {
+  const st = st0 || S;
+  const ids = new Set((st.students || []).map(x => x.id));
+  const gids = new Set((st.groups || []).map(g => g.id));
+  (st.groups || []).forEach(g => { g.members = (g.members || []).filter(id => ids.has(id)); });
+  (st.students || []).forEach(x => { if (x.group && !gids.has(x.group)) x.group = ''; });
+  ['friends', 'incoming', 'sent'].forEach(k => {
+    if (st[k]) Object.keys(st[k]).forEach(id => {
+      if (!ids.has(id)) { delete st[k][id]; return; }
+      st[k][id] = (st[k][id] || []).filter(f => ids.has(f));
+    });
+  });
+  if (Array.isArray(st.submissions)) st.submissions = st.submissions.filter(p => ids.has(p.st));
+  if (st.notifs) Object.keys(st.notifs).forEach(id => { if (!ids.has(id)) delete st.notifs[id]; });
+  return st;
+}
 function loadState() {
   try {
     const raw = localStorage.getItem(VKEY);
@@ -162,7 +180,7 @@ function loadState() {
     if (!Array.isArray(p.accounts)) p.accounts = [];
     if (p.session && !p.accounts.some(a => a.id === p.session.acc)) p.session = null;
     if (!p.session) p.session = null;
-    return p;
+    return pruneOrphans(p);
   } catch (e) { return blankState(); }
 }
 function save() { try { localStorage.setItem(VKEY, JSON.stringify(S)); } catch (e) { } }
@@ -210,6 +228,14 @@ function weeklyData() {
   const base = Math.round(tot / 7);
   return DAY_L.map((l, i) => ({ l, v: base ? Math.round(base * (0.74 + i * 0.085)) : 0 }));
 }
+/* Oxirgi modul (yakuniy loyiha moduli) va uning vazifalari — id'lar qattiq yozilmaydi */
+const lastModuleId = () => (S.modules.length ? S.modules[S.modules.length - 1].id : null);
+const projTasks = () => S.tasks.filter(t => t.m === lastModuleId());
+/* Talaba yakuniy modulda qabul qilingan ish topshirganmi? */
+const hasDeployed = st => projTasks().some(t => { const p = subOf(st, t.id); return p && p.status === 'accepted'; });
+/* Talaba yakuniy modulda birorta ish topshirganmi? */
+const hasFinalWork = st => projTasks().some(t => !!subOf(st, t.id));
+
 /* Eng yuqori XP'li jamoa (bo'sh bo'lsa null) */
 const topGroup = () => (S.groups.length ? [...S.groups].sort((a, b) => b.xp - a.xp)[0] : null);
 /* Bo'sh holat kartasi: ikonka + sarlavha + matn + ixtiyoriy tugma */
@@ -252,9 +278,9 @@ function medal(st) {
 function myBadges(st) {
   const a = acceptedOf(st);
   const p2 = modulePct(st, 'm2');
-  const deployed = ['t4', 't5'].some(t => { const s = subOf(st, t); return s && s.status === 'accepted'; });
+  const deployed = hasDeployed(st);
   const m1 = modulePct(st, 'm1');
-  const own = { b1: m1.done >= 1, b2: p2.pct === 100, b3: a >= 3, b4: st.streak >= 7, b5: (S.walls[(myGroup(st) || {}).id] || []).some(w => w.who === st.id), b6: deployed, b7: a >= 5, b8: !!subOf(st, 't6') };
+  const own = { b1: m1.done >= 1, b2: p2.pct === 100, b3: a >= 3, b4: st.streak >= 7, b5: (S.walls[(myGroup(st) || {}).id] || []).some(w => w.who === st.id), b6: deployed, b7: a >= 5, b8: hasFinalWork(st) };
   return S.badges.map(b => ({ ...b, own: !!own[b.id] }));
 }
 function certsOf(st) {
@@ -290,7 +316,7 @@ function activityPct() { return S.students.length ? Math.round(activeCount() / S
 /* ---------- 5. UI holati ---------- */
 const UI = { route: 'home', authShow: false, authRole: 'student', authErr: '', firstPass: null, newCard: null, theme: 'dark', cal: 0, calMonthly: false,
   taskFilter: 'all', studentsFilter: 'all', friendTab: 'friends', search: '', reviewFilter: 'all',
-  module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 } };
+  module: null, installEvt: null, lastLesson: null, collapsed: false, sort: { k: 'name', d: 1 }, csvReport: null };
 
 function toast(kind, title, text) {
   const map = { ok: 'check-c', warn: 'alert', err: 'x', info: 'spark' };
@@ -703,6 +729,102 @@ function createFounderAccount(data) {
   accounts().push(acc); save();
   return { ok: true, acc };
 }
+/* ---------- 3b. Talaba yaratish (bitta joydan: forma ham, CSV import ham) ---------- */
+function addStudentRecord(d) {
+  const res = createStudentAccount(d);
+  if (res.err) return res;
+  const s0 = { id: uid('s'), name: String(d.name || '').trim(), tg: String(d.tg || '').trim() || '@talaba',
+    phone: String(d.phone || '').trim() || '+998', group: d.groupId || '',
+    xp: 0, wxp: 0, streak: 0, coins: 0, level: 'junior', act: true, score: 0, joined: todayISO(),
+    bio: d.bio || 'Yangi a’zo.', goal: String(d.goal || '').trim() || 'Birinchi loyihani chiqarish', done: [], last: 0 };
+  S.students.push(s0);
+  res.acc.studentId = s0.id; res.acc.groupId = s0.group || null;
+  if (s0.group) { const g = groupOf(s0.group); if (g) g.members.push(s0.id); }
+  S.friends[s0.id] = []; S.incoming[s0.id] = []; S.sent[s0.id] = [];
+  save();
+  return { ok: true, acc: res.acc, student: s0 };
+}
+/* ---------- 3c. CSV import: ustunlarni tanish + tekshirish + bazaga qo'shish ---------- */
+const CSV_ALIASES = {
+  name: ['ism', 'ism_familiya', 'fish', 'f.i.sh', 'f.i.o', 'fish', 'name', 'talaba', 'talaba f.i.sh', 'fullname'],
+  hemis: ['hemis', 'hemis_id', 'hemisid', 'hemis id', 'id'],
+  phone: ['telefon', 'tel', 'phone', 'raqam'],
+  group: ['jamoa', 'guruh', 'group', 'team'],
+  tg: ['telegram', 'tg', 'username'],
+  goal: ['maqsad', 'goal', 'maqsadi']
+};
+function csvDelim(line) { const c = [',', ';', '\t']; let best = ',', n = 0; c.forEach(x => { const k = line.split(x).length; if (k > n) { n = k; best = x; } }); return best; }
+function parseCSV(text) {
+  const clean = String(text || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+  const lines = clean.split('\n').filter(l => l.trim() !== '' && !l.trim().startsWith('#'));
+  if (!lines.length) return [];
+  const sep = csvDelim(lines[0]);
+  const rows = []; let cur = [], cell = '', q = false;
+  const pushCell = () => { cur.push(cell.trim()); cell = ''; };
+  for (const line of lines) {
+    q = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (q) { if (ch === '"' && line[i + 1] === '"') { cell += '"'; i++; } else if (ch === '"') q = false; else cell += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === sep) pushCell();
+      else cell += ch;
+    }
+    pushCell(); rows.push(cur); cur = [];
+  }
+  return rows;
+}
+function csvMapHeader(row) {
+  const map = {};
+  row.forEach((h, i) => {
+    const k = String(h || '').toLowerCase().replace(/["']/g, '').trim();
+    Object.keys(CSV_ALIASES).forEach(f => { if (map[f] === undefined && CSV_ALIASES[f].includes(k)) map[f] = i; });
+  });
+  return map;
+}
+/* CSV matnini tekshirib tayyor qatorlar + xato/ogohlantirishlar qaytaradi */
+function csvStudentsReport(text) {
+  const rows = parseCSV(text);
+  if (rows.length < 2) return { fatal: 'Faylda sarlavha va kamida bitta talaba qatori bo‘lishi kerak.' };
+  const map = csvMapHeader(rows[0]);
+  if (map.name === undefined || map.hemis === undefined) return { fatal: 'Majburiy ustunlar topilmadi: «ism_familiya» va «hemis_id». Shablon: docs/talabalar-shabloni.csv' };
+  const ok = [], errors = [], warns = [], seen = {}, seenPhone = {};
+  rows.slice(1).forEach((r, i) => {
+    const line = i + 2;
+    const g = f => (map[f] === undefined ? '' : String(r[map[f]] || '').trim());
+    const name = g('name'), hemis = digitsOnly(g('hemis')), phone = g('phone'), group = g('group');
+    if (name.length < 3) { errors.push(line + '-qator: ism juda qisqa («' + name + '»).'); return; }
+    if (!validHemis(hemis)) { errors.push(line + '-qator: HEMIS ID 12 xona emas («' + g('hemis') + '»).'); return; }
+    if (accByHemis(hemis)) { errors.push(line + '-qator: ' + name + ' — bu HEMIS ID band (' + accByHemis(hemis).nick + ').'); return; }
+    if (seen[hemis]) { errors.push(line + '-qator: ' + name + ' — faylda takrorlangan HEMIS ID.'); return; }
+    seen[hemis] = 1;
+    if (phone && (seenPhone[phone] || accounts().some(a => a.phone && a.phone === phone))) warns.push(line + '-qator: ' + name + ' — telefon boshqa talabada ham bor.');
+    if (phone) seenPhone[phone] = 1;
+    if (!phone) warns.push(line + '-qator: ' + name + ' — telefon yo‘q.');
+    if (!group) warns.push(line + '-qator: ' + name + ' — jamoasiz (keyin biriktirish mumkin).');
+    ok.push({ name, hemisId: hemis, phone, group, tg: g('tg'), goal: g('goal') });
+  });
+  const groups = [...new Set(ok.map(x => x.group).filter(Boolean))];
+  return { ok, groups, errors, warns };
+}
+/* Tekshirilgan qatorlarni bazaga qo'shadi (jamoa kerak bo'lsa avtomatik yaratiladi) */
+function importStudents(report) {
+  const gMap = {};
+  const created = [];
+  let newGroups = 0;
+  report.groups.forEach(gName => {
+    const found = S.groups.find(g => String(g.name).toLowerCase() === String(gName).toLowerCase());
+    const g = found || { id: uid('g'), name: gName, project: '', members: [], mentor: null, xp: 0, dl: {}, color: 'p' };
+    if (!found) { S.groups.push(g); newGroups++; }
+    gMap[gName] = g.id;
+  });
+  report.ok.forEach(row => {
+    const res = addStudentRecord({ name: row.name, phone: row.phone, hemisId: row.hemisId, groupId: row.group ? gMap[row.group] : '', tg: row.tg, goal: row.goal });
+    if (res.ok) created.push(res);
+  });
+  save();
+  return { created, newGroups };
+}
 function createStudentAccount(data) {
   const name = String(data.name || '').trim(), phone = String(data.phone || '').trim(), hemis = digitsOnly(data.hemisId);
   if (name.length < 3) return { err: 'name', msg: 'Ism-familiyani to‘liq kiriting.' };
@@ -901,7 +1023,8 @@ function subViewModal(p) {
 }
 function teamModal(g) {
   const m = mentorOf(g.mentor);
-  const task = S.tasks.find(t => { const s = S.submissions.find(p => p.task === t.id && g.members.includes(p.st)); return !!s; }) || S.tasks[2];
+  const task = S.tasks.find(t => { const s = S.submissions.find(p => p.task === t.id && g.members.includes(p.st)); return !!s; })
+    || projTasks()[0] || (S.tasks.length ? S.tasks[S.tasks.length - 1] : null);
   openModal(
     mhead(g.name + ' jamoasi', g.project) +
     '<div class="row wrap" style="gap:8px;margin-bottom:12px"><span class="tag p">' + ico('trophy', 'sm') + 'Reyting #' + teamRank(g.id) + '</span>' +
@@ -909,8 +1032,9 @@ function teamModal(g) {
     (m ? '<span class="tag c">' + ico('user', 'sm') + esc(m.name) + '</span>' : '') + '</div>' +
     '<div class="grid g3" style="margin-bottom:12px">' + g.members.map(id => { const st = get(S.students, id); return '<div class="card tight soft"><div class="row">' + avatar(st, 'sm') + '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(st.name) + '</div><div class="xs muted">' + nf(st.xp) + ' XP • ' + (onl(st) ? 'onlayn' : st.last + ' kun oldin') + '</div></div></div></div>'; }).join('') + '</div>' +
     '<div class="card soft"><div class="up muted" style="margin-bottom:8px">Jamoaviy loyiha holati</div>' +
-    '<div class="h3">' + esc(task.title) + '</div><div class="small muted" style="margin:4px 0 10px">Deadline: ' + fmtFull(g.dl[task.id] || task.dl) + '</div>' +
-    '<div class="col" style="gap:9px">' + g.members.map(id => { const st = get(S.students, id); const p = subOf(st, task.id); const s = p ? STATUS[p.status] : STATUS.none; return '<div class="row small"><span class="grow ellip">' + esc(st.name) + '</span><span class="tag ' + (p && p.status === 'accepted' ? 'g' : '') + '">' + ico('user', 'sm') + esc(s.l) + '</span></div>'; }).join('') + '</div></div>' +
+    '<div class="h3">' + esc(task ? task.title : 'Jamoaviy vazifa hali berilmagan') + '</div>' +
+    '<div class="small muted" style="margin:4px 0 10px">' + (task ? 'Deadline: ' + fmtFull(g.dl[task.id] || task.dl) : 'Deadline vazifa bilan birga belgilanadi') + '</div>' +
+    '<div class="col" style="gap:9px">' + g.members.map(id => { const st = get(S.students, id); const p = task ? subOf(st, task.id) : null; const s = p ? STATUS[p.status] : STATUS.none; return '<div class="row small"><span class="grow ellip">' + esc(st.name) + '</span><span class="tag ' + (p && p.status === 'accepted' ? 'g' : '') + '">' + ico('user', 'sm') + esc(s.l) + '</span></div>'; }).join('') + '</div></div>' +
     '<div class="row" style="margin-top:14px"><button class="btn btn-primary grow" data-act="go-team">' + ico('users', 'sm') + 'Jamoa sahifasiga o‘tish</button></div>', 'wide');
 }
 function teamSubmitModal(task) {

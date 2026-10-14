@@ -4,7 +4,7 @@ Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** bar
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
 **eng yangi holat — oxirgi bo'lim (v2.0.0)**.
 
-**Oxirgi versiya:** v2.0.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (349 test, 119 joylashuv, 65 skrinshot)
+**Oxirgi versiya:** v2.1.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (379 test, 119 joylashuv, 66 skrinshot)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -13,6 +13,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [v1.4.0](#v140--mvp-haqiqiy-akkaunt-tizimi) | v1.4.0 | Haqiqiy akkaunt tizimi: HEMIS ID + nick, parol, sessiya |
 | [v1.4.1](#v141--mvpni-mukammal-qilish-ruxsatlar-parol-boshqaruvi-namunareal-ajratish) | v1.4.1 | Rollar/ruxsatlar, parol boshqaruvi, joylashuv auditi |
 | [**v2.0.0**](#v200--keraksiz-narsalarni-ochirib-tashla-namuna-malumotlar-butunlay-olib-tashlandi) | **v2.0.0** | **Namuna ma'lumotlar butunlay olib tashlandi: bo'sh start + Founder yaratish** |
+| [**v2.1.0**](#v210--haqiqiy-talabalar-royxatini-yuklash-csv-import) | **v2.1.0** | **CSV import: haqiqiy talabalar ro'yxatini platformada yuklash + bo'sh tuzilmalar mustahkamligi** |
 
 ---
 
@@ -377,3 +378,40 @@ ishga tushadi, real talabalar keyin `npm run import` bilan yuklanadi, adminlar e
 | `src/app-4-app.js` | «Birinchi ishga tushirish» ekrani + forması, `data-form="setup-founder"` oqimi, namuna amallari/`login()` olib tashlandi |
 | `tools/tests/run.js`, `screens.js`, `layout.js` | Fixtura bilan seed qilinadi; namuna paneli testlari → bo'sh holat + migratsiya + statik qo'riqchi testlariga almashtirildi |
 | `README.md`, `docs/mvp-reja.md`, `docs/talabalar-shabloni.csv` | Hujjatlar yangilandi; shablondan NAMUNA qatorlar olib tashlandi (import vositasi `#` izohlarni o'qiydi) |
+
+---
+
+## v2.1.0 — Haqiqiy talabalar ro'yxatini yuklash (CSV import)
+
+**Vazifa:** «real talabalar bazasi kiritilishi kerak — har oqim uchun kod o'zgartirib qayta deploy qilmasdan».
+
+### Nima qo'shildi
+
+| # | O'zgarish | Tafsilot |
+|---|---|---|
+| 1 | **CSV import oqimi (admin)** | Admin → Talabalar → «CSV import» → fayl tanlash → **hisobot** (qabul / ogohlantirish / xato) → tasdiqlash → talabalar + akkauntlar + jamoalar avtomatik yaratiladi |
+| 2 | **Kirish kartochkalari** | Import tugagach har bir talabaning nick + HEMIS ID kartochkasi ro'yxati chiqadi, «Chop etish / PDF» bilan tarqatiladi |
+| 3 | **Ustunlarni tanish** | Sarlavhalar har xil yozilishda taniladi: `ism_familiya`/`f.i.sh`/`name`, `hemis_id`/`HEMIS ID`, `telefon`, `jamoa`/`guruh`, `telegram`, `maqsad`; ajratuvchi `,` / `;` / tab; `#` izoh qatorlari o'qiladi |
+| 4 | **Tekshiruv** | 12 xonali HEMIS, takrorlangan HEMIS (fayl ichida va bazada), qisqa ism — xato sifatida o'tkazib yuboriladi; telefonsiz/jamoasiz qatorlar — ogohlantirish |
+| 5 | **Jamoalar** | Jamoa nomi yangi bo'lsa avtomatik yaratiladi; mavjudi bo'lsa talaba o'sha jamoaga qo'shiladi |
+| 6 | **Bitta kod yo'li** | Bitta talaba qo'shish ham, CSV import ham `addStudentRecord()` ishlatadi — mantiq takrorlanmaydi |
+| 7 | **Yetim ssilkalar tozalanadi** | `pruneOrphans()`: o'chirilgan talaba jamoa a'zoligidan, do'stlar/bildirishnomalar/topshiriqlardan ham chiqadi (`loadState()` da har ochilishda) |
+| 8 | **Qolgan hardkodlar olib tashlandi** | `S.tasks[2]` (jamoalar sahifasi, jamoa oynasi) → `projTasks()`/oxirgi vazifa; vazifa hali berilmagan bo'lsa: «Jamoaviy vazifa hali berilmagan», deadline «—» |
+
+### Nima tuzatildi
+
+1. **Jamoalar bo'limi vazifasiz holatda yiqilardi** — `S.tasks[2].id` (`undefined`) o'qilishi; endi vazifa bo'lmasa 0% va xatosiz.
+2. **Jamoa oynasi (`group-open`) 3 tadan kam vazifa bo'lsa yiqilardi** — `task.title` himoyasiz edi; endi «Jamoaviy vazifa hali berilmagan».
+3. **Jamoalar sahifasida bo'sh a'zo ro'yxatida `NaN`** — 0 ga bo'lish himoyalandi.
+4. **`teamScore` hisobi** bo'sh jamoalarda `NaN` berardi — `Math.max(1, …)`.
+
+### Tekshiruv natijalari (v2.1.0)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **379 ta, 0 xato** — 23 guruh (yangi: `22. CSV import`, `23. Bo'sh tuzilmalar va yetim a'zolar`) |
+| Joylashuv testi | ✔ **119 tekshiruv, 0 toshish** (7 o'lcham, 17 sahifa) |
+| Skrinshotlar | ✔ **66 ta surat (76 qadam)** — yangi: `76-v2-csv-import` (1568×768) |
+| To'liq real oqim (Playwright) | ✔ Bo'sh platforma → Founder → CSV import (4 talaba, 2 jamoa) → vazifa → talaba kirishi (parol o'rnatish) → topshirish → baholash (92, +125 XP) → statistika: **0 JS xatosi** |
+| Chekka holatlar (Playwright) | ✔ Vazifasiz jamoa, o'chirilgan talaba, yakka talaba, bo'sh statistika — yiqilish/`NaN` yo'q, 0 JS xatosi |
+| Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.1.0** |
