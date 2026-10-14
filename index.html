@@ -4306,7 +4306,22 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => { }));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => { });
+    /* Yangi deploy chiqqanda eski keshda qolib ketmaslik:
+       yangi service worker boshqaruvni olgach — bir marta avtomatik yangilanadi */
+    let hadCtl = !!navigator.serviceWorker.controller, done = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadCtl) { hadCtl = true; return; }
+      if (done) return; done = true;
+      try { toast('ok', 'Yangi versiya o‘rnatildi', 'Ilova yangilanmoqda…'); } catch (e) { }
+      setTimeout(() => location.reload(), 900);
+    });
+    /* Uzoq ochiq turgan tablar uchun: har 30 daqiqada yangilanish bor-yo‘qligi tekshiriladi */
+    setInterval(() => {
+      navigator.serviceWorker.getRegistration().then(r => { if (r) r.update().catch(() => { }); }).catch(() => { });
+    }, 30 * 60 * 1000);
+  });
 }
 paint();
 </script>

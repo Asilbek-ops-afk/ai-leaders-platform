@@ -565,6 +565,20 @@ group('12. Sozlamalar, a11y, PWA, SEO');
   t('PWA ikonkalari 512px', fs.existsSync(path.join(ROOT, 'assets', 'icon-512.png')));
   t('OG rasm 1200x630 mavjud', fs.existsSync(path.join(ROOT, 'assets', 'og.png')));
   t('reduced-motion qo‘llab-quvvatlanadi', /prefers-reduced-motion/.test(HTML));
+  /* Yangi deploy avtomatik olinishi: eski keshda qolib ketmaslik */
+  t('service worker avtomatik yangilanish bilan (controllerchange → reload)', (() => {
+    const src = fs.readFileSync(path.join(ROOT, 'src', 'app-4-app.js'), 'utf8');
+    return /controllerchange/.test(src) && /location\.reload\(\)/.test(src) && /getRegistration\(\)\.then/.test(src);
+  })());
+  t('sw.js kesh nomi versiya bilan bog‘langan (har versiyada yangilanadi)', (() => {
+    const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+    const ver = /APP_VERSION = '([^']+)'/.exec(fs.readFileSync(path.join(ROOT, 'src', 'app-1-core.js'), 'utf8'))[1];
+    return sw.includes("'ai-leaders-v" + ver + "'");
+  })());
+  t('_headers: index.html va sw.js keshsiz (eski nusxa qolmasin)', (() => {
+    const h = fs.readFileSync(path.join(ROOT, 'build.js'), 'utf8');
+    return /index\.html[\s\S]{0,80}must-revalidate/.test(h) && /sw\.js[\s\S]{0,40}no-cache/.test(h);
+  })());
 }
 
 /* ============================ 13. QIDIRUV VA EKSPORT ====================== */
