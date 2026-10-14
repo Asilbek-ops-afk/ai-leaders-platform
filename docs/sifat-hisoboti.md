@@ -4,7 +4,7 @@ Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** bar
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
 **eng yangi holat — oxirgi bo'lim (v2.0.0)**.
 
-**Oxirgi versiya:** v2.1.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (391 test, 119 joylashuv, 68 skrinshot)
+**Oxirgi versiya:** v2.1.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (394 test, 119 joylashuv, 68 skrinshot, jonli sayt tasdiqlangan)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -410,10 +410,21 @@ ishga tushadi, real talabalar keyin `npm run import` bilan yuklanadi, adminlar e
 
 | Daraja | Natija |
 |---|---|
-| Funksional testlar | ✔ **391 ta, 0 xato** — 23 guruh (yangi: `22. CSV import` — import, hisobot, undo; `23. Bo'sh tuzilmalar va yetim a'zolar`) |
+| Funksional testlar | ✔ **394 ta, 0 xato** — 23 guruh (yangi: `22. CSV import` — import, hisobot, undo; `23. Bo'sh tuzilmalar va yetim a'zolar`; avtomatik yangilanish qo'riqchilari) |
 | Joylashuv testi | ✔ **119 tekshiruv, 0 toshish** (7 o'lcham, 17 sahifa) |
 | Skrinshotlar | ✔ **68 ta surat (78 qadam)** — yangi: `76-v2-csv-import`, `77-v2-import-yakunlandi`, `78-v2-undo-tugmasi` (1568×768) |
 | To'liq real oqim (Playwright) | ✔ Bo'sh platforma → Founder → CSV import (4 talaba, 2 jamoa) → vazifa → talaba kirishi (parol o'rnatish) → topshirish → baholash (92, +125 XP) → statistika: **0 JS xatosi** |
 | Import + undo oqimi (Playwright) | ✔ import (3 talaba) → undo (toza baza) → qayta import (4 talaba) → vazifa → topshirish → baholash (90, +125 XP): **0 JS xatosi** |
 | Chekka holatlar (Playwright) | ✔ Vazifasiz jamoa, o'chirilgan talaba, yakka talaba, bo'sh statistika — yiqilish/`NaN` yo'q, 0 JS xatosi |
 | Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.1.0** |
+| Jonli sayt (Playwright, `ai-leaders-platform.pages.dev`) | ✔ Demo ekran **yo'q**, Founder sozlash ekrani bor → Founder yaratish → CSV import (3 talaba, 2 jamoa, kartochkalar) → undo tugmasi → talaba birinchi kirishi (parol o'rnatish) → kabinet → yangilashdan keyin sessiya saqlanadi: **0 JS xatosi** |
+| Jonli testlar | ✔ `TEST_URL=… npm test` → **394/0**, `node tools/tests/live.js` → **18 ✓**, `TEST_URL=… npm run test:layout` → **119/0** |
+
+### Kesh yangilanishi (muhim)
+
+Ilgari foydalanuvchi eski (demo) versiyani ko'rishda davom etishi mumkin edi. Sabab: eski
+deploy havolalari (`3ab2e015…` = v1.4.0) o'sha kungi versiyada muzlab qoladi va asosiy
+havola o'zgarmaydi. Yechim: **service worker `controllerchange` → avtomatik reload**
+(«Yangi versiya o'rnatildi» xabari) + har 30 daqiqada `registration.update()`; testlar
+`sw.js` kesh nomi versiyaga bog'langanligini va `_headers` kesh siyosatini
+(`index.html` → `must-revalidate`, `sw.js` → `no-cache`) har safar tekshiradi.

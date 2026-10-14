@@ -7,7 +7,7 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **391 ta tekshiruv, 0 xato** |
+| 🧪 **Testlar** | `npm test` → **394 ta tekshiruv, 0 xato** |
 | 🔐 **Kirish** | Talaba: **HEMIS ID yoki nick** + parol • Admin: email + parol |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
@@ -145,7 +145,7 @@ ai-leaders/
 ├── tools/
 │   ├── make-assets.py         # ikon va OG rasmni generatsiya qiladi (Pillow)
 │   └── tests/
-│       ├── run.js             # 391 ta avtomatik test (jsdom)
+│       ├── run.js             # 394 ta avtomatik test (jsdom)
 │       ├── layout.js          # 119 joylashuv (overflow) tekshiruvi (playwright)
 │       ├── live.js            # 18 ta jonli sayt tekshiruvi
 │       ├── fixtures.js        # test uchun namuna ma'lumot (manba kodda YO'Q)
@@ -174,7 +174,7 @@ git clone https://github.com/Asilbek-ops-afk/ai-leaders-platform.git
 cd ai-leaders-platform
 
 npm run build       # src → index.html + dist/
-npm test            # 391 ta avtomatik test (jsdom kerak: npm install)
+npm test            # 394 ta avtomatik test (jsdom kerak: npm install)
 npm run test:layout # 119 ta joylashuv tekshiruvi (playwright: npx playwright install chromium)
 npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
 npm run check       # sintaksis tekshiruvi
@@ -198,7 +198,7 @@ npm run deploy                       # build + wrangler pages deploy dist/
 Loyihada ikki darajali sifat nazorati bor:
 
 **1) `npm test` — funksional testlar (jsdom, haqiqiy DOM)**
-23 guruh, **391 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
+23 guruh, **394 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
 **CSV import** (fayl → tekshiruv hisoboti → akkauntlar + kartochkalar), **chekka holatlar**
 (vazifasiz jamoa, yetim a'zo, bo'sh tuzilmalarda `NaN`siz hisoblar),
 kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
@@ -219,7 +219,7 @@ Admin va talaba bo'limlari ketma-ket ochiladi, har biri uchun `document.scrollWi
 18 ta tekshiruv: sahifa yuklanishi, brend, SEO/PWA teglari, manifest, service worker, rasm va sarlavha (header) sozlamalari.
 
 **5) `npm run test:remote` — jonli saytda to'liq funksional testlar**
-Xuddi `npm test` kabi to'liq to'plam (391 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
+Xuddi `npm test` kabi to'liq to'plam (394 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
 (`TEST_URL=<url> node tools/tests/run.js`). Deploydan keyin «haqiqatan shu versiya chiqdimi?» degan savolga javob beradi.
 
 ---
