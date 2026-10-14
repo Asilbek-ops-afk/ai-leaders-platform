@@ -3,6 +3,7 @@
    ========================================================================== */
 function adminStudentModal(st) {
   const p = progress(st), g = myGroup(st), m = medal(st), cs = certsOf(st);
+  const acc = accounts().find(a => a.studentId === st.id) || null;
   openModal(
     mhead(st.name, (g ? g.name + ' jamoasi • ' : '') + 'Daraja: ' + esc(m.n)) +
     '<div class="row wrap" style="gap:8px;margin-bottom:14px">' +
@@ -25,12 +26,20 @@ function adminStudentModal(st) {
     '<div class="row" style="margin-top:14px;gap:9px"><button class="btn btn-primary grow" data-act="nudge" data-id="' + st.id + '">' + ico('bell', 'sm') + 'Eslatma yuborish</button>' +
     '<button class="btn btn-soft" data-act="msg" data-id="' + st.id + '">' + ico('chat', 'sm') + 'Xabar</button>' +
     '<button class="btn btn-ghost" data-act="deadline-open" data-id="' + (g ? g.id : '') + '">' + ico('clock', 'sm') + 'Deadline</button></div>' +
+    (acc ? '<div class="divider"></div><div class="up muted" style="margin-bottom:8px">Kirish ma’lumotlari</div>' +
+      '<div class="row wrap" style="gap:9px">' +
+      '<span class="tag ' + (acc.pass ? 'g' : 'a') + '">' + ico('key', 'sm') + '@' + esc(acc.nick) + '</span>' +
+      '<span class="tag">' + ico('user', 'sm') + (acc.hemisId ? 'HEMIS: ' + esc(acc.hemisId) : 'Namuna akkaunt') + '</span>' +
+      '<span class="tag ' + (acc.mustSetPass ? 'a' : 'g') + '">' + (acc.mustSetPass ? 'Parol o‘rnatilmagan' : 'Parol o‘rnatilgan') + '</span>' +
+      '<button class="btn btn-soft btn-sm" data-act="login-card" data-id="' + esc(acc.id) + '">' + ico('doc', 'sm') + 'Kirish kartochkasi</button>' +
+      '<button class="btn btn-ghost btn-sm" data-act="pass-reset" data-id="' + esc(acc.id) + '">' + ico('refresh', 'sm') + 'Parolni tiklash</button></div>' : '') +
     '<div class="divider"></div><div class="up muted" style="margin-bottom:8px">Talaba amallari</div>' +
     '<div class="row wrap" style="gap:9px">' +
-    '<select class="inp" style="width:auto" data-act="change-group" data-id="' + st.id + '" aria-label="Jamoa o‘zgartirish"><option value="">Jamoa o‘zgartirish…</option>' +
-    S.groups.map(x => '<option value="' + x.id + '"' + (g && g.id === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select>' +
+    (actionAllowed('groups') ? '<select class="inp" style="width:auto" data-act="change-group" data-id="' + st.id + '" aria-label="Jamoa o‘zgartirish"><option value="">Jamoa o‘zgartirish…</option>' +
+      S.groups.map(x => '<option value="' + x.id + '"' + (g && g.id === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select>' : '') +
     '<button class="btn btn-soft btn-sm" data-act="reset-student" data-id="' + st.id + '">' + ico('refresh', 'sm') + 'Progressni tiklash</button>' +
-    '<button class="btn btn-danger btn-sm" data-act="delete-student" data-id="' + st.id + '">' + ico('trash', 'sm') + 'Klubdan chiqarish</button></div>', 'wide');
+    (isFounder() ? '<button class="btn btn-danger btn-sm" data-act="delete-student" data-id="' + st.id + '">' + ico('trash', 'sm') + 'Klubdan chiqarish</button>' : '') +
+    '</div>', 'wide');
 }
 function createTaskModal() {
   openModal(mhead('Yangi vazifa berish', 'Vazifa modulga bog‘lanadi va barcha jamoalarga tushadi') +
@@ -128,11 +137,18 @@ function vAdmin() {
   const maxv = Math.max(...S.weekly.map(w => w.v));
   const top = [...S.students].sort((a, b) => b.wxp - a.wxp).slice(0, 5);
 
-  let h = '<div class="page-head"><div><h1 class="h1">' + wallClock() + ', Bekzod 👋</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">' + fmtFull(todayISO()) + ' • ' + k.total + ' talaba, ' + k.groups + ' jamoa, ' + rq.length + ' ta vazifa tekshiruv kutilmoqda.</p></div>' +
-    '<div class="row wrap" style="gap:9px"><button class="btn btn-primary btn-sm" data-act="new-task">' + ico('plus', 'sm') + 'Vazifa berish</button>' +
-    '<button class="btn btn-soft btn-sm" data-act="new-lesson">' + ico('video', 'sm') + 'Dars qo‘shish</button>' +
-    '<button class="btn btn-soft btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button></div></div>';
+  const admin0 = meAcc() || {};
+  const myRole = (ADMIN_ROLES[admin0.adminRole] || { l: 'Admin', p: '' });
+  const myPerms = (admin0.perms || []).includes('__all') ? ADMIN_PERMS.map(x => x[1]).slice(0, 4) : (admin0.perms || []).map(x => PERM_LABEL[x] || x);
+  const quick = [];
+  if (actionAllowed('tasks')) quick.push('<button class="btn btn-primary btn-sm" data-act="new-task">' + ico('plus', 'sm') + 'Vazifa berish</button>');
+  if (actionAllowed('content')) quick.push('<button class="btn btn-soft btn-sm" data-act="new-lesson">' + ico('video', 'sm') + 'Dars qo‘shish</button>');
+  if (actionAllowed('students')) quick.push('<button class="btn btn-soft btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>');
+  let h = '<div class="page-head"><div><h1 class="h1">' + wallClock() + ', ' + esc(String(admin0.name || 'Admin').split(' ')[0]) + ' 👋</h1>' +
+    '<p class="t2 small" style="margin:6px 0 0">' + fmtFull(todayISO()) + ' • ' + k.total + ' talaba, ' + k.groups + ' jamoa, ' + rq.length + ' ta vazifa tekshiruv kutilmoqda.</p>' +
+    '<div class="row wrap" style="gap:7px;margin-top:10px"><span class="tag p">' + ico('shield', 'sm') + esc(myRole.l) + '</span>' +
+    (myPerms.length ? '<span class="xs muted">Huquqlar: ' + esc(myPerms.join(', ')) + '</span>' : '') + '</div></div>' +
+    '<div class="row wrap" style="gap:9px">' + quick.join('') + '</div></div>';
 
   h += '<div class="grid g5">' +
     kpi('users', k.total, 'Talabalar', k.active + ' faol', '') +
@@ -434,7 +450,7 @@ function vStats() {
 
   let h = '<div class="page-head"><div><h1 class="h1">Statistika</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Asosiy ko‘rsatkichlar: faollik, intizom, modul tugatish va loyiha chiqarish.</p></div>' +
-    '<button class="btn btn-soft btn-sm" data-act="export">' + ico('download', 'sm') + 'Hisobotni yuklab olish</button></div>';
+    (actionAllowed('stats') ? '<button class="btn btn-soft btn-sm" data-act="export">' + ico('download', 'sm') + 'Hisobotni yuklab olish</button>' : '') + '</div>';
 
   h += '<div class="grid g4">' +
     kpi('users', k.active + '/' + k.total, 'Haftalik faol talaba', activityPct() + '%', 'c') +
@@ -654,10 +670,6 @@ function vAdminAdmins() {
 function adminGate() {
   return '<div class="card"><div class="empty">' + ico('lock') + '<div style="margin-top:10px">Bu bo‘lim faqat <b>Founder</b> uchun ochiq.</div></div></div>';
 }
-function kpi(ic, ic2, v, l, s2) {
-  return '<div class="kpi"><div class="ic">' + ico(ic2 || ic) + '</div><div><div class="v">' + v + '</div><div class="small muted" style="font-weight:650">' + esc(l) + '</div>' +
-    '<div class="d up-c xs">' + esc(s2) + '</div></div></div>';
-}
 function adminFormModal(id) {
   const a = id ? accById(id) : null;
   const perms = a && (a.perms || []).includes('__all') ? ADMIN_PERMS.map(x => x[0]) : (a ? a.perms || [] : ['students', 'tasks']);
@@ -700,5 +712,9 @@ function loginCardModal(accId) {
     '<div class="row" style="gap:10px;margin-top:12px">' +
     '<button class="btn btn-primary grow" data-act="print-card">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
     '<button class="btn btn-soft" data-act="toast-copy" data-code="Nick: ' + esc(a.nick) + (a.hemisId ? ' | HEMIS: ' + esc(a.hemisId) : '') + '">' + ico('copy', 'sm') + 'Nusxalash</button>' +
-    '</div>', 'narrow');
+    '</div>' +
+    '<div class="row" style="gap:10px;margin-top:9px">' +
+    '<button class="btn btn-ghost btn-sm grow" data-act="pass-reset" data-id="' + esc(a.id) + '">' + ico('refresh', 'sm') + 'Parolni tiklash (noldan o‘rnatish)</button>' +
+    '</div>' +
+    '<div class="xs muted" style="margin-top:8px">Talaba parolni eslay olmasa: parolni tiklang — u keyingi kirishda o‘zi yangi parol o‘rnatadi. Eski parol hech kimga ko‘rinmaydi.</div>', 'narrow');
 }

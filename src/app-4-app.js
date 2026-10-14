@@ -64,8 +64,8 @@ function vAuth() {
       '<p class="xs muted" style="margin:8px 0 10px">Ko‘rsatish uchun: parolsiz ochiladi. Haqiqiy talabalar yuqoridagi forma orqali kiradi.</p>' +
       '<div class="row wrap" style="gap:8px">' +
       '<button class="chip" data-act="quick" data-r="student" data-s="s1">' + ico('user', 'sm') + 'falcon (talaba)</button>' +
-      '<button class="chip" data-act="quick" data-r="student" data-s="s3">' + ico('user', 'sm') + 'comet (talaba)</button>' +
       '<button class="chip" data-act="quick" data-r="admin">' + ico('shield', 'sm') + 'bekzod (admin)</button>' +
+      '<button class="chip" data-act="sample-accounts">' + ico('grid', 'sm') + 'Barcha namunalar (25)</button>' +
       '</div></div>' : '') +
 
     '<div class="row" style="gap:8px;margin-top:16px;justify-content:center"><span class="xs muted">© 2026 AI Leaders Startup Club • Toshkent</span></div>' +
@@ -198,8 +198,26 @@ function currentView() {
   let route = UI.route;
   if (isAdmin() && STUDENT_ONLY.includes(route)) route = 'admin';
   if (!isAdmin() && ADMIN_ONLY.includes(route)) route = 'home';
+  if (isAdmin() && !canView(route)) return permGate(route);
   const fn = ROUTES[route] || ROUTES[isAdmin() ? 'admin' : 'home'];
   return fn();
+}
+/* Ruxsati yo'q bo'lim: nima uchun yopiq ekanini tushuntiradigan sahifa */
+function permGate(route) {
+  const me = meAcc() || {};
+  const need = ADMIN_SECTION_PERM[route];
+  const isF = need === '__founder';
+  const sec = (navDefs[route] || {}).l || 'Bu bo‘lim';
+  const needName = isF ? 'Founder huquqi' : ('«' + (PERM_LABEL[need] || need || '') + '» huquqi');
+  return '<div class="card" style="max-width:640px"><div class="empty">' + ico('lock') +
+    '<div style="margin-top:10px;font-weight:750;font-size:16px">' + (isF ? 'Bu bo‘lim faqat Founder uchun ochiq' : '«' + esc(sec) + '» bo‘limi sizga yopiq') + '</div>' +
+    '<div class="small muted" style="margin-top:8px;max-width:460px;margin-left:auto;margin-right:auto;line-height:1.65">' +
+    'Sizning rolingiz: <b>' + esc((ADMIN_ROLES[me.adminRole] || { l: 'Admin' }).l) + '</b>. Kirish uchun ' + esc(needName) + ' kerak. ' +
+    'Ruxsatni <b>Founder</b> (bekzod@aileaders.uz) yoki bosh mentor beradi.</div>' +
+    '<div class="row wrap" style="gap:10px;justify-content:center;margin-top:16px">' +
+    '<button class="btn btn-primary" data-act="perm-ask" data-route="' + esc(route) + '">' + ico('bell', 'sm') + 'Ruxsat so‘rash</button>' +
+    '<button class="btn btn-soft" data-act="go" data-route="admin">' + ico('grid', 'sm') + 'Dashboardga qaytish</button>' +
+    '</div></div></div>';
 }
 function contentFoot() {
   const adm = isAdmin();
@@ -246,6 +264,7 @@ function finishLogin(acc, silent) {
   const okWant = want && (acc.role === 'admin' ? ADMIN_ONLY : STUDENT_ONLY).includes(want);
   UI.route = okWant ? want : (acc.role === 'admin' ? 'admin' : 'home');
   UI.pendingGo = null;
+  closeModal();   /* namuna paneli/kirish oynasi ochiq qolmasin */
   save(); paint();
   if (!silent) toast('ok', acc.role === 'admin' ? 'Admin panel ochildi' : 'Xush kelibsiz, ' + acc.name.split(' ')[0] + '!',
     acc.role === 'admin' ? 'Rol: ' + (ADMIN_ROLES[acc.adminRole] || { l: 'Admin' }).l : 'Nick: @' + acc.nick + ' • bugungi reja Bosh sahifada.');
@@ -262,12 +281,32 @@ function login(role, stId) {
 }
 
 /* ---------- Eventlar ---------- */
+/* Bo'lim ruxsatlariga bog'langan amallar jadvali (null = faqat Founder) */
+const ACT_PERM = {
+  'new-student': 'students', 'reset-student': 'students', 'reset-student-do': 'students', 'student-open': 'students',
+  'delete-student': null, 'delete-student-do': null, 'move-student': 'students', 'filter-s': 'students',
+  'new-admin': null, 'admin-edit': null, 'admin-del': null, 'admin-block': null, 'new-mentor': 'content', 'del-mentor': 'content',
+  'new-task': 'tasks', 'review-open': 'tasks', 'task-review': 'tasks', 'deadline-open': 'tasks', 'del-dl': 'tasks',
+  'new-lesson': 'content', 'lesson-edit': 'content', 'del-lesson': 'content', 'new-module': 'content', 'del-module': 'content',
+  'new-lesson-mod': 'content', 'new-gallery': 'content', 'del-gallery': 'content',
+  'new-group': 'groups', 'group-add': 'groups', 'group-add-member': 'groups', 'group-remove': 'groups', 'del-group': 'groups', 'change-group': 'groups',
+  'export': 'stats', 'export-json': 'settings', 'reset-confirm': 'settings', 'reset-do': 'settings'
+};
+/* Amal ruxsati: ruxsat yo'q bo'lsa xabar beriladi va amal bajarilmaydi */
+function actAllowed(act) {
+  if (!Object.prototype.hasOwnProperty.call(ACT_PERM, act)) return true;
+  const need = ACT_PERM[act];
+  if (need === null) { if (!isAdmin() || isFounder()) return true; permDenied('admins'); return false; }
+  if (!isAdmin() || actionAllowed(need)) return true;
+  permDenied(need); return false;
+}
 document.addEventListener('click', e => {
   const backdrop = e.target.classList && e.target.classList.contains('mback');
   if (backdrop) { closeModal(); return; }
   const t = e.target.closest('[data-act]');
   if (!t) return;
   const a = t.dataset.act, id = t.dataset.id, st = () => me();
+  if (!actAllowed(a)) return;
   switch (a) {
     case 'go': e.preventDefault(); go(t.dataset.route); break;
     case 'go-team': go(isAdmin() ? 'adminGroups' : 'team'); break;
@@ -282,7 +321,8 @@ document.addEventListener('click', e => {
       if (UI.sort.k === k) UI.sort.d = -UI.sort.d; else { UI.sort.k = k; UI.sort.d = (k === 'name' || k === 'group') ? 1 : -1; }
       paint(true); break;
     }
-    case 'reset-confirm': confirmModal('Demo ma’lumotlarni tiklash?', 'Topshiriqlar, baholar va yangi qo‘shilgan a’zolar o‘chib, boshlang‘ich demo holat qaytadi. Bu amalni qaytarib bo‘lmaydi.', 'reset-do', '', true); break;
+    case 'reset-confirm': if (!actionAllowed('settings')) { permDenied('settings'); break; }
+      confirmModal('Namuna ma’lumotlarni tiklash?', 'Namunaviy topshiriq, baho va a’zolar o‘chib, boshlang‘ich holat qaytadi. HAQIQIY akkauntlar saqlab qolinadi. Bu amalni qaytarib bo‘lmaydi.', 'reset-do', '', true); break;
     case 'reset-do': resetAll(); break;
     case 'install': {
       const ev = UI.installEvt;
@@ -291,6 +331,7 @@ document.addEventListener('click', e => {
       break;
     }
     case 'export-json': downloadState(); break;
+    if (!actionAllowed('settings')) { permDenied('settings'); break; }
     case 'export-my': exportMyCSV(); break;
     case 'lesson-edit': editLessonModal(id); break;
     case 'review-edit': reviewEditModal(t.dataset.sub); break;
@@ -354,7 +395,10 @@ document.addEventListener('click', e => {
     case 'switch': {
       if (!meAcc() || !meAcc().demo) { toast('warn', 'Ruxsat yo‘q', 'Rolni almashtirish faqat namuna rejimida ishlaydi.'); break; }
       const n = isAdmin() ? 'student' : 'admin';
-      S.role = n; UI.route = n === 'admin' ? 'admin' : 'home'; UI.module = null; save(); paint();
+      S.role = n; UI.route = n === 'admin' ? 'admin' : 'home'; UI.module = null;
+      const dAcc = accounts().find(a => a.demo && a.role === n);
+      if (dAcc) { S.session = { acc: dAcc.id, at: Date.now() }; if (dAcc.studentId) S.user = dAcc.studentId; }
+      save(); paint();
       toast('info', n === 'admin' ? 'Admin rejimi' : 'Student rejimi', 'Rol almashtirildi.');
       break;
     }
@@ -493,10 +537,14 @@ document.addEventListener('click', e => {
       break;
     }
     case 'new-task': createTaskModal(); break;
+    if (!actionAllowed('tasks')) { permDenied('tasks'); break; }
     case 'new-lesson': createLessonModal(); break;
+    if (!actionAllowed('content')) { permDenied('content'); break; }
     case 'new-lesson-mod': createLessonModal(t.dataset.id); break;
     case 'new-module': createModuleModal(); break;
+    if (!actionAllowed('content')) { permDenied('content'); break; }
     case 'new-student': addStudentModal(); break;
+    if (!actionAllowed('students')) { permDenied('students'); break; }
     case 'admin-edit': adminFormModal(id); break;
     case 'admin-block': {
       const a2 = accById(id);
@@ -518,6 +566,18 @@ document.addEventListener('click', e => {
       break;
     }
     case 'login-card': loginCardModal(id); break;
+    case 'sample-accounts': sampleModal(); break;
+    case 'perm-ask': toast('ok', 'So‘rov yuborildi', 'Founderga «' + ((navDefs[id] || {}).l || id) + '» bo‘limi uchun so‘rov yozildi.'); break;
+    case 'pass-change': passChangeModal(); break;
+    case 'quick-acc': { const a4 = accById(id); if (a4) { finishLogin(a4, true); toast('info', 'Namuna: ' + (ADMIN_ROLES[a4.adminRole] || { l: 'talaba' }).l, a4.name + ' • @' + a4.nick); } break; }
+    case 'pass-reset': {
+      if (!actionAllowed('students')) { permDenied('students'); break; }
+      const a5 = accById(id);
+      if (!a5) break;
+      passReset(id); paint(true); loginCardModal(id);
+      toast('ok', 'Parol tiklandi', a5.name + ' keyingi kirishda yangi parol o‘rnatadi.');
+      break;
+    }
     case 'print-card': {
       const box = document.getElementById('loginCard');
       openModal('<div id="printZone">' + (box ? box.outerHTML : '') + '</div>' +
@@ -527,6 +587,7 @@ document.addEventListener('click', e => {
     }
     case 'new-admin': if (isFounder()) adminFormModal(); else toast('warn', 'Ruxsat yo‘q', 'Faqat founder admin qo‘sha oladi.'); break;
     case 'new-group': createGroupModal(); break;
+    if (!actionAllowed('groups')) { permDenied('groups'); break; }
     case 'deadline-open': deadlineModal(t.dataset.id || ''); break;
     case 'del-dl': { const g = groupOf(id); if (g) { delete g.dl[t.dataset.t]; toast('info', 'Istisno o‘chirildi'); save(); paint(true); } break; }
     case 'group-open': { const g = groupOf(id); if (g) teamModal(g); break; }
@@ -573,6 +634,7 @@ document.addEventListener('click', e => {
       break;
     }
     case 'export': exportCSV(); break;
+    if (!actionAllowed('stats')) { permDenied('stats'); break; }
     default: break;
   }
 });
@@ -583,11 +645,30 @@ document.addEventListener('submit', e => {
   e.preventDefault();
   const fd = new FormData(f);
   const kind = f.dataset.form;
+  /* Ruxsat: forma turi bo'yicha bo'lim tekshiruvi */
+  const FORM_PERM = { 'new-student': 'students', 'admin-edit': null, 'new-admin': null, 'new-task': 'tasks', 'new-lesson': 'content', 'new-module': 'content',
+    'new-group': 'groups', 'lesson-edit': 'content', 'new-gallery': 'content', 'new-mentor': 'content', 'group-member': 'groups' };
+  if (Object.prototype.hasOwnProperty.call(FORM_PERM, kind) && isAdmin()) {
+    const need = FORM_PERM[kind];
+    const okPerm = need === null ? isFounder() : actionAllowed(need);
+    if (!okPerm) { permDenied(need === null ? 'admins' : need); return; }
+  }
   if (kind === 'login-student' || kind === 'login-admin') {
     const res = authCheck(fd.get('login'), fd.get('pass'));
     if (res.err === 'first') { UI.firstPass = { acc: res.acc.id }; UI.authErr = ''; paint(); return; }
     if (res.err) { UI.authErr = res.msg; paint(true); return; }
     finishLogin(res.acc); return;
+  }
+  if (kind === 'pass-change') {
+    const a = meAcc();
+    if (!a) { closeModal(); return; }
+    const oldP = String(fd.get('old') || ''), p1 = String(fd.get('p1') || ''), p2 = String(fd.get('p2') || '');
+    if (a.pass && a.pass !== hashPass(a.nick, oldP)) { toast('warn', 'Hozirgi parol xato', 'Qayta tekshirib ko‘ring.'); return; }
+    if (p1.length < 4) { toast('warn', 'Parol juda qisqa', 'Kamida 4 belgi kiriting.'); return; }
+    if (p1 !== p2) { toast('warn', 'Parollar mos emas', 'Ikki maydonga bir xil parol yozing.'); return; }
+    setAccountPass(a, p1); closeModal();
+    toast('ok', 'Parol yangilandi', 'Keyingi kirishda yangi parolni ishlatasiz.');
+    return;
   }
   if (kind === 'first-pass') {
     const acc = accById(f.dataset.acc);

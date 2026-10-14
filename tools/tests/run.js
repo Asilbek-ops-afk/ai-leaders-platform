@@ -36,7 +36,8 @@ const HOOK = `
 window.AIL = {
   get S(){ return S; },
   get UI(){ return UI; },
-  go: r => { UI.route = r; UI.module = null; paint(); },
+  go: r => go(r),
+  forceGo: r => { UI.route = r; UI.module = null; paint(); },
   login: (role, id) => login(role, id),
   exportCSV: () => { try { exportCSV(); return 'ok'; } catch (e) { return 'err:' + e.message; } },
   exportMy: () => { try { exportMyCSV(); return 'ok'; } catch (e) { return 'err:' + e.message; } },
@@ -58,6 +59,14 @@ window.AIL = {
   logout: () => logoutAcc(),
   setStatus: (id, st2) => { const a = accById(id); if (a) { a.status = st2; save(); } },
   repaint: () => paint(true),
+  canView: r => canView(r),
+  actAllowed: a => actAllowed(a),
+  runPalette: a => runPalette(a),
+  openPalette: () => openPalette(),
+  closePalette: () => closeModal(),
+  closeModal: () => closeModal(),
+  reset: () => resetAll(),
+  passResetById: id => passReset(id),
   saveNow: () => save(),
   loginAs: id => { const a = accById(id); if (a) finishLogin(a, true); },
   version: () => APP_VERSION
@@ -704,7 +713,7 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 1.4.0', B.w.AIL.version() === '1.4.0');
+t('versiya 1.4.1', B.w.AIL.version() === '1.4.1');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ================= 17. KIRISH EKRANI TUZILISHI (noutbuk/planshet) ================= */
@@ -822,13 +831,156 @@ t('chiqishda sessiya o‘chadi va kirish ekrani qaytadi', (() => {
 })());
 t('JS xatosi yo‘q (MVP akkauntlar)', E.errors.length === 0 && F.errors.length === 0);
 
+/* ================= 20. MVP SAYQAL: RUXSATLAR, PAROL, NAMUNA PANELI ================= */
+group('20. MVP sayqal: rol ruxsatlari, parol amallari, namuna paneli');
+const H = boot();
+/* — founder: hamma bo'limlar ochiq — */
+H.w.AIL.loginAs('acc-a1');
+t('founder: barcha bo‘limlar ochiq', ['admin','students','adminTasks','adminLessons','adminGroups','stats','settings','adminAdmins'].every(r => H.w.AIL.canView(r)));
+t('founder: qulflangan bo‘lim yo‘q', H.d.querySelectorAll('.nav-item.locked').length === 0);
+t('founder dashboardida barcha tez amallar bor', ['new-task', 'new-lesson', 'new-student'].every(a => !!H.d.querySelector('[data-act="' + a + '"]')));
+t('founder dashboardida Founder roli yozilgan', H.has('Founder'));
+t('founder: barcha amallar ochiq', ['new-lesson', 'new-task', 'new-student', 'new-admin', 'export-json'].every(x => H.w.AIL.actAllowed(x)));
+t('founder talaba profilida o‘chirish amali bor', (() => { H.w.AIL.go('students'); H.click('[data-act="student-open"]'); const ok4 = !!H.d.querySelector('.mbox [data-act="delete-student"]') && !!H.d.querySelector('.mbox [data-act="change-group"]') && !!H.d.querySelector('.mbox [data-act="pass-reset"]'); H.w.AIL.closeModal(); return ok4; })());
+t('talaba profilidan parolni tiklash ishlaydi', (() => { H.click('[data-act="student-open"]'); H.click('[data-act="pass-reset"]'); const ok5 = H.hasModal('Kirish kartochkasi') && H.d.body.textContent.includes('Parol tiklandi'); H.w.AIL.closeModal(); return ok5; })());
+/* — mentor (a3: students, tasks): kontent/statistika/sozlamalar/adminlar qulfli — */
+const M = boot(); M.w.AIL.loginAs('acc-a3');
+t('mentor: talabalar va vazifalar ochiq', M.w.AIL.canView('students') && M.w.AIL.canView('adminTasks'));
+t('mentor: kontent, statistika, sozlamalar qulfli', !M.w.AIL.canView('adminLessons') && !M.w.AIL.canView('stats') && !M.w.AIL.canView('settings'));
+t('mentor: adminlar bo‘limi qulfli', !M.w.AIL.canView('adminAdmins'));
+t('sidebar qulflarni ko‘rsatadi', M.d.querySelectorAll('.nav-item.locked').length >= 4 && M.d.querySelector('.nav-item.locked .lk') !== null);
+t('ruxsatsiz bo‘limda tushuntirish sahifasi chiqadi', (() => { M.w.AIL.go('stats'); return M.has('bo‘limi sizga yopiq') && !M.d.querySelector('.kpi'); })());
+t('ruxsat sahifasida rol va kimdan so‘rash yozilgan', M.has('Mentor') && M.has('bekzod@aileaders.uz') && !!M.d.querySelector('[data-act="perm-ask"]'));
+t('ruxsat so‘rash tugmasi xabar beradi', (() => { M.click('[data-act="perm-ask"]'); return M.d.body.textContent.includes('So‘rov yuborildi'); })());
+t('ruxsatli bo‘limga o‘tish ishlaydi', (() => { M.w.AIL.go('students'); return M.w.AIL.UI.route === 'students' && !M.has('bo‘limi sizga yopiq'); })());
+t('mentor panelida «Dars qo‘shish» amali bloklangan', (() => { const before = M.w.AIL.S.modules.length; M.w.AIL.runPalette('new-lesson'); return M.w.AIL.S.modules.length === before && !M.hasModal('Yangi dars'); })());
+t('mentor buyruq panelida kontent buyruqlari yo‘q', (() => { M.w.AIL.openPalette(); const acts = M.w.AIL.palActs(); M.w.AIL.closePalette(); return !acts.includes('new-lesson') && !acts.includes('go:adminLessons'); })());
+t('mentor: ruxsati yo‘q amal bloklangan (act ruxsati)', M.w.AIL.actAllowed('new-lesson') === false && M.w.AIL.actAllowed('new-task') === true && M.w.AIL.actAllowed('new-admin') === false);
+t('mentor talaba profilida jamoa/o‘chirish amallari yashirilgan', (() => {
+  M.w.AIL.go('students');
+  M.click('[data-act="student-open"]');
+  const ok2 = M.hasModal('Talaba amallari') && !M.d.querySelector('.mbox [data-act="change-group"]') && !M.d.querySelector('.mbox [data-act="delete-student"]') && !!M.d.querySelector('.mbox [data-act="reset-student"]');
+  M.w.AIL.closeModal(); return ok2;
+})());
+t('mentor talaba profilida kirish ma’lumotlari ko‘rinadi', (() => { M.click('[data-act="student-open"]'); const mb = M.d.querySelector('.mbox'); const ok3 = !!mb && mb.textContent.includes('Kirish ma’lumotlari') && /@[a-z]/.test(mb.textContent); M.w.AIL.closeModal(); return ok3; })());
+t('mentor dashboardi o‘z ismini ko‘rsatadi', (() => { M.w.AIL.go('admin'); return M.has('Sardor') && !M.has('Bekzod 👋'); })());
+t('mentor dashboardida rol va huquq yozilgan', M.has('Mentor') && M.has('Huquqlar: Talabalar, Vazifalar'));
+t('mentor dashboardida dars qo‘shish tugmasi yo‘q', !M.d.querySelector('[data-act="new-lesson"]'));
+t('mentor dashboardida vazifa berish tugmasi bor', !!M.d.querySelector('[data-act="new-task"]'));
+t('mentor mobil navigatsiyasida ham faqat ruxsatli bo‘limlar', (() => {
+  const items = [...M.d.querySelectorAll('.bottomnav .bn')].map(x => x.dataset.route);
+  return items.every(r => M.w.AIL.canView(r));
+})());
+/* — kontent menejeri (a5: content, students) — */
+const CM = boot(); CM.w.AIL.loginAs('acc-a5');
+t('kontent menejer: darslar ochiq, vazifalar qulfli', CM.w.AIL.canView('adminLessons') && !CM.w.AIL.canView('adminTasks'));
+t('kontent menejer: yangi dars qo‘sha oladi', (() => { CM.click('[data-act="go"][data-route="adminLessons"]'); CM.w.AIL.go('adminLessons'); const b2 = CM.d.querySelector('[data-act="new-lesson"]'); return b2 !== null; })());
+/* — kurator (a6: students, stats, groups) — */
+const CU = boot(); CU.w.AIL.loginAs('acc-a6');
+t('kurator: statistika ochiq, vazifalar qulfli', CU.w.AIL.canView('stats') && !CU.w.AIL.canView('adminTasks'));
+/* — parolni almashtirish — */
+const PC = boot(); PC.w.AIL.loginAs('acc-a1');
+PC.w.AIL.setPassById('acc-a1', 'eski1234');
+const openPassForm = () => {
+  if (!PC.d.querySelector('[data-form="pass-change"]')) PC.click('[data-act="pass-change"]');
+  return PC.d.querySelector('[data-form="pass-change"]');
+};
+const fillPass = (oldP, p1, p2) => {
+  const f = openPassForm();
+  if (!f) return false;
+  f.querySelector('input[name="old"]').value = oldP;
+  f.querySelector('input[name="p1"]').value = p1;
+  f.querySelector('input[name="p2"]').value = p2;
+  f.dispatchEvent(new PC.w.Event('submit', { bubbles: true, cancelable: true }));
+  return true;
+};
+t('parol almashtirish oynasi ochiladi', (() => { PC.click('[data-act="pass-change"]'); return PC.hasModal('Parolni almashtirish') && !!PC.d.querySelector('[data-form="pass-change"]'); })());
+t('xato hozirgi parol rad etiladi', (() => { fillPass('boshqa', 'yangi1234', 'yangi1234'); return PC.w.AIL.check('bekzod@aileaders.uz', 'yangi1234').err === 'pass' && PC.w.AIL.check('bekzod@aileaders.uz', 'eski1234').ok === true; })());
+t('qisqa parol qabul qilinmaydi', (() => { fillPass('eski1234', '123', '123'); return PC.w.AIL.check('bekzod@aileaders.uz', 'eski1234').ok === true; })());
+t('mos kelmagan takror rad etiladi', (() => { fillPass('eski1234', 'aaaa1111', 'bbbb2222'); return PC.w.AIL.check('bekzod@aileaders.uz', 'eski1234').ok === true; })());
+t('to‘g‘ri parol bilan almashtiriladi', (() => {
+  fillPass('eski1234', 'yangi1234', 'yangi1234');
+  return PC.w.AIL.check('bekzod@aileaders.uz', 'yangi1234').ok === true && PC.w.AIL.check('bekzod@aileaders.uz', 'eski1234').err === 'pass';
+})());
+t('parol almashtirilgach oyna yopiladi', !PC.d.querySelector('[data-form="pass-change"]'));
+
+/* — parolni tiklash (admin amali) — */
+const PR = boot(); PR.w.AIL.loginAs('acc-a1');
+PR.w.AIL.go('students');
+t('talaba profilida parol kartochkasi bor', (() => { PR.click('[data-act="new-student"]'); const ok = PR.hasModal('HEMIS ID'); PR.click('[data-act="close-modal"]'); return ok; })());
+t('parolni tiklash mustSetPass’ni qaytaradi', (() => {
+  PR.w.AIL.setPassById('acc-s6', 'eskiParol');
+  PR.w.AIL.go('students');
+  PR.w.AIL.passResetById('acc-s6');
+  return PR.w.AIL.check('onyx', 'eskiParol').err === 'first';
+})());
+/* — namuna akkauntlar paneli — */
+const SM = boot();
+t('namuna paneli 7 admin + 18 talabani ko‘rsatadi', (() => { SM.click('[data-act="sample-accounts"]'); const rows = SM.d.querySelectorAll('.acc-row').length; return SM.hasModal('Namuna akkauntlar') && rows === 15; })());
+t('namuna panelidagi admin rollari ko‘rinadi', SM.hasModal('Founder (to‘liq huquq)') && SM.hasModal('Bosh mentor'));
+t('namuna panelidan bir bosishda kirish ishlaydi', (() => {
+  const btn = SM.d.querySelector('.acc-row[data-id="acc-a6"]');
+  btn.dispatchEvent(new SM.w.MouseEvent('click', { bubbles: true }));
+  return SM.w.AIL.UI.authShow === false && SM.w.AIL.UI.route === 'admin' && SM.w.AIL.canView('stats') && !SM.w.AIL.canView('adminTasks');
+})());
+/* — reset: haqiqiy akkauntlar saqlanadi — */
+const RS = boot();
+RS.w.AIL.loginAs('acc-a1');
+const baseAcc = RS.w.AIL.S.accounts.length, baseStd = RS.w.AIL.S.students.length, baseDemo = RS.w.AIL.S.accounts.filter(a => a.demo).length;
+RS.w.AIL.go('students');
+RS.click('[data-act="new-student"]');
+RS.set('[data-form="new-student"] input[name="name"]', 'Haqiqiy Talaba');
+RS.set('[data-form="new-student"] input[name="hemis"]', '999888777666');
+RS.submit('[data-form="new-student"]');
+const realAcc = RS.w.AIL.accByHemis('999888777666');
+const realSid = realAcc && realAcc.studentId;
+t('haqiqiy talaba akkaunt + profili bilan qo‘shildi', !!realAcc && realAcc.demo === false && !!realSid
+  && RS.w.AIL.S.accounts.length === baseAcc + 1 && RS.w.AIL.S.students.length === baseStd + 1
+  && !!RS.w.AIL.S.students.find(x => x.id === realSid));
+t('haqiqiy talaba uchun kirish kartochkasi berildi', RS.hasModal('Kirish kartochkasi') && RS.hasModal(realAcc.nick));
+t('reset namuna ma’lumotni tiklaydi, haqiqiyni saqlaydi', (() => {
+  RS.w.AIL.reset();
+  return RS.w.AIL.S.accounts.length === baseAcc + 1 && RS.w.AIL.S.accounts.filter(a => a.demo).length === baseDemo
+    && !!RS.w.AIL.accByHemis('999888777666')
+    && RS.w.AIL.S.students.length === baseStd + 1 && !!RS.w.AIL.S.students.find(x => x.id === realSid);
+})());
+t('ketma-ket reset bazani o‘zgartirmaydi (nusxa himoyasi)', (() => {
+  RS.w.AIL.reset();
+  return RS.w.AIL.S.accounts.length === baseAcc + 1 && RS.w.AIL.S.students.length === baseStd + 1;
+})());
+t('reset haqiqiy talabaning do‘stlik ro‘yxatini saqlaydi', Array.isArray(RS.w.AIL.S.friends[realSid]) && Array.isArray(RS.w.AIL.S.incoming[realSid]) && Array.isArray(RS.w.AIL.S.sent[realSid]));
+t('resetdan keyin sessiya yopiladi (xavfsizlik)', RS.w.AIL.S.session === null);
+t('JS xatosi yo‘q (sayqal)', H.errors.length === 0 && M.errors.length === 0 && PC.errors.length === 0 && SM.errors.length === 0 && RS.errors.length === 0);
+
+/* — KPI ko'rsatkichlari (v1.4.0 dagi shadowing xatosi qaytmasin) — */
+t('talaba KPI raqamlari ko‘rinadi', (() => {
+  const K = boot(); K.w.AIL.login('student', 's1');
+  const vs = [...K.d.querySelectorAll('.kpi .v')].map(x => x.textContent.trim());
+  return vs.length >= 3 && vs.every(v => /\d/.test(v)) && [...K.d.querySelectorAll('.kpi .ic')].every(x => !!x.querySelector('svg'));
+})());
+t('admin KPI raqamlari ko‘rinadi', (() => {
+  const K2 = boot(); K2.w.AIL.loginAs('acc-a1');
+  const vs = [...K2.d.querySelectorAll('.kpi .v')].map(x => x.textContent.trim());
+  return vs.length >= 5 && vs.every(v => /\d/.test(v)) && !K2.d.querySelector('.kpi .d.r');
+})());
+t('manba kodda takroriy funksiya nomi yo‘q (shadowing himoyasi)', (() => {
+  const names = {}, dup = [];
+  ['app-1-core.js', 'app-2-student.js', 'app-3-admin.js', 'app-4-app.js'].forEach(f => {
+    const src = fs.readFileSync(path.join(__dirname, '..', '..', 'src', f), 'utf8');
+    const re = /^(?:function\s+([A-Za-z_$][\w$]*)|const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:\(|function|async))/gm;
+    let m; while ((m = re.exec(src))) { const n = m[1] || m[2]; if (names[n]) dup.push(f + '→' + n); names[n] = f; }
+  });
+  if (dup.length) console.log('takroriy nomlar:', dup.join(', '));
+  return dup.length === 0;
+})());
+
 /* ================= 18. SAHIFA PASTIDAGI PANEL (dizayn ritmi) ================= */
 group('18. Sahifa pastidagi panel va dizayn izchilligi');
 const D = boot();
 D.w.AIL.login('student', 's1'); D.w.AIL.go('friends');
 t('pastki panel student ko‘rinishida bor', !!D.d.querySelector('.content-foot'));
 t('panelda brend va tezkor havolalar', D.d.querySelector('.content-foot .cf-brand') !== null && D.d.querySelectorAll('.content-foot .cf-links a').length === 5);
-t('panelda versiya ko‘rsatilgan', /v1\.4\.0/.test(D.d.querySelector('.content-foot').textContent));
+t('panelda versiya ko‘rsatilgan', new RegExp('v' + D.w.AIL.version().replace(/\./g, '\\.')).test(D.d.querySelector('.content-foot').textContent));
 t('havola bosilganda bo‘lim almashadi', (() => {
   const a2 = [...D.d.querySelectorAll('.content-foot .cf-links a')].find(x => x.dataset.route === 'deadlines');
   a2.dispatchEvent(new D.w.MouseEvent('click', { bubbles: true }));

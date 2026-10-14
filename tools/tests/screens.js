@@ -55,7 +55,24 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
     { name: '53-mvp-kirish-mobil', vp: { width: 390, height: 844 }, steps: [], mobile: true },
     { name: '54-mvp-adminlar-bolimi', vp: { width: 1920, height: 1080 }, steps: ['login-admin', 'admins-page'] },
     { name: '55-mvp-admin-tahrirlash', vp: { width: 1920, height: 1080 }, steps: ['login-admin', 'admins-page', 'login-card'] },
-    { name: '56-mvp-talaba-qoshish', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'go-students', 'add-student'] }
+    { name: '56-mvp-talaba-qoshish', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'go-students', 'add-student'] },
+    /* --- v1.4.1: ruxsatlar, parol, namuna paneli --- */
+    { name: '57-mvp-namuna-panel', vp: { width: 1920, height: 1080 }, steps: ['sample-panel'] },
+    { name: '58-mvp-qulflangan-menyu', vp: { width: 1920, height: 1080 }, steps: ['login-mentor', 'go-adminTasks'] },
+    { name: '59-mvp-ruxsat-sahifasi', vp: { width: 1920, height: 1080 }, steps: ['login-mentor', 'go-stats'] },
+    { name: '60-mvp-parol-almashtirish', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'pass-modal'] },
+    { name: '61-mvp-ruxsat-mobil', vp: { width: 390, height: 844 }, steps: ['login-mentor', 'go-stats'], mobile: true },
+    { name: '62-mvp-talaba-kirish-malumoti', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'go-students', 'student-profile'] },
+    /* --- v1.4.1: foydalanuvchi noutbuk/planshet o'lchamlari --- */
+    { name: '63-mvp-1568-qulflar', vp: { width: 1568, height: 768 }, steps: ['login-mentor', 'go-adminTasks'] },
+    { name: '64-mvp-1568-namuna-panel', vp: { width: 1568, height: 768 }, steps: ['sample-panel'] },
+    { name: '65-mvp-1440-ruxsat', vp: { width: 1440, height: 900 }, steps: ['login-mentor', 'go-stats'] },
+    { name: '66-mvp-1366-qulflar', vp: { width: 1366, height: 768 }, steps: ['login-mentor', 'go-adminTasks'] },
+    { name: '67-mvp-1024-namuna-panel', vp: { width: 1024, height: 800 }, steps: ['sample-panel'] },
+    { name: '68-mvp-1568-parol', vp: { width: 1568, height: 768 }, steps: ['login-admin', 'pass-modal'] },
+    { name: '69-mvp-light-namuna', vp: { width: 1440, height: 900 }, steps: ['login-admin', 'theme', 'pal-namuna'] },
+    { name: '70-mvp-light-qulflar', vp: { width: 1440, height: 900 }, steps: ['mentor-light-locked'] },
+    { name: '71-mvp-light-talaba-kirish', vp: { width: 1440, height: 950 }, steps: ['login-admin', 'theme', 'go-students', 'student-profile'] }
   ];
   const page = await browser.newPage();
   const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
@@ -92,6 +109,22 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
         }, 120);
       }
       else if (t === 'admin-login-form') document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click();
+      else if (t === 'sample-panel') setTimeout(() => document.querySelector('[data-act="sample-accounts"]')?.click(), 120);
+      else if (t === 'login-mentor') {
+        setTimeout(() => { document.querySelector('[data-act="sample-accounts"]')?.click(); }, 100);
+        setTimeout(() => document.querySelector('.acc-row[data-id="acc-a3"]')?.click(), 320);
+      }
+      else if (t === 'pass-modal') setTimeout(() => document.querySelector('[data-act="pass-change"]')?.click(), 150);
+        else if (t === 'mentor-light-locked') {
+    document.querySelector('[data-act="sample-accounts"]')?.click();
+    setTimeout(() => document.querySelector('.acc-row[data-id="acc-a3"]')?.click(), 140);
+    setTimeout(() => document.querySelector('[data-act="theme"]')?.click(), 300);
+    setTimeout(() => document.querySelector('[data-act="go"][data-route="stats"]')?.click(), 430);
+  }
+  else if (t === 'pal-namuna') {
+          document.querySelector('[data-act="palette"]')?.click();
+          setTimeout(() => { const it = [...document.querySelectorAll('.pal-item')].find(x => x.textContent.includes('Namuna akkauntlar')); if (it) it.click(); }, 240);
+      }
       else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
       else if (t === 'palette-q') {
         document.querySelector('[data-act="palette"]')?.click();
@@ -115,6 +148,19 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
         else if (t === 'admins-page') setTimeout(() => document.querySelector('[data-act="go"][data-route="adminAdmins"]')?.click(), 100);
         else if (t === 'login-card') setTimeout(() => document.querySelector('[data-act="admin-edit"][data-id="acc-a2"]')?.click(), 300);
         else if (t === 'add-student') setTimeout(() => document.querySelector('[data-act="new-student"]')?.click(), 120);
+        else if (t === 'sample-panel') setTimeout(() => document.querySelector('[data-act="sample-accounts"]')?.click(), 120);
+        else if (t === 'pass-modal') setTimeout(() => document.querySelector('[data-act="pass-change"]')?.click(), 150);
+        else if (t === 'mentor-light-locked') {
+    document.querySelector('[data-act="sample-accounts"]')?.click();
+    setTimeout(() => document.querySelector('.acc-row[data-id="acc-a3"]')?.click(), 140);
+    setTimeout(() => document.querySelector('[data-act="theme"]')?.click(), 300);
+    setTimeout(() => document.querySelector('[data-act="go"][data-route="stats"]')?.click(), 430);
+  }
+  else if (t === 'pal-namuna') {
+          document.querySelector('[data-act="palette"]')?.click();
+          setTimeout(() => { const it = [...document.querySelectorAll('.pal-item')].find(x => x.textContent.includes('Namuna akkauntlar')); if (it) it.click(); }, 240);
+      }
+        else if (t === 'student-profile') setTimeout(() => document.querySelector('[data-act="student-open"]')?.click(), 200);
         else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
         else if (t === 'palette-q') {
           document.querySelector('[data-act="palette"]')?.click();
@@ -124,7 +170,7 @@ const URL = 'file://' + path.join(__dirname, '..', '..', 'index.html');
         else if (t === 'shortcuts') document.querySelector('[data-act="shortcuts"]')?.click();
       }, st);
     }
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(850);
     await page.screenshot({ path: path.join(OUT, s.name + '.png'), fullPage: false });
     console.log('  ✓ ' + s.name);
   }

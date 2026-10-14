@@ -237,3 +237,60 @@ Foydalanuvchi aniqlashtirdi: platforma **demo emas, MVP** bo'lishi kerak. Shu as
 
 `docs/mvp-reja.md` dagi 7 bosqichli reja kuchida: Supabase kalitlari kiritilishi bilan bir xil interfeys
 haqiqiy bazada ishlay boshlaydi (19 jadval, 26 RLS siyosat, storage tayyor).
+
+---
+
+## v1.4.1 — MVP'ni "mukammal" qilish: ruxsatlar, parol boshqaruvi, namuna/real ajratish
+
+Foydalanuvchi: *"hozircha adminlar uchun namunaviy hisob yarat, keyinchalik ularning ma'lumotlarini beraman — hozir esa menga 1-chi MVP'ni perfect qilib ber."*
+Shu asosda MVP to'liq ishlaydigan holatga keltirildi: har bir admin **faqat o'z bo'limini** ko'radi,
+parolni o'zi almashtiradi, admin esa talabaning parolini tiklaydi, namuna va real ma'lumot aralashmaydi.
+
+### A. Topilgan va tuzatilgan nuqsonlar (4 ta)
+
+| # | Muammo | Sabab va tuzatish |
+|---|---|---|
+| 1 | **Barcha KPI kartalari raqamsiz ko'rinardi** (talaba va admin bosh sahifasida) | `app-3-admin.js` ichida `kpi()` funksiyasi **ikkinchi marta** e'lon qilinib, `app-1-core.js` dagi to'g'ri versiyani bosib ketgan edi (nom shadowing): kartada raqam o'rniga sarlavha, yonida `r`/`a`/`c` harflari chiqardi. Takroriy funksiya o'chirildi + **takroriy nomlarni topadigan statik test** qo'shildi |
+| 2 | **`reset()` har chaqiriqda namunaviy bazani shishirardi** | `blankState()` massivlarni **havola** bilan berardi (`students: STUDENTS`), reset esa haqiqiy talabani o'sha umumiy massivga qo'shardi → keyingi resetda 19/20/21 talaba. Endi barcha seed massivlari **chuqur nusxa** (deep copy) |
+| 3 | **"Yaxshi kun, Bekzod" — boshqa admin kirganda ham founder ismi** | Sarlavha qotib yozilgan edi → endi sessiyadagi adminning ismi + **rol va huquqlar qatori** (masalan `Mentor • Huquqlar: Talabalar, Vazifalar`) |
+| 4 | **Namuna akkaunt bilan kirilganda namuna paneli ochiq qolardi** | `finishLogin()` modalni yopmasdi → endi har kirishda panellar yopiladi |
+
+### B. Nima qo'shildi
+
+| # | Qism | Tafsilot |
+|---|---|---|
+| 1 | **Bo'lim ruxsatlari** | `canView(route)` + yon panelda **qulflangan band** (qulf ikoni, `title="ruxsat yo'q"`), mobil pastki navigatsiya ham filtrlangan |
+| 2 | **Ruxsat sahifasi** | Ruxsati yo'q bo'lim ochilsa: "«Statistika» bo'limi sizga yopiq", sizning rolingiz, kerakli huquq, kim beradi (Founder email) + **«Ruxsat so'rash»** tugmasi |
+| 3 | **Amal darajasidagi ruxsat** | `ACT_PERM` jadvali: 30+ amal (talaba qo'shish, vazifa/dars yaratish, jamoa boshqarish, eksport, o'chirish...) bo'lim ruxsatiga bog'landi; forma yuborishda ham tekshiriladi (2 qavatli himoya) |
+| 4 | **Dashboard shaxsiylashtirildi** | Faqat ruxsatli tez amallar ko'rinadi (mentor "Dars qo'shish"ni ko'rmaydi) + rol/huquq chipi |
+| 5 | **Parolni almashtirish** | Yon paneldagi qulf tugmasi / `Ctrl+K` buyrug'i: hozirgi parol tekshiriladi (paroli bo'lsa), yangi parol + takror maydoni, «kamida 4 belgi» qoidasi |
+| 6 | **Parolni tiklash (admin)** | Talaba profilida: nick/HEMIS/holati ko'rinadi, **«Parolni tiklash»** → parol nolga tushadi va talaba keyingi kirishda o'zi yangisini o'rnatadi (eski parol hech kimga ko'rinmaydi); **«Kirish kartochkasi»** qayta chiqariladi |
+| 7 | **Namuna paneli** | Kirish ekranidagi **«Barcha namunalar (25)»** va admin buyruq panelidagi yozuv: 7 admin (rollari bilan) + 18 talaba, bir bosishda kirish |
+| 8 | **Namuna/real ajratish** | `reset()` endi **haqiqiy akkauntlar, ularning profillari va do'stlik ro'yxatlarini saqlab qoladi**, namuna bazani tiklaydi va nechta akkaunt saqlangani haqida xabar beradi |
+| 9 | **Yangi skrinshotlar** | 15 ta yangi surat: namuna paneli, qulflangan menyu, ruxsat sahifasi, parol oynasi, mobil/planshet/noutbuk o'lchamlari, light tema |
+| 10 | **Kichik sayqal** | Yon paneldagi foydalanuvchi qatori bir satrda (ism/rol ellipsis), takroriy mavzu tugmasi olib tashlandi |
+
+### Tekshiruv natijalari
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **310 ta, 0 xato** (20-guruh: ruxsatlar, parol, namuna paneli, reset — 49 yangi tekshiruv) |
+| Statik himoya | ✔ Takroriy funksiya nomlarini topadigan test (shadowing xatosi qaytmasin) |
+| O'lchamlar | ✔ 1920×1080, 1568×768 (foydalanuvchi noutbuki), 1440×900, 1366×768, 1024×800, 390×844 |
+| Rollar sinovi | ✔ Founder/mentor/kontent/kurator: ko'rinadigan bo'limlar, bloklangan amallar, qulflar |
+| Parol oqimi | ✔ Eski parol tekshiruvi, qisqa parol rad etilishi, mos kelmagan takror, tiklashdan keyin birinchi kirish |
+
+### Foydalanish (namuna rejimi)
+
+| Rol | Kirish | Ko'radigan bo'limlari |
+|---|---|---|
+| Founder | `bekzod` yoki bekzod@aileaders.uz | hammasi + Adminlar |
+| Bosh mentor | `malika` | Talabalar, Vazifalar, Statistika |
+| Mentor | `sardor`, `nigora`, `dilnoza` | Talabalar, Vazifalar (+ Nigora: Darslar) |
+| Kontent menejer | `zuhra` | Darslar, Talabalar |
+| Kurator | `timur` | Talabalar, Statistika, Jamoalar |
+| Talabalar | `falcon`, `onyx`, `comet`, … (18 ta) | talaba kabineti |
+
+**Keyingi qadam:** foydalanuvchi haqiqiy talabalar bazasini va admin ma'lumotlarini yuborishi bilan
+`npm run import <fayl.csv>` → namuna yozuvlar olib tashlanadi → kirish kartochkalari tarqatiladi
+(`docs/mvp-reja.md` §8 dagi 7 bosqich).

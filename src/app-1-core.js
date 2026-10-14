@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.4.1';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -227,16 +227,17 @@ const STUDENTS = buildStudents();
 function blankState() {
   return {
     role: 'student', user: 's1', theme: 'dark',
-    students: STUDENTS, submissions: buildSubmissions(), walls: buildWalls(), gallery: buildGallery(),
-    badges: BADGES.map(b => ({ ...b })), quests: {}, quizDone: {},
+    /* muhim: massivlar NUSXASI beriladi — reset() umumiy seed'ni o‘zgartirib qo‘ymasin */
+    students: JSON.parse(JSON.stringify(STUDENTS)), submissions: buildSubmissions(), walls: buildWalls(), gallery: buildGallery(),
+    badges: BADGES.map(b => JSON.parse(JSON.stringify(b))), quests: {}, quizDone: {},
     accounts: buildAccounts(), session: null,
     settings: { notif: true, weekly: true, publicProfile: true, friendBoard: false },
     meta: { version: APP_VERSION, created: todayISO() },
     groups: GROUPS.map(g => JSON.parse(JSON.stringify(g))),
-    modules: MODULES.map(m => ({ ...m })),
-    lessons: LESSONS.map(l => ({ ...l })),
-    tasks: TASKS.map(t => ({ ...t })),
-    mentors: MENTORS.map(m => ({ ...m })),
+    modules: MODULES.map(m => JSON.parse(JSON.stringify(m))),
+    lessons: LESSONS.map(l => JSON.parse(JSON.stringify(l))),
+    tasks: TASKS.map(t => JSON.parse(JSON.stringify(t))),
+    mentors: MENTORS.map(m => JSON.parse(JSON.stringify(m))),
     notifs: [
       { id: 'n1', for: 's1', t: 'Vazifa qabul qilindi', x: '“Prompt kutubxonasi” — 88/100 ball. Izohni o‘qing.', at: '2 kun oldin', ic: 'check-c', un: false },
       { id: 'n2', for: 's1', t: 'Deadline yaqin', x: '“Shaxsiy landing sahifa” — jamoangiz uchun 15-oktabr.', at: 'bugun', ic: 'clock', un: true },
@@ -276,7 +277,24 @@ function loadState() {
   } catch (e) { return blankState(); }
 }
 function save() { try { localStorage.setItem(VKEY, JSON.stringify(S)); } catch (e) { } }
-function resetAll() { S = blankState(); save(); toast('ok', 'Demo ma’lumotlar tiklandi', 'Boshlang‘ich holatga qaytdik.'); UI.route = S.role === 'admin' ? 'admin' : 'home'; UI.authShow = false; paint(); }
+function resetAll() {
+  /* Namuna ma'lumotlar tiklanadi, lekin HAQIQIY (demo bo'lmagan) akkauntlar saqlab qolinadi */
+  const realAccs = accounts().filter(a => !a.demo);
+  const realStudents = realAccs.map(a => a.studentId).filter(Boolean).map(id => (S.students || []).find(x => x.id === id)).filter(Boolean);
+  const keepFriends = {}, keepIn = {}, keepSent = {};
+  realStudents.forEach(st2 => { keepFriends[st2.id] = S.friends[st2.id] || []; keepIn[st2.id] = S.incoming[st2.id] || []; keepSent[st2.id] = S.sent[st2.id] || []; });
+  const oldRole = S.role, oldUser = S.user;
+  S = blankState();
+  realAccs.forEach(a => S.accounts.push(a));
+  realStudents.forEach(st2 => {
+    S.students.push(st2);
+    S.friends[st2.id] = keepFriends[st2.id]; S.incoming[st2.id] = keepIn[st2.id]; S.sent[st2.id] = keepSent[st2.id];
+  });
+  S.session = null; S.role = oldRole; S.user = oldUser;
+  save();
+  toast('ok', 'Namuna ma’lumotlar tiklandi', realAccs.length ? realAccs.length + ' ta haqiqiy akkaunt saqlab qolindi.' : 'Boshlang‘ich holatga qaytdik.');
+  UI.route = S.role === 'admin' ? 'admin' : 'home'; UI.authShow = true; paint();
+}
 
 /* ---------- 4. Hisob-kitoblar ---------- */
 const me = () => get(S.students, S.user) || S.students[0];
@@ -499,8 +517,9 @@ function sidebar() {
       if (r === 'adminTasks') { const n = reviewQueue().length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
       if (r === 'deadlines') { const n = deadlinesOf(st).filter(x => !x.s && x.tl.late).length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
       if (r === 'friends') { const n = incomingOf(st).length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
-      h += '<a class="nav-item' + (on ? ' on' : '') + '" href="#" data-act="go" data-route="' + r + '" title="' + esc(d.l) + '"' + (on ? ' aria-current="page"' : '') + '>' +
-        ico(d.i) + '<span class="nlbl">' + esc(d.l) + '</span>' + badge + '</a>';
+      const allowed = canView(r);
+      h += '<a class="nav-item' + (on ? ' on' : '') + (allowed ? '' : ' locked') + '" href="#" data-act="go" data-route="' + r + '" title="' + esc(d.l) + (allowed ? '' : ' — ruxsat yo‘q') + '"' + (on ? ' aria-current="page"' : '') + '>' +
+        ico(d.i) + '<span class="nlbl">' + esc(d.l) + '</span>' + (allowed ? badge : '<span class="lk">' + ico('lock', 'sm') + '</span>') + '</a>';
     });
   });
   h += '<div class="side-foot">';
@@ -511,8 +530,8 @@ function sidebar() {
     : (isAdmin() ? 'Founder • Admin' : (myGroup(st) ? myGroup(st).name + ' jamoasi' : 'Jamoa biriktirilmagan'));
   h += '<div class="userbox">' + avatar(isAdmin() ? { id: 'adm', name: meName, act: true, last: 0 } : st, 'sm') +
     '<div class="grow ubx" style="min-width:0"><div class="small help ellip" style="font-weight:750">' + esc(meName) + '</div>' +
-    '<small>' + esc(meSub) + '</small></div>' +
-    '<button class="btn-icon" style="width:34px;height:34px" data-act="theme" title="Rejim" aria-label="Mavzu">' + ico('moon', 'sm') + '</button></div>';
+    '<small class="ellip ubx-sub">' + esc(meSub) + '</small></div>' +
+    '<button class="btn-icon" style="width:34px;height:34px" data-act="pass-change" title="Parolni almashtirish" aria-label="Parolni almashtirish">' + ico('lock', 'sm') + '</button></div>';
   h += '<div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm grow" data-act="logout" title="Hisobdan chiqish">' + ico('out', 'sm') + '<span class="blbl">Chiqish</span></button>' +
     '<button class="btn btn-ghost btn-sm" data-act="reset-confirm" title="Demoni tiklash" aria-label="Demo ma’lumotlarni tiklash">' + ico('refresh', 'sm') + '</button></div>' +
     '<div class="xs muted verline" style="text-align:center;padding-top:2px">v' + APP_VERSION + ((meAcc() && meAcc().demo) ? ' • namuna rejimi' : '') + '</div></div></aside>';
@@ -539,7 +558,7 @@ function toTopBtn() {
   return '<button class="totop" id="toTop" data-act="to-top" title="Yuqoriga" aria-label="Yuqoriga ko‘tarilish"><svg class="i" style="transform:rotate(180deg)" aria-hidden="true"><use href="#i-down"></use></svg></button>';
 }
 function bottomnav() {
-  const list = isAdmin() ? MOBILE_ADMIN : MOBILE_STUDENT;
+  const list = (isAdmin() ? MOBILE_ADMIN : MOBILE_STUDENT).filter(r => canView(r));
   return '<nav class="bottomnav">' + list.map(r => '<a class="bn' + (UI.route === r ? ' on' : '') + '" href="#" data-act="go" data-route="' + r + '">' + ico(navDefs[r].i) + '<span>' + esc(navDefs[r].l.split(' ')[0]) + '</span></a>').join('') + '</nav>';
 }
 
@@ -550,6 +569,18 @@ function paletteData() {
   const navs = isAdmin() ? ['admin', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings']
     : ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friends', 'info'];
   navs.forEach((r, i) => items.push({ grp: 'Bo‘limlar', l: navDefs[r].l, s: 'Sahifaga o‘tish • Alt+' + (i + 1), i: navDefs[r].i, act: 'go:' + r }));
+  /* ruxsati yo'q bo'lim va amallar ro'yxatga tushmaydi */
+  for (let k = items.length - 1; k >= 0; k--) {
+    const it = items[k];
+    if (it.act && it.act.indexOf('go:') === 0 && !canView(it.act.slice(3))) items.splice(k, 1);
+  }
+  const palFilter = list => {
+    for (let k = list.length - 1; k >= 0; k--) {
+      const a0 = list[k].act || '';
+      if (!palActAllowed(a0)) list.splice(k, 1);
+    }
+    return list;
+  };
   if (isAdmin()) {
     items.push({ grp: 'Amallar', l: 'Yangi vazifa berish', s: 'Talabalarga topshiriq', i: 'plus', act: 'new-task' });
     items.push({ grp: 'Amallar', l: 'Dars qo‘shish', s: 'Kontent qo‘shish', i: 'video', act: 'new-lesson' });
@@ -567,12 +598,14 @@ function paletteData() {
   items.push({ grp: 'Amallar', l: 'Bildirishnomalar', s: 'Yangi xabarlar', i: 'bell', act: 'notifs' });
   items.push({ grp: 'Amallar', l: UI.collapsed ? 'Yon panelni ochish' : 'Yon panelni yig‘ish', s: 'Ish maydonini kengaytirish', i: 'grid', act: 'collapse' });
   if (UI.installEvt) items.push({ grp: 'Amallar', l: 'Ilovani o‘rnatish', s: 'Telefon yoki kompyuterga', i: 'download', act: 'install' });
+  items.push({ grp: 'Amallar', l: 'Parolni almashtirish', s: '@' + ((meAcc() || {}).nick || '—'), i: 'lock', act: 'pass-change' });
+  if (meAcc() && meAcc().demo) items.push({ grp: 'Amallar', l: 'Namuna akkauntlar bilan sinash', s: 'Rollar bo‘yicha tez kirish', i: 'shield', act: 'sample-accounts' });
   S.lessons.forEach(l => items.push({ grp: 'Darslar', l: l.t, s: modOf(l.m).n + '-modul • ' + l.dur + ' daqiqa', i: 'book',
     act: (isAdmin() ? 'lesson-edit:' : 'lesson-open:') + l.id }));
   S.tasks.forEach(t => items.push({ grp: 'Vazifalar', l: t.title, s: 'Deadline: ' + fmtFull(t.dl), i: 'task', act: (isAdmin() ? 'task-review:' : 'task-open:') + t.id }));
   if (isAdmin()) S.students.forEach(s0 => items.push({ grp: 'Talabalar', l: s0.name, s: (myGroup(s0) || {}).name || 'jamoa yo‘q', i: 'user', act: 'student-open:' + s0.id }));
   S.groups.forEach(g => items.push({ grp: 'Jamoalar', l: g.name, s: g.project, i: 'flag', act: 'group-open:' + g.id }));
-  return items;
+  return palFilter(items);
 }
 function openPalette() {
   PAL.items = paletteData(); PAL.q = ''; PAL.idx = 0;
@@ -616,9 +649,26 @@ function paintPalette(keepIdx) {
   const on = document.querySelector('.pal-item.on');
   if (on && on.scrollIntoView) { try { on.scrollIntoView({ block: 'nearest' }); } catch (e) { } }
 }
+const PAL_PERM = { 'new-task': 'tasks', 'new-lesson': 'content', 'new-module': 'content', 'new-student': 'students', 'new-group': 'groups', 'new-admin': '__founder', export: 'stats', 'export-json': 'settings' };
+/* Amal ruxsatga ega bo'lmasa: panel ro'yxatida ham, bajarishda ham yopiq */
+function palActAllowed(act) {
+  const parts = String(act).split(':'), k = parts[0], v = parts[1];
+  if (PAL_PERM[k]) return PAL_PERM[k] === '__founder' ? isFounder() : actionAllowed(PAL_PERM[k]);
+  if (k === 'go' && v) {
+    if (!canView(v)) return false;
+    const need = ADMIN_SECTION_PERM[v];
+    if (need === '__founder') return isFounder();
+  }
+  return true;
+}
 function runPalette(act) {
   const parts = String(act).split(':'), k = parts[0], v = parts[1];
   closeModal();
+  if (PAL_PERM[k]) {
+    if (PAL_PERM[k] === '__founder' && !isFounder()) { permDenied('admins'); return; }
+    if (PAL_PERM[k] !== '__founder' && !actionAllowed(PAL_PERM[k])) { permDenied(PAL_PERM[k]); return; }
+  }
+  if (k === 'go' && !canView(v)) { permDenied(ADMIN_SECTION_PERM[v] === '__founder' ? 'admins' : (ADMIN_SECTION_PERM[v] || 'settings')); return; }
   const acts = {
     go: () => go(v),
     theme: () => { const n = UI.theme === 'dark' ? 'light' : 'dark'; UI.theme = n; S.theme = n; document.documentElement.dataset.theme = n; save(); paint(true); },
@@ -629,6 +679,8 @@ function runPalette(act) {
     'new-lesson': () => createLessonModal(),
     'new-student': () => addStudentModal(),
     'export-json': () => downloadState(),
+    'pass-change': () => passChangeModal(),
+    'sample-accounts': () => sampleModal(),
     'export-my': () => exportMyCSV(),
     export: () => exportCSV(),
     'lesson-open': () => lessonModal(lessonOf(v)),
@@ -810,6 +862,70 @@ function signIn(acc) {
   save();
 }
 const isFounder = () => { const a = meAcc(); return !!a && a.role === 'admin' && (a.adminRole === 'founder' || (a.perms || []).includes('__all')); };
+/* Har bir admin bo'limi qaysi ruxsatni talab qiladi (null — hamma admin uchun ochiq) */
+const ADMIN_SECTION_PERM = {
+  admin: null, students: 'students', adminTasks: 'tasks', adminLessons: 'content',
+  adminGroups: 'groups', adminDeadlines: 'tasks', stats: 'stats', settings: 'settings', adminAdmins: '__founder'
+};
+const PERM_LABEL = { students: 'Talabalar', tasks: 'Vazifalar', content: 'Kontent', groups: 'Jamoalar', stats: 'Statistika', settings: 'Sozlamalar', admins: 'Adminlar' };
+/* Bo'limni ko'rish huquqi */
+function canView(route) {
+  const a = meAcc();
+  if (!a) return true;                                  /* sessiyasiz namuna rejimi — bloklamaymiz */
+  if (a.role !== 'admin') return !ADMIN_ONLY_ROUTES.includes(route);
+  const need = ADMIN_SECTION_PERM[route];
+  if (!need) return true;
+  if (need === '__founder') return isFounder();
+  return canPerm(need);
+}
+const ADMIN_ONLY_ROUTES = ['admin', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings', 'adminAdmins'];
+/* Amal (tugma/forma) uchun ruxsat: true bo'lsa — ruxsat bor */
+function actionAllowed(perm) {
+  const a = meAcc();
+  if (!a || a.role !== 'admin') return true;            /* talaba uchun bu amallar baribir yopiq */
+  return canPerm(perm);
+}
+function permDenied(perm) {
+  toast('warn', 'Ruxsat yo‘q', '«' + (PERM_LABEL[perm] || perm) + '» bo‘limi uchun huquqingiz yo‘q. Founder yoki bosh mentorga murojaat qiling.');
+}
+/* Parolni almashtirish oynasi (har qanday rol) */
+function passChangeModal() {
+  const a = meAcc();
+  openModal(mhead('Parolni almashtirish', a ? '@' + a.nick : 'Sessiya yo‘q') +
+    '<form data-form="pass-change" class="col" style="gap:13px">' +
+    (a && a.pass ? '<div class="field"><label>Hozirgi parol</label><input class="inp" type="password" name="old" required autocomplete="current-password"></div>' : '') +
+    '<div class="field"><label>Yangi parol</label><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"></div>' +
+    '<div class="field"><label>Yangi parolni takrorlang</label><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password"></div>' +
+    '<button class="btn btn-primary btn-block" type="submit">' + ico('check', 'sm') + 'Saqlash</button>' +
+    '<div class="inp-hint">Parolni hech kimga aytmang — klub adminlari ham uni ko‘ra olmaydi.</div>' +
+    '</form>', 'narrow');
+}
+/* Parolni noldan tiklash (admin amali): keyingi kirishda talaba yangi parol o‘rnatadi */
+function passReset(accId) {
+  const a = accById(accId);
+  if (!a) return false;
+  a.pass = null; a.mustSetPass = true; save();
+  return true;
+}
+/* Namuna akkauntlar oynasi: bir bosishda turli rol bilan sinash */
+function sampleModal() {
+  const st = accounts().filter(a => a.role === 'student' && a.demo);
+  const ad = accounts().filter(a => a.role === 'admin' && a.demo);
+  const row2 = a => '<button class="acc-row" data-act="quick-acc" data-id="' + a.id + '">' +
+    avatar({ id: a.id, name: a.name, act: true, last: 0 }, 'xs') +
+    '<span class="grow" style="min-width:0;text-align:left"><span class="small ellip" style="font-weight:750;display:block">' + esc(a.name) + '</span>' +
+    '<span class="xs muted ellip" style="display:block">' + (a.role === 'admin' ? esc((ADMIN_ROLES[a.adminRole] || { l: 'Admin' }).l) + ' • ' + esc(a.email) : (a.groupId && groupOf(a.groupId) ? esc(groupOf(a.groupId).name) + ' jamoasi • ' : '') + 'HEMIS: namuna') + '</span></span>' +
+    '<span class="kbd">' + esc(a.nick) + '</span></button>';
+  openModal(mhead('Namuna akkauntlar', 'Parolsiz, bir bosishda kirish — real talabalar kirish formasidan foydalanadi') +
+    '<div class="col" style="gap:16px">' +
+    '<div><div class="row between" style="gap:10px"><span class="up muted">Adminlar (' + ad.length + ')</span><span class="tag p">rollar turlicha</span></div>' +
+    '<div class="col" style="gap:6px;margin-top:8px">' + ad.map(row2).join('') + '</div></div>' +
+    '<div><div class="row between" style="gap:10px"><span class="up muted">Talabalar (' + st.length + ')</span><span class="tag c">barcha bo‘limlar</span></div>' +
+    '<div class="col" style="gap:6px;margin-top:8px">' + st.slice(0, 8).map(row2).join('') +
+    (st.length > 8 ? '<div class="xs muted" style="padding:6px 2px">… yana ' + (st.length - 8) + ' ta namuna talaba</div>' : '') + '</div></div>' +
+    '<div class="xs muted">Namuna akkauntlar «demo» belgisi bilan saqlanadi: haqiqiy ma’lumotlar kiritilganda ular bir tugma bilan o‘chiriladi.</div>' +
+    '</div>', 'wide');
+}
 const canPerm = p => { const a = meAcc(); if (!a || a.role !== 'admin') return false; return a.adminRole === 'founder' || (a.perms || []).includes('__all') || (a.perms || []).includes(p); };
 function logoutAcc() { S.session = null; save(); UI.authShow = true; UI.firstPass = null; closeModal(); paint(); }
 
