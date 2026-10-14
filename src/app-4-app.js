@@ -8,7 +8,7 @@ function vAuth() {
   const demo = get(S.students, S.user) || S.students[0];
   let h = '<div class="auth">' +
     '<div class="auth-art">' +
-    '<div class="row" style="gap:14px"><svg style="width:54px;height:54px" viewBox="0 0 64 64"><defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
+    '<div class="row auth-brand" style="gap:14px"><svg style="width:54px;height:54px" viewBox="0 0 64 64"><defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
     '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="rgba(10,15,30,.7)" stroke="url(#ag)" stroke-width="2.6" stroke-linejoin="round"/>' +
     '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#ag)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
     '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
@@ -26,7 +26,7 @@ function vAuth() {
      ['users', 'Jamoaviy ishlash', 'Jamoa devori, mentor juftligi, jamoalar musobaqasi'],
      ['flame', 'Streak va reyting', 'Kunlik XP, coin, 8 ta yutuq, Galereya']
     ].map(x => '<div class="row" style="gap:11px">' +
-      '<div style="width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(124,92,255,.18);border:1px solid rgba(124,92,255,.34);color:#C4B4FF">' + ico(x[0], 'sm') + '</div>' +
+      '<div class="feat-ic">' + ico(x[0], 'sm') + '</div>' +
       '<div><div class="small" style="font-weight:750">' + esc(x[1]) + '</div><div class="xs muted">' + esc(x[2]) + '</div></div></div>').join('') +
     '</div></div>' +
     '<div class="grid g4 auth-stats">' + [['18', 'talaba'], ['6', 'jamoa'], ['29', 'dars'], ['4', 'loyiha jonli']].map(x =>
@@ -168,9 +168,27 @@ function currentView() {
   const fn = ROUTES[route] || ROUTES[isAdmin() ? 'admin' : 'home'];
   return fn();
 }
+function contentFoot() {
+  const adm = isAdmin();
+  const links = adm
+    ? [['admin', 'Dashboard'], ['students', 'Talabalar'], ['adminTasks', 'Vazifalar'], ['adminGroups', 'Jamoalar'], ['stats', 'Statistika']]
+    : [['home', 'Bosh sahifa'], ['lessons', 'Darslar'], ['tasks', 'Vazifalar'], ['deadlines', 'Deadline'], ['friends', 'Friends']];
+  return '<footer class="content-foot">' +
+    '<div class="cf-brand"><svg style="width:26px;height:26px" viewBox="0 0 64 64" aria-hidden="true">' +
+    '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="rgba(10,15,30,.7)" stroke="url(#agf)" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#agf)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
+    '<defs><linearGradient id="agf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs></svg>' +
+    '<span><b>AI Leaders</b> <em>Startup Club</em></span></div>' +
+    '<nav class="cf-links" aria-label="Tezkor havolalar">' + links.map(l =>
+      '<a href="#" data-act="go" data-route="' + l[0] + '">' + esc(l[1]) + '</a>').join('') + '</nav>' +
+    '<div class="cf-meta"><span>© ' + new Date().getFullYear() + ' · Toshkent</span>' +
+    '<span class="cf-dot">•</span><span>v' + APP_VERSION + ' · demo rejim</span>' +
+    '<button class="cf-help" data-act="shortcuts" title="Klaviatura yorliqlari">' + ico('help', 'sm') + '<span>Yorliqlar</span></button></div></footer>';
+}
 function renderApp() {
   if (UI.authShow) return vAuth();
-  return sidebar() + '<div class="main">' + topbar() + '<div class="content">' + currentView() + '</div></div>' + bottomnav() + toTopBtn();
+  return sidebar() + '<div class="main">' + topbar() + '<div class="content">' + currentView() + contentFoot() + '</div></div>' + bottomnav() + toTopBtn();
 }
 function paint(keepScroll) {
   const el = document.getElementById('app');

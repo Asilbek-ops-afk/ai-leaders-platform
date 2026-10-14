@@ -177,3 +177,26 @@ Real ko'p foydalanuvchili rejimga o'tish uchun `schema/supabase.sql` ishga tushi
 | Funksional testlar | ✔ **209 ta tekshiruv, 0 xato** (17-guruh: kirish ekrani tuzilishi — 9 yangi tekshiruv, shu jumladan orb regressiya testi) |
 | Skrinshotlar | 3 ta yangi kirish surati: `01-kirish-desktop` (1440), `01b-kirish-noutbuk-1920`, `01c-kirish-planshet-1024` |
 | Telefon | O'zgarmagan (390 px: bir ustun, statistika 2×2) |
+
+---
+
+## v1.3.2 — dizayn sayqali (noutbuk)
+
+Foydalanuvchi izohi: «Hammasi yaxshi, faqat dizayn ustida ozroq ishlash kerak». Shu asosda noutbuk ko'rinishida
+dizayn ritmi va izchillik yaxshilandi:
+
+| # | Yaxshilanish | Tafsilot |
+|---|---|---|
+| 1 | **Kirish ekrani kompozitsiyasi** | Logo yuqorida, matn bloki vertikal markazda (avval pastga yopishib, tepada ~250 px bo'shliq qolardi). Mantiqiy ritm: brend → sarlavha → xususiyatlar → statistika |
+| 2 | **Brend qatori** | `.auth-brand` klassi — keng ekranda logo satr sifatida mustahkam turadi, matn esa markazda |
+| 3 | **Juftlik ritmi** | 4 ta xususiyat endi 1-ustunda 3 qator, 2-ustunda aniq juftlik bilan tekislanadi (avval 2/2/2/2 tarqoq edi) |
+| 4 | **Statistika kartalari** | 1920×1080 va 1440×900 da «18 talaba · 6 jamoa · 29 dars · 4 loyiha» to'rtta karta; 1366×768 va pastida ixcham qatorga aylanadi (nazorat nuqtasiz, faqat media so'rov) |
+| 5 | **Sahifa pastidagi panel** (yangi) | `contentFoot()` — brend, tezkor havolalar, versiya va «Yorliqlar» tugmasi. Qisqa sahifalarda (Friends, modul, Ma'lumot) pastdagi bo'shliqni to'ldiradi, uzun sahifalarda kontent oxirida chiqadi. Telefonda yashirilgan (`display:none` < 981 px) |
+| 6 | **Admin dashboard** | «Haftalik topshirish faolligi» kartasi `.stretch` bilan ustun balandligiga cho'ziladi — yonidagi «Haftalik Top 5» bilan tenglashadi (avval yarim bo'sh qolardi) |
+| 7 | **Yuqori panel** | O'ng chetda qo'shimcha nafas (22 px), tugmalar orasi 9 px — vizual ritm izchil |
+| 8 | **Qidiruv maydoni** | Fokus halqasi (`.searchbar:focus-within`) va hover holati qo'shildi — noutbukda sichqoncha bilan ishlash sezgir |
+| 9 | **Yon panel sarlavhalari** | Bo'lim sarlavhalari orasi kengaytirildi (18 px), birinchi sarlavha tepaga yaqinlashtirildi |
+| 10 | **Xususiyat ikonkalari** | `.feat-ic` klassi + yumshoq hover (ko'tarilish va yorqinlashuv) |
+
+**Tekshiruv:** `npm test` → **219 ta tekshiruv, 0 xato** (18-guruh: pastki panel va dizayn izchilligi — 10 yangi tekshiruv),
+39 ta skrinshot qayta olindi.

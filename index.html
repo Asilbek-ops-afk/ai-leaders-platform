@@ -228,7 +228,8 @@ a{color:inherit;text-decoration:none}
 .brand .mark{width:42px;height:42px;flex:0 0 auto;filter:drop-shadow(0 6px 14px rgba(124,92,255,.45))}
 .brand-txt strong{display:block;font-size:15.5px;font-weight:850;letter-spacing:.1em;line-height:1.1}
 .brand-txt em{font-style:normal;font-size:9.5px;letter-spacing:.3em;color:var(--muted);font-weight:750}
-.nav-lbl{padding:14px 12px 6px;font-size:10px;font-weight:850;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.nav-lbl{padding:18px 12px 7px;font-size:10px;font-weight:850;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.nav-lbl:first-child{padding-top:10px}
 .nav-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:13px;color:var(--txt2);font-weight:650;font-size:14px;
   border:1px solid transparent;transition:.16s;position:relative}
 .nav-item:hover{background:var(--panel-2);color:var(--txt)}
@@ -242,12 +243,15 @@ a{color:inherit;text-decoration:none}
 .userbox small{display:block;color:var(--muted);font-size:11px;font-weight:600}
 
 .main{min-width:0;display:flex;flex-direction:column;min-height:100vh}
-.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:11px 18px;
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:9px;padding:11px 22px 11px 18px;
   background:rgba(6,9,18,.72);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
 [data-theme="light"] .topbar{background:rgba(255,255,255,.8)}
 .topbar .mobile-brand{display:none;align-items:center;gap:8px;font-weight:850;letter-spacing:.08em}
 .searchbar{display:flex;align-items:center;gap:9px;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:9px 14px;min-width:180px;color:var(--muted)}
 .searchbar input{background:none;border:0;outline:none;width:100%;font-size:13.5px;color:var(--txt)}
+.searchbar{transition:border-color .18s,box-shadow .18s,background .18s}
+.searchbar:hover{border-color:var(--line-2)}
+.searchbar:focus-within{border-color:rgba(124,92,255,.6);box-shadow:0 0 0 3px rgba(124,92,255,.16);background:var(--panel)}
 .content{padding:20px 18px 44px;display:flex;flex-direction:column;gap:16px;width:100%;max-width:1280px;margin:0 auto}
 .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .empty{padding:34px 18px;text-align:center;color:var(--muted);border:1px dashed var(--line-2);border-radius:var(--r)}
@@ -589,8 +593,13 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 }
 
 /* --- 9. Kirish ekrani: noutbukda bitta ekranga sig‘adi --- */
+.feat-ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  background:rgba(124,92,255,.18);border:1px solid rgba(124,92,255,.34);color:#C4B4FF;transition:transform .18s,background .18s,border-color .18s}
+.auth-copy .row:hover .feat-ic{transform:translateY(-1px);background:rgba(124,92,255,.26);border-color:rgba(124,92,255,.5)}
+
 @media (min-width:1024px){
-  .auth-art{padding:32px 40px}
+  .auth-art{justify-content:center;padding:32px 40px}
+  .auth-art>.auth-brand{position:absolute;top:30px;left:40px;right:40px}
   .auth-copy{max-width:680px}
   .auth-art h1{font-size:clamp(23px,2.15vw,32px)!important;line-height:1.13!important;margin:12px 0 10px!important}
   .auth-art .t2{font-size:13.5px;line-height:1.55;max-width:52ch}
@@ -601,8 +610,37 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 }
 @media (min-width:1024px) and (max-height:820px){
   .auth-art{padding:24px 36px}
+  .auth-art>.auth-brand{top:22px;left:36px;right:36px}
   .auth-art h1{font-size:clamp(21px,1.9vw,27px)!important}
-  .auth-stats{display:none}
+  /* Past bo'yli noutbuklarda statistika kartalari o'rniga — ixcham qator */
+  .auth-stats{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 22px;margin-top:20px;max-width:660px!important}
+  .auth-stats .card{display:inline-flex;align-items:baseline;gap:8px;background:none;border:0;padding:0;box-shadow:none;border-radius:0}
+  .auth-stats .card .big{font-size:16px}
+  .auth-stats .card>.xs{font-size:12px}
+  .auth-stats .card+.card::before{content:"·";color:var(--line-2);margin-right:6px;font-weight:800}
+}
+
+/* --- 8. Sahifa pastidagi panel (juda qisqa sahifalarda bo‘shliqni to‘ldiradi) --- */
+.content-foot{display:none}
+.card.stretch{display:flex;flex-direction:column}
+.card.stretch .chart{flex:1 1 auto;min-height:150px}
+
+@media (min-width:981px){
+  .main{display:flex;flex-direction:column;min-height:100vh}
+  .content{flex:1 1 auto;display:flex;flex-direction:column}
+  .content-foot{margin-top:auto;padding-top:18px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;
+    gap:16px;flex-wrap:wrap;color:var(--muted);font-size:12.5px}
+  .cf-brand{display:flex;align-items:center;gap:9px}
+  .cf-brand b{color:var(--txt2);font-weight:800}
+  .cf-brand em{font-style:normal;letter-spacing:.16em;font-size:10.5px;font-weight:750;color:var(--muted)}
+  .cf-links{display:flex;gap:16px;flex-wrap:wrap}
+  .cf-links a{color:var(--muted);font-weight:650;transition:color .16s}
+  .cf-links a:hover{color:var(--txt)}
+  .cf-meta{display:flex;align-items:center;gap:8px;font-size:11.5px}
+  .cf-dot{color:var(--line-2)}
+  .cf-help{display:inline-flex;align-items:center;gap:5px;color:var(--txt2);border:1px solid var(--line);background:var(--panel-2);
+    border-radius:999px;padding:4px 10px;font-size:11.5px;font-weight:700;transition:.16s}
+  .cf-help:hover{color:var(--txt);border-color:var(--line-2)}
 }
 
 /* --- 8. Yuqoriga ko‘tarilish tugmasi (noutbuk uchun) --- */
@@ -739,7 +777,7 @@ a[target="_blank"]{word-break:break-word}
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '1.3.1';
+const APP_VERSION = '1.3.2';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -2298,7 +2336,7 @@ function vAdmin() {
     kpi('star', k.avg, 'O‘rtacha baho', k.subs + ' topshiriq', 'a') + '</div>';
 
   h += '<div class="grid" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)">' +
-    '<div class="card"><div class="card-h"><h2 class="h2">' + ico('trend') + 'Haftalik topshirish faolligi</h2>' +
+    '<div class="card stretch"><div class="card-h"><h2 class="h2">' + ico('trend') + 'Haftalik topshirish faolligi</h2>' +
     '<span class="tag c">' + ico('bolt', 'sm') + 'O‘rtacha ' + Math.round(S.weekly.reduce((a, w) => a + w.v, 0) / 7) + '/kun</span></div>' +
     '<div class="chart">' + S.weekly.map((w, i) => '<div class="b"><div class="fill" style="height:' + Math.max(8, Math.round(w.v / maxv * 100)) + '%;animation-delay:' + (i * 50) + 'ms"></div><span>' + w.l + '</span></div>').join('') + '</div>' +
     '<div class="divider"></div>' +
@@ -2765,7 +2803,7 @@ function vAuth() {
   const demo = get(S.students, S.user) || S.students[0];
   let h = '<div class="auth">' +
     '<div class="auth-art">' +
-    '<div class="row" style="gap:14px"><svg style="width:54px;height:54px" viewBox="0 0 64 64"><defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
+    '<div class="row auth-brand" style="gap:14px"><svg style="width:54px;height:54px" viewBox="0 0 64 64"><defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
     '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="rgba(10,15,30,.7)" stroke="url(#ag)" stroke-width="2.6" stroke-linejoin="round"/>' +
     '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#ag)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
     '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
@@ -2783,7 +2821,7 @@ function vAuth() {
      ['users', 'Jamoaviy ishlash', 'Jamoa devori, mentor juftligi, jamoalar musobaqasi'],
      ['flame', 'Streak va reyting', 'Kunlik XP, coin, 8 ta yutuq, Galereya']
     ].map(x => '<div class="row" style="gap:11px">' +
-      '<div style="width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(124,92,255,.18);border:1px solid rgba(124,92,255,.34);color:#C4B4FF">' + ico(x[0], 'sm') + '</div>' +
+      '<div class="feat-ic">' + ico(x[0], 'sm') + '</div>' +
       '<div><div class="small" style="font-weight:750">' + esc(x[1]) + '</div><div class="xs muted">' + esc(x[2]) + '</div></div></div>').join('') +
     '</div></div>' +
     '<div class="grid g4 auth-stats">' + [['18', 'talaba'], ['6', 'jamoa'], ['29', 'dars'], ['4', 'loyiha jonli']].map(x =>
@@ -2925,9 +2963,27 @@ function currentView() {
   const fn = ROUTES[route] || ROUTES[isAdmin() ? 'admin' : 'home'];
   return fn();
 }
+function contentFoot() {
+  const adm = isAdmin();
+  const links = adm
+    ? [['admin', 'Dashboard'], ['students', 'Talabalar'], ['adminTasks', 'Vazifalar'], ['adminGroups', 'Jamoalar'], ['stats', 'Statistika']]
+    : [['home', 'Bosh sahifa'], ['lessons', 'Darslar'], ['tasks', 'Vazifalar'], ['deadlines', 'Deadline'], ['friends', 'Friends']];
+  return '<footer class="content-foot">' +
+    '<div class="cf-brand"><svg style="width:26px;height:26px" viewBox="0 0 64 64" aria-hidden="true">' +
+    '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="rgba(10,15,30,.7)" stroke="url(#agf)" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#agf)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
+    '<defs><linearGradient id="agf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs></svg>' +
+    '<span><b>AI Leaders</b> <em>Startup Club</em></span></div>' +
+    '<nav class="cf-links" aria-label="Tezkor havolalar">' + links.map(l =>
+      '<a href="#" data-act="go" data-route="' + l[0] + '">' + esc(l[1]) + '</a>').join('') + '</nav>' +
+    '<div class="cf-meta"><span>© ' + new Date().getFullYear() + ' · Toshkent</span>' +
+    '<span class="cf-dot">•</span><span>v' + APP_VERSION + ' · demo rejim</span>' +
+    '<button class="cf-help" data-act="shortcuts" title="Klaviatura yorliqlari">' + ico('help', 'sm') + '<span>Yorliqlar</span></button></div></footer>';
+}
 function renderApp() {
   if (UI.authShow) return vAuth();
-  return sidebar() + '<div class="main">' + topbar() + '<div class="content">' + currentView() + '</div></div>' + bottomnav() + toTopBtn();
+  return sidebar() + '<div class="main">' + topbar() + '<div class="content">' + currentView() + contentFoot() + '</div></div>' + bottomnav() + toTopBtn();
 }
 function paint(keepScroll) {
   const el = document.getElementById('app');

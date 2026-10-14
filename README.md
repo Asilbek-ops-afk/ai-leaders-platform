@@ -90,6 +90,7 @@ Telefon ko'rinishi o'zgarmagan — noutbukda esa qo'shimcha qulayliklar **avtoma
 | 🔤 **Saralanadigan jadvallar** | Admin «Talabalar» jadvalida ustun nomini bosing (ism, jamoa, progress, baho); telefonda esa «Saralash» tanlagichi (XP, streak ham) |
 | 📏 **Kompakt rejim** | Balandligi 850 px dan kam noutbuklarda (masalan 1366×768) oraliqlar avtomatik zichlashadi |
 | ⬆️ **«Yuqoriga» tugmasi** | Uzoq ro'yxatlarda pastda o'ng burchakda paydo bo'ladi |
+| 🦶 **Sahifa paneli** | Har sahifa oxirida brend + tezkor havolalar + versiya (telefonda yashirilgan) |
 
 Yorliqlar oynasini sayt ichidan ko'rish: yuqori paneldagi `?` tugmasi yoki `Shift + /` (ya'ni `?`).
 

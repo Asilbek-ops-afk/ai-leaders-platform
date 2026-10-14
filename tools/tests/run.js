@@ -668,7 +668,7 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 1.3.1', B.w.AIL.version() === '1.3.1');
+t('versiya 1.3.2', B.w.AIL.version() === '1.3.2');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ================= 17. KIRISH EKRANI TUZILISHI (noutbuk/planshet) ================= */
@@ -700,6 +700,34 @@ t('kirish bloki uchun klasslar (auth-copy, auth-stats)', !!C.d.querySelector('.a
 t('kirish ekranida oqimdagi bloklar soni 3 ta (brend, matn, statistika)',
   [...C.d.querySelector('.auth-art').children].filter(k => !k.classList.contains('spark-orb') && !k.classList.contains('float-slow')).length === 3);
 t('JS xatosi yo‘q (kirish ekrani)', C.errors.length === 0);
+
+/* ================= 18. SAHIFA PASTIDAGI PANEL (dizayn ritmi) ================= */
+group('18. Sahifa pastidagi panel va dizayn izchilligi');
+const D = boot();
+D.w.AIL.login('student', 's1'); D.w.AIL.go('friends');
+t('pastki panel student ko‘rinishida bor', !!D.d.querySelector('.content-foot'));
+t('panelda brend va tezkor havolalar', D.d.querySelector('.content-foot .cf-brand') !== null && D.d.querySelectorAll('.content-foot .cf-links a').length === 5);
+t('panelda versiya ko‘rsatilgan', /v1\.3\.2/.test(D.d.querySelector('.content-foot').textContent));
+t('havola bosilganda bo‘lim almashadi', (() => {
+  const a2 = [...D.d.querySelectorAll('.content-foot .cf-links a')].find(x => x.dataset.route === 'deadlines');
+  a2.dispatchEvent(new D.w.MouseEvent('click', { bubbles: true }));
+  return D.w.AIL.UI.route === 'deadlines';
+})());
+t('panel yordam tugmasi yorliqlar oynasini ochadi', (() => {
+  D.d.querySelector('.content-foot .cf-help').dispatchEvent(new D.w.MouseEvent('click', { bubbles: true }));
+  const ok = D.hasModal('Klaviatura yorliqlari');
+  D.d.querySelector('[data-act="close-modal"]').dispatchEvent(new D.w.MouseEvent('click', { bubbles: true }));
+  return ok;
+})());
+D.click('[data-act="switch"]');
+t('admin uchun ham panel bor (boshqa havolalar)', !!D.d.querySelector('.content-foot') && [...D.d.querySelectorAll('.content-foot .cf-links a')].some(x => x.dataset.route === 'students'));
+t('mobil uchun panel CSSda yashirilgan, noutbukda ko‘rinadi', (() => {
+  const css = D.d.documentElement.innerHTML;
+  return css.includes('.content-foot{display:none}') && /@media \(min-width:981px\)\{[\s\S]{0,400}\.content-foot\{/.test(css);
+})());
+t('karta cho‘zilishi (.stretch) dashboardda ishlatilgan', D.d.documentElement.innerHTML.includes("class=\"card stretch\"") || /class=\\"card stretch\\"/.test(D.d.documentElement.innerHTML) || D.d.documentElement.innerHTML.includes('card stretch'));
+t('qidiruv maydoni fokus halqasi CSSda bor', D.d.documentElement.innerHTML.includes('.searchbar:focus-within'));
+t('JS xatosi yo‘q (dizayn)', D.errors.length === 0);
 }
 
 /* ============================ XULOSA ====================================== */
