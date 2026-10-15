@@ -61,7 +61,7 @@
   --bg:#05070F; --bg-soft:#080D1B;
   --panel:#0C1324; --panel-2:#101A31; --panel-3:#141F3B;
   --line:#1B2745; --line-2:#243256;
-  --txt:#E9EDF9; --txt2:#AEB9D6; --muted:#6E7B9E;
+  --txt:#E9EDF9; --txt2:#AEB9D6; --muted:#7C89AC;
   --brand:#7C5CFF; --brand-2:#22D3EE; --accent:#C6FF4F;
   --ok:#38E1A0; --warn:#FFB43A; --danger:#FF5C7A; --coin:#FFD75E;
   --grad:linear-gradient(135deg,#7C5CFF 0%,#5B8CFF 50%,#22D3EE 100%);
@@ -76,7 +76,7 @@
   --bg:#F2F5FC; --bg-soft:#FFFFFF;
   --panel:#FFFFFF; --panel-2:#FAFBFF; --panel-3:#F2F5FD;
   --line:#E2E8F6; --line-2:#D2DAEE;
-  --txt:#0A1024; --txt2:#41506F; --muted:#7381A1;
+  --txt:#0A1024; --txt2:#41506F; --muted:#55607C;
   --sh:0 16px 34px -24px rgba(30,44,90,.35);
   --sh-lift:0 24px 50px -26px rgba(30,44,90,.4);
 }
@@ -117,6 +117,8 @@ a{color:inherit;text-decoration:none}
 .center{display:flex;align-items:center;justify-content:center}
 .grow{flex:1 1 auto;min-width:0}
 .muted{color:var(--muted)}
+.hl{color:#8FE7F6}                     /* dark: neon yoritilgan mayda matn */
+[data-theme="light"] .hl{color:#0A5566} /* light: AA 4.5+ (oq/karta fonda) */
 .t2{color:var(--txt2)}
 .small{font-size:12.5px}
 .xs{font-size:11.5px}
@@ -549,6 +551,12 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 [data-theme="light"] .streak{color:#8A5300;background:#FFF1DC;border-color:#F5D49B}
 [data-theme="light"] .coin{color:#8A6500}
 [data-theme="light"] .kpi .d.up-c{color:#0B7A55}
+/* Light mavzuda qizil/ko'k aksentlar oq fonda o'qiladi (AA 4.5+) */
+[data-theme="light"] .kpi .d.dn-c{color:#B4123C}
+[data-theme="light"] .th.on{color:#0A5C6E}
+[data-theme="light"] .btn-danger{background:#FFE8EE;border-color:#F0B9C7;color:#A8102F}
+[data-theme="light"] .btn-ok{background:#E4FBF1;border-color:#A9E5CD;color:#0B6B4A}
+[data-theme="light"] .btn-accent{color:#233100}
 [data-theme="light"] .nav-item.on{background:linear-gradient(90deg,rgba(124,92,255,.16),rgba(34,211,238,.05))}
 [data-theme="light"] .hero::after{display:none}
 [data-theme="light"] .mod .mnum{color:#E3E9F7;opacity:1}
@@ -1211,7 +1219,7 @@ p,.llede,.lsub,.fq-a-in{text-wrap:pretty}
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.3.1';
+const APP_VERSION = '2.3.2';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -2672,7 +2680,7 @@ function vTasks() {
       '</div>' +
       '<div class="col" style="gap:8px;min-width:190px">' +
       '<div class="card tight soft"><div class="xs muted">Mening deadline’im</div><div class="small" style="font-weight:750">' + fmtFull(d.due) + '</div>' +
-      (dueOf(st, t) !== t.dl ? '<div class="xs" style="color:#8FE7F6;margin-top:2px">Jamoa uchun alohida belgilangan</div>' : '') + '</div>' +
+      (dueOf(st, t) !== t.dl ? '<div class="xs hl" style="margin-top:2px">Jamoa uchun alohida belgilangan</div>' : '') + '</div>' +
       (stt === 'accepted' || stt === 'in_review' || stt === 'late' ? '<button class="btn btn-soft" data-act="task-open" data-id="' + t.id + '">' + ico('eye', 'sm') + 'Topshiriqni ko‘rish</button>' : '') +
       (stt === 'none' || stt === 'revise' ? '<button class="btn btn-primary" data-act="submit-open" data-id="' + t.id + '">' + ico('upload', 'sm') + (stt === 'revise' ? 'Qayta yuborish' : 'Topshirish') + '</button>' : '') +
       (mm.n > 1 ? '<button class="btn btn-ghost btn-sm" data-act="module-open" data-id="' + mm.id + '">' + ico('book', 'sm') + 'Modul darslari</button>' : '') +
@@ -3425,10 +3433,12 @@ function vAdminLessons() {
   h += '<div class="col" style="gap:14px">' + S.modules.map(mm => {
     const ls = lessonsOfModule(mm.id); const t = S.tasks.find(x => x.m === mm.id);
     const completers = S.students.filter(s => modulePct(s, mm.id).pct === 100).length;
+    /* Talaba yo'q bo'lsa foiz ko'rsatish chalg'itadi */
+    const completeTxt = S.students.length ? (completers + ' talaba 100% tugatgan') : 'hali talaba qo‘shilmagan';
     return '<div class="card"><div class="card-h"><div class="row" style="gap:12px">' +
       '<div class="lead" style="width:42px;height:42px;border-radius:13px;background:rgba(124,92,255,.16);border-color:rgba(124,92,255,.3);color:#C4B4FF">' + ico(mm.icon) + '</div>' +
       '<div><div class="up muted">' + mm.n + '-modul</div><h2 class="h2">' + esc(mm.title) + '</h2>' +
-      '<div class="xs muted">' + ls.length + ' dars • ' + completers + ' talaba 100% tugatgan • ' + (t ? 'vazifa: ' + esc(t.title) : 'vazifa yo‘q') + '</div></div></div>' +
+      '<div class="xs muted">' + ls.length + ' dars • ' + completeTxt + ' • ' + (t ? 'vazifa: ' + esc(t.title) : 'vazifa yo‘q') + '</div></div></div>' +
       '<div class="row" style="gap:8px"><button class="btn btn-xs btn-soft" data-act="new-lesson-mod" data-id="' + mm.id + '">' + ico('plus', 'sm') + 'Dars</button>' +
       '<button class="btn btn-xs btn-ghost" data-act="del-module" data-id="' + mm.id + '">' + ico('trash', 'sm') + '</button></div></div>' +
       '<div class="col" style="gap:5px">' + ls.map((l, i) => { const ty = TYPES[l.type] || TYPES.video;
@@ -3550,8 +3560,14 @@ function vStats() {
   const deployed = S.students.filter(s => hasDeployed(s)).length;
   const grads = S.students.filter(s => certsOf(s).length > 0).length;
   const byGroup = [...S.groups].sort((a, b) => b.xp - a.xp);
-  const maxg = Math.max(...byGroup.map(g => g.xp));
-  const retention = [100, 94, 89, 83, 78, activityPct()];
+  /* Musobaqa nol XP'da bo'lsa ham 0/0 = NaN bo'lmasligi uchun eng kichik bo'luvchi — 1 */
+  const maxg = Math.max(1, ...byGroup.map(g => g.xp));
+  /* Faollik taqsimoti — o'ylab topilgan egri chiziq emas, talabalarning haqiqiy
+     «oxirgi faollik» (kun) ko'rsatkichidan hisoblanadi */
+  const actBuckets = [[0, 1, '0–1'], [2, 3, '2–3'], [4, 5, '4–5'], [6, 7, '6–7'], [8, 9, '8–9'], [10, 999, '10+']];
+  const actDist = actBuckets.map(b => ({ l: b[2], n: S.students.filter(x => x.last >= b[0] && x.last <= b[1]).length }));
+  const actMax = Math.max(1, ...actDist.map(x => x.n));
+  const keptWeek = S.students.filter(x => x.last <= 7).length;
 
   let h = '<div class="page-head"><div><h1 class="h1">Statistika</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Asosiy ko‘rsatkichlar: faollik, intizom, modul tugatish va loyiha chiqarish.</p></div>' +
@@ -3569,10 +3585,10 @@ function vStats() {
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('trend') + 'Modullar bo‘yicha tugatish</h2><span class="small muted">100% tugatgan talabalar</span></div>' +
     '<div class="col" style="gap:12px">' + modStats.map(x => '<div><div class="row between small" style="margin-bottom:6px"><span class="t2">' + x.m.n + '. ' + esc(x.m.title) + '</span><b>' + x.done + '/' + S.students.length + '</b></div>' + bar(x.pct) + '</div>').join('') + '</div></div>' +
 
-    '<div class="card"><div class="card-h"><h2 class="h2">' + ico('flame') + 'Kohortani ushlab turish</h2><span class="tag c">Retention</span></div>' +
-    '<div class="chart">' + retention.map((v, i) => '<div class="b' + (i === retention.length - 1 ? ' hi' : '') + '"><div class="fill" style="height:' + v + '%;animation-delay:' + (i * 55) + 'ms"></div><span>' + (i * 2) + '-h</span></div>').join('') + '</div>' +
+    '<div class="card"><div class="card-h"><h2 class="h2">' + ico('flame') + 'Faollik taqsimoti</h2><span class="tag c">Oxirgi faollik, kun</span></div>' +
+    '<div class="chart">' + actDist.map((x, i) => '<div class="b' + (x.l === '0–1' ? ' hi' : '') + '" title="' + x.n + ' talaba"><div class="fill" style="height:' + Math.round(x.n / actMax * 100) + '%;animation-delay:' + (i * 55) + 'ms"></div><span>' + x.l + '</span></div>').join('') + '</div>' +
     '<div class="divider"></div><div class="col" style="gap:8px">' +
-    '<div class="row between small"><span class="muted">1-haftada qolganlar</span><b>100%</b></div>' +
+    '<div class="row between small"><span class="muted">Bir hafta ichida faol</span><b>' + keptWeek + '/' + S.students.length + ' (' + Math.round(keptWeek / S.students.length * 100) + '%)</b></div>' +
     '<div class="row between small"><span class="muted">Hozirgi faollik</span><b>' + activityPct() + '%</b></div>' +
     '<div class="row between small"><span class="muted">Streak 7+ kun</span><b>' + S.students.filter(s => s.streak >= 7).length + ' talaba</b></div>' +
     '<div class="row between small"><span class="muted">Jim qolganlar</span><b>' + (S.students.length - k.active) + ' talaba</b></div></div></div></div>';

@@ -2,9 +2,9 @@
 
 Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** barcha kamchiliklarni,
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
-**eng yangi holat — oxirgi bo'lim (v2.0.0)**.
+**eng yangi holat — oxirgi bo'lim (v2.3.2)**.
 
-**Oxirgi versiya:** v2.3.1 · **Holat:** ✅ barcha tekshiruvlar o'tdi (495 test + sahifa auditi, 175 joylashuv, 90 skrinshot)
+**Oxirgi versiya:** v2.3.2 · **Holat:** ✅ barcha tekshiruvlar o'tdi (495 test + sahifa auditi, 175 joylashuv, 94 skrinshot)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -18,6 +18,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [**v2.2.1**](#v221--kirish-faqat-nick-bilan-hemis-id-kirishda-ishlatilmaydi) | **v2.2.1** | **Kirish faqat nick bilan: HEMIS ID — adminga, talabaga unikal nick (1 HEMIS = 1 nick)** |
 | [**v2.3.0**](#v230--dizayn-sayqali-professional-polish) | **v2.3.0** | **Dizayn sayqali: ikonkalar (emoji o'rniga), parol ko'zi, bosmaga tayyor kartochka, skrol-spy, mikro-animatsiya, laptop zichligi** |
 | [**v2.3.1**](#v231--ichki-bolimlar-auditi-va-avtomatik-ui-tekshiruvi) | **v2.3.1** | **Ichki bo'limlar auditi + avtomatik UI tekshiruvi (`npm run test:ui`): KPI siljishi, matn kesilishi, gorizontal toshish** |
+| [**v2.3.2**](#v232--kontrast-aa-auditi-va-faollik-taqsimoti) | **v2.3.2** | **WCAG AA kontrast auditi (ikkala mavzu), yorug' mavzu rang tuzatishlari, haqiqiy «Faollik taqsimoti» (o'ylab topilgan egri chiziq o'rniga)** |
 
 ---
 
@@ -593,3 +594,45 @@ jsdom'da): jami **495 tekshiruv**.
 | Joylashuv testi | ✔ 175 tekshiruv, 0 gorizontal toshish |
 | Skrinshotlar | ✔ **90 ta** (100 qadam) — yangi 7 ta: Adminlar, buyruq paneli, bildirishnomalar, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish |
 | Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.3.1** |
+
+---
+
+## v2.3.2 — Kontrast (AA) auditi va faollik taqsimoti
+
+**Baho (foydalanuvchi):** «Dizayni ustida professional ravishda ishla, qayta-qayta ko'rib chiq» — uchinchi
+ko'rikdan o'tkazish davomida hali tegilmagan yuzalar (bo'sh platforma holatlari, statistika raqamlarining
+haqiqiyligi, ikkala mavzudagi kontrast va o'qilish) tekshirildi.
+
+### Topilgan nuqsonlar va tuzatishlar
+
+| # | Nuqson | Tuzatish |
+|---|---|---|
+| 1 | **Statistika sahifasidagi «Kohortani ushlab turish» kartasi o'ylab topilgan egri chiziqni ko'rsatardi** — qiymatlar kodda qotib qolgan edi (`[100, 94, 89, 83, 78, …]`), hech qanday ma'lumotga bog'lanmagan. Bu **yolg'on raqam** | Karta **haqiqiy oxirgi faollik taqsimotiga** o'tkazildi: talabalarning `x.last` qiymati olti chelakka (0–1, 2–3, 4–5, 6–7, 8–9, 10+) bo'linadi, har bir ustunda `title="N talaba"`, birinchi qator «Bir hafta ichida faol N/M (%)». Karta nomi **«Faollik taqsimoti»**, tegi «Oxirgi faollik, kun» |
+| 2 | Bo'sh platformada (yangi klub, talaba yo'q) Darslar bo'limida **«0 talaba 100% tugatgan»** deb yozilardi — ma'nosiz va chalg'ituvchi | Talaba yo'q bo'lsa: «hali talaba qo'shilmagan» |
+| 3 | **Yorug' (light) mavzuda ikkilamchi matn (`--muted` #5E6A88) karta fonida WCAG AA dan past**: 4.20–4.48 (kerak 4.5) | Token quyuqlashtirildi: **#55607C** — eng yomon fonda ham 4.88 (o'lchandi) |
+| 4 | Yorug' mavzudagi aksentlar oq fonda o'qilmasdi: pasayish ko'rsatkichi **1.97**, faol ustun sarlavhasi **1.81**, xavfli tugma **1.85** | Mavzuga xos to'q variantlar: `.d.dn-c` #B4123C, `.th.on` #0A5C6E, `.btn-danger` #A8102F, `.btn-ok` #0B6B4A, `.btn-accent` #233100 |
+| 5 | «Jamoa uchun alohida belgilangan» qatori **inline `color:#8FE7F6`** bilan yozilgan edi — yorug' mavzuda **1.23**, ya'ni ko'rinmas | Yangi `.hl` utility klassi: dark `#8FE7F6` / light `#0A5566` (o'lchandi: 7.6 — AA dan ancha yuqori) |
+| 6 | `npm run test:ui` **kontrastni umuman tekshirmasdi** — bunday nuqsonlar faqat qo'lda ko'zga tashlanardi | Auditga **`contrastScan()`** qo'shildi: har bir sahifa **ikkala mavzuda** ham skanerlanadi (WCAG AA: oddiy matn 4.5, katta matn 3.0). Fon rangi alfa-bojlangan zanjir bo'ylab hisoblanadi, gradient fonli va shaffofligi past elementlar chiqarib tashlanadi |
+
+### Kontrast skaneri qanday ishlaydi
+
+| Qism | Tafsilot |
+|---|---|
+| O'lchov | Har bir matn tuguni uchun `color` va **haqiqiy** fon (ota-elementlar zanjiri alfa bo'yicha qo'shiladi) → WCAG nisbati |
+| Chegaralar | Katta matn (≥18.66px yoki ≥14px + 700) → 3.0, oddiy matn → 4.5 |
+| Chiqarib tashlash | `background-image` (gradient) bor elementlar va `opacity < 0.6` — sun'iy signallar bermasligi uchun |
+| Tinch holat | Tema almashganda `.card{transition:background .3s}` animatsiyasi o'lchovga tushib qolmasligi uchun skanerdan oldin `prefers-reduced-motion` yoqiladi (dastlab 15 ta **soxta** nuqson shundan chiqqan edi) |
+| Diagnostika | `CONTRAST_RAW=1` — har sahifadagi eng past 5 nisbatni ham chiqaradi (keyingi ko'rikda zaxirani ko'rish uchun) |
+
+Yakuniy o'lchov: **barcha 16 sahifa + 6 modal + buyruq paneli, ikkala mavzuda — 0 nuqson**, eng past nisbat
+butun ilova bo'ylab **4.97** (dark mavzudagi `--muted`).
+
+### Tekshiruv natijalari (v2.3.2)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **495 ta, 0 xato** (26 guruh) |
+| Sahifa auditi + kontrast | ✔ `npm run test:ui` → **nuqson topilmadi** (dark **va** light mavzu) |
+| Joylashuv testi | ✔ 175 tekshiruv, 0 gorizontal toshish |
+| Skrinshotlar | ✔ **94 ta** (104 qadam) — yangi 4 ta: yorug' mavzu admin, yorug' mavzu statistika, yorug' mavzu vazifa, faollik taqsimoti |
+| Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.3.2** |

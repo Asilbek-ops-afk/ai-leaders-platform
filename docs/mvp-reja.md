@@ -115,6 +115,11 @@ Platformada namuna ma'lumot **yo'q** (v2.0.0 da butunlay olib tashlandi). Haqiqi
 siljishini, jadval ustunlarida matn kesilishini, `NaN/undefined` va gorizontal toshishni topadi; `npm test`da
 26-guruh sifatida ham ishlaydi.
 
+**Kontrast va haqiqiy raqamlar (v2.3.2):** audit endi **ikkala mavzuda** WCAG AA kontrastini ham o'lchaydi
+(oddiy matn 4.5, katta matn 3.0) — yakuniy natija 0 nuqson, eng past nisbat 4.97. Yorug' mavzudagi ikkilamchi
+matn va aksent ranglar quyuqlashtirildi. Statistikaning «Kohortani ushlab turish» kartasi **o'ylab topilgan**
+egri chiziqdan haqiqiy **«Faollik taqsimoti»**ga o'tkazildi (talabalarning oxirgi faolligi bo'yicha chelaklar).
+
 **Dizayn (v2.3.0):** interfeys qayta-qayta ko'zdan kechirildi va yagona dizayn tiliga keltirildi — emoji o'rniga
 68 ta o'z SVG ikonkasi, parol ko'zi, bosmaga tayyor kirish kartochkasi (A4), skrol-spy navigatsiya, mikro-animatsiya,
 yopishqoq jadval sarlavhasi, laptop zichligi (1568×768) va mobil sayqal.

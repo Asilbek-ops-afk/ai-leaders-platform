@@ -7,7 +7,7 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **495 ta tekshiruv, 0 xato** • `npm run test:ui` → **sahifa auditi** |
+| 🧪 **Testlar** | `npm test` → **495 ta tekshiruv, 0 xato** • `npm run test:ui` → **sahifa auditi + WCAG AA kontrast (dark & light)** |
 | 🔐 **Kirish** | Talaba: **faqat nick** + parol (HEMIS ID kirishda ishlatilmaydi) • Admin: email + parol |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
@@ -177,7 +177,7 @@ cd ai-leaders-platform
 
 npm run build       # src → index.html + dist/
 npm test            # 495 ta avtomatik test (jsdom kerak: npm install)
-npm run test:ui     # sahifa auditi (playwright kerak)
+npm run test:ui     # sahifa auditi + kontrast skaneri (playwright kerak)
 npm run test:layout # 175 ta joylashuv tekshiruvi (playwright: npx playwright install chromium)
 npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
 npm run check       # sintaksis tekshiruvi
@@ -210,7 +210,7 @@ fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, e
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**90 ta skrinshot** (100 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari**, **CSV import oynasi** va **v2.3.0 dizayn sayqali** (parol ko'zi, kirish kartochkasi + bosma ko'rinishi, jadval, mobil qidiruv) va **v2.3.1 ichki bo'limlar** (Adminlar, buyruq paneli, bildirishnomalar, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish)
+**94 ta skrinshot** (104 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari**, **CSV import oynasi**, **v2.3.0 dizayn sayqali** (parol ko'zi, kirish kartochkasi + bosma ko'rinishi, jadval, mobil qidiruv), **v2.3.1 ichki bo'limlar** (Adminlar, buyruq paneli, bildirishnomalar, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish) va **v2.3.2 yorug' mavzu** (admin, statistika, vazifa) + **faollik taqsimoti**
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 

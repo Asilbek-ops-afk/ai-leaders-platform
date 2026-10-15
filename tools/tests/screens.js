@@ -125,7 +125,13 @@ function stateFor(name) {
     { name: '97-v231-jamoalar', vp: { width: 1568, height: 950 }, steps: ['go-adminGroups'], data: 'a1' },
     { name: '98-v231-sozlamalar', vp: { width: 1568, height: 950 }, steps: ['go-settings'], data: 'a1' },
     { name: '99-v231-sertifikat', vp: { width: 1568, height: 950 }, steps: ['go-info', 'cert-modal'], data: 's1' },
-    { name: '100-v231-birinchi-ishga-tushirish', vp: { width: 1568, height: 950 }, steps: [], data: 'empty' }
+    { name: '100-v231-birinchi-ishga-tushirish', vp: { width: 1568, height: 950 }, steps: [], data: 'empty' },
+
+    /* v2.3.2 — yorug' mavzu kontrasti + faollik taqsimoti */
+    { name: '101-v232-light-admin', vp: { width: 1568, height: 950 }, steps: ['theme', 'go-admin'], data: 'a1' },
+    { name: '102-v232-light-statistika', vp: { width: 1568, height: 950 }, steps: ['theme', 'go-stats'], data: 'a1' },
+    { name: '103-v232-light-vazifa', vp: { width: 1568, height: 950 }, steps: ['theme', 'go-tasks'], data: 's1' },
+    { name: '104-v232-faollik-taqsimoti', vp: { width: 1568, height: 950 }, steps: ['go-stats'], data: 'a1' }
   ];
   const page = await browser.newPage();
   const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;

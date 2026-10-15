@@ -298,7 +298,7 @@ function vTasks() {
       '</div>' +
       '<div class="col" style="gap:8px;min-width:190px">' +
       '<div class="card tight soft"><div class="xs muted">Mening deadline’im</div><div class="small" style="font-weight:750">' + fmtFull(d.due) + '</div>' +
-      (dueOf(st, t) !== t.dl ? '<div class="xs" style="color:#8FE7F6;margin-top:2px">Jamoa uchun alohida belgilangan</div>' : '') + '</div>' +
+      (dueOf(st, t) !== t.dl ? '<div class="xs hl" style="margin-top:2px">Jamoa uchun alohida belgilangan</div>' : '') + '</div>' +
       (stt === 'accepted' || stt === 'in_review' || stt === 'late' ? '<button class="btn btn-soft" data-act="task-open" data-id="' + t.id + '">' + ico('eye', 'sm') + 'Topshiriqni ko‘rish</button>' : '') +
       (stt === 'none' || stt === 'revise' ? '<button class="btn btn-primary" data-act="submit-open" data-id="' + t.id + '">' + ico('upload', 'sm') + (stt === 'revise' ? 'Qayta yuborish' : 'Topshirish') + '</button>' : '') +
       (mm.n > 1 ? '<button class="btn btn-ghost btn-sm" data-act="module-open" data-id="' + mm.id + '">' + ico('book', 'sm') + 'Modul darslari</button>' : '') +

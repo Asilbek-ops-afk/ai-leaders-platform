@@ -27,6 +27,64 @@ const ROUTES_STUDENT = ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friend
 let issues = 0;
 const report = (where, msg) => { issues++; console.log('   ✗ [' + where + '] ' + msg); };
 
+/* WCAG kontrast: matn/фон juftligi (gradient fonlar chiqarib tashlanadi) */
+async function contrastScan(page, label) {
+  /* Tema almashganda .card "background .3s" bilan o'tadi — o'lchov o'tish
+     effekti ostida qolmasligi uchun harakatni o'chirib, tinch holatni o'lchaymiz. */
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.waitForTimeout(140);
+  const rows = await page.evaluate(() => {
+    const parse = c => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(c); return m ? [+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]] : null; };
+    const lum = rgb => { const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }; return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]); };
+    const ratio = (a, b) => { const L1 = lum(a), L2 = lum(b); const hi = Math.max(L1, L2), lo = Math.min(L1, L2); return (hi + 0.05) / (lo + 0.05); };
+    const bgOf = el => {
+      let n = el, stack = [], grad = false;
+      while (n && n.nodeType === 1) {
+        const cs = getComputedStyle(n);
+        if (cs.backgroundImage && cs.backgroundImage !== 'none') grad = true;
+        const c = parse(cs.backgroundColor);
+        if (c && c[3] > 0.05) { stack.push(c); if (c[3] >= 0.96) break; }
+        n = n.parentElement;
+      }
+      let base = [5, 7, 15];
+      for (let i = stack.length - 1; i >= 0; i--) { const c = stack[i]; base = [0, 1, 2].map(k => Math.round(c[k] * c[3] + base[k] * (1 - c[3]))); }
+      return { base, grad };
+    };
+    const out = [];
+    const walk = (el, depth) => {
+      if (!el || depth > 40) return;
+      [...el.childNodes].forEach(n => {
+        if (n.nodeType === 3) {
+          const t = n.textContent.trim();
+          if (t.length < 3) return;
+          const cs = getComputedStyle(el);
+          if (cs.visibility === 'hidden' || cs.display === 'none') return;
+          let op = 1, m = el;
+          while (m && m.nodeType === 1) { op *= parseFloat(getComputedStyle(m).opacity || '1'); m = m.parentElement; }
+          if (op < 0.6) return;
+          const { base, grad } = bgOf(el);
+          const c = parse(cs.color);
+          if (!c || c[3] < 0.6) return;
+          const r = ratio([c[0], c[1], c[2]], base);
+          const size = parseFloat(cs.fontSize), weight = +cs.fontWeight || 400;
+          const big = size >= 18.66 || (size >= 14 && weight >= 700);
+          const hex = a => '#' + a.slice(0, 3).map(v => v.toString(16).padStart(2, '0')).join('');
+          const cls = (el.getAttribute('class') || '').split(/\s+/).filter(Boolean).slice(0, 3).join('.');
+          out.push({ txt: t.slice(0, 34), r: +r.toFixed(2), need: big ? 3 : 4.5, grad,
+            sel: el.tagName.toLowerCase() + (cls ? '.' + cls : ''), col: hex(c), bg: hex(base), size });
+        } else if (n.nodeType === 1) walk(n, depth + 1);
+      });
+    };
+    walk(document.getElementById('app') || document.body, 0);
+    return out;
+  });
+  const bad = rows.filter(x => !x.grad && x.r < x.need);
+  /* CONTRAST_RAW=1 → har sahifada eng past 5 nisbatni ham chiqaradi (zaxira ko'rish uchun) */
+  if (process.env.CONTRAST_RAW) console.log(JSON.stringify(rows.filter(x => !x.grad).sort((a, b) => a.r - b.r).slice(0, 5).map(x => ({ l: label, r: x.r, t: x.txt, s: x.sel, c: x.col + ' on ' + x.bg })), null, 1));
+  bad.slice(0, 14).forEach(x => report(label, 'kontrast ' + x.r + ' < ' + x.need + ' — «' + x.txt + '»  [' + x.sel + ' ' + x.col + ' on ' + x.bg + ' ' + x.size + 'px]'));
+  return bad.length;
+}
+
 async function auditPage(page, label, checks) {
   const res = await page.evaluate(ic => {
     const out = { badKpi: [], overs: [], junk: [], settings: {}, counts: {} };
@@ -80,6 +138,10 @@ async function auditPage(page, label, checks) {
         await p.waitForTimeout(560);
       }
       await auditPage(p, role + '/' + r, checks);
+      await contrastScan(p, 'kontrast ' + role + '/' + r + ' (dark)');
+      await p.evaluate(() => document.documentElement.setAttribute('data-theme', 'light'));
+      await p.waitForTimeout(260);
+      await contrastScan(p, 'kontrast ' + role + '/' + r + ' (light)');
     }
     /* modallar (admin) */
     if (role === 'admin') {
