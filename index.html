@@ -1044,7 +1044,7 @@ a[target="_blank"]{word-break:break-word}
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.2.0';
+const APP_VERSION = '2.2.1';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -1774,8 +1774,9 @@ function createFounderAccount(data) {
   return { ok: true, acc };
 }
 /* ---------- 3a. Ro'yxatdan o'tish arizasi (landing sahifasi) ----------
-   Talaba o'zi akkaunt yarata olmaydi: ariza qoldiradi, admin HEMIS ID bilan
-   akkaunt ochadi. Bu oqim landing sahifasidagi «Ariza» formasi orqali ishlaydi. */
+   Talaba o'zi akkaunt yarata olmaydi: ariza qoldiradi, admin uning HEMIS ID sini
+   kiritib akkaunt ochadi va NICK beradi. Kirish esa faqat shu nick + parol bilan.
+   Bitta HEMIS ID — bitta nick (takror ro'yxatga olish bloklanadi). */
 function addLead(d) {
   const name = String(d.name || '').trim();
   const phone = digitsOnly(d.phone || '');
@@ -1954,15 +1955,27 @@ function setAccountPass(acc, pass) {
   return { ok: true };
 }
 /* Kirish: login = nick | HEMIS ID (12 xona) | admin uchun email */
-function authLookup(login) {
+/* Kirish qidiruvi — rolga qarab:
+   TALABA: faqat NICK bo'yicha (HEMIS ID kirishda ishlatilmaydi!).
+   ADMIN/MENTOR: email (yoki nick) bo'yicha.
+   HEMIS ID — admin ro'yxatga olishda kiritadigan identifikator: bitta HEMIS ID = bitta nick. */
+function authLookup(login, role) {
   const raw = String(login || '').trim();
   if (!raw) return null;
-  if (/^\d{12}$/.test(digitsOnly(raw)) && digitsOnly(raw).length === raw.length) return accByHemis(raw);
-  return accByEmail(raw) || accByNick(raw) || accByHemis(raw);
+  if (role === 'student') return accByNick(raw);
+  return accByEmail(raw) || accByNick(raw);
 }
-function authCheck(login, pass) {
-  const acc = authLookup(login);
-  if (!acc) return { err: 'notfound', msg: 'Bunday nick, HEMIS ID yoki email topilmadi.' };
+/* Foydalanuvchi HEMIS ID kirityaptimi? (talaba kirishida bu — xato) */
+const isHemisLike = v => digitsOnly(v).length === 12 && String(v).replace(/[\s-]/g, '') === digitsOnly(v);
+function authCheck(login, pass, role) {
+  const raw = String(login || '').trim();
+  if (!raw) return { err: 'empty', msg: (role === 'student' ? 'Nickni' : 'Emailni') + ' kiriting.' };
+  if (isHemisLike(raw)) return { err: 'hemis-login',
+    msg: 'Talaba kirishi faqat NICK bilan. HEMIS ID ni klub adminiga topshiring — u akkaunt ochib, sizga nick beradi.' };
+  const acc = authLookup(raw, role);
+  if (!acc) return { err: 'notfound', msg: role === 'student'
+    ? 'Bunday nick topilmadi. Nickni klub adminidan so‘rang (masalan: falcon).'
+    : 'Bunday email topilmadi. Admin akkauntlari email bilan kiradi.' };
   if (acc.status === 'blocked') return { err: 'blocked', msg: 'Akkaunt bloklangan. Administratorga murojaat qiling.' };
   if (acc.mustSetPass) return { err: 'first', acc };
   if (acc.pass !== hashPass(acc.nick, pass)) return { err: 'pass', msg: 'Parol xato. Yana bir marta urinib ko‘ring.' };
@@ -2885,8 +2898,8 @@ function addStudentModal(pre) {
     '<form data-form="new-student"' + (p0.lead ? ' data-lead="' + esc(p0.lead) + '"' : '') + ' class="col" style="gap:13px">' +
     '<div class="card soft tight" style="background:rgba(124,92,255,.10);border-color:rgba(124,92,255,.28)">' +
     '<div class="row" style="gap:10px">' + ico('shield', 'sm') +
-    '<div><div class="small" style="font-weight:750">HEMIS ID — kirish uchun asos</div>' +
-    '<div class="xs muted" style="margin-top:3px">Talaba HEMIS ID sini topshiradi → siz kiritasiz → tizim unga unikal nick beradi. Bitta HEMIS ID — bitta talaba.</div></div></div></div>' +
+    '<div><div class="small" style="font-weight:750">HEMIS ID — ro‘yxatga olish uchun asos</div>' +
+    '<div class="xs muted" style="margin-top:3px">Talaba HEMIS ID sini topshiradi → siz kiritasiz → tizim unikal <b>nick</b> beradi. Talaba saytga aynan shu nick bilan kiradi. Bitta HEMIS ID — bitta talaba.</div></div></div></div>' +
     '<div class="field"><label>To‘liq ism</label><input class="inp" name="name" required placeholder="Ism Familiya" value="' + esc(p0.name || '') + '"></div>' +
     '<div class="grid g2" style="gap:12px"><div class="field"><label>HEMIS ID (12 xona)</label><input class="inp" name="hemis" inputmode="numeric" maxlength="12" required placeholder="123456789012"><div class="inp-hint">Faqat raqam, 12 xona.</div></div>' +
     '<div class="field"><label>Telefon</label><input class="inp" name="phone" placeholder="+998 __ ___ __ __" value="' + esc(p0.phone || '') + '"></div></div>' +
@@ -2904,7 +2917,7 @@ function csvImportModal(report) {
       '<div class="row" style="gap:10px">' + ico('upload', 'sm') +
       '<div><div class="small" style="font-weight:750">CSV fayl: ism, HEMIS ID, telefon, jamoa…</div>' +
       '<div class="xs muted" style="margin-top:3px">Ustunlar: <b>ism_familiya, hemis_id</b> (majburiy) • telefon, jamoa, telegram, maqsad (ixtiyoriy). ' +
-      'Jamoa nomi yangi bo‘lsa — avtomatik yaratiladi. Har talabaga unikal nick beriladi.</div></div></div></div>' +
+      'Jamoa nomi yangi bo‘lsa — avtomatik yaratiladi. Har talabaga unikal <b>nick</b> beriladi — kirish faqat shu nick bilan.</div></div></div></div>' +
       '<div class="field" style="margin-top:14px"><label>Faylni tanlang (.csv)</label>' +
       '<input class="inp" type="file" id="import-csv" accept=".csv,text/csv"></div>' +
       '<div class="xs muted" style="margin-top:6px">Shablon: <b>docs/talabalar-shabloni.csv</b> (Excel’da «Save as CSV»).</div>';
@@ -2934,7 +2947,7 @@ function csvImportModal(report) {
 function csvDoneModal(res) {
   openModal(mhead('Import yakunlandi', res.created.length + ' talaba qo‘shildi' + (res.newGroups ? ' • ' + res.newGroups + ' yangi jamoa' : '')) +
     '<div class="card soft tight" style="background:rgba(34,211,238,.10);border-color:rgba(34,211,238,.28)">' +
-    '<div class="xs muted">Har bir talaba kirish kartochkasini oldi: nick + HEMIS ID bilan kiradi, parolni birinchi kirishda o‘zi o‘rnatadi. ' +
+    '<div class="xs muted">Har bir talaba kirish kartochkasini oldi: <b>kirish — nick bilan</b> (HEMIS ID faqat arxiv/nazorat uchun), parolni birinchi kirishda o‘zi o‘rnatadi. ' +
     'Kartochkalarni chop etish uchun «Chop etish / PDF» tugmasidan foydalaning.</div></div>' +
     '<div class="col" style="gap:7px;margin-top:12px;max-height:280px;overflow:auto">' +
     res.created.map(x => '<div class="lrow"><div class="lead">' + ico('key', 'sm') + '</div>' +
@@ -3118,7 +3131,7 @@ function vStudents() {
       '<div class="feat-ic" style="background:rgba(198,255,79,.14);border-color:rgba(198,255,79,.34)">' + ico('send', 'sm') + '</div>' +
       '<div><h2 class="h2">Yangi arizalar (' + S.leads.length + ')</h2>' +
       '<div class="xs muted">Landing sahifasidagi «Ariza» formasidan. «Talaba qilish» bosilganda ma’lumotlar ' +
-      'to‘ldirilgan holda ochiladi — faqat HEMIS ID ni kiritasiz.</div></div></div></div>' +
+      'to‘ldirilgan holda ochiladi — siz faqat <b>HEMIS ID</b> ni kiritasiz; tizim unga unikal nick beradi va kirish kartochkasini chiqaradi.</div></div></div></div>' +
       '<div class="col" style="gap:8px">' + S.leads.slice(0, 10).map(l => '<div class="lrow">' +
         '<div class="lead">' + ico('user', 'sm') + '</div>' +
         '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(l.name) + '</div>' +
@@ -3628,17 +3641,17 @@ function loginCardModal(accId) {
     '<div><div class="up muted">Nick (login)</div><div class="h3" style="letter-spacing:.04em">' + esc(a.nick) + '</div></div>' +
     (a.role === 'admin'
       ? '<div><div class="up muted">Email (login)</div><div class="small" style="font-weight:750;word-break:break-all">' + esc(a.email || '—') + '</div></div>'
-      : '<div><div class="up muted">HEMIS ID</div><div class="h3">' + (a.hemisId ? esc(a.hemisId) : '—') + '</div></div>') +
+      : '<div><div class="up muted">HEMIS ID (admin uchun)</div><div class="h3">' + (a.hemisId ? esc(a.hemisId) : '—') + '</div></div>') +
     '</div>' +
     '<div class="xs muted" style="margin-top:10px">' +
     (a.role === 'admin'
       ? 'Parol: admin birinchi kirishda o‘zi o‘rnatadi. Kiradi: <b>email + parol</b>.'
-      : 'Parol: talaba <b>birinchi kirishda</b> o‘zi o‘rnatadi. Tizimga <b>HEMIS ID yoki nick</b> bilan kiradi — ikkalasi ham ishlaydi.') +
+      : 'Parol: talaba <b>birinchi kirishda</b> o‘zi o‘rnatadi. Tizimga <b>faqat nick</b> bilan kiradi — HEMIS ID kirishda ishlatilmaydi.') +
     '</div>' +
     '</div>' +
     '<div class="row" style="gap:10px;margin-top:12px">' +
     '<button class="btn btn-primary grow" data-act="print-card">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
-    '<button class="btn btn-soft" data-act="toast-copy" data-code="Nick: ' + esc(a.nick) + (a.hemisId ? ' | HEMIS: ' + esc(a.hemisId) : '') + '">' + ico('copy', 'sm') + 'Nusxalash</button>' +
+    '<button class="btn btn-soft" data-act="toast-copy" data-code="Kirish: nick ' + esc(a.nick) + (a.role === 'student' && a.hemisId ? ' | HEMIS ID (arxiv): ' + esc(a.hemisId) : '') + '">' + ico('copy', 'sm') + 'Nusxalash</button>' +
     '</div>' +
     '<div class="row" style="gap:10px;margin-top:9px">' +
     '<button class="btn btn-ghost btn-sm grow" data-act="pass-reset" data-id="' + esc(a.id) + '">' + ico('refresh', 'sm') + 'Parolni tiklash (noldan o‘rnatish)</button>' +
@@ -3740,7 +3753,8 @@ function landHero() {
     '<span class="ltag rise" data-d="0">' + ico('spark', 'sm') + '0 dan startapgacha · Toshkent</span>' +
     '<h1 class="rise" data-d="1">G‘oyadan ishlaydigan mahsulotgacha — <em>jamoada, kuzatuv ostida</em>.</h1>' +
     '<p class="llede rise" data-d="2">AI Leaders — 0 dan boshlovchilar uchun amaliy klub. Platformada: yo‘l xaritasi, ' +
-    'vazifa → deadline → mentor izohi → baho, jamoaviy loyihalar va reyting tizimi.</p>' +
+    'vazifa → deadline → mentor izohi → baho, jamoaviy loyihalar va reyting tizimi. Kirish — admin bergan ' +
+    'shaxsiy <b>nick</b> bilan (HEMIS ID faqat ro‘yxatga olishda kerak).</p>' +
     '<div class="lcta rise" data-d="3">' +
     '<button class="btn btn-primary btn-lg" data-act="to-apply">' + ico('rocket', 'sm') + 'Hoziroq boshlash</button>' +
     '<button class="btn btn-soft btn-lg" data-act="to-auth">' + ico('lock', 'sm') + 'Tizimga kirish</button>' +
@@ -3785,7 +3799,7 @@ function landFlow() {
   const steps = [
     ['Ariza qoldirasiz', 'Quyidagi «Ariza» formasini to‘ldirasiz — ism, telefon va maqsad. 1 daqiqada.'],
     ['Admin akkaunt ochadi', 'Klub admini HEMIS ID asosida sizga akkaunt yaratadi va unikal nick beradi.'],
-    ['Birinchi kirish', 'Nick (yoki HEMIS ID) bilan kirasiz, parolni o‘zingiz o‘rnatasiz.'],
+    ['Birinchi kirish', 'Admin bergan nick bilan kirasiz va parolni o‘zingiz o‘rnatasiz.'],
     ['Jamoa, vazifa, baho', 'Jamoaga qo‘shilasiz, vazifa va deadline olasiz, har ish baholanadi.']
   ];
   return '<section class="lsec" id="ljarayon"><div class="lsec-in">' +
@@ -3815,8 +3829,8 @@ function landProgram() {
 /* Savol-javob */
 function landFaq() {
   const qa = [
-    ['Tizimga kirish uchun nima kerak?', 'Klub a’zolariga admin HEMIS ID asosida akkaunt yaratadi. Kirishda nick (yoki HEMIS ID) kiritasiz, parolni esa birinchi kirishda o‘zingiz o‘rnatasiz.'],
-    ['Hali a’zo emasman — nima qilaman?', '«Ariza» formasini to‘ldiring: ism, telefon va maqsad. Klub admini siz bilan bog‘lanib, akkaunt yaratib beradi.'],
+    ['Tizimga kirish uchun nima kerak?', 'Klub adminingiz bergan <b>nick</b> va o‘zingiz o‘rnatgan parol. HEMIS ID kirishda ishlatilmaydi — u faqat ro‘yxatga olishda kerak.'],
+    ['Hali a’zo emasman — nima qilaman?', '«Ariza» formasini to‘ldiring: ism, telefon va maqsad. Klub admini siz bilan bog‘lanadi, HEMIS ID ingizni kiritib akkaunt ochadi va <b>nick</b> beradi.'],
     ['Parolimni unutdim, nima qilaman?', 'Mentor yoki klub adminiga murojaat qiling — u parolni tiklab, qayta o‘rnatish imkonini beradi. Parollar bazada ochiq saqlanmaydi.'],
     ['Qancha vaqt o‘qiyman?', 'Dastur 6 modul • 29 darsdan iborat. Har modulga alohida deadline bor, o‘qish tezligini o‘zingiz belgilaysiz.'],
     ['Sertifikat beriladimi?', 'Ha. Dasturni yakunlab, topshiriqlarni muvaffaqiyatli topshirganlarga chop etiladigan sertifikat beriladi.']
@@ -3826,7 +3840,8 @@ function landFaq() {
     '<div class="lfaq">' + qa.map((x, i) =>
       '<div class="fq reveal" data-d="' + (i + 1) + '"><button class="fq-q" data-act="faq" aria-expanded="false">' +
       '<span>' + esc(x[0]) + '</span><span class="fq-i">' + ico('down', 'sm') + '</span></button>' +
-      '<div class="fq-a"><div class="fq-a-in">' + esc(x[1]) + '</div></div></div>').join('') + '</div></div></section>';
+      /* Javob matni shu faylda yozilgan (tashqi kiritma emas) — kichik teglar uchun xom qoldiriladi */
+      '<div class="fq-a"><div class="fq-a-in">' + x[1] + '</div></div></div>').join('') + '</div></div></section>';
 }
 /* KIRISH + ARIZA bo'limi: skrollda 3D «ochilish» animatsiyasi bilan chiqadi */
 function landAuthSection() {
@@ -3839,7 +3854,7 @@ function landAuthSection() {
       ? '<div class="ldone">' + ico('check-c', 'big') +
         '<h3>Ariza qabul qilindi!</h3>' +
         '<p>Rahmat, <b>' + esc(UI.leadDone) + '</b>. Klub admini tez orada telefon orqali bog‘lanadi va ' +
-        'HEMIS ID asosida akkauntingizni yaratadi. Shundan keyin shu yerdan kirishingiz mumkin bo‘ladi.</p>' +
+        'HEMIS ID ingizni kiritib akkaunt ochadi va sizga <b>nick</b> beradi. Shundan keyin shu yerdan faqat nick bilan kirishingiz mumkin bo‘ladi.</p>' +
         '<button class="btn btn-soft" data-act="lead-reset">' + ico('plus', 'sm') + 'Yana ariza topshirish</button></div>'
       : (() => { const d0 = UI.leadDraft || {}; return '<form data-form="lead" class="col" style="gap:11px">' +
         '<div class="field"><label>Ism va familiya</label><input class="inp" name="name" required placeholder="Masalan: Dilnoza Karimova" value="' + esc(d0.name || '') + '"></div>' +
@@ -3860,8 +3875,9 @@ function landAuthSection() {
       '</form>';
   } else {
     body = '<form data-form="login-student" class="col" style="gap:12px">' +
-      '<div class="field"><label>HEMIS ID yoki nick</label>' +
-      '<input class="inp" name="login" required autocomplete="username" inputmode="text" placeholder="123456789012 yoki falcon"></div>' +
+      '<div class="field"><label>Nick (kirish uchun)</label>' +
+      '<input class="inp" name="login" required autocomplete="username" inputmode="text" autofocus placeholder="Masalan: falcon">' +
+      '<div class="inp-hint">Nickni klub admini beradi. <b>HEMIS ID kirishda ishlatilmaydi</b> — u faqat ro‘yxatga olishda (adminga) topshiriladi.</div></div>' +
       '<div class="field"><label>Parol</label><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"></div>' +
       '<div class="row between" style="gap:10px"><span class="xs muted">Parolni unutdingizmi? Mentorga murojaat qiling.</span>' +
       '<button type="button" class="btn btn-xs btn-ghost" data-act="auth-help">' + ico('help', 'sm') + 'Yordam</button></div>' +
@@ -3875,12 +3891,12 @@ function landAuthSection() {
     '<div class="lauth-hero reveal" data-d="0">' +
     '<span class="ltag a">' + ico('lock', 'sm') + 'Kirish / Ro‘yxatdan o‘tish</span>' +
     '<h2 class="lh2">Klubga kirish shu yerdan boshlanadi</h2>' +
-    '<p class="lsub">A’zo bo‘lsangiz — nick yoki HEMIS ID bilan kirasiz. Hali a’zo emassizmi? Ariza qoldiring.</p>' +
+    '<p class="lsub">A’zo bo‘lsangiz — admingiz bergan <b>nick</b> bilan kirasiz. Hali a’zo emassizmi? Ariza qoldiring.</p>' +
     '</div>' +
     '<div class="lauth-wrap">' +
     '<div class="lauth-pitch reveal" data-d="1">' +
     [['shield', 'Parolni faqat siz bilasiz', 'Parolni birinchi kirishda o‘zingiz o‘rnatasiz — admin ham ko‘ra olmaydi.'],
-     ['lock', 'HEMIS ID — yagona kalit', 'Bitta HEMIS ID — bitta akkaunt. Nick tizim tomonidan beriladi.'],
+     ['lock', 'Nick — yagona kalit', 'HEMIS ID ni adminga topshirasiz, u akkaunt ochib sizga nick beradi. Kirish faqat nick bilan.'],
      ['user', 'Talaba kabineti', 'Darslar, vazifalar, deadline, jamoa, yutuqlar va sertifikat.'],
      ['shield', 'Admin va mentor paneli', 'Talabalar, jamoalar, vazifalar, baholar, statistika va sozlamalar.']]
       .map(x => '<div class="lpitch-r"><span class="lpitch-ic">' + ico(x[0], 'sm') + '</span>' +
@@ -4253,7 +4269,7 @@ document.addEventListener('click', e => {
     case 'auth-back': UI.firstPass = null; UI.authErr = ''; paint(true); break;
     case 'auth-help': openModal(mhead('Kirish bo‘yicha yordam', 'Talaba va admin uchun') +
       '<div class="col" style="gap:11px">' +
-      [['user', 'Talaba qanday kiradi?', 'HEMIS ID (12 xonali) yoki shaxsiy nick + parol. Nick va HEMIS ID ni klub admini beradi.'],
+      [['user', 'Talaba qanday kiradi?', 'Faqat shaxsiy nick + parol. Nickni klub admini beradi (HEMIS ID ni admin ro‘yxatga olishda ishlatadi).'],
        ['shield', 'Admin qanday kiradi?', 'Email + parol. Adminlar qo‘lda qo‘shiladi, parolni birinchi kirishda o‘zi o‘rnatadi.'],
        ['alert', 'Parolni unutdim', 'Mentor yoki klub adminiga murojaat qiling — parolni noldan o‘rnatib beradi.'],
        ['check', 'Birinchi kirish', 'Akkaunt yangi ochilgan bo‘lsa, tizim parolni o‘zingiz o‘rnatishni taklif qiladi.']
@@ -4533,7 +4549,8 @@ document.addEventListener('submit', e => {
     return;
   }
   if (kind === 'login-student' || kind === 'login-admin') {
-    const res = authCheck(fd.get('login'), fd.get('pass'));
+    /* Talaba — faqat nick; admin — email (authCheck rolni hisobga oladi) */
+    const res = authCheck(fd.get('login'), fd.get('pass'), kind === 'login-student' ? 'student' : 'admin');
     if (res.err === 'first') { UI.firstPass = { acc: res.acc.id }; UI.authErr = ''; paint(); return; }
     if (res.err) { UI.authErr = res.msg; paint(true); return; }
     finishLogin(res.acc); return;
@@ -4689,7 +4706,7 @@ document.addEventListener('submit', e => {
     if (res.err) { toast('warn', 'Qo‘shilmadi', res.msg); return; }
     if (f.dataset.lead) delLead(f.dataset.lead);   /* ariza talabaga aylandi */
     closeModal();
-    toast('ok', 'Talaba qo‘shildi', res.student.name + ' • nick: @' + res.acc.nick);
+    toast('ok', 'Talaba qo‘shildi', res.student.name + ' • kirish nick: ' + res.acc.nick);
     loginCardModal(res.acc.id); paint(true); return;
   }
   if (kind === 'new-admin' || kind === 'admin-edit') {

@@ -51,7 +51,8 @@ window.AIL = {
   accByEmail: e => { const a = accByEmail(e); return a ? JSON.parse(JSON.stringify(a)) : null; },
   digits: v => digitsOnly(v),
   validHemis: h => validHemis(h),
-  check: (l, p) => { const r = authCheck(l, p); return { err: r.err || null, ok: !!r.ok, acc: r.acc ? { id: r.acc.id, nick: r.acc.nick } : null, msg: r.msg || '' }; },
+  check: (l, p, role) => { const r = authCheck(l, p, role); return { err: r.err || null, ok: !!r.ok, acc: r.acc ? { id: r.acc.id, nick: r.acc.nick } : null, msg: r.msg || '' }; },
+  hemisLike: v => isHemisLike(v),
   create: (name, phone, hemis) => { const r = createStudentAccount({ name, phone, hemisId: hemis }); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', acc: r.acc ? JSON.parse(JSON.stringify(r.acc)) : null }; },
   createAdmin: (name, email, nick, role, perms) => { const r = createAdminAccount({ name, email, nick, adRole: role, perms }); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', acc: r.acc ? JSON.parse(JSON.stringify(r.acc)) : null }; },
   setPassById: (id, pass) => { const a = accById(id); const r = setAccountPass(a, pass); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '' }; },
@@ -831,7 +832,7 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 2.2.0', B.w.AIL.version() === '2.2.0');
+t('versiya 2.2.1', B.w.AIL.version() === '2.2.1');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ============ 17. LANDING SAHIFASI: HERO, BO'LIMLAR, KIRISH/ARIZA ============
@@ -892,6 +893,24 @@ t('«Tizimga kirish» → talaba tabi, login formasi', (() => {
   C.d.querySelector('[data-act="to-auth"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
   return C.w.AIL.UI.authRole === 'student' && !!C.d.querySelector('[data-form="login-student"]');
 })());
+t('kirish maydoni «Nick (kirish uchun)» va HEMIS izohi', (() => {
+  const f = C.d.querySelector('[data-form="login-student"]');
+  return !!f && /Nick \(kirish uchun\)/.test(f.textContent) && /HEMIS ID kirishda ishlatilmaydi/.test(f.textContent);
+})());
+t('HEMIS ID kiritilsa — kirish rad etiladi va adminga yo‘naltiriladi', (() => {
+  const f = C.d.querySelector('[data-form="login-student"]');
+  f.querySelector('input[name="login"]').value = '123456789012';
+  f.querySelector('input[name="pass"]').value = 'x';
+  f.dispatchEvent(new C.w.Event('submit', { bubbles: true, cancelable: true }));
+  return /faqat NICK bilan/.test(C.d.querySelector('#lkirish').textContent) && C.w.AIL.UI.authShow === true;
+})());
+t('faqat nick bilan kirish ishlaydi', (() => {
+  const f = C.d.querySelector('[data-form="login-student"]');
+  f.querySelector('input[name="login"]').value = 'falcon';
+  f.dispatchEvent(new C.w.Event('submit', { bubbles: true, cancelable: true }));
+  return !!C.d.querySelector('[data-form="first-pass"]');
+})());
+C.click('[data-act="auth-back"]');
 t('Admin tabi admin formasini beradi', (() => {
   C.d.querySelector('[data-act="pick-role"][data-r="admin"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
   return C.has('Admin') && !!C.d.querySelector('[data-form="login-admin"]');
@@ -936,16 +955,29 @@ t('admin xatosi: 11 xonali HEMIS', E.w.AIL.create('Nomzod Talaba', '+99890111223
 /* — birinchi kirish: parol o‘rnatish — */
 t('yangi akkauntda parol yo‘q, mustSetPass = true', (() => { const r = E.w.AIL.create('Zilola Nazarova', '+998905556677', '222222222222'); return r.ok && r.acc.pass === null && r.acc.mustSetPass === true; })());
 t('yangi nick berilishi takrorlanmaydi', (() => { const nicks = E.w.AIL.S.accounts.map(a => a.nick.toLowerCase()); return new Set(nicks).size === nicks.length; })());
-t('parolsiz kirish “birinchi kirish” bosqichiga olib keladi', (() => { const r = E.w.AIL.check('222222222222', ''); return r.err === 'first' && !!r.acc.nick; })());
-t('HEMIS bilan kirish ham, nick bilan ham bir xil akkaunt', (() => { const nick = E.w.AIL.accByHemis('222222222222').nick; const a1 = E.w.AIL.check('222222222222', 'x'); const a2 = E.w.AIL.check(nick, 'x'); return a1.acc.id === a2.acc.id; })());
+t('parolsiz nick kirish “birinchi kirish” bosqichiga olib keladi', (() => { const nick = E.w.AIL.accByHemis('222222222222').nick; const r = E.w.AIL.check(nick, '', 'student'); return r.err === 'first' && !!r.acc.nick; })());
+t('HEMIS ID bilan kirish RAD ETILADI (faqat nick ishlaydi)', (() => {
+  const r = E.w.AIL.check('222222222222', 'x', 'student');
+  return r.err === 'hemis-login' && /faqat NICK/i.test(r.msg) && !r.acc;
+})());
+t('HEMIS ko‘rinishidagi qiymat aniqlanadi (bo‘sh joyli ham)', E.w.AIL.hemisLike('222222222222') && E.w.AIL.hemisLike('2222 2222 2222') && !E.w.AIL.hemisLike('falcon2'));
+t('nick bilan kirish to‘g‘ri akkauntni topadi', (() => {
+  const nick = E.w.AIL.accByHemis('222222222222').nick;
+  const r = E.w.AIL.check(nick, 'x', 'student');
+  return !!r.acc && r.acc.nick === nick;   /* parol hali o'rnatilmagan bo'lishi mumkin */
+})());
+t('talaba email bilan ham kira olmaydi (faqat nick)', E.w.AIL.check('222222222222@x.uz', 'x', 'student').err === 'notfound');
 t('qisqa parol o‘rnatilmaydi', E.w.AIL.setPassById(E.w.AIL.accByHemis('222222222222').id, '12').err === 'short');
 t('parol o‘rnatildi va mustSetPass yopildi', (() => { const a = E.w.AIL.accByHemis('222222222222'); const r = E.w.AIL.setPassById(a.id, 'sahro2026'); const after = E.w.AIL.accByHemis('222222222222'); return r.ok && after.mustSetPass === false && !!after.pass; })());
-t('to‘g‘ri parol bilan kiriladi', E.w.AIL.check('222222222222', 'sahro2026').ok === true);
-t('xato parol rad etiladi', E.w.AIL.check('222222222222', 'boshqa').err === 'pass');
+t('to‘g‘ri parol bilan kiriladi (nick orqali)', E.w.AIL.check(E.w.AIL.accByHemis('222222222222').nick, 'sahro2026', 'student').ok === true);
+t('xato parol rad etiladi', E.w.AIL.check(E.w.AIL.accByHemis('222222222222').nick, 'boshqa', 'student').err === 'pass');
 t('parol hesh sifatida saqlanadi (ochiq matn emas)', !E.w.AIL.accByHemis('222222222222').pass.includes('sahro2026'));
-t('mavjud bo‘lmagan nick “topilmadi” qaytaradi', E.w.AIL.check('yoq-bunday-nick', 'x').err === 'notfound');
+t('mavjud bo‘lmagan nick “topilmadi” qaytaradi + maslahat', (() => {
+  const r = E.w.AIL.check('yoq-bunday-nick', 'x', 'student');
+  return r.err === 'notfound' && /adminidan so‘rang/.test(r.msg);
+})());
 /* — bloklangan akkaunt — */
-t('bloklangan akkaunt kira olmaydi', (() => { const a = E.w.AIL.accByHemis('222222222222'); E.w.AIL.setStatus(a.id, 'blocked'); const r = E.w.AIL.check('222222222222', 'sahro2026'); E.w.AIL.setStatus(a.id, 'active'); return r.err === 'blocked'; })());
+t('bloklangan akkaunt kira olmaydi', (() => { const a = E.w.AIL.accByHemis('222222222222'); E.w.AIL.setStatus(a.id, 'blocked'); const r = E.w.AIL.check(a.nick, 'sahro2026', 'student'); E.w.AIL.setStatus(a.id, 'active'); return r.err === 'blocked'; })());
 /* — admin akkauntlari — */
 t('7 ta admin akkaunt (seed)', E.w.AIL.S.accounts.filter(a => a.role === 'admin').length === 7);
 t('adminlar email bilan kiradi', !!E.w.AIL.accByEmail('bekzod@aileaders.uz') && E.w.AIL.accByEmail('bekzod@aileaders.uz').role === 'admin');
@@ -1449,11 +1481,11 @@ group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
   t('src fixtura faylini chaqirmaydi', !/fixtures/.test(srcAll) && !/require\(/.test(srcAll));
   t('tozalash funksiyasi mavjud (purgeDemoState)', /function purgeDemoState\(/.test(srcAll) && /needsSetup/.test(srcAll) && /function createFounderAccount\(/.test(srcAll));
   t('qurilgan index.html ham namuna ismlaridan xoli', stNames.every(x => !HTML.includes(x)) && adNames.every(x => !HTML.includes(x)));
-  t('versiya izchil (src = sw.js = package.json = 2.2.0)', (() => {
+  t('versiya izchil (src = sw.js = package.json = 2.2.1)', (() => {
     const ver = /const APP_VERSION = '([^']+)'/.exec(srcAll)[1];
     const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-    return ver === '2.2.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
+    return ver === '2.2.1' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
   })());
 }
 

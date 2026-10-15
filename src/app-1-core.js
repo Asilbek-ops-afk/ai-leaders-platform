@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.2.0';
+const APP_VERSION = '2.2.1';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -737,8 +737,9 @@ function createFounderAccount(data) {
   return { ok: true, acc };
 }
 /* ---------- 3a. Ro'yxatdan o'tish arizasi (landing sahifasi) ----------
-   Talaba o'zi akkaunt yarata olmaydi: ariza qoldiradi, admin HEMIS ID bilan
-   akkaunt ochadi. Bu oqim landing sahifasidagi «Ariza» formasi orqali ishlaydi. */
+   Talaba o'zi akkaunt yarata olmaydi: ariza qoldiradi, admin uning HEMIS ID sini
+   kiritib akkaunt ochadi va NICK beradi. Kirish esa faqat shu nick + parol bilan.
+   Bitta HEMIS ID — bitta nick (takror ro'yxatga olish bloklanadi). */
 function addLead(d) {
   const name = String(d.name || '').trim();
   const phone = digitsOnly(d.phone || '');
@@ -917,15 +918,27 @@ function setAccountPass(acc, pass) {
   return { ok: true };
 }
 /* Kirish: login = nick | HEMIS ID (12 xona) | admin uchun email */
-function authLookup(login) {
+/* Kirish qidiruvi — rolga qarab:
+   TALABA: faqat NICK bo'yicha (HEMIS ID kirishda ishlatilmaydi!).
+   ADMIN/MENTOR: email (yoki nick) bo'yicha.
+   HEMIS ID — admin ro'yxatga olishda kiritadigan identifikator: bitta HEMIS ID = bitta nick. */
+function authLookup(login, role) {
   const raw = String(login || '').trim();
   if (!raw) return null;
-  if (/^\d{12}$/.test(digitsOnly(raw)) && digitsOnly(raw).length === raw.length) return accByHemis(raw);
-  return accByEmail(raw) || accByNick(raw) || accByHemis(raw);
+  if (role === 'student') return accByNick(raw);
+  return accByEmail(raw) || accByNick(raw);
 }
-function authCheck(login, pass) {
-  const acc = authLookup(login);
-  if (!acc) return { err: 'notfound', msg: 'Bunday nick, HEMIS ID yoki email topilmadi.' };
+/* Foydalanuvchi HEMIS ID kirityaptimi? (talaba kirishida bu — xato) */
+const isHemisLike = v => digitsOnly(v).length === 12 && String(v).replace(/[\s-]/g, '') === digitsOnly(v);
+function authCheck(login, pass, role) {
+  const raw = String(login || '').trim();
+  if (!raw) return { err: 'empty', msg: (role === 'student' ? 'Nickni' : 'Emailni') + ' kiriting.' };
+  if (isHemisLike(raw)) return { err: 'hemis-login',
+    msg: 'Talaba kirishi faqat NICK bilan. HEMIS ID ni klub adminiga topshiring — u akkaunt ochib, sizga nick beradi.' };
+  const acc = authLookup(raw, role);
+  if (!acc) return { err: 'notfound', msg: role === 'student'
+    ? 'Bunday nick topilmadi. Nickni klub adminidan so‘rang (masalan: falcon).'
+    : 'Bunday email topilmadi. Admin akkauntlari email bilan kiradi.' };
   if (acc.status === 'blocked') return { err: 'blocked', msg: 'Akkaunt bloklangan. Administratorga murojaat qiling.' };
   if (acc.mustSetPass) return { err: 'first', acc };
   if (acc.pass !== hashPass(acc.nick, pass)) return { err: 'pass', msg: 'Parol xato. Yana bir marta urinib ko‘ring.' };

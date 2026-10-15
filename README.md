@@ -8,7 +8,7 @@
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
 | 🧪 **Testlar** | `npm test` → **422 ta tekshiruv, 0 xato** |
-| 🔐 **Kirish** | Talaba: **HEMIS ID yoki nick** + parol • Admin: email + parol |
+| 🔐 **Kirish** | Talaba: **faqat nick** + parol (HEMIS ID kirishda ishlatilmaydi) • Admin: email + parol |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
 | 📦 **Hajm** | Bitta `index.html` (~330 KB), tashqi kutubxonasiz |
@@ -106,11 +106,11 @@ admin parol tarqatmaydi.
 
 | Qadam | Kim | Nima bo'ladi |
 |---|---|---|
-| 1 | Talaba | HEMIS ID (12 xona) ni klubga topshiradi |
+| 1 | Talaba | HEMIS ID (12 xona) ni **klubga (adminga) topshiradi** — bu kirish uchun emas |
 | 2 | Admin | `Talabalar → Talaba qo'shish`: ism, HEMIS ID, telefon, jamoa |
-| 3 | Tizim | Takrorlanmas nick yaratadi + **Kirish kartochkasi** (chop etish/nusxalash mumkin) |
-| 4 | Talaba | HEMIS ID yoki nick bilan kiradi → parolni o'zi o'rnatadi |
-| 5 | Keyingi kirishlar | Nick/HEMIS ID + o'zi tanlagan parol |
+| 3 | Tizim | Shu HEMIS ID uchun **takrorlanmas nick** yaratadi + **Kirish kartochkasi** (chop etish/nusxalash) |
+| 4 | Talaba | Saytga **faqat nick** bilan kiradi → parolni o'zi o'rnatadi |
+| 5 | Keyingi kirishlar | Nick + o'zi tanlagan parol |
 
 **Admin va mentorlar** (7 kishi) email + parol bilan kiradi. Ular uchun alohida **Adminlar** bo'limi bor:
 rol (Founder, Bosh mentor, Mentor, Kontent menejer, Kurator), ruxsatlar, bloklash/o'chirish, kirish kartochkalari.
@@ -267,6 +267,11 @@ Uch tab: **Talaba** (nick/HEMIS ID + parol), **Admin / Mentor** (email + parol) 
 (ro'yxatdan o'tish). Ariza **Admin → Talabalar → «Yangi arizalar»** blokida ko'rinadi: bir tugma
 bilan talabaga aylantiriladi (ism, telefon, telegram, maqsad avtomatik to'ldiriladi — faqat HEMIS ID
 kiritasiz), shundan keyin kirish kartochkasi chiqadi. Dashboard ham yangi arizalar haqida ogohlantiradi.
+
+**Nima uchun HEMIS ID kirishda ishlatilmaydi?** HEMIS ID — talabaning identifikatori, uni talaba klubga
+topshiradi va admin akkaunt ochishda kiritadi. Kirish uchun esa har bir HEMIS ID uchun **bitta unikal nick**
+beriladi: bitta HEMIS ID = bitta nick = bitta akkaunt (takroriy ro'yxatga olish bloklanadi). Talaba HEMIS ID ni
+kirish maydoniga yozsa, platforma aniq tushuntiradi va adminga yo'naltiradi.
 
 **Real talabalar ro'yxatini ommaviy yuklash** (CSV: ism, HEMIS ID, telefon, jamoa, telegram, maqsad):
 

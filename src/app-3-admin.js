@@ -81,8 +81,8 @@ function addStudentModal(pre) {
     '<form data-form="new-student"' + (p0.lead ? ' data-lead="' + esc(p0.lead) + '"' : '') + ' class="col" style="gap:13px">' +
     '<div class="card soft tight" style="background:rgba(124,92,255,.10);border-color:rgba(124,92,255,.28)">' +
     '<div class="row" style="gap:10px">' + ico('shield', 'sm') +
-    '<div><div class="small" style="font-weight:750">HEMIS ID — kirish uchun asos</div>' +
-    '<div class="xs muted" style="margin-top:3px">Talaba HEMIS ID sini topshiradi → siz kiritasiz → tizim unga unikal nick beradi. Bitta HEMIS ID — bitta talaba.</div></div></div></div>' +
+    '<div><div class="small" style="font-weight:750">HEMIS ID — ro‘yxatga olish uchun asos</div>' +
+    '<div class="xs muted" style="margin-top:3px">Talaba HEMIS ID sini topshiradi → siz kiritasiz → tizim unikal <b>nick</b> beradi. Talaba saytga aynan shu nick bilan kiradi. Bitta HEMIS ID — bitta talaba.</div></div></div></div>' +
     '<div class="field"><label>To‘liq ism</label><input class="inp" name="name" required placeholder="Ism Familiya" value="' + esc(p0.name || '') + '"></div>' +
     '<div class="grid g2" style="gap:12px"><div class="field"><label>HEMIS ID (12 xona)</label><input class="inp" name="hemis" inputmode="numeric" maxlength="12" required placeholder="123456789012"><div class="inp-hint">Faqat raqam, 12 xona.</div></div>' +
     '<div class="field"><label>Telefon</label><input class="inp" name="phone" placeholder="+998 __ ___ __ __" value="' + esc(p0.phone || '') + '"></div></div>' +
@@ -100,7 +100,7 @@ function csvImportModal(report) {
       '<div class="row" style="gap:10px">' + ico('upload', 'sm') +
       '<div><div class="small" style="font-weight:750">CSV fayl: ism, HEMIS ID, telefon, jamoa…</div>' +
       '<div class="xs muted" style="margin-top:3px">Ustunlar: <b>ism_familiya, hemis_id</b> (majburiy) • telefon, jamoa, telegram, maqsad (ixtiyoriy). ' +
-      'Jamoa nomi yangi bo‘lsa — avtomatik yaratiladi. Har talabaga unikal nick beriladi.</div></div></div></div>' +
+      'Jamoa nomi yangi bo‘lsa — avtomatik yaratiladi. Har talabaga unikal <b>nick</b> beriladi — kirish faqat shu nick bilan.</div></div></div></div>' +
       '<div class="field" style="margin-top:14px"><label>Faylni tanlang (.csv)</label>' +
       '<input class="inp" type="file" id="import-csv" accept=".csv,text/csv"></div>' +
       '<div class="xs muted" style="margin-top:6px">Shablon: <b>docs/talabalar-shabloni.csv</b> (Excel’da «Save as CSV»).</div>';
@@ -130,7 +130,7 @@ function csvImportModal(report) {
 function csvDoneModal(res) {
   openModal(mhead('Import yakunlandi', res.created.length + ' talaba qo‘shildi' + (res.newGroups ? ' • ' + res.newGroups + ' yangi jamoa' : '')) +
     '<div class="card soft tight" style="background:rgba(34,211,238,.10);border-color:rgba(34,211,238,.28)">' +
-    '<div class="xs muted">Har bir talaba kirish kartochkasini oldi: nick + HEMIS ID bilan kiradi, parolni birinchi kirishda o‘zi o‘rnatadi. ' +
+    '<div class="xs muted">Har bir talaba kirish kartochkasini oldi: <b>kirish — nick bilan</b> (HEMIS ID faqat arxiv/nazorat uchun), parolni birinchi kirishda o‘zi o‘rnatadi. ' +
     'Kartochkalarni chop etish uchun «Chop etish / PDF» tugmasidan foydalaning.</div></div>' +
     '<div class="col" style="gap:7px;margin-top:12px;max-height:280px;overflow:auto">' +
     res.created.map(x => '<div class="lrow"><div class="lead">' + ico('key', 'sm') + '</div>' +
@@ -314,7 +314,7 @@ function vStudents() {
       '<div class="feat-ic" style="background:rgba(198,255,79,.14);border-color:rgba(198,255,79,.34)">' + ico('send', 'sm') + '</div>' +
       '<div><h2 class="h2">Yangi arizalar (' + S.leads.length + ')</h2>' +
       '<div class="xs muted">Landing sahifasidagi «Ariza» formasidan. «Talaba qilish» bosilganda ma’lumotlar ' +
-      'to‘ldirilgan holda ochiladi — faqat HEMIS ID ni kiritasiz.</div></div></div></div>' +
+      'to‘ldirilgan holda ochiladi — siz faqat <b>HEMIS ID</b> ni kiritasiz; tizim unga unikal nick beradi va kirish kartochkasini chiqaradi.</div></div></div></div>' +
       '<div class="col" style="gap:8px">' + S.leads.slice(0, 10).map(l => '<div class="lrow">' +
         '<div class="lead">' + ico('user', 'sm') + '</div>' +
         '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(l.name) + '</div>' +
@@ -824,17 +824,17 @@ function loginCardModal(accId) {
     '<div><div class="up muted">Nick (login)</div><div class="h3" style="letter-spacing:.04em">' + esc(a.nick) + '</div></div>' +
     (a.role === 'admin'
       ? '<div><div class="up muted">Email (login)</div><div class="small" style="font-weight:750;word-break:break-all">' + esc(a.email || '—') + '</div></div>'
-      : '<div><div class="up muted">HEMIS ID</div><div class="h3">' + (a.hemisId ? esc(a.hemisId) : '—') + '</div></div>') +
+      : '<div><div class="up muted">HEMIS ID (admin uchun)</div><div class="h3">' + (a.hemisId ? esc(a.hemisId) : '—') + '</div></div>') +
     '</div>' +
     '<div class="xs muted" style="margin-top:10px">' +
     (a.role === 'admin'
       ? 'Parol: admin birinchi kirishda o‘zi o‘rnatadi. Kiradi: <b>email + parol</b>.'
-      : 'Parol: talaba <b>birinchi kirishda</b> o‘zi o‘rnatadi. Tizimga <b>HEMIS ID yoki nick</b> bilan kiradi — ikkalasi ham ishlaydi.') +
+      : 'Parol: talaba <b>birinchi kirishda</b> o‘zi o‘rnatadi. Tizimga <b>faqat nick</b> bilan kiradi — HEMIS ID kirishda ishlatilmaydi.') +
     '</div>' +
     '</div>' +
     '<div class="row" style="gap:10px;margin-top:12px">' +
     '<button class="btn btn-primary grow" data-act="print-card">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
-    '<button class="btn btn-soft" data-act="toast-copy" data-code="Nick: ' + esc(a.nick) + (a.hemisId ? ' | HEMIS: ' + esc(a.hemisId) : '') + '">' + ico('copy', 'sm') + 'Nusxalash</button>' +
+    '<button class="btn btn-soft" data-act="toast-copy" data-code="Kirish: nick ' + esc(a.nick) + (a.role === 'student' && a.hemisId ? ' | HEMIS ID (arxiv): ' + esc(a.hemisId) : '') + '">' + ico('copy', 'sm') + 'Nusxalash</button>' +
     '</div>' +
     '<div class="row" style="gap:10px;margin-top:9px">' +
     '<button class="btn btn-ghost btn-sm grow" data-act="pass-reset" data-id="' + esc(a.id) + '">' + ico('refresh', 'sm') + 'Parolni tiklash (noldan o‘rnatish)</button>' +

@@ -111,6 +111,9 @@ o'tish **15 daqiqalik ish** (sxema va login tizimi shunga tayyor quriladi).
 
 Platformada namuna ma'lumot **yo'q** (v2.0.0 da butunlay olib tashlandi). Haqiqiy ro'yxat endi **platformaning o'zida** yuklanadi (v2.1.0):
 
+**Kirish modeli (v2.2.1):** talaba **faqat nick** bilan kiradi. HEMIS ID ni talaba klubga (adminga) topshiradi;
+admin uni ro'yxatga olishda kiritadi va tizim **bitta unikal nick** beradi (bitta HEMIS ID = bitta nick = bitta akkaunt).
+
 **Admin → Talabalar → «CSV import»** → fayl tanlanadi → tekshiruv hisoboti (qabul/xato/ogohlantirish)
 → tasdiqlangach talabalar, akkauntlar va jamoalar avtomatik yaratiladi, kirish kartochkalari chiqadi.
 Kod o'zgartirish yoki qayta deploy **kerak emas**. Xato fayl yuklansa — «Importni bekor qilish» tugmasi shu import natijasini butunlay qaytaradi. (CLI varianti `tools/import-talabalar.js` arxiv sifatida qoladi.)

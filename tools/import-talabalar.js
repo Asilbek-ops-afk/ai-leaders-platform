@@ -10,7 +10,7 @@
    Nima qiladi:
      1) CSV ni o'qiydi (ajratuvchi: , ; \t — avtomatik aniqlanadi)
      2) Har qatorni tekshiradi: ism, HEMIS ID (12 xona, takrorlanmas), telefon, jamoa
-     3) Har HEMIS ID uchun unikal nick yaratadi (ilovadagi bir xil so'z ro'yxatidan)
+     3) Har HEMIS ID uchun unikal nick yaratadi (kirish faqat shu nick bilan — HEMIS ID kirishda ishlatilmaydi)
      4) Jamoa va mentorlarni mavjud tuzilmaga moslaydi
      5) Hisobot chiqaradi: xatolar, takrorlar, jamoa bo'yicha taqsimot
      6) --write bilan data/talabalar.json tayyorlaydi (keyin ilova seed'iga joylanadi)

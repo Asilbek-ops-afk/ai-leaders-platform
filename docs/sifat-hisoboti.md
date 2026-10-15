@@ -4,7 +4,7 @@ Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** bar
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
 **eng yangi holat — oxirgi bo'lim (v2.0.0)**.
 
-**Oxirgi versiya:** v2.2.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (422 test, 175 joylashuv, 78 skrinshot)
+**Oxirgi versiya:** v2.2.1 · **Holat:** ✅ barcha tekshiruvlar o'tdi (428 test, 175 joylashuv, 78 skrinshot)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -15,6 +15,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [**v2.0.0**](#v200--keraksiz-narsalarni-ochirib-tashla-namuna-malumotlar-butunlay-olib-tashlandi) | **v2.0.0** | **Namuna ma'lumotlar butunlay olib tashlandi: bo'sh start + Founder yaratish** |
 | [**v2.1.0**](#v210--haqiqiy-talabalar-royxatini-yuklash-csv-import) | **v2.1.0** | **CSV import: haqiqiy talabalar ro'yxatini platformada yuklash + bo'sh tuzilmalar mustahkamligi** |
 | [**v2.2.0**](#v220--landing-sahifa-va-skrollda-ochiladigan-kirishariza) | **v2.2.0** | **Landing sahifa + skrollda 3D ochiladigan kirish/ariza bo'limi & ariza oqimi** |
+| [**v2.2.1**](#v221--kirish-faqat-nick-bilan-hemis-id-kirishda-ishlatilmaydi) | **v2.2.1** | **Kirish faqat nick bilan: HEMIS ID — adminga, talabaga unikal nick (1 HEMIS = 1 nick)** |
 
 ---
 
@@ -461,3 +462,44 @@ havola o'zgarmaydi. Yechim: **service worker `controllerchange` → avtomatik re
 | Skrinshotlar | ✔ **78 ta surat (88 qadam)** — yangi: 79–88 (`79-v22-landing-hero-1920`, imkoniyatlar, jarayon, dastur, savollar, kirish, ariza, admin tab, mobil hero, mobil kirish) |
 | Ariza oqimi (Playwright) | ✔ Landing → ariza (2 ta) → takroriy raqam bloklandi → dashboard ogohlantirishi → «Talaba qilish» (prefill) → talaba + kartochka → ariza o'chdi: **0 JS xatosi** |
 | Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.2.0** |
+
+---
+
+## v2.2.1 — Kirish faqat nick bilan (HEMIS ID — adminga)
+
+**Talab:** «Kirish uchun HEMIS ID va nick degan ekansan, men senga faqat berilgan nick orqali kirsin degandim.
+HEMIS ID sini menga tashlashadi, keyinchalik admin uni ro'yxatdan o'tkazadi. Bitta HEMIS ID uchun bitta nick
+beriladi. Shu ustida professional tarzda ishla.»
+
+### Model (endi qat'iy)
+
+| Kim | Nima qiladi | Nimani kiritadi |
+|---|---|---|
+| **Talaba** | HEMIS ID (12 xona) ni **klubga — adminga** topshiradi | — |
+| **Admin** | `Talabalar → Talaba qo'shish` (yoki CSV import): ism + **HEMIS ID** | HEMIS ID |
+| **Tizim** | Shu HEMIS ID uchun **bitta unikal nick** beradi; takroriy HEMIS ID bloklanadi | — |
+| **Talaba** | Saytga **faqat nick** + parol bilan kiradi | **Nick** |
+
+### Nima o'zgardi
+
+| # | O'zgarish | Tafsilot |
+|---|---|---|
+| 1 | **Kirish qidiruvi rolga qarab** | `authLookup(login, role)`: talaba uchun **faqat nick**; admin uchun email (nick ham mumkin). HEMIS ID va email talaba kirishida **ishlamaydi** |
+| 2 | **Aniq himoya va tushuntirish** | HEMIS ID ko'rinishidagi qiymat (12 raqam, bo'sh joyli ham) kiritilsa: «Talaba kirishi faqat NICK bilan. HEMIS ID ni klub adminiga topshiring — u akkaunt ochib, sizga nick beradi.» (`isHemisLike()`) |
+| 3 | **Aniq "topilmadi" xabarlari** | Talaba: «Bunday nick topilmadi. Nickni klub adminidan so'rang (masalan: falcon)». Admin: «Bunday email topilmadi…» |
+| 4 | **Kirish maydoni** | Yorliq «**Nick (kirish uchun)**», maydon ostida izoh: HEMIS ID kirishda ishlatilmaydi, u faqat ro'yxatga olishda (adminga) topshiriladi. `autofocus` qo'shildi |
+| 5 | **Kirish kartochkasi** | «Nick (login)» + «**HEMIS ID (admin uchun)**»; izoh: «Tizimga faqat nick bilan kiradi — HEMIS ID kirishda ishlatilmaydi». Nusxalash: «Kirish: nick falcon \| HEMIS ID (arxiv): …» |
+| 6 | **Landing matnlari** | Hero tavsifi, pitch kartasi («Nick — yagona kalit»), jarayon qadami, FAQ (2 javob), ariza rahmat ekrani, yordam modali — hammasi yangi modelga moslandi |
+| 7 | **Admin bo'limi matnlari** | Talaba qo'shish oynasi, CSV import, import yakuni ekrani — «kirish faqat nick bilan» deb aniq yozildi |
+| 8 | **Toast** | «Talaba qo'shildi • kirish nick: falcon» (`@` belgisi olib tashlandi — nick email emas) |
+| 9 | **1 HEMIS = 1 nick qoidasi** | Takroriy HEMIS ID (`hemis-dup`) va CSV fayldagi takrorlar oldin ham, endi kirish mantig'i bilan bir xil modelda: bitta HEMIS ID — bitta akkaunt |
+
+### Tekshiruv natijalari (v2.2.1)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **428 ta, 0 xato** — yangi: HEMIS bilan kirish **rad etiladi** + tushuntirish, nick bilan topiladi, email talaba uchun ishlamaydi, `isHemisLike()` |
+| Joylashuv testi | ✔ 175 tekshiruv, 0 toshish (7 o'lcham) |
+| Skrinshotlar | ✔ 78 ta (kirish bo'limi yangilandi: `84`, `85`, `88`) |
+| Nick-only oqim (Playwright) | ✔ kartochka (nick + HEMIS arxiv) → kirish maydoni matni → **HEMIS ID rad etildi** → noto'g'ri nick maslahati → to'g'ri nick → parol o'rnatish → kabinet → nick+parol bilan qayta kirish → admin email bilan: **0 JS xatosi** |
+| Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.2.1** |
