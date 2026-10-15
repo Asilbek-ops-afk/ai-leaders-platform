@@ -18,8 +18,8 @@ function vAuth() {
       '<p class="small muted" style="margin:8px 0 16px">Salom, <b>' + esc(acc.name) + '</b>! Sizning nickingiz: <span class="kbd">' + esc(acc.nick) + '</span>' +
       (acc.hemisId ? ' • HEMIS ID tasdiqlandi' : '') + '. Endi o‘zingizga parol o‘ylab toping — uni faqat siz bilib turasiz.</p>' +
       '<form data-form="first-pass" data-acc="' + esc(acc.id) + '" class="col" style="gap:13px">' +
-      '<div class="field"><label>Yangi parol</label><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"></div>' +
-      '<div class="field"><label>Parolni takrorlang</label><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password" placeholder="Xuddi shu parol"></div>' +
+      '<div class="field"><label>Yangi parol</label><div class="pwrap"><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
+      '<div class="field"><label>Parolni takrorlang</label><div class="pwrap"><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password" placeholder="Xuddi shu parol"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('check', 'sm') + 'Parolni saqlash va kirish</button>' +
       '</form>' +
@@ -40,8 +40,8 @@ function vAuth() {
       '<div class="field"><label>Ism va familiya</label><input class="inp" name="name" required placeholder="Masalan: Asilbek Yusupov"></div>' +
       '<div class="field"><label>Email (kirish uchun)</label><input class="inp" name="email" type="email" required placeholder="ism@aileaders.uz"></div>' +
       '<div class="grid g2" style="gap:12px">' +
-      '<div class="field"><label>Parol</label><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"></div>' +
-      '<div class="field"><label>Parolni takrorlang</label><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password" placeholder="Xuddi shu parol"></div></div>' +
+      '<div class="field"><label>Parol</label><div class="pwrap"><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
+      '<div class="field"><label>Parolni takrorlang</label><div class="pwrap"><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password" placeholder="Xuddi shu parol"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('check', 'sm') + 'Akkauntni yaratish va kirish</button>' +
       '</form>' +
@@ -89,7 +89,7 @@ function landHero() {
     '<div class="lhero-grid-bg" aria-hidden="true"></div>' +
     '<div class="lhero-copy">' +
     '<span class="ltag rise" data-d="0">' + ico('spark', 'sm') + '0 dan startapgacha · Toshkent</span>' +
-    '<h1 class="rise" data-d="1">G‘oyadan ishlaydigan mahsulotgacha — <em>jamoada, kuzatuv ostida</em>.</h1>' +
+    '<h1 class="rise" data-d="1">G‘oyadan ishlaydigan mahsulotgacha — <em>jamoada, kuzatuv&nbsp;ostida</em>.</h1>' +
     '<p class="llede rise" data-d="2">AI Leaders — 0 dan boshlovchilar uchun amaliy klub. Platformada: yo‘l xaritasi, ' +
     'vazifa → deadline → mentor izohi → baho, jamoaviy loyihalar va reyting tizimi. Kirish — admin bergan ' +
     'shaxsiy <b>nick</b> bilan (HEMIS ID faqat ro‘yxatga olishda kerak).</p>' +
@@ -185,7 +185,14 @@ function landFaq() {
 function landAuthSection() {
   const role = UI.authRole;
   const err = UI.authErr || '';
-  const tab = (r, l, ic) => '<button class="auth-tab' + (role === r ? ' on' : '') + '" data-act="pick-role" data-r="' + r + '">' + ico(ic, 'sm') + l + '</button>';
+  /* Uzun yorliq telefonda ikki qatorga bo'linmasin: ikkinchi qismi kichik ekranda yashiriladi */
+  const tab = (r, l, ic) => {
+    const sp = l.indexOf(' / ');
+    const inner = sp > -1
+      ? esc(l.slice(0, sp)) + '<span class="tt2">' + esc(l.slice(sp)) + '</span>'
+      : esc(l);
+    return '<button class="auth-tab' + (role === r ? ' on' : '') + '" data-act="pick-role" data-r="' + r + '">' + ico(ic, 'sm') + inner + '</button>';
+  };
   let body = '';
   if (role === 'apply') {
     body = UI.leadDone
@@ -207,7 +214,7 @@ function landAuthSection() {
   } else if (role === 'admin') {
     body = '<form data-form="login-admin" class="col" style="gap:12px">' +
       '<div class="field"><label>Email</label><input class="inp" name="login" required autocomplete="username" placeholder="ism@aileaders.uz"></div>' +
-      '<div class="field"><label>Parol</label><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"></div>' +
+      '<div class="field"><label>Parol</label><div class="pwrap"><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Admin panelga kirish</button>' +
       '</form>';
@@ -216,9 +223,9 @@ function landAuthSection() {
       '<div class="field"><label>Nick (kirish uchun)</label>' +
       '<input class="inp" name="login" required autocomplete="username" inputmode="text" autofocus placeholder="Masalan: falcon">' +
       '<div class="inp-hint">Nickni klub admini beradi. <b>HEMIS ID kirishda ishlatilmaydi</b> — u faqat ro‘yxatga olishda (adminga) topshiriladi.</div></div>' +
-      '<div class="field"><label>Parol</label><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"></div>' +
-      '<div class="row between" style="gap:10px"><span class="xs muted">Parolni unutdingizmi? Mentorga murojaat qiling.</span>' +
-      '<button type="button" class="btn btn-xs btn-ghost" data-act="auth-help">' + ico('help', 'sm') + 'Yordam</button></div>' +
+      '<div class="field"><label>Parol</label><div class="pwrap"><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
+      '<div class="row between" style="gap:10px"><span class="xs muted">Nickni eslay olmadingizmi?</span>' +
+      '<button type="button" class="auth-help" data-act="auth-help">' + ico('help', 'sm') + 'Yordam olish</button></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Talaba kabinetiga kirish</button>' +
       '</form>';
@@ -287,6 +294,18 @@ function landTick() {
   const p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
   if (bar) bar.style.transform = 'scaleX(' + p.toFixed(4) + ')';
   if (nav) nav.classList.toggle('scrolled', window.scrollY > 28);
+  /* Skrol-spy: hozir ko'rinib turgan bo'lim navda belgilanadi */
+  if (!nav) return;
+  const links = nav.querySelectorAll('[data-sec]');
+  if (!links.length) return;
+  /* Faol bo'lim: ko'rinish markazi qaysi bo'limda bo'lsa, o'sha yonadi */
+  const mark = window.scrollY + window.innerHeight * 0.5;
+  let active = '';
+  links.forEach(a => {
+    const el = document.getElementById((a.dataset.sec || '').slice(1));
+    if (el && el.offsetTop <= mark) active = a.dataset.sec;
+  });
+  links.forEach(a => a.classList.toggle('on', a.dataset.sec === active));
 }
 /* Bo'limga yumshoq skrol */
 function landScrollTo(sel) {
@@ -330,7 +349,7 @@ function msgModal(id) {
   openModal(mhead('Xabar yozish', p.name + ' • ' + (p.tg || p.role || '')) +
     '<div class="card soft" style="max-height:190px;overflow:auto"><div class="col" style="gap:12px">' +
     '<div class="row" style="gap:9px;justify-content:flex-start"><div class="card tight soft" style="max-width:75%">Salom! Deadline yaqin, qanday ketyapti?</div></div>' +
-    '<div class="row" style="gap:9px;justify-content:flex-end"><div class="card tight" style="max-width:75%;background:rgba(124,92,255,.18);border-color:rgba(124,92,255,.34)">Ishlayapman, kechqurun yuboraman ✅</div></div>' +
+    '<div class="row" style="gap:9px;justify-content:flex-end"><div class="card tight" style="max-width:75%;background:rgba(124,92,255,.18);border-color:rgba(124,92,255,.34)">Ishlayapman, kechqurun yuboraman</div></div>' +
     '</div></div>' +
     '<form data-form="msg" data-to="' + esc(id) + '" style="margin-top:12px">' +
     '<div class="field"><textarea class="inp" name="text" placeholder="Xabar yozing…" required></textarea></div>' +
@@ -616,6 +635,19 @@ document.addEventListener('click', e => {
     case 'reset': resetAll(); break;
     case 'notifs': notifModal(); paint(true); break;
     case 'pick-role': UI.authRole = t.dataset.r; UI.authErr = ''; paint(true); break;
+    case 'eye': {
+      /* Parolni ko'rsatish/yashirish — forma qayta chizilmaydi */
+      const w = t.closest('.pwrap'), inp0 = w && w.querySelector('input');
+      if (!inp0) break;
+      const show = inp0.type === 'password';
+      inp0.type = show ? 'text' : 'password';
+      t.classList.toggle('on', show);
+      t.innerHTML = ico(show ? 'eye-off' : 'eye', 'sm');
+      const lbl = show ? 'Parolni yashirish' : 'Parolni ko‘rsatish';
+      t.setAttribute('aria-label', lbl); t.setAttribute('title', lbl);
+      inp0.focus();
+      break;
+    }
     /* --- Landing sahifasi: bo'limlarga skrol va ariza oqimi --- */
     case 'to-auth': UI.authRole = 'student'; UI.authErr = ''; UI.leadDone = null; paint(true); landScrollTo('#lkirish'); break;
     case 'to-apply': UI.authRole = 'apply'; UI.authErr = ''; paint(true); landScrollTo('#lkirish'); break;
@@ -648,8 +680,8 @@ document.addEventListener('click', e => {
       if (!s0.done.includes(id)) { s0.done.push(id); addXp(s0, 20, 10, 'q1'); }
       const after = modulePct(s0, l.m);
       if (before < 100 && after.pct === 100) {
-        pushNotif(s0.id, 'Sertifikat ochildi 🎓', 'Modul ' + modOf(l.m).n + ' to‘liq tugatildi. Ma’lumot bo‘limida ko‘ring.', 'cert');
-        toast('ok', 'Modul tugatildi! 🎉', modOf(l.m).n + '-modul 100% — sertifikat Ma’lumot bo‘limiga qo‘shildi.');
+        pushNotif(s0.id, 'Sertifikat ochildi', 'Modul ' + modOf(l.m).n + ' to‘liq tugatildi. Ma’lumot bo‘limida ko‘ring.', 'cert');
+        toast('ok', 'Modul tugatildi!', modOf(l.m).n + '-modul 100% — sertifikat Ma’lumot bo‘limiga qo‘shildi.');
       } else toast('ok', 'Dars tugatildi', '+20 XP hisobingizga qo‘shildi.');
       closeModal(); save(); paint(true); break;
     }
@@ -719,7 +751,7 @@ document.addEventListener('click', e => {
     }
     case 'funreq': { const meId = st().id; S.sent[meId] = (S.sent[meId] || []).filter(x => x !== id); S.incoming[id] = (S.incoming[id] || []).filter(x => x !== meId); save(); paint(true); break; }
     case 'unfriend': { const meId = st().id; S.friends[meId] = (S.friends[meId] || []).filter(x => x !== id); S.friends[id] = (S.friends[id] || []).filter(x => x !== meId); toast('info', 'Do‘stlar ro‘yxatidan chiqarildi'); save(); paint(true); break; }
-    case 'challenge': { pushNotif(id, 'XP musobaqasi ⚡', st().name + ' sizni haftalik ball musobaqasiga chorladi!', 'trophy'); toast('ok', 'Chaqiruv yuborildi', 'Do‘stingizga musobaqa taklifi ketdi.'); save(); break; }
+    case 'challenge': { pushNotif(id, 'XP musobaqasi', st().name + ' sizni haftalik ball musobaqasiga chorladi!', 'trophy'); toast('ok', 'Chaqiruv yuborildi', 'Do‘stingizga musobaqa taklifi ketdi.'); save(); break; }
     case 'help-ask': {
       const s = get(S.students, id) || get(S.mentors, id);
       toast('ok', 'Yordam so‘raldi', (s.name || 'Mentor') + 'ga savolingiz yuborildi — 24 soat ichida javob beradi.'); break;
@@ -728,7 +760,7 @@ document.addEventListener('click', e => {
     case 'print': window.print(); break;
     case 'toast-copy': { try { navigator.clipboard.writeText(t.dataset.code); } catch (e) { } toast('ok', 'Nusxalandi', t.dataset.code); break; }
     case 'gallery': { const it = S.gallery.find(x => x.id === id); if (it) galleryModal(it); break; }
-    case 'cheer': toast('ok', 'Qo‘llab-quvvatlash yuborildi 💚', 'Jamoa reytingiga +1 olqish qo‘shildi.'); closeModal(); break;
+    case 'cheer': toast('ok', 'Qo‘llab-quvvatlash yuborildi', 'Jamoa reytingiga +1 olqish qo‘shildi.'); closeModal(); break;
     case 'wall-post': {
       const ta = document.getElementById('wall-input'); const g = myGroup(st());
       if (!ta || !ta.value.trim()) { toast('warn', 'Bo‘sh yozuv', 'Biror narsa yozing.'); break; }

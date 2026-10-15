@@ -7,11 +7,12 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **422 ta tekshiruv, 0 xato** |
+| 🧪 **Testlar** | `npm test` → **443 ta tekshiruv, 0 xato** |
 | 🔐 **Kirish** | Talaba: **faqat nick** + parol (HEMIS ID kirishda ishlatilmaydi) • Admin: email + parol |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
 | 📦 **Hajm** | Bitta `index.html` (~330 KB), tashqi kutubxonasiz |
+| 🎨 **Dizayn** | Dark/light mavzu, o'z ikonalar to'plami (68 SVG), mikro-animatsiya, `prefers-reduced-motion` qo'llab-quvvatlanadi |
 
 ---
 
@@ -145,7 +146,7 @@ ai-leaders/
 ├── tools/
 │   ├── make-assets.py         # ikon va OG rasmni generatsiya qiladi (Pillow)
 │   └── tests/
-│       ├── run.js             # 422 ta avtomatik test (jsdom)
+│       ├── run.js             # 443 ta avtomatik test (jsdom)
 │       ├── layout.js          # 175 joylashuv (overflow) tekshiruvi (playwright)
 │       ├── live.js            # 18 ta jonli sayt tekshiruvi
 │       ├── fixtures.js        # test uchun namuna ma'lumot (manba kodda YO'Q)
@@ -174,7 +175,7 @@ git clone https://github.com/Asilbek-ops-afk/ai-leaders-platform.git
 cd ai-leaders-platform
 
 npm run build       # src → index.html + dist/
-npm test            # 422 ta avtomatik test (jsdom kerak: npm install)
+npm test            # 443 ta avtomatik test (jsdom kerak: npm install)
 npm run test:layout # 175 ta joylashuv tekshiruvi (playwright: npx playwright install chromium)
 npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
 npm run check       # sintaksis tekshiruvi
@@ -198,7 +199,7 @@ npm run deploy                       # build + wrangler pages deploy dist/
 Loyihada ikki darajali sifat nazorati bor:
 
 **1) `npm test` — funksional testlar (jsdom, haqiqiy DOM)**
-24 guruh, **422 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
+25 guruh, **443 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
 **CSV import** (fayl → tekshiruv hisoboti → akkauntlar + kartochkalar), **chekka holatlar**
 (vazifasiz jamoa, yetim a'zo, bo'sh tuzilmalarda `NaN`siz hisoblar),
 kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
@@ -207,7 +208,7 @@ fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, e
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**78 ta skrinshot** (88 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari** va **CSV import oynasi**
+**83 ta skrinshot** (93 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari**, **CSV import oynasi** va **v2.3.0 dizayn sayqali** (parol ko'zi, kirish kartochkasi + bosma ko'rinishi, jadval, mobil qidiruv)
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 
@@ -219,7 +220,7 @@ Admin va talaba bo'limlari ketma-ket ochiladi, har biri uchun `document.scrollWi
 18 ta tekshiruv: sahifa yuklanishi, brend, SEO/PWA teglari, manifest, service worker, rasm va sarlavha (header) sozlamalari.
 
 **5) `npm run test:remote` — jonli saytda to'liq funksional testlar**
-Xuddi `npm test` kabi to'liq to'plam (422 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
+Xuddi `npm test` kabi to'liq to'plam (443 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
 (`TEST_URL=<url> node tools/tests/run.js`). Deploydan keyin «haqiqatan shu versiya chiqdimi?» degan savolga javob beradi.
 
 ---
@@ -267,6 +268,22 @@ Uch tab: **Talaba** (nick/HEMIS ID + parol), **Admin / Mentor** (email + parol) 
 (ro'yxatdan o'tish). Ariza **Admin → Talabalar → «Yangi arizalar»** blokida ko'rinadi: bir tugma
 bilan talabaga aylantiriladi (ism, telefon, telegram, maqsad avtomatik to'ldiriladi — faqat HEMIS ID
 kiritasiz), shundan keyin kirish kartochkasi chiqadi. Dashboard ham yangi arizalar haqida ogohlantiradi.
+
+### Dizayn tizimi (v2.3.0 sayqali)
+
+| Qatlam | Tafsilot |
+|---|---|
+| **Tipografiya** | Sarlavhalarda `text-wrap: balance`, matnda `pretty`; raqamlar `tabular-nums` (jadval, KPI, streak uzilmaydi) |
+| **Rang va chuqurlik** | Brend gradienti (`#7C5CFF → #22D3EE`) + yashil aksent (`#C6FF4F`); kartalar hover'da 3–4px ko'tariladi, KPI'da yuqori gradient chiziq yonadi |
+| **Mikro-animatsiya** | Yagona harakat tili (`cubic-bezier(.16,1,.3,1)`): tugma «sheen», ikona siljishi, salomlashuvdagi SVG qo'l hilpiragi, toast/finish pop effektlari |
+| **Ikonkalar** | 68 ta o'z SVG ikonkasi — **emoji o'rniga** hamma joyda (salomlashuv, bo'sh holatlar, baho, toastlar). Tizim shriftiga bog'liq emas |
+| **Holatlar** | `:hover`/`:focus-visible`/`:disabled`/`:active` to'liq; `prefers-reduced-motion` va `hover:none` (telefon) hisobga olingan |
+| **Kirish formasi** | Parolni ko'rsatish tugmasi (👁 SVG), «Nickni eslay olmadingizmi? — Yordam olish» havolasi |
+| **Landing** | Skrol-spy navigatsiya (faol bo'lim belgilanadi), progress chizig'i, 3D ochilish animatsiyasi |
+| **Jadval** | Yopishqoq sarlavha, hover qatori, `table-scroll` bilan gorizontal skroll |
+| **Yon panel** | Menyu skroll bo'ladi, foydalanuvchi bloki doim ko'rinadi; past balandlikdagi noutbuklarda zichroq (1568×768 sinovdan o'tgan) |
+| **Bosma (print)** | Kirish kartochkasi toza oq sahifada chiqadi: orqa fon o'chadi, tugmalar `.no-print`, karta konturi A4'ga sig'adi + `print-only` manzil izohi |
+| **Mobil** | Bottom-nav 5 bo'lim, FAB, qisqa qidiruv maydoni, tab yorliqlari siqilmaydi (≤460px) |
 
 **Nima uchun HEMIS ID kirishda ishlatilmaydi?** HEMIS ID — talabaning identifikatori, uni talaba klubga
 topshiradi va admin akkaunt ochishda kiritadi. Kirish uchun esa har bir HEMIS ID uchun **bitta unikal nick**

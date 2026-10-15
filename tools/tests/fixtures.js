@@ -116,7 +116,7 @@ const buildSubmissions = () => ([
 const buildWalls = () => ({
   g1: [
     { id: 'w1', who: 's2', text: 'Bugun EduBot uchun chat ekranini tugatdim. Kechqurun 21:00 da qisqa sync qilamizmi?', at: '2 soat oldin' },
-    { id: 'w2', who: 's9', text: 'Supabase jadvallarini tayyorladim. Landing formasi endi saqlanadi ✅', at: '5 soat oldin' },
+    { id: 'w2', who: 's9', text: 'Supabase jadvallarini tayyorladim. Landing formasi endi saqlanadi', at: '5 soat oldin' },
     { id: 'w3', who: 's1', text: 'Demo Day uchun pitch strukturasi tayyor, ertaga mashq qilamiz.', at: 'kecha' }
   ],
   g2: [{ id: 'w4', who: 's3', text: 'Model aniqligi 78% ga chiqdi. Ma’lumot to‘plashda yordam kerak.', at: '3 soat oldin' }],
@@ -163,7 +163,7 @@ function buildAccounts() {
 /* Talaba profillari bir marta quriladi (akkauntlar shundan foydalanadi) */
 const STUDENTS = buildStudents();
 
-const FIXTURE_VERSION = '2.2.1';
+const FIXTURE_VERSION = '2.3.0';
 
 /* To'liq namunaviy holat (localStorage'ga yoziladi) */
 function demoState() {

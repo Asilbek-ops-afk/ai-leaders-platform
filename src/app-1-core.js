@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.2.1';
+const APP_VERSION = '2.3.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -433,7 +433,7 @@ function brandBlock(big, withCollapse) {
 function sidebar() {
   const nav = NAV_SEC[isAdmin() ? 'admin' : 'student'];
   const st = me();
-  let h = '<aside class="sidebar">' + brandBlock(false, true);
+  let h = '<aside class="sidebar">' + brandBlock(false, true) + '<div class="side-nav">';
   nav.forEach(sec => {
     h += '<div class="nav-lbl">' + sec[0] + '</div>';
     sec[1].forEach(r => {
@@ -448,7 +448,7 @@ function sidebar() {
         ico(d.i) + '<span class="nlbl">' + esc(d.l) + '</span>' + (allowed ? badge : '<span class="lk">' + ico('lock', 'sm') + '</span>') + '</a>';
     });
   });
-  h += '<div class="side-foot">';
+  h += '</div><div class="side-foot">';
   const acc = meAcc();
   const meName = acc ? acc.name : (isAdmin() ? 'Admin' : st.name);
   const meSub = acc
@@ -468,7 +468,7 @@ function topbar() {
   const un = st ? unreadOf(st) : reviewQueue().length;
   return '<header class="topbar">' +
     '<div class="mobile-brand">' + ico('spark', 'sm') + 'AI LEADERS</div>' +
-    '<label class="searchbar grow"><span style="display:flex">' + ico('search', 'sm') + '</span><input id="gsearch" placeholder="Dars, vazifa yoki odam qidirish…" autocomplete="off">' +
+    '<label class="searchbar grow"><span style="display:flex">' + ico('search', 'sm') + '</span><input id="gsearch" placeholder="' + (window.innerWidth <= 760 ? 'Qidirish…' : 'Dars, vazifa yoki odam qidirish…') + '" autocomplete="off">' +
     '<button type="button" class="kbd" data-act="palette" title="Buyruq paneli (Ctrl+K)">Ctrl K</button></label>' +
     '<span class="hide-sm ' + (isAdmin() ? 'tag p' : 'tag c') + '">' + ico(isAdmin() ? 'shield' : 'user', 'sm') + (isAdmin() ? 'Admin' : 'Student') + '</span>' +
     (!isAdmin() && st ? '<span class="hide-sm streak">' + ico('flame', 'sm') + st.streak + '</span>' : '') +
@@ -986,9 +986,9 @@ function passChangeModal() {
   const a = meAcc();
   openModal(mhead('Parolni almashtirish', a ? '@' + a.nick : 'Sessiya yo‘q') +
     '<form data-form="pass-change" class="col" style="gap:13px">' +
-    (a && a.pass ? '<div class="field"><label>Hozirgi parol</label><input class="inp" type="password" name="old" required autocomplete="current-password"></div>' : '') +
-    '<div class="field"><label>Yangi parol</label><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"></div>' +
-    '<div class="field"><label>Yangi parolni takrorlang</label><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password"></div>' +
+    (a && a.pass ? '<div class="field"><label>Hozirgi parol</label><div class="pwrap"><input class="inp" type="password" name="old" required autocomplete="current-password"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' : '') +
+    '<div class="field"><label>Yangi parol</label><div class="pwrap"><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
+    '<div class="field"><label>Yangi parolni takrorlang</label><div class="pwrap"><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
     '<button class="btn btn-primary btn-block" type="submit">' + ico('check', 'sm') + 'Saqlash</button>' +
     '<div class="inp-hint">Parolni hech kimga aytmang — klub adminlari ham uni ko‘ra olmaydi.</div>' +
     '</form>', 'narrow');

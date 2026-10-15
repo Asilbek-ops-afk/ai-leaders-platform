@@ -20,7 +20,7 @@ function vHome() {
     '<div class="row wrap" style="gap:8px"><span class="tag p">' + ico(m.i, 'sm') + esc(m.n) + '</span>' +
     (g ? '<span class="tag c">' + ico('users', 'sm') + esc(g.name) + ' jamoasi</span>' : '') + streakPill(st) +
     '<span class="tag a">' + ico('coin', 'sm') + nf(st.coins) + ' coin</span></div>' +
-    '<div><h1 class="h1">' + wallClock() + ', ' + esc(st.name.split(' ')[0]) + '! 👋</h1>' +
+    '<div><h1 class="h1">' + wallClock() + ', ' + esc(st.name.split(' ')[0]) + '! <span class="wave">' + ico('hand', 'sm') + '</span></h1>' +
     '<p class="t2" style="margin:8px 0 0;max-width:52ch">' + (nl ? 'Bugun “' + esc(nl.t) + '” darsidan boshlaymiz — ' + nl.dur + ' daqiqa yetadi. ' : 'Barcha darslar tugatilgan, endi loyihaga e’tibor bering. ') +
     'Haftalik reytingda <b>' + wxpRank(st.id) + '-o‘rinda</b>siz.</p></div>' +
     '<div class="row wrap" style="gap:10px">' +
@@ -344,7 +344,7 @@ function vTeam() {
         '<div class="xs muted">' + roles[i % roles.length] + ' • ' + nf(s.xp) + ' XP • ' + (onl(s) ? 'onlayn' : s.last + ' kun oldin') + '</div></div></div>' +
         '<button class="btn btn-xs btn-soft" data-act="msg" data-id="' + s.id + '">' + ico('chat', 'sm') + '</button></div>'; }).join('') + '</div>' +
     (m ? '<div class="divider"></div><div class="row" style="gap:11px">' + avatar({ name: m.name, act: true, last: 0 }, 'sm') +
-      '<div class="grow"><div class="small" style="font-weight:750">' + esc(m.name) + '</div><div class="xs muted">' + esc(m.role) + ' • ⭐ ' + m.rating + ' • ' + esc(m.tg) + '</div></div>' +
+      '<div class="grow"><div class="small" style="font-weight:750">' + esc(m.name) + '</div><div class="xs muted">' + esc(m.role) + ' • ' + ico('star', 'sm') + ' ' + m.rating + ' • ' + esc(m.tg) + '</div></div>' +
       '<button class="btn btn-xs btn-primary" data-act="msg" data-id="' + m.id + '">' + ico('help', 'sm') + 'Savol</button></div>' : '') + '</div>' +
 
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('chat') + 'Jamoa devori</h2><span class="tag c">' + walls.length + ' yozuv</span></div>' +
@@ -447,7 +447,7 @@ function vDeadlines() {
     '<div class="col" style="gap:14px"><div class="card"><div class="card-h"><h2 class="h2">' + ico('alert') + 'E’tibor bering</h2></div>' +
     '<div class="col" style="gap:9px">' + (all.filter(d => (d.s && d.s.status === 'revise') || (!d.s && d.tl.late)).slice(0, 4)
       .map(d => '<div class="row small" style="gap:9px">' + ico('alert', 'sm') + '<span class="grow">' + esc(d.t.title) + '</span><span class="xs muted">' + (d.s ? 'qayta ishlash' : 'topshirilmagan') + '</span></div>').join('')
-      || '<div class="empty">Hammasi joyida ✅ Kechikkan topshiriq yo‘q.</div>') + '</div></div>' +
+      || '<div class="empty">' + ico('check-c', 'sm') + ' Hammasi joyida — kechikkan topshiriq yo‘q.</div>') + '</div></div>' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('users') + 'Jamoa deadline’lari</h2></div>' +
     (myGroup(st) ? '<div class="col" style="gap:9px">' + S.tasks.slice(2, 5).map(t => { const gd = myGroup(st).dl[t.id] || t.dl; return '<div class="row between small"><span class="t2 ellip">' + esc(t.title) + '</span><b class="nowrap">' + fmtD(gd) + '</b></div>'; }).join('') +
       '<div class="divider"></div><div class="xs muted">Jamoa uchun alohida sanalar mentor tomonidan belgilanadi.</div></div>' : '<div class="empty">Jamoa yo‘q</div>') + '</div>' +
@@ -496,7 +496,7 @@ function vFriends() {
       '<div class="grid g3">' + S.mentors.map(m => '<div class="card tight soft"><div class="row" style="gap:9px">' + avatar({ name: m.name, act: true, last: 0 }, 'sm') +
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(m.name) + '</div><div class="xs muted">' + esc(m.role) + '</div></div></div>' +
         '<div class="xs muted" style="margin:9px 0">' + esc(m.bio) + '</div>' +
-        '<div class="row between"><span class="tag c">⭐ ' + m.rating + '</span><button class="btn btn-xs btn-soft" data-act="msg" data-id="' + m.id + '">Savol berish</button></div></div>').join('') + '</div></div>';
+        '<div class="row between"><span class="tag c">' + ico('star', 'sm') + ' ' + m.rating + '</span><button class="btn btn-xs btn-soft" data-act="msg" data-id="' + m.id + '">Savol berish</button></div></div>').join('') + '</div></div>';
   }
 
   if (tab === 'requests') {
@@ -518,7 +518,7 @@ function vFriends() {
         '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s.name) + '</div>' +
         '<div class="xs muted">' + (myGroup(s) ? myGroup(s).name : 'jamoa yo‘q') + ' • ' + nf(s.xp) + ' XP</div></div></div>' +
         '<div class="row between" style="margin-top:10px"><span class="tag">' + esc(medal(s).n) + '</span>' +
-        '<button class="btn btn-xs btn-primary" data-act="fadd" data-id="' + s.id + '">' + ico('plus', 'sm') + 'Qo‘shish</button></div></div>').join('') : '<div class="empty">Barcha a’zolar allaqachon do‘stlar ro‘yxatida 🎉</div>') + '</div></div>';
+        '<button class="btn btn-xs btn-primary" data-act="fadd" data-id="' + s.id + '">' + ico('plus', 'sm') + 'Qo‘shish</button></div></div>').join('') : '<div class="empty">' + ico('users', 'sm') + ' Barcha a’zolar allaqachon do‘stlar ro‘yxatida</div>') + '</div></div>';
   }
 
   if (tab === 'leaders') {

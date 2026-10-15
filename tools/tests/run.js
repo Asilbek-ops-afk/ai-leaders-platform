@@ -832,7 +832,7 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 2.2.1', B.w.AIL.version() === '2.2.1');
+t('versiya 2.3.0', B.w.AIL.version() === '2.3.0');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ============ 17. LANDING SAHIFASI: HERO, BO'LIMLAR, KIRISH/ARIZA ============
@@ -1463,6 +1463,59 @@ group('24. Ariza oqimi: landing arizasi → admin tasdiqlash → talaba');
   t('JS xatosi yo‘q (ariza oqimi)', Q.errors.length === 0);
 }
 
+/* ============= 25. DIZAYN SAYQALI (v2.3.0) =============================== */
+group('25. Dizayn sayqali: parol ko‘zi, ikonkalar, bosma, skrol-spy');
+{
+  const hit = (Q2, sel) => { const el = Q2.d.querySelector(sel); if (!el) throw new Error('yoq: ' + sel); el.dispatchEvent(new Q2.w.MouseEvent('click', { bubbles: true })); return el; };
+  /* --- parol ko'zi --- */
+  const P = bootS('s1');
+  P.w.AIL.logout();
+  t('kirish formasida parol ko‘zi bor', !!P.d.querySelector('[data-form="login-student"] .pwrap .eye'));
+  t('parol ko‘zi parolni ko‘rsatadi va qaytaradi', (() => {
+    const inp = P.d.querySelector('[data-form="login-student"] input[name="pass"]');
+    const eye = P.d.querySelector('[data-form="login-student"] .eye');
+    eye.dispatchEvent(new P.w.MouseEvent('click', { bubbles: true }));
+    const shown = inp.type === 'text' && eye.classList.contains('on') && !!eye.querySelector('svg');
+    eye.dispatchEvent(new P.w.MouseEvent('click', { bubbles: true }));
+    return shown && inp.type === 'password' && !eye.classList.contains('on');
+  })());
+  t('admin formasi ham parol ko‘ziga ega', (() => {
+    hit(P, '[data-act="pick-role"][data-r="admin"]');
+    return !!P.d.querySelector('[data-form="login-admin"] .eye');
+  })());
+  t('parol ko‘zi tugmasi formani yubormaydi (type=button)', (P.d.querySelector('[data-form="login-admin"] .eye') || {}).type === 'button');
+  /* --- salomlashuv: emoji emas, SVG ikona --- */
+  const S1 = bootS('s1');
+  t('salomlashuvda SVG qo‘l ikonasi', !!S1.d.querySelector('.wave svg'));
+  t('interfeys matnida emoji yo‘q (o‘rniga SVG ikonalar)', (() => {
+    const emoji = /[\u{1F300}-\u{1FAFF}\u{2B50}\u{2705}\u{2728}\u{FE0F}]/u;
+    return !emoji.test(S1.txt());
+  })());
+  t('yangi ikonalar shablonga qo‘shilgan (hand, eye-off)', /id="i-hand"/.test(HTML) && /id="i-eye-off"/.test(HTML));
+  /* --- bosma (print) tayyorligi --- */
+  const A1 = bootS('a1');
+  A1.w.AIL.go('students');
+  hit(A1, '[data-act="student-open"]');
+  hit(A1, '[data-act="login-card"]');
+  t('kirish kartochkasi ochildi', A1.hasModal('Kirish kartochkasi'));
+  t('bosmada chiqmaydigan bloklar (no-print) belgilangan', A1.d.querySelectorAll('.mbox .no-print').length >= 2);
+  t('bosmada ko‘rinadigan manzil izohi (print-only)', !!A1.d.querySelector('.mbox .print-only') && /ai-leaders-platform\.pages\.dev/.test(A1.d.querySelector('.mbox').textContent));
+  /* --- skrol-spy --- */
+  const L = bootS('a1'); L.w.AIL.logout();
+  t('landing navida 4 bo‘lim havolasi (skrol-spy)', L.d.querySelectorAll('#lnav [data-sec]').length === 4);
+  t('skrol-spy bir vaqtda ko‘pi bilan bitta bo‘limni belgilaydi', (() => {
+    try { L.w.scrollTo(0, 2600); } catch (e) { }
+    L.w.dispatchEvent(new L.w.Event('scroll'));
+    return L.d.querySelectorAll('#lnav [data-sec].on').length <= 1;
+  })());
+  t('kirish bo‘limida «Yordam olish» havolasi', L.has('Yordam olish') && !!L.d.querySelector('[data-act="auth-help"]'));
+  t('ariza formasi ham parol ko‘ziga ega (parol o‘rnatish)', (() => {
+    hit(L, '[data-act="pick-role"][data-r="apply"]');
+    return !!L.d.querySelector('[data-form="lead"]');
+  })());
+  t('JS xatosi yo‘q (dizayn sayqali)', L.errors.length === 0 && P.errors.length === 0 && A1.errors.length === 0 && S1.errors.length === 0);
+}
+
 /* ============= 21. STATIK QO'RIQCHI: MANBA KODDA NAMUNA MA'LUMOT YO'Q ======= */
 group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
 {
@@ -1481,11 +1534,11 @@ group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
   t('src fixtura faylini chaqirmaydi', !/fixtures/.test(srcAll) && !/require\(/.test(srcAll));
   t('tozalash funksiyasi mavjud (purgeDemoState)', /function purgeDemoState\(/.test(srcAll) && /needsSetup/.test(srcAll) && /function createFounderAccount\(/.test(srcAll));
   t('qurilgan index.html ham namuna ismlaridan xoli', stNames.every(x => !HTML.includes(x)) && adNames.every(x => !HTML.includes(x)));
-  t('versiya izchil (src = sw.js = package.json = 2.2.1)', (() => {
+  t('versiya izchil (src = sw.js = package.json = 2.3.0)', (() => {
     const ver = /const APP_VERSION = '([^']+)'/.exec(srcAll)[1];
     const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-    return ver === '2.2.1' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
+    return ver === '2.3.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
   })());
 }
 

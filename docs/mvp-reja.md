@@ -111,6 +111,10 @@ o'tish **15 daqiqalik ish** (sxema va login tizimi shunga tayyor quriladi).
 
 Platformada namuna ma'lumot **yo'q** (v2.0.0 da butunlay olib tashlandi). Haqiqiy ro'yxat endi **platformaning o'zida** yuklanadi (v2.1.0):
 
+**Dizayn (v2.3.0):** interfeys qayta-qayta ko'zdan kechirildi va yagona dizayn tiliga keltirildi — emoji o'rniga
+68 ta o'z SVG ikonkasi, parol ko'zi, bosmaga tayyor kirish kartochkasi (A4), skrol-spy navigatsiya, mikro-animatsiya,
+yopishqoq jadval sarlavhasi, laptop zichligi (1568×768) va mobil sayqal.
+
 **Kirish modeli (v2.2.1):** talaba **faqat nick** bilan kiradi. HEMIS ID ni talaba klubga (adminga) topshiradi;
 admin uni ro'yxatga olishda kiritadi va tizim **bitta unikal nick** beradi (bitta HEMIS ID = bitta nick = bitta akkaunt).
 

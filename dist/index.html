@@ -241,7 +241,22 @@ a{color:inherit;text-decoration:none}
 .nav-item.on::before{content:"";position:absolute;left:-14px;top:14px;bottom:14px;width:3px;border-radius:0 4px 4px 0;background:var(--grad)}
 .nav-item .i{color:inherit;opacity:.9}
 .nav-item .cnt{margin-left:auto;font-size:11px;font-weight:850;background:var(--danger);color:#fff;border-radius:99px;padding:2px 7px}
-.side-foot{margin-top:auto;padding-top:12px;display:flex;flex-direction:column;gap:10px}
+.side-nav{display:flex;flex-direction:column;gap:6px;min-height:0;overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;flex:1 1 auto;padding-bottom:4px}
+.side-nav::-webkit-scrollbar{width:7px}
+.side-nav::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:20px}
+.side-foot{margin-top:auto;padding-top:12px;display:flex;flex-direction:column;gap:10px;flex:0 0 auto}
+/* Past balandlikdagi noutbuklar (1366/1568×768): hamma menyu sig'adi */
+@media (min-width:981px) and (max-height:860px){
+  .sidebar{padding:12px 12px 10px}
+  .brand{padding:4px 8px 10px}
+  .brand .mark{width:36px;height:36px}
+  .nav-lbl{padding:11px 12px 5px}
+  .nav-item{padding:9px 11px;font-size:13.5px;border-radius:11px}
+  .side-foot{padding-top:8px;gap:7px}
+  .userbox{padding:8px}
+  .sidebar .btn{font-size:13px;padding:9px 13px}
+}
 .userbox{display:flex;align-items:center;gap:10px;padding:10px;border-radius:16px;background:var(--panel-2);border:1px solid var(--line)}
 .userbox small{display:block;color:var(--muted);font-size:11px;font-weight:600}
 
@@ -932,10 +947,157 @@ a[target="_blank"]{word-break:break-word}
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .table-scroll .trows{min-width:760px}
 
+/* ==========================================================================
+   v2.3.0 — DIZAYN SAYQALI (professional polish qatlami)
+   1) tipografik nafas  2) mikro-animatsiya  3) holatlar (hover/focus/disabled)
+   4) jadval va panel    5) mobil sayqal     6) bosma (print) tayyorligi
+   ========================================================================== */
+
+/* --- 1. Tipografiya --- */
+.h1,.h2,.h3,.lhero h1,.lh2,.lauth-hero h2,.big,.ldone h3{text-wrap:balance}
+p,.llede,.lsub,.fq-a-in{text-wrap:pretty}
+.kpi .v,.lchip b,.lgame-c b,.strip7 .d b,.big,.trow .mono{font-variant-numeric:tabular-nums}
+.lchip b,.lchip span,.lchip>div{white-space:nowrap}
+.lchip{min-width:0}
+.lchip>div{overflow:hidden;text-overflow:ellipsis}
+.h1,.lh2{font-feature-settings:"ss01","cv11"}
+
+/* Salomlashuvdagi qo'l ikonasi (emoji emas — SVG) */
+.wave{display:inline-flex;align-items:center;vertical-align:-3px;color:var(--warn);
+  transform-origin:72% 74%;animation:waveHi 2.6s ease-in-out infinite}
+.wave .i{stroke-width:1.8}
+@keyframes waveHi{0%,68%,100%{transform:rotate(0)}74%{transform:rotate(15deg)}80%{transform:rotate(-8deg)}86%{transform:rotate(12deg)}92%{transform:rotate(-4deg)}}
+.print-only{display:none}
+
+/* --- 2. Ankerlar yopishqoq nav ostida qolmasin --- */
+#lhero,#limkon,#ljarayon,#ldastur,#lsavol,#lkirish{scroll-margin-top:80px}
+
+/* --- 3. Yagona harakat tili --- */
+.card,.kpi,.lfeat-c,.lstep,.lmodc,.lgame-c,.lfcard,.lchip,.lpitch-r{
+  transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .35s,background .3s}
+@media (hover:hover){
+  .kpi:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:var(--sh-lift)}
+  .lfeat-c:hover,.lstep:hover,.lmodc:hover,.lgame-c:hover{transform:translateY(-4px);border-color:var(--line-2)}
+  .lchip:hover{border-color:var(--line-2);transform:translateY(-2px)}
+  .lfcard:hover{transform:translateY(-3px) scale(1.015)}
+  .mod:hover,.gal:hover,.lrow:hover{border-color:var(--line-2)}
+}
+.kpi{position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--grad);opacity:0;transition:opacity .35s}
+.kpi.a::before{background:var(--grad-2)}
+@media (hover:hover){.kpi:hover::before{opacity:.9}}
+.kpi .d{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* --- 4. Tugmalar: holatlar va «sheen» --- */
+.btn[disabled],.btn.off{opacity:.5;pointer-events:none;filter:saturate(.55)}
+.btn-primary{position:relative;overflow:hidden;box-shadow:0 10px 24px -14px rgba(124,92,255,.9)}
+.btn-primary::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.32) 50%,transparent 58%);transform:translateX(-135%);transition:transform .65s ease}
+@media (hover:hover){.btn-primary:hover::after{transform:translateX(135%)}}
+.btn-soft{box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.btn .i{transition:transform .25s cubic-bezier(.16,1,.3,1)}
+@media (hover:hover){.btn:hover .i{transform:translateY(-1px)}}
+[data-theme="light"] .btn-primary{color:#fff;box-shadow:0 10px 22px -14px rgba(60,40,180,.8)}
+
+/* --- 5. Maydonlar va parol ko'zi --- */
+.inp:hover:not(:focus){border-color:var(--line-2)}
+.inp::placeholder{color:color-mix(in srgb,var(--muted) 76%,transparent)}
+.inp.err,.inp[aria-invalid="true"]{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,92,122,.16)}
+.pwrap{position:relative}
+.pwrap .inp{padding-right:44px}
+.eye{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.2s}
+.eye:hover{color:var(--txt);background:var(--panel-3)}
+.eye.on{color:var(--brand-2)}
+.auth-tab{white-space:nowrap}
+@media(max-width:460px){
+  .auth-tabs .auth-tab{font-size:12px;padding:9px 8px;gap:5px}
+  .auth-tabs .auth-tab .tt2{display:none}
+}
+.auth-help{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--txt2);
+  background:none;border:0;padding:2px;cursor:pointer;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--brand-2) 55%,transparent);
+  text-underline-offset:3px;transition:.2s}
+.auth-help:hover{color:var(--brand-2)}
+
+/* --- 6. Jadval (trows) --- */
+.table-scroll .trow.head{position:sticky;top:0;z-index:3;background:color-mix(in srgb,var(--bg) 90%,transparent);
+  backdrop-filter:blur(10px);border-radius:0;padding-top:6px;padding-bottom:6px}
+.trow{transition:border-color .25s,background .25s,transform .25s}
+.trow:not(.head):nth-child(even){background:color-mix(in srgb,var(--panel-2) 84%,var(--panel))}
+@media (hover:hover){
+  .trow:not(.head):hover{background:var(--panel-3);border-color:var(--line-2);transform:translateX(2px)}
+}
+
+/* --- 7. Yon panel --- */
+.nav-item{transition:background .22s,color .22s,transform .22s}
+@media (hover:hover){.nav-item:not(.on):hover{transform:translateX(3px)}}
+.nav-item.on{box-shadow:0 10px 26px -20px rgba(124,92,255,.95)}
+.nav-item.on::before{transition:top .3s,bottom .3s,opacity .3s}
+
+/* --- 8. Mobil sayqal --- */
+@media(max-width:980px){
+  .bottomnav{overflow-x:auto;scrollbar-width:none}
+  .bottomnav::-webkit-scrollbar{display:none}
+  .bn{min-width:62px;transition:color .22s,background .22s}
+  .bn .i{transition:transform .25s cubic-bezier(.16,1,.3,1)}
+  .bn.on .i{transform:translateY(-1px) scale(1.07)}
+  .bn:active{transform:scale(.96)}
+  .topbar .searchbar input{font-size:13.5px}
+  .page-head{align-items:flex-start}
+  .page-head .h1{font-size:20px}
+}
+@media(max-width:400px){ .bn{font-size:9.5px;min-width:56px} }
+
+/* --- 9. Bildirishnoma (toast) --- */
+.toast{box-shadow:var(--sh-lift);animation:toastIn .4s cubic-bezier(.16,1,.3,1)}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+
+/* --- 10. Modal --- */
+.mbox{animation:pop .26s cubic-bezier(.2,1.12,.35,1)}
+.mhead{gap:12px}
+
+/* --- 11. Landing: nav, FAQ, footer --- */
+.lnav-links a.on{color:var(--txt);background:var(--panel-2)}
+.lnav-links a{position:relative}
+.fq{transition:border-color .25s,background .25s,transform .25s}
+@media (hover:hover){.fq:not(.open):hover{border-color:var(--line-2);transform:translateX(2px)}}
+.fq-q:hover{color:var(--txt)}
+.fq.open .fq-q{color:var(--txt)}
+.lfoot-links a{position:relative}
+.lfoot-links a::after{content:"";position:absolute;left:0;bottom:-3px;height:1px;width:0;background:var(--accent);transition:width .3s}
+.lfoot-links a:hover::after{width:100%}
+.ldone .i{animation:donePop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes donePop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+
 /* ---------- print ---------- */
 @media print{
   body{background:#fff}
-  .sidebar,.topbar,.bottomnav,.fab,.toasts,.mback .mhead .btn-icon{display:none!important}
+  .sidebar,.topbar,.bottomnav,.fab,.toasts,.lnav,.lfoot,.bottomnav,.mback .mhead .btn-icon,.no-print{display:none!important}
+  /* chop etiladigan kartochka toza va aniq chiqadi */
+  .mback{background:#fff!important;backdrop-filter:none!important;animation:none!important}
+  .mbox{box-shadow:none!important;border:0!important;animation:none!important;max-height:none!important}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .print-only{display:block!important}
+  /* Kirish kartochkasi chop etilganda faqat karta chiqadi (orqa fon toza) */
+  /* Butun ilova o'rniga faqat kartochka chiqadi (body overflow:visible bo'lmasa kontent kesiladi) */
+  body:has(#loginCard){overflow:visible!important;height:auto!important}
+  body:has(#loginCard) #app{display:none!important}
+  body:has(#loginCard) .sidebar,body:has(#loginCard) .topbar,body:has(#loginCard) .content,
+  body:has(#loginCard) .fab,body:has(#loginCard) .toasts,body:has(#loginCard) .bottomnav,body:has(#loginCard) .globalstrip{display:none!important}
+  body:has(#loginCard) #modal-root{margin:0}
+  body:has(#loginCard) .mbox{max-height:none!important;overflow:visible!important}
+  body:has(#loginCard) .mback{position:static!important;display:block!important;background:#fff!important;padding:0!important;backdrop-filter:none!important}
+  body:has(#loginCard) .mbox{margin:0 auto;max-width:520px;padding:0}
+  /* Bosma oq-qora bo'lsa ham o'qiladi: modal yorug' palitraga o'tadi */
+  .mbox{background:#fff!important;color:#0A1024!important;border:0!important}
+  .mbox .h1,.mbox .h2,.mbox .h3,.mbox b,.mbox strong{color:#0A1024!important}
+  .mbox .muted,.mbox .xs.muted,.mbox .small.muted,.mbox .up.muted{color:#41506F!important}
+  .mbox .card{background:#F7F9FF!important;border-color:#C9D3EA!important;box-shadow:none!important}
+  #loginCard{border:1.5px solid #0A1024!important;break-inside:avoid}
+  .mbox .tag{background:#F2F5FD!important;color:#12224A!important;border-color:#C9D3EA!important}
+  .mbox .tag.a{background:#F2FFD9!important;color:#3A5200!important;border-color:#CBE98A!important}
+  .mbox .divider,.mbox .hr{background:#D2DAEE!important}
+  .mbox .avatar .tx{color:#fff!important}
   .mback{position:static;background:#fff;padding:0;display:block}
   .mbox{max-width:none;box-shadow:none;border:0;padding:0}
   .cert{color:#0A1024;background:#fff;border-color:#0A1024}
@@ -1027,6 +1189,8 @@ a[target="_blank"]{word-break:break-word}
   <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M3.6 12h16.8M12 3.4c2 2.4 3 5.4 3 8.6s-1 6.2-3 8.6c-2-2.4-3-5.4-3-8.6s1-6.2 3-8.6z"/></symbol>
   <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.4v2.2M12 18.4v2.2M4.6 7.8l1.8 1.1M17.6 15.1l1.8 1.1M4.6 16.2l1.8-1.1M17.6 8.9l1.8-1.1"/></symbol>
   <symbol id="i-users-plus" viewBox="0 0 24 24"><circle cx="9.6" cy="8.4" r="3.4"/><path d="M3.6 20.2c0-3.2 2.7-5.4 6-5.4s6 2.2 6 5.4"/><path d="M18 7.4v5M15.5 9.9h5"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8.4 11.4V5.9a1.5 1.5 0 0 1 3 0v5"/><path d="M11.4 10.9V4.9a1.5 1.5 0 0 1 3 0v6"/><path d="M14.4 11.2V7.2a1.5 1.5 0 0 1 3 0v6.2a7 7 0 0 1-7 7h-.6a6 6 0 0 1-6-6v-2.7a1.5 1.5 0 0 1 3 0"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3.6 3.6l16.8 16.8"/><path d="M10.2 6.5A8.9 8.9 0 0 1 12 6.4c5 0 8.4 5.6 8.4 5.6a15.7 15.7 0 0 1-2.5 3.2M6.4 8.1A15.6 15.6 0 0 0 3.6 12s3.4 5.6 8.4 5.6a8.6 8.6 0 0 0 3.2-.6"/><path d="M9.9 10.3a2.6 2.6 0 0 0 3.5 3.6"/></symbol>
   <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3.2" y="7.4" width="17.6" height="12.2" rx="2.6"/><path d="M9 7.4V5.8a1.6 1.6 0 0 1 1.6-1.6h2.8A1.6 1.6 0 0 1 15 5.8v1.6M3.4 12.4h17.2"/></symbol>
 </svg>
 
@@ -1044,7 +1208,7 @@ a[target="_blank"]{word-break:break-word}
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.2.1';
+const APP_VERSION = '2.3.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -1470,7 +1634,7 @@ function brandBlock(big, withCollapse) {
 function sidebar() {
   const nav = NAV_SEC[isAdmin() ? 'admin' : 'student'];
   const st = me();
-  let h = '<aside class="sidebar">' + brandBlock(false, true);
+  let h = '<aside class="sidebar">' + brandBlock(false, true) + '<div class="side-nav">';
   nav.forEach(sec => {
     h += '<div class="nav-lbl">' + sec[0] + '</div>';
     sec[1].forEach(r => {
@@ -1485,7 +1649,7 @@ function sidebar() {
         ico(d.i) + '<span class="nlbl">' + esc(d.l) + '</span>' + (allowed ? badge : '<span class="lk">' + ico('lock', 'sm') + '</span>') + '</a>';
     });
   });
-  h += '<div class="side-foot">';
+  h += '</div><div class="side-foot">';
   const acc = meAcc();
   const meName = acc ? acc.name : (isAdmin() ? 'Admin' : st.name);
   const meSub = acc
@@ -1505,7 +1669,7 @@ function topbar() {
   const un = st ? unreadOf(st) : reviewQueue().length;
   return '<header class="topbar">' +
     '<div class="mobile-brand">' + ico('spark', 'sm') + 'AI LEADERS</div>' +
-    '<label class="searchbar grow"><span style="display:flex">' + ico('search', 'sm') + '</span><input id="gsearch" placeholder="Dars, vazifa yoki odam qidirish…" autocomplete="off">' +
+    '<label class="searchbar grow"><span style="display:flex">' + ico('search', 'sm') + '</span><input id="gsearch" placeholder="' + (window.innerWidth <= 760 ? 'Qidirish…' : 'Dars, vazifa yoki odam qidirish…') + '" autocomplete="off">' +
     '<button type="button" class="kbd" data-act="palette" title="Buyruq paneli (Ctrl+K)">Ctrl K</button></label>' +
     '<span class="hide-sm ' + (isAdmin() ? 'tag p' : 'tag c') + '">' + ico(isAdmin() ? 'shield' : 'user', 'sm') + (isAdmin() ? 'Admin' : 'Student') + '</span>' +
     (!isAdmin() && st ? '<span class="hide-sm streak">' + ico('flame', 'sm') + st.streak + '</span>' : '') +
@@ -2023,9 +2187,9 @@ function passChangeModal() {
   const a = meAcc();
   openModal(mhead('Parolni almashtirish', a ? '@' + a.nick : 'Sessiya yo‘q') +
     '<form data-form="pass-change" class="col" style="gap:13px">' +
-    (a && a.pass ? '<div class="field"><label>Hozirgi parol</label><input class="inp" type="password" name="old" required autocomplete="current-password"></div>' : '') +
-    '<div class="field"><label>Yangi parol</label><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"></div>' +
-    '<div class="field"><label>Yangi parolni takrorlang</label><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password"></div>' +
+    (a && a.pass ? '<div class="field"><label>Hozirgi parol</label><div class="pwrap"><input class="inp" type="password" name="old" required autocomplete="current-password"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' : '') +
+    '<div class="field"><label>Yangi parol</label><div class="pwrap"><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
+    '<div class="field"><label>Yangi parolni takrorlang</label><div class="pwrap"><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
     '<button class="btn btn-primary btn-block" type="submit">' + ico('check', 'sm') + 'Saqlash</button>' +
     '<div class="inp-hint">Parolni hech kimga aytmang — klub adminlari ham uni ko‘ra olmaydi.</div>' +
     '</form>', 'narrow');
@@ -2227,7 +2391,7 @@ function vHome() {
     '<div class="row wrap" style="gap:8px"><span class="tag p">' + ico(m.i, 'sm') + esc(m.n) + '</span>' +
     (g ? '<span class="tag c">' + ico('users', 'sm') + esc(g.name) + ' jamoasi</span>' : '') + streakPill(st) +
     '<span class="tag a">' + ico('coin', 'sm') + nf(st.coins) + ' coin</span></div>' +
-    '<div><h1 class="h1">' + wallClock() + ', ' + esc(st.name.split(' ')[0]) + '! 👋</h1>' +
+    '<div><h1 class="h1">' + wallClock() + ', ' + esc(st.name.split(' ')[0]) + '! <span class="wave">' + ico('hand', 'sm') + '</span></h1>' +
     '<p class="t2" style="margin:8px 0 0;max-width:52ch">' + (nl ? 'Bugun “' + esc(nl.t) + '” darsidan boshlaymiz — ' + nl.dur + ' daqiqa yetadi. ' : 'Barcha darslar tugatilgan, endi loyihaga e’tibor bering. ') +
     'Haftalik reytingda <b>' + wxpRank(st.id) + '-o‘rinda</b>siz.</p></div>' +
     '<div class="row wrap" style="gap:10px">' +
@@ -2551,7 +2715,7 @@ function vTeam() {
         '<div class="xs muted">' + roles[i % roles.length] + ' • ' + nf(s.xp) + ' XP • ' + (onl(s) ? 'onlayn' : s.last + ' kun oldin') + '</div></div></div>' +
         '<button class="btn btn-xs btn-soft" data-act="msg" data-id="' + s.id + '">' + ico('chat', 'sm') + '</button></div>'; }).join('') + '</div>' +
     (m ? '<div class="divider"></div><div class="row" style="gap:11px">' + avatar({ name: m.name, act: true, last: 0 }, 'sm') +
-      '<div class="grow"><div class="small" style="font-weight:750">' + esc(m.name) + '</div><div class="xs muted">' + esc(m.role) + ' • ⭐ ' + m.rating + ' • ' + esc(m.tg) + '</div></div>' +
+      '<div class="grow"><div class="small" style="font-weight:750">' + esc(m.name) + '</div><div class="xs muted">' + esc(m.role) + ' • ' + ico('star', 'sm') + ' ' + m.rating + ' • ' + esc(m.tg) + '</div></div>' +
       '<button class="btn btn-xs btn-primary" data-act="msg" data-id="' + m.id + '">' + ico('help', 'sm') + 'Savol</button></div>' : '') + '</div>' +
 
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('chat') + 'Jamoa devori</h2><span class="tag c">' + walls.length + ' yozuv</span></div>' +
@@ -2654,7 +2818,7 @@ function vDeadlines() {
     '<div class="col" style="gap:14px"><div class="card"><div class="card-h"><h2 class="h2">' + ico('alert') + 'E’tibor bering</h2></div>' +
     '<div class="col" style="gap:9px">' + (all.filter(d => (d.s && d.s.status === 'revise') || (!d.s && d.tl.late)).slice(0, 4)
       .map(d => '<div class="row small" style="gap:9px">' + ico('alert', 'sm') + '<span class="grow">' + esc(d.t.title) + '</span><span class="xs muted">' + (d.s ? 'qayta ishlash' : 'topshirilmagan') + '</span></div>').join('')
-      || '<div class="empty">Hammasi joyida ✅ Kechikkan topshiriq yo‘q.</div>') + '</div></div>' +
+      || '<div class="empty">' + ico('check-c', 'sm') + ' Hammasi joyida — kechikkan topshiriq yo‘q.</div>') + '</div></div>' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('users') + 'Jamoa deadline’lari</h2></div>' +
     (myGroup(st) ? '<div class="col" style="gap:9px">' + S.tasks.slice(2, 5).map(t => { const gd = myGroup(st).dl[t.id] || t.dl; return '<div class="row between small"><span class="t2 ellip">' + esc(t.title) + '</span><b class="nowrap">' + fmtD(gd) + '</b></div>'; }).join('') +
       '<div class="divider"></div><div class="xs muted">Jamoa uchun alohida sanalar mentor tomonidan belgilanadi.</div></div>' : '<div class="empty">Jamoa yo‘q</div>') + '</div>' +
@@ -2703,7 +2867,7 @@ function vFriends() {
       '<div class="grid g3">' + S.mentors.map(m => '<div class="card tight soft"><div class="row" style="gap:9px">' + avatar({ name: m.name, act: true, last: 0 }, 'sm') +
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(m.name) + '</div><div class="xs muted">' + esc(m.role) + '</div></div></div>' +
         '<div class="xs muted" style="margin:9px 0">' + esc(m.bio) + '</div>' +
-        '<div class="row between"><span class="tag c">⭐ ' + m.rating + '</span><button class="btn btn-xs btn-soft" data-act="msg" data-id="' + m.id + '">Savol berish</button></div></div>').join('') + '</div></div>';
+        '<div class="row between"><span class="tag c">' + ico('star', 'sm') + ' ' + m.rating + '</span><button class="btn btn-xs btn-soft" data-act="msg" data-id="' + m.id + '">Savol berish</button></div></div>').join('') + '</div></div>';
   }
 
   if (tab === 'requests') {
@@ -2725,7 +2889,7 @@ function vFriends() {
         '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s.name) + '</div>' +
         '<div class="xs muted">' + (myGroup(s) ? myGroup(s).name : 'jamoa yo‘q') + ' • ' + nf(s.xp) + ' XP</div></div></div>' +
         '<div class="row between" style="margin-top:10px"><span class="tag">' + esc(medal(s).n) + '</span>' +
-        '<button class="btn btn-xs btn-primary" data-act="fadd" data-id="' + s.id + '">' + ico('plus', 'sm') + 'Qo‘shish</button></div></div>').join('') : '<div class="empty">Barcha a’zolar allaqachon do‘stlar ro‘yxatida 🎉</div>') + '</div></div>';
+        '<button class="btn btn-xs btn-primary" data-act="fadd" data-id="' + s.id + '">' + ico('plus', 'sm') + 'Qo‘shish</button></div></div>').join('') : '<div class="empty">' + ico('users', 'sm') + ' Barcha a’zolar allaqachon do‘stlar ro‘yxatida</div>') + '</div></div>';
   }
 
   if (tab === 'leaders') {
@@ -3014,7 +3178,7 @@ function vAdmin() {
   if (actionAllowed('tasks')) quick.push('<button class="btn btn-primary btn-sm" data-act="new-task">' + ico('plus', 'sm') + 'Vazifa berish</button>');
   if (actionAllowed('content')) quick.push('<button class="btn btn-soft btn-sm" data-act="new-lesson">' + ico('video', 'sm') + 'Dars qo‘shish</button>');
   if (actionAllowed('students')) quick.push('<button class="btn btn-soft btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>');
-  let h = '<div class="page-head"><div><h1 class="h1">' + wallClock() + ', ' + esc(String(admin0.name || 'Admin').split(' ')[0]) + ' 👋</h1>' +
+  let h = '<div class="page-head"><div><h1 class="h1">' + wallClock() + ', ' + esc(String(admin0.name || 'Admin').split(' ')[0]) + ' <span class="wave">' + ico('hand', 'sm') + '</span></h1>' +
     '<p class="t2 small" style="margin:6px 0 0">' + fmtFull(todayISO()) + ' • ' + k.total + ' talaba, ' + k.groups + ' jamoa, ' + rq.length + ' ta vazifa tekshiruv kutilmoqda.</p>' +
     '<div class="row wrap" style="gap:7px;margin-top:10px"><span class="tag p">' + ico('shield', 'sm') + esc(myRole.l) + '</span>' +
     (myPerms.length ? '<span class="xs muted">Huquqlar: ' + esc(myPerms.join(', ')) + '</span>' : '') + '</div></div>' +
@@ -3083,7 +3247,7 @@ function vAdmin() {
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s.name) + '</div>' +
         '<div class="xs muted ellip">' + esc(t.title) + ' • ' + fmtD(p.at) + '</div></div></div>' +
         '<button class="btn btn-xs btn-primary" data-act="review-open" data-sub="' + p.id + '">' + ico('eye', 'sm') + 'Tekshirish</button></div>'; }).join('') + '</div>'
-      : '<div class="empty">Navbat bo‘sh — barcha ishlar tekshirilgan ✅</div>') + '</div>' +
+      : '<div class="empty">' + ico('check-c', 'sm') + ' Navbat bo‘sh — barcha ishlar tekshirilgan</div>') + '</div>' +
 
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('alert') + 'Kechikkanlar</h2>' +
     '<span class="tag r">' + late.length + ' ta</span></div>' +
@@ -3091,7 +3255,7 @@ function vAdmin() {
       '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(x.st.name) + '</div>' +
       '<div class="xs muted ellip">' + esc(x.t.title) + ' • ' + timeLeft(x.due).txt + '</div></div></div>' +
       '<button class="btn btn-xs btn-soft" data-act="nudge" data-id="' + x.st.id + '">' + ico('bell', 'sm') + 'Eslatma</button></div>').join('') + '</div>'
-      : '<div class="empty">Kechikkan yo‘q 🎉</div>') + '</div></div>';
+      : '<div class="empty">' + ico('trophy', 'sm') + ' Kechikkan yo‘q</div>') + '</div></div>';
 
   h += '<div class="grid g2">' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('spark') + 'So‘nggi harakatlar</h2></div>' +
@@ -3366,7 +3530,7 @@ function vAdminDeadlines() {
     (late.length ? '<div class="col" style="gap:9px;max-height:340px;overflow:auto">' + late.map(x => '<div class="lrow hot"><div class="row grow" style="gap:10px;min-width:0">' + avatar(x.st, 'xs') +
       '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(x.st.name) + '</div><div class="xs muted ellip">' + esc(x.t.title) + ' • ' + fmtD(x.due) + '</div></div></div>' +
       '<button class="btn btn-xs btn-soft" data-act="nudge" data-id="' + x.st.id + '">' + ico('bell', 'sm') + '</button></div>').join('') + '</div>'
-      : '<div class="empty">Kechikkan yo‘q 🎉</div>') + '</div>' +
+      : '<div class="empty">' + ico('trophy', 'sm') + ' Kechikkan yo‘q</div>') + '</div>' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('users') + 'Jamoalar kesimida</h2></div>' +
     '<div class="col" style="gap:10px">' + S.groups.map(g => { const k2 = g.members.filter(id => lateStudents().some(x => x.st.id === id && (x.st.group === g.id))).length;
       return '<div class="row between small"><span class="row" style="gap:9px">' + crest(g, 26) + esc(g.name) + '</span>' +
@@ -3649,14 +3813,15 @@ function loginCardModal(accId) {
       : 'Parol: talaba <b>birinchi kirishda</b> o‘zi o‘rnatadi. Tizimga <b>faqat nick</b> bilan kiradi — HEMIS ID kirishda ishlatilmaydi.') +
     '</div>' +
     '</div>' +
-    '<div class="row" style="gap:10px;margin-top:12px">' +
+    '<div class="row no-print" style="gap:10px;margin-top:12px">' +
     '<button class="btn btn-primary grow" data-act="print-card">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
     '<button class="btn btn-soft" data-act="toast-copy" data-code="Kirish: nick ' + esc(a.nick) + (a.role === 'student' && a.hemisId ? ' | HEMIS ID (arxiv): ' + esc(a.hemisId) : '') + '">' + ico('copy', 'sm') + 'Nusxalash</button>' +
     '</div>' +
-    '<div class="row" style="gap:10px;margin-top:9px">' +
+    '<div class="row no-print" style="gap:10px;margin-top:9px">' +
     '<button class="btn btn-ghost btn-sm grow" data-act="pass-reset" data-id="' + esc(a.id) + '">' + ico('refresh', 'sm') + 'Parolni tiklash (noldan o‘rnatish)</button>' +
     '</div>' +
-    '<div class="xs muted" style="margin-top:8px">Talaba parolni eslay olmasa: parolni tiklang — u keyingi kirishda o‘zi yangi parol o‘rnatadi. Eski parol hech kimga ko‘rinmaydi.</div>', 'narrow');
+    '<div class="xs muted" style="margin-top:8px">Talaba parolni eslay olmasa: parolni tiklang — u keyingi kirishda o‘zi yangi parol o‘rnatadi. Eski parol hech kimga ko‘rinmaydi.</div>' +
+    '<div class="xs muted print-only" style="margin-top:10px">Kirish: <b>ai-leaders-platform.pages.dev</b> — talaba <b>faqat nick</b> bilan kiradi.</div>', 'narrow');
 }
 
 /* ===== app-4-app.js ===== */
@@ -3680,8 +3845,8 @@ function vAuth() {
       '<p class="small muted" style="margin:8px 0 16px">Salom, <b>' + esc(acc.name) + '</b>! Sizning nickingiz: <span class="kbd">' + esc(acc.nick) + '</span>' +
       (acc.hemisId ? ' • HEMIS ID tasdiqlandi' : '') + '. Endi o‘zingizga parol o‘ylab toping — uni faqat siz bilib turasiz.</p>' +
       '<form data-form="first-pass" data-acc="' + esc(acc.id) + '" class="col" style="gap:13px">' +
-      '<div class="field"><label>Yangi parol</label><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"></div>' +
-      '<div class="field"><label>Parolni takrorlang</label><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password" placeholder="Xuddi shu parol"></div>' +
+      '<div class="field"><label>Yangi parol</label><div class="pwrap"><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
+      '<div class="field"><label>Parolni takrorlang</label><div class="pwrap"><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password" placeholder="Xuddi shu parol"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('check', 'sm') + 'Parolni saqlash va kirish</button>' +
       '</form>' +
@@ -3702,8 +3867,8 @@ function vAuth() {
       '<div class="field"><label>Ism va familiya</label><input class="inp" name="name" required placeholder="Masalan: Asilbek Yusupov"></div>' +
       '<div class="field"><label>Email (kirish uchun)</label><input class="inp" name="email" type="email" required placeholder="ism@aileaders.uz"></div>' +
       '<div class="grid g2" style="gap:12px">' +
-      '<div class="field"><label>Parol</label><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"></div>' +
-      '<div class="field"><label>Parolni takrorlang</label><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password" placeholder="Xuddi shu parol"></div></div>' +
+      '<div class="field"><label>Parol</label><div class="pwrap"><input class="inp" type="password" name="p1" minlength="4" required autocomplete="new-password" placeholder="Kamida 4 belgi"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
+      '<div class="field"><label>Parolni takrorlang</label><div class="pwrap"><input class="inp" type="password" name="p2" minlength="4" required autocomplete="new-password" placeholder="Xuddi shu parol"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('check', 'sm') + 'Akkauntni yaratish va kirish</button>' +
       '</form>' +
@@ -3751,7 +3916,7 @@ function landHero() {
     '<div class="lhero-grid-bg" aria-hidden="true"></div>' +
     '<div class="lhero-copy">' +
     '<span class="ltag rise" data-d="0">' + ico('spark', 'sm') + '0 dan startapgacha · Toshkent</span>' +
-    '<h1 class="rise" data-d="1">G‘oyadan ishlaydigan mahsulotgacha — <em>jamoada, kuzatuv ostida</em>.</h1>' +
+    '<h1 class="rise" data-d="1">G‘oyadan ishlaydigan mahsulotgacha — <em>jamoada, kuzatuv&nbsp;ostida</em>.</h1>' +
     '<p class="llede rise" data-d="2">AI Leaders — 0 dan boshlovchilar uchun amaliy klub. Platformada: yo‘l xaritasi, ' +
     'vazifa → deadline → mentor izohi → baho, jamoaviy loyihalar va reyting tizimi. Kirish — admin bergan ' +
     'shaxsiy <b>nick</b> bilan (HEMIS ID faqat ro‘yxatga olishda kerak).</p>' +
@@ -3847,7 +4012,14 @@ function landFaq() {
 function landAuthSection() {
   const role = UI.authRole;
   const err = UI.authErr || '';
-  const tab = (r, l, ic) => '<button class="auth-tab' + (role === r ? ' on' : '') + '" data-act="pick-role" data-r="' + r + '">' + ico(ic, 'sm') + l + '</button>';
+  /* Uzun yorliq telefonda ikki qatorga bo'linmasin: ikkinchi qismi kichik ekranda yashiriladi */
+  const tab = (r, l, ic) => {
+    const sp = l.indexOf(' / ');
+    const inner = sp > -1
+      ? esc(l.slice(0, sp)) + '<span class="tt2">' + esc(l.slice(sp)) + '</span>'
+      : esc(l);
+    return '<button class="auth-tab' + (role === r ? ' on' : '') + '" data-act="pick-role" data-r="' + r + '">' + ico(ic, 'sm') + inner + '</button>';
+  };
   let body = '';
   if (role === 'apply') {
     body = UI.leadDone
@@ -3869,7 +4041,7 @@ function landAuthSection() {
   } else if (role === 'admin') {
     body = '<form data-form="login-admin" class="col" style="gap:12px">' +
       '<div class="field"><label>Email</label><input class="inp" name="login" required autocomplete="username" placeholder="ism@aileaders.uz"></div>' +
-      '<div class="field"><label>Parol</label><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"></div>' +
+      '<div class="field"><label>Parol</label><div class="pwrap"><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Admin panelga kirish</button>' +
       '</form>';
@@ -3878,9 +4050,9 @@ function landAuthSection() {
       '<div class="field"><label>Nick (kirish uchun)</label>' +
       '<input class="inp" name="login" required autocomplete="username" inputmode="text" autofocus placeholder="Masalan: falcon">' +
       '<div class="inp-hint">Nickni klub admini beradi. <b>HEMIS ID kirishda ishlatilmaydi</b> — u faqat ro‘yxatga olishda (adminga) topshiriladi.</div></div>' +
-      '<div class="field"><label>Parol</label><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"></div>' +
-      '<div class="row between" style="gap:10px"><span class="xs muted">Parolni unutdingizmi? Mentorga murojaat qiling.</span>' +
-      '<button type="button" class="btn btn-xs btn-ghost" data-act="auth-help">' + ico('help', 'sm') + 'Yordam</button></div>' +
+      '<div class="field"><label>Parol</label><div class="pwrap"><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
+      '<div class="row between" style="gap:10px"><span class="xs muted">Nickni eslay olmadingizmi?</span>' +
+      '<button type="button" class="auth-help" data-act="auth-help">' + ico('help', 'sm') + 'Yordam olish</button></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Talaba kabinetiga kirish</button>' +
       '</form>';
@@ -3949,6 +4121,18 @@ function landTick() {
   const p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
   if (bar) bar.style.transform = 'scaleX(' + p.toFixed(4) + ')';
   if (nav) nav.classList.toggle('scrolled', window.scrollY > 28);
+  /* Skrol-spy: hozir ko'rinib turgan bo'lim navda belgilanadi */
+  if (!nav) return;
+  const links = nav.querySelectorAll('[data-sec]');
+  if (!links.length) return;
+  /* Faol bo'lim: ko'rinish markazi qaysi bo'limda bo'lsa, o'sha yonadi */
+  const mark = window.scrollY + window.innerHeight * 0.5;
+  let active = '';
+  links.forEach(a => {
+    const el = document.getElementById((a.dataset.sec || '').slice(1));
+    if (el && el.offsetTop <= mark) active = a.dataset.sec;
+  });
+  links.forEach(a => a.classList.toggle('on', a.dataset.sec === active));
 }
 /* Bo'limga yumshoq skrol */
 function landScrollTo(sel) {
@@ -3992,7 +4176,7 @@ function msgModal(id) {
   openModal(mhead('Xabar yozish', p.name + ' • ' + (p.tg || p.role || '')) +
     '<div class="card soft" style="max-height:190px;overflow:auto"><div class="col" style="gap:12px">' +
     '<div class="row" style="gap:9px;justify-content:flex-start"><div class="card tight soft" style="max-width:75%">Salom! Deadline yaqin, qanday ketyapti?</div></div>' +
-    '<div class="row" style="gap:9px;justify-content:flex-end"><div class="card tight" style="max-width:75%;background:rgba(124,92,255,.18);border-color:rgba(124,92,255,.34)">Ishlayapman, kechqurun yuboraman ✅</div></div>' +
+    '<div class="row" style="gap:9px;justify-content:flex-end"><div class="card tight" style="max-width:75%;background:rgba(124,92,255,.18);border-color:rgba(124,92,255,.34)">Ishlayapman, kechqurun yuboraman</div></div>' +
     '</div></div>' +
     '<form data-form="msg" data-to="' + esc(id) + '" style="margin-top:12px">' +
     '<div class="field"><textarea class="inp" name="text" placeholder="Xabar yozing…" required></textarea></div>' +
@@ -4278,6 +4462,19 @@ document.addEventListener('click', e => {
     case 'reset': resetAll(); break;
     case 'notifs': notifModal(); paint(true); break;
     case 'pick-role': UI.authRole = t.dataset.r; UI.authErr = ''; paint(true); break;
+    case 'eye': {
+      /* Parolni ko'rsatish/yashirish — forma qayta chizilmaydi */
+      const w = t.closest('.pwrap'), inp0 = w && w.querySelector('input');
+      if (!inp0) break;
+      const show = inp0.type === 'password';
+      inp0.type = show ? 'text' : 'password';
+      t.classList.toggle('on', show);
+      t.innerHTML = ico(show ? 'eye-off' : 'eye', 'sm');
+      const lbl = show ? 'Parolni yashirish' : 'Parolni ko‘rsatish';
+      t.setAttribute('aria-label', lbl); t.setAttribute('title', lbl);
+      inp0.focus();
+      break;
+    }
     /* --- Landing sahifasi: bo'limlarga skrol va ariza oqimi --- */
     case 'to-auth': UI.authRole = 'student'; UI.authErr = ''; UI.leadDone = null; paint(true); landScrollTo('#lkirish'); break;
     case 'to-apply': UI.authRole = 'apply'; UI.authErr = ''; paint(true); landScrollTo('#lkirish'); break;
@@ -4310,8 +4507,8 @@ document.addEventListener('click', e => {
       if (!s0.done.includes(id)) { s0.done.push(id); addXp(s0, 20, 10, 'q1'); }
       const after = modulePct(s0, l.m);
       if (before < 100 && after.pct === 100) {
-        pushNotif(s0.id, 'Sertifikat ochildi 🎓', 'Modul ' + modOf(l.m).n + ' to‘liq tugatildi. Ma’lumot bo‘limida ko‘ring.', 'cert');
-        toast('ok', 'Modul tugatildi! 🎉', modOf(l.m).n + '-modul 100% — sertifikat Ma’lumot bo‘limiga qo‘shildi.');
+        pushNotif(s0.id, 'Sertifikat ochildi', 'Modul ' + modOf(l.m).n + ' to‘liq tugatildi. Ma’lumot bo‘limida ko‘ring.', 'cert');
+        toast('ok', 'Modul tugatildi!', modOf(l.m).n + '-modul 100% — sertifikat Ma’lumot bo‘limiga qo‘shildi.');
       } else toast('ok', 'Dars tugatildi', '+20 XP hisobingizga qo‘shildi.');
       closeModal(); save(); paint(true); break;
     }
@@ -4381,7 +4578,7 @@ document.addEventListener('click', e => {
     }
     case 'funreq': { const meId = st().id; S.sent[meId] = (S.sent[meId] || []).filter(x => x !== id); S.incoming[id] = (S.incoming[id] || []).filter(x => x !== meId); save(); paint(true); break; }
     case 'unfriend': { const meId = st().id; S.friends[meId] = (S.friends[meId] || []).filter(x => x !== id); S.friends[id] = (S.friends[id] || []).filter(x => x !== meId); toast('info', 'Do‘stlar ro‘yxatidan chiqarildi'); save(); paint(true); break; }
-    case 'challenge': { pushNotif(id, 'XP musobaqasi ⚡', st().name + ' sizni haftalik ball musobaqasiga chorladi!', 'trophy'); toast('ok', 'Chaqiruv yuborildi', 'Do‘stingizga musobaqa taklifi ketdi.'); save(); break; }
+    case 'challenge': { pushNotif(id, 'XP musobaqasi', st().name + ' sizni haftalik ball musobaqasiga chorladi!', 'trophy'); toast('ok', 'Chaqiruv yuborildi', 'Do‘stingizga musobaqa taklifi ketdi.'); save(); break; }
     case 'help-ask': {
       const s = get(S.students, id) || get(S.mentors, id);
       toast('ok', 'Yordam so‘raldi', (s.name || 'Mentor') + 'ga savolingiz yuborildi — 24 soat ichida javob beradi.'); break;
@@ -4390,7 +4587,7 @@ document.addEventListener('click', e => {
     case 'print': window.print(); break;
     case 'toast-copy': { try { navigator.clipboard.writeText(t.dataset.code); } catch (e) { } toast('ok', 'Nusxalandi', t.dataset.code); break; }
     case 'gallery': { const it = S.gallery.find(x => x.id === id); if (it) galleryModal(it); break; }
-    case 'cheer': toast('ok', 'Qo‘llab-quvvatlash yuborildi 💚', 'Jamoa reytingiga +1 olqish qo‘shildi.'); closeModal(); break;
+    case 'cheer': toast('ok', 'Qo‘llab-quvvatlash yuborildi', 'Jamoa reytingiga +1 olqish qo‘shildi.'); closeModal(); break;
     case 'wall-post': {
       const ta = document.getElementById('wall-input'); const g = myGroup(st());
       if (!ta || !ta.value.trim()) { toast('warn', 'Bo‘sh yozuv', 'Biror narsa yozing.'); break; }

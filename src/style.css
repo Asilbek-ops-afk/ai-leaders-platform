@@ -187,7 +187,22 @@ a{color:inherit;text-decoration:none}
 .nav-item.on::before{content:"";position:absolute;left:-14px;top:14px;bottom:14px;width:3px;border-radius:0 4px 4px 0;background:var(--grad)}
 .nav-item .i{color:inherit;opacity:.9}
 .nav-item .cnt{margin-left:auto;font-size:11px;font-weight:850;background:var(--danger);color:#fff;border-radius:99px;padding:2px 7px}
-.side-foot{margin-top:auto;padding-top:12px;display:flex;flex-direction:column;gap:10px}
+.side-nav{display:flex;flex-direction:column;gap:6px;min-height:0;overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;flex:1 1 auto;padding-bottom:4px}
+.side-nav::-webkit-scrollbar{width:7px}
+.side-nav::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:20px}
+.side-foot{margin-top:auto;padding-top:12px;display:flex;flex-direction:column;gap:10px;flex:0 0 auto}
+/* Past balandlikdagi noutbuklar (1366/1568×768): hamma menyu sig'adi */
+@media (min-width:981px) and (max-height:860px){
+  .sidebar{padding:12px 12px 10px}
+  .brand{padding:4px 8px 10px}
+  .brand .mark{width:36px;height:36px}
+  .nav-lbl{padding:11px 12px 5px}
+  .nav-item{padding:9px 11px;font-size:13.5px;border-radius:11px}
+  .side-foot{padding-top:8px;gap:7px}
+  .userbox{padding:8px}
+  .sidebar .btn{font-size:13px;padding:9px 13px}
+}
 .userbox{display:flex;align-items:center;gap:10px;padding:10px;border-radius:16px;background:var(--panel-2);border:1px solid var(--line)}
 .userbox small{display:block;color:var(--muted);font-size:11px;font-weight:600}
 
@@ -878,10 +893,157 @@ a[target="_blank"]{word-break:break-word}
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .table-scroll .trows{min-width:760px}
 
+/* ==========================================================================
+   v2.3.0 — DIZAYN SAYQALI (professional polish qatlami)
+   1) tipografik nafas  2) mikro-animatsiya  3) holatlar (hover/focus/disabled)
+   4) jadval va panel    5) mobil sayqal     6) bosma (print) tayyorligi
+   ========================================================================== */
+
+/* --- 1. Tipografiya --- */
+.h1,.h2,.h3,.lhero h1,.lh2,.lauth-hero h2,.big,.ldone h3{text-wrap:balance}
+p,.llede,.lsub,.fq-a-in{text-wrap:pretty}
+.kpi .v,.lchip b,.lgame-c b,.strip7 .d b,.big,.trow .mono{font-variant-numeric:tabular-nums}
+.lchip b,.lchip span,.lchip>div{white-space:nowrap}
+.lchip{min-width:0}
+.lchip>div{overflow:hidden;text-overflow:ellipsis}
+.h1,.lh2{font-feature-settings:"ss01","cv11"}
+
+/* Salomlashuvdagi qo'l ikonasi (emoji emas — SVG) */
+.wave{display:inline-flex;align-items:center;vertical-align:-3px;color:var(--warn);
+  transform-origin:72% 74%;animation:waveHi 2.6s ease-in-out infinite}
+.wave .i{stroke-width:1.8}
+@keyframes waveHi{0%,68%,100%{transform:rotate(0)}74%{transform:rotate(15deg)}80%{transform:rotate(-8deg)}86%{transform:rotate(12deg)}92%{transform:rotate(-4deg)}}
+.print-only{display:none}
+
+/* --- 2. Ankerlar yopishqoq nav ostida qolmasin --- */
+#lhero,#limkon,#ljarayon,#ldastur,#lsavol,#lkirish{scroll-margin-top:80px}
+
+/* --- 3. Yagona harakat tili --- */
+.card,.kpi,.lfeat-c,.lstep,.lmodc,.lgame-c,.lfcard,.lchip,.lpitch-r{
+  transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .35s,background .3s}
+@media (hover:hover){
+  .kpi:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:var(--sh-lift)}
+  .lfeat-c:hover,.lstep:hover,.lmodc:hover,.lgame-c:hover{transform:translateY(-4px);border-color:var(--line-2)}
+  .lchip:hover{border-color:var(--line-2);transform:translateY(-2px)}
+  .lfcard:hover{transform:translateY(-3px) scale(1.015)}
+  .mod:hover,.gal:hover,.lrow:hover{border-color:var(--line-2)}
+}
+.kpi{position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--grad);opacity:0;transition:opacity .35s}
+.kpi.a::before{background:var(--grad-2)}
+@media (hover:hover){.kpi:hover::before{opacity:.9}}
+.kpi .d{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* --- 4. Tugmalar: holatlar va «sheen» --- */
+.btn[disabled],.btn.off{opacity:.5;pointer-events:none;filter:saturate(.55)}
+.btn-primary{position:relative;overflow:hidden;box-shadow:0 10px 24px -14px rgba(124,92,255,.9)}
+.btn-primary::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.32) 50%,transparent 58%);transform:translateX(-135%);transition:transform .65s ease}
+@media (hover:hover){.btn-primary:hover::after{transform:translateX(135%)}}
+.btn-soft{box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.btn .i{transition:transform .25s cubic-bezier(.16,1,.3,1)}
+@media (hover:hover){.btn:hover .i{transform:translateY(-1px)}}
+[data-theme="light"] .btn-primary{color:#fff;box-shadow:0 10px 22px -14px rgba(60,40,180,.8)}
+
+/* --- 5. Maydonlar va parol ko'zi --- */
+.inp:hover:not(:focus){border-color:var(--line-2)}
+.inp::placeholder{color:color-mix(in srgb,var(--muted) 76%,transparent)}
+.inp.err,.inp[aria-invalid="true"]{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,92,122,.16)}
+.pwrap{position:relative}
+.pwrap .inp{padding-right:44px}
+.eye{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.2s}
+.eye:hover{color:var(--txt);background:var(--panel-3)}
+.eye.on{color:var(--brand-2)}
+.auth-tab{white-space:nowrap}
+@media(max-width:460px){
+  .auth-tabs .auth-tab{font-size:12px;padding:9px 8px;gap:5px}
+  .auth-tabs .auth-tab .tt2{display:none}
+}
+.auth-help{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--txt2);
+  background:none;border:0;padding:2px;cursor:pointer;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--brand-2) 55%,transparent);
+  text-underline-offset:3px;transition:.2s}
+.auth-help:hover{color:var(--brand-2)}
+
+/* --- 6. Jadval (trows) --- */
+.table-scroll .trow.head{position:sticky;top:0;z-index:3;background:color-mix(in srgb,var(--bg) 90%,transparent);
+  backdrop-filter:blur(10px);border-radius:0;padding-top:6px;padding-bottom:6px}
+.trow{transition:border-color .25s,background .25s,transform .25s}
+.trow:not(.head):nth-child(even){background:color-mix(in srgb,var(--panel-2) 84%,var(--panel))}
+@media (hover:hover){
+  .trow:not(.head):hover{background:var(--panel-3);border-color:var(--line-2);transform:translateX(2px)}
+}
+
+/* --- 7. Yon panel --- */
+.nav-item{transition:background .22s,color .22s,transform .22s}
+@media (hover:hover){.nav-item:not(.on):hover{transform:translateX(3px)}}
+.nav-item.on{box-shadow:0 10px 26px -20px rgba(124,92,255,.95)}
+.nav-item.on::before{transition:top .3s,bottom .3s,opacity .3s}
+
+/* --- 8. Mobil sayqal --- */
+@media(max-width:980px){
+  .bottomnav{overflow-x:auto;scrollbar-width:none}
+  .bottomnav::-webkit-scrollbar{display:none}
+  .bn{min-width:62px;transition:color .22s,background .22s}
+  .bn .i{transition:transform .25s cubic-bezier(.16,1,.3,1)}
+  .bn.on .i{transform:translateY(-1px) scale(1.07)}
+  .bn:active{transform:scale(.96)}
+  .topbar .searchbar input{font-size:13.5px}
+  .page-head{align-items:flex-start}
+  .page-head .h1{font-size:20px}
+}
+@media(max-width:400px){ .bn{font-size:9.5px;min-width:56px} }
+
+/* --- 9. Bildirishnoma (toast) --- */
+.toast{box-shadow:var(--sh-lift);animation:toastIn .4s cubic-bezier(.16,1,.3,1)}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+
+/* --- 10. Modal --- */
+.mbox{animation:pop .26s cubic-bezier(.2,1.12,.35,1)}
+.mhead{gap:12px}
+
+/* --- 11. Landing: nav, FAQ, footer --- */
+.lnav-links a.on{color:var(--txt);background:var(--panel-2)}
+.lnav-links a{position:relative}
+.fq{transition:border-color .25s,background .25s,transform .25s}
+@media (hover:hover){.fq:not(.open):hover{border-color:var(--line-2);transform:translateX(2px)}}
+.fq-q:hover{color:var(--txt)}
+.fq.open .fq-q{color:var(--txt)}
+.lfoot-links a{position:relative}
+.lfoot-links a::after{content:"";position:absolute;left:0;bottom:-3px;height:1px;width:0;background:var(--accent);transition:width .3s}
+.lfoot-links a:hover::after{width:100%}
+.ldone .i{animation:donePop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes donePop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+
 /* ---------- print ---------- */
 @media print{
   body{background:#fff}
-  .sidebar,.topbar,.bottomnav,.fab,.toasts,.mback .mhead .btn-icon{display:none!important}
+  .sidebar,.topbar,.bottomnav,.fab,.toasts,.lnav,.lfoot,.bottomnav,.mback .mhead .btn-icon,.no-print{display:none!important}
+  /* chop etiladigan kartochka toza va aniq chiqadi */
+  .mback{background:#fff!important;backdrop-filter:none!important;animation:none!important}
+  .mbox{box-shadow:none!important;border:0!important;animation:none!important;max-height:none!important}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .print-only{display:block!important}
+  /* Kirish kartochkasi chop etilganda faqat karta chiqadi (orqa fon toza) */
+  /* Butun ilova o'rniga faqat kartochka chiqadi (body overflow:visible bo'lmasa kontent kesiladi) */
+  body:has(#loginCard){overflow:visible!important;height:auto!important}
+  body:has(#loginCard) #app{display:none!important}
+  body:has(#loginCard) .sidebar,body:has(#loginCard) .topbar,body:has(#loginCard) .content,
+  body:has(#loginCard) .fab,body:has(#loginCard) .toasts,body:has(#loginCard) .bottomnav,body:has(#loginCard) .globalstrip{display:none!important}
+  body:has(#loginCard) #modal-root{margin:0}
+  body:has(#loginCard) .mbox{max-height:none!important;overflow:visible!important}
+  body:has(#loginCard) .mback{position:static!important;display:block!important;background:#fff!important;padding:0!important;backdrop-filter:none!important}
+  body:has(#loginCard) .mbox{margin:0 auto;max-width:520px;padding:0}
+  /* Bosma oq-qora bo'lsa ham o'qiladi: modal yorug' palitraga o'tadi */
+  .mbox{background:#fff!important;color:#0A1024!important;border:0!important}
+  .mbox .h1,.mbox .h2,.mbox .h3,.mbox b,.mbox strong{color:#0A1024!important}
+  .mbox .muted,.mbox .xs.muted,.mbox .small.muted,.mbox .up.muted{color:#41506F!important}
+  .mbox .card{background:#F7F9FF!important;border-color:#C9D3EA!important;box-shadow:none!important}
+  #loginCard{border:1.5px solid #0A1024!important;break-inside:avoid}
+  .mbox .tag{background:#F2F5FD!important;color:#12224A!important;border-color:#C9D3EA!important}
+  .mbox .tag.a{background:#F2FFD9!important;color:#3A5200!important;border-color:#CBE98A!important}
+  .mbox .divider,.mbox .hr{background:#D2DAEE!important}
+  .mbox .avatar .tx{color:#fff!important}
   .mback{position:static;background:#fff;padding:0;display:block}
   .mbox{max-width:none;box-shadow:none;border:0;padding:0}
   .cert{color:#0A1024;background:#fff;border-color:#0A1024}

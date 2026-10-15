@@ -4,7 +4,7 @@ Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** bar
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
 **eng yangi holat — oxirgi bo'lim (v2.0.0)**.
 
-**Oxirgi versiya:** v2.2.1 · **Holat:** ✅ barcha tekshiruvlar o'tdi (428 test, 175 joylashuv, 78 skrinshot)
+**Oxirgi versiya:** v2.3.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (443 test, 175 joylashuv, 83 skrinshot)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -16,6 +16,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [**v2.1.0**](#v210--haqiqiy-talabalar-royxatini-yuklash-csv-import) | **v2.1.0** | **CSV import: haqiqiy talabalar ro'yxatini platformada yuklash + bo'sh tuzilmalar mustahkamligi** |
 | [**v2.2.0**](#v220--landing-sahifa-va-skrollda-ochiladigan-kirishariza) | **v2.2.0** | **Landing sahifa + skrollda 3D ochiladigan kirish/ariza bo'limi & ariza oqimi** |
 | [**v2.2.1**](#v221--kirish-faqat-nick-bilan-hemis-id-kirishda-ishlatilmaydi) | **v2.2.1** | **Kirish faqat nick bilan: HEMIS ID — adminga, talabaga unikal nick (1 HEMIS = 1 nick)** |
+| [**v2.3.0**](#v230--dizayn-sayqali-professional-polish) | **v2.3.0** | **Dizayn sayqali: ikonkalar (emoji o'rniga), parol ko'zi, bosmaga tayyor kartochka, skrol-spy, mikro-animatsiya, laptop zichligi** |
 
 ---
 
@@ -503,3 +504,50 @@ beriladi. Shu ustida professional tarzda ishla.»
 | Skrinshotlar | ✔ 78 ta (kirish bo'limi yangilandi: `84`, `85`, `88`) |
 | Nick-only oqim (Playwright) | ✔ kartochka (nick + HEMIS arxiv) → kirish maydoni matni → **HEMIS ID rad etildi** → noto'g'ri nick maslahati → to'g'ri nick → parol o'rnatish → kabinet → nick+parol bilan qayta kirish → admin email bilan: **0 JS xatosi** |
 | Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.2.1** |
+
+---
+
+## v2.3.0 — Dizayn sayqali (professional polish)
+
+**Talab:** «Dizayni ustida professional ravishda ishla, qayta-qayta ko'rib chiq va eng yaxshisini qilib chiq.»
+
+Ish ikki bosqichda: (1) butun interfeys qayta-qayta ko'zdan kechirildi (landing 6 bo'lim, talaba 7 bo'lim,
+admin 8 bo'lim, modallar, mobil, light mavzu, 7 xil ekran o'lchami), (2) topilgan nuqsonlar tuzatildi va
+dizayn tizimi yagona tilga keltirildi.
+
+### Topilgan nuqsonlar va tuzatishlar
+
+| # | Nuqson | Tuzatish |
+|---|---|---|
+| 1 | **Emoji shrinkga bog'liq**: salomlashuvdagi 👋 va bo'sh holatlardagi ✅/🎉 ba'zi mashinalarda «tofu» (bo'sh kvadrat) bo'lib chiqardi | Barcha emoji **o'z SVG ikonkalari** bilan almashtirildi (`i-hand`, `i-eye-off` qo'shildi — jami 68 ikona). Endi platforma shriftdan mustaqil |
+| 2 | **Kirish kartochkasi bosmaga tayyor emas**: chop etishda yon panel, tugmalar va qorong'i fon ham chiqardi | `print` qatlami: faqat karta oq sahifada, tugmalar `.no-print`, kontur, `print-only` manzil izohi, `body:has(#loginCard)` bilan orqa fon o'chadi. **A4 PDF sifatida tekshirildi** |
+| 3 | **Parolni ko'rish imkoni yo'q edi** | Barcha parol maydonlariga ko'z tugmasi (`type=button` — formani yubormaydi), bosilganda `eye-off`ga o'tadi, fokus saqlanadi |
+| 4 | **Landing navigatsiyasi «ko'r»** edi — qaysi bo'limdaligi bilinmasdi | Skrol-spy: ko'rinish markazidagi bo'lim navda belgilanadi (`.on`) |
+| 5 | **Mobil: «Admin / Mentor» tab yorlig'i ikki qatorga bo'linardi**; qidiruv maydoni matni kesilardi | ≤460px da ikkinchi qism yashiriladi (`<span class="tt2">`), maydon `min-width:0`; qidiruvda qisqa placeholder |
+| 6 | **1568×768 noutbukda yon panelning «Chiqish» tugmasi kesilardi** | `.side-nav` skroll konteyneriga olindi, foydalanuvchi bloki doim ko'rinadi; past balandlik uchun zichroq rejim |
+| 7 | **Light mavzuda hero chipi ikki qatorga bo'linardi** | `nowrap` + ellipsis |
+| 8 | **Skrinshotlar sahifa o'rtasidan olinardi** (brauzer skrolni tiklaydi) | Beta tuzatildi: `history.scrollRestoration='manual'` + har suratdan oldin `scrollTo(0,0)` |
+| 9 | **Jadval sarlavhasi skrollda yo'qolardi** | Yopishqoq sarlavha (blur fon), qatorlar hover'da siljib yoritiladi |
+| 10 | **Bosish/tortish madaniyati bir xil emas edi** | Tugmaga «sheen» o'tishi, kartalarda 3–4px ko'tarilish, KPI'da gradient chiziq, toast/`ldone` pop — yagona `cubic-bezier(.16,1,.3,1)` tilida |
+
+### Dizayn tizimi (yangi qatlamlar)
+
+| Qatlam | Tafsilot |
+|---|---|
+| Tipografiya | `text-wrap:balance` sarlavhalarda, `pretty` matnda; `tabular-nums` raqamlarda; `scroll-margin-top` ankerlar uchun |
+| Holatlar | `:hover` / `:focus-visible` / `:active` / `[disabled]`, `.inp.err`; `prefers-reduced-motion` va `hover:none` hurmat qilinadi |
+| Bosma | Toza kartochka, oq fon, kontrast saqlangan |
+| Mobil | Bottom-nav skroll, `:active` bosilish, `≤400px` zichlik |
+| Yordam | «Nickni eslay olmadingizmi? — Yordam olish» havolasi (matn + SVG), yordam modali yangilandi |
+
+### Tekshiruv natijalari (v2.3.0)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **443 ta, 0 xato** — yangi 25-guruh: parol ko'zi, emoji yo'qligi, `no-print`/`print-only`, skrol-spy, yordam havolasi |
+| Joylashuv testi | ✔ 175 tekshiruv, **0 gorizontal toshish** (390/768/1024/1366/**1568**/1440/1920) |
+| Skrinshotlar | ✔ **83 ta** (93 qadam) — yangi: parol ko'zi, kirish kartochkasi, **bosma ko'rinishi (PDF)**, talabalar jadvali, mobil qidiruv |
+| PDF tekshiruvi | ✔ Kirish kartochkasi `page.pdf()` bilan A4'da sinaldi: faqat karta, o'qiladigan kontrast |
+| Noutbuk sinovi | ✔ 1568×768 va 1366×700: yon panel to'liq ko'rinadi, hero CTA ekranga sig'adi |
+| JS xatolari | ✔ 0 (jsdom + playwright) |
+| Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.3.0** |

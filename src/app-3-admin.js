@@ -197,7 +197,7 @@ function vAdmin() {
   if (actionAllowed('tasks')) quick.push('<button class="btn btn-primary btn-sm" data-act="new-task">' + ico('plus', 'sm') + 'Vazifa berish</button>');
   if (actionAllowed('content')) quick.push('<button class="btn btn-soft btn-sm" data-act="new-lesson">' + ico('video', 'sm') + 'Dars qo‘shish</button>');
   if (actionAllowed('students')) quick.push('<button class="btn btn-soft btn-sm" data-act="new-student">' + ico('users-plus', 'sm') + 'Talaba qo‘shish</button>');
-  let h = '<div class="page-head"><div><h1 class="h1">' + wallClock() + ', ' + esc(String(admin0.name || 'Admin').split(' ')[0]) + ' 👋</h1>' +
+  let h = '<div class="page-head"><div><h1 class="h1">' + wallClock() + ', ' + esc(String(admin0.name || 'Admin').split(' ')[0]) + ' <span class="wave">' + ico('hand', 'sm') + '</span></h1>' +
     '<p class="t2 small" style="margin:6px 0 0">' + fmtFull(todayISO()) + ' • ' + k.total + ' talaba, ' + k.groups + ' jamoa, ' + rq.length + ' ta vazifa tekshiruv kutilmoqda.</p>' +
     '<div class="row wrap" style="gap:7px;margin-top:10px"><span class="tag p">' + ico('shield', 'sm') + esc(myRole.l) + '</span>' +
     (myPerms.length ? '<span class="xs muted">Huquqlar: ' + esc(myPerms.join(', ')) + '</span>' : '') + '</div></div>' +
@@ -266,7 +266,7 @@ function vAdmin() {
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s.name) + '</div>' +
         '<div class="xs muted ellip">' + esc(t.title) + ' • ' + fmtD(p.at) + '</div></div></div>' +
         '<button class="btn btn-xs btn-primary" data-act="review-open" data-sub="' + p.id + '">' + ico('eye', 'sm') + 'Tekshirish</button></div>'; }).join('') + '</div>'
-      : '<div class="empty">Navbat bo‘sh — barcha ishlar tekshirilgan ✅</div>') + '</div>' +
+      : '<div class="empty">' + ico('check-c', 'sm') + ' Navbat bo‘sh — barcha ishlar tekshirilgan</div>') + '</div>' +
 
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('alert') + 'Kechikkanlar</h2>' +
     '<span class="tag r">' + late.length + ' ta</span></div>' +
@@ -274,7 +274,7 @@ function vAdmin() {
       '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(x.st.name) + '</div>' +
       '<div class="xs muted ellip">' + esc(x.t.title) + ' • ' + timeLeft(x.due).txt + '</div></div></div>' +
       '<button class="btn btn-xs btn-soft" data-act="nudge" data-id="' + x.st.id + '">' + ico('bell', 'sm') + 'Eslatma</button></div>').join('') + '</div>'
-      : '<div class="empty">Kechikkan yo‘q 🎉</div>') + '</div></div>';
+      : '<div class="empty">' + ico('trophy', 'sm') + ' Kechikkan yo‘q</div>') + '</div></div>';
 
   h += '<div class="grid g2">' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('spark') + 'So‘nggi harakatlar</h2></div>' +
@@ -549,7 +549,7 @@ function vAdminDeadlines() {
     (late.length ? '<div class="col" style="gap:9px;max-height:340px;overflow:auto">' + late.map(x => '<div class="lrow hot"><div class="row grow" style="gap:10px;min-width:0">' + avatar(x.st, 'xs') +
       '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(x.st.name) + '</div><div class="xs muted ellip">' + esc(x.t.title) + ' • ' + fmtD(x.due) + '</div></div></div>' +
       '<button class="btn btn-xs btn-soft" data-act="nudge" data-id="' + x.st.id + '">' + ico('bell', 'sm') + '</button></div>').join('') + '</div>'
-      : '<div class="empty">Kechikkan yo‘q 🎉</div>') + '</div>' +
+      : '<div class="empty">' + ico('trophy', 'sm') + ' Kechikkan yo‘q</div>') + '</div>' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('users') + 'Jamoalar kesimida</h2></div>' +
     '<div class="col" style="gap:10px">' + S.groups.map(g => { const k2 = g.members.filter(id => lateStudents().some(x => x.st.id === id && (x.st.group === g.id))).length;
       return '<div class="row between small"><span class="row" style="gap:9px">' + crest(g, 26) + esc(g.name) + '</span>' +
@@ -832,12 +832,13 @@ function loginCardModal(accId) {
       : 'Parol: talaba <b>birinchi kirishda</b> o‘zi o‘rnatadi. Tizimga <b>faqat nick</b> bilan kiradi — HEMIS ID kirishda ishlatilmaydi.') +
     '</div>' +
     '</div>' +
-    '<div class="row" style="gap:10px;margin-top:12px">' +
+    '<div class="row no-print" style="gap:10px;margin-top:12px">' +
     '<button class="btn btn-primary grow" data-act="print-card">' + ico('print', 'sm') + 'Chop etish / PDF</button>' +
     '<button class="btn btn-soft" data-act="toast-copy" data-code="Kirish: nick ' + esc(a.nick) + (a.role === 'student' && a.hemisId ? ' | HEMIS ID (arxiv): ' + esc(a.hemisId) : '') + '">' + ico('copy', 'sm') + 'Nusxalash</button>' +
     '</div>' +
-    '<div class="row" style="gap:10px;margin-top:9px">' +
+    '<div class="row no-print" style="gap:10px;margin-top:9px">' +
     '<button class="btn btn-ghost btn-sm grow" data-act="pass-reset" data-id="' + esc(a.id) + '">' + ico('refresh', 'sm') + 'Parolni tiklash (noldan o‘rnatish)</button>' +
     '</div>' +
-    '<div class="xs muted" style="margin-top:8px">Talaba parolni eslay olmasa: parolni tiklang — u keyingi kirishda o‘zi yangi parol o‘rnatadi. Eski parol hech kimga ko‘rinmaydi.</div>', 'narrow');
+    '<div class="xs muted" style="margin-top:8px">Talaba parolni eslay olmasa: parolni tiklang — u keyingi kirishda o‘zi yangi parol o‘rnatadi. Eski parol hech kimga ko‘rinmaydi.</div>' +
+    '<div class="xs muted print-only" style="margin-top:10px">Kirish: <b>ai-leaders-platform.pages.dev</b> — talaba <b>faqat nick</b> bilan kiradi.</div>', 'narrow');
 }

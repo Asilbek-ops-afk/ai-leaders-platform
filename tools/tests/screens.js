@@ -100,7 +100,7 @@ function stateFor(name) {
     { name: '77-v2-import-yakunlandi', vp: { width: 1568, height: 768 }, steps: ['go-students', 'csv-import', 'csv-import-file', 'csv-import-confirm'], data: 'founder' },
     { name: '78-v2-undo-tugmasi', vp: { width: 1568, height: 768 }, steps: ['go-students', 'csv-import', 'csv-import-file', 'csv-import-confirm', 'csv-import-close'], data: 'founder' },
     /* v2.2.0 — landing sahifasi */
-    { name: '79-v22-landing-hero-1920', vp: { width: 1920, height: 1080 }, steps: [], data: 'landing' },
+    { name: '79-v22-landing-hero-1920', vp: { width: 1920, height: 1080 }, steps: ['top'], data: 'landing' },
     { name: '80-v22-landing-imkoniyatlar', vp: { width: 1440, height: 1000 }, steps: ['land-sec:#limkon'], data: 'landing' },
     { name: '81-v22-landing-jarayon', vp: { width: 1440, height: 1000 }, steps: ['land-sec:#ljarayon'], data: 'landing' },
     { name: '82-v22-landing-dastur', vp: { width: 1440, height: 1050 }, steps: ['land-sec:#ldastur'], data: 'landing' },
@@ -108,8 +108,15 @@ function stateFor(name) {
     { name: '84-v22-landing-kirish', vp: { width: 1568, height: 768 }, steps: ['land-sec:#lkirish'], data: 'landing' },
     { name: '85-v22-landing-ariza', vp: { width: 1568, height: 900 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing' },
     { name: '86-v22-landing-kirish-admin', vp: { width: 1440, height: 1050 }, steps: ['land-sec:#lkirish', 'admin-tab'], data: 'landing' },
-    { name: '87-v22-landing-mobil', vp: { width: 390, height: 844 }, steps: [], data: 'landing' },
-    { name: '88-v22-landing-kirish-mobil', vp: { width: 390, height: 844 }, steps: ['land-sec:#lkirish'], data: 'landing' }
+    { name: '87-v22-landing-mobil', vp: { width: 390, height: 844 }, steps: ['top'], data: 'landing' },
+    { name: '88-v22-landing-kirish-mobil', vp: { width: 390, height: 844 }, steps: ['land-sec:#lkirish'], data: 'landing' },
+
+    /* v2.3.0 — dizayn sayqali */
+    { name: '89-v23-parol-kozi', vp: { width: 1568, height: 900 }, steps: ['land-sec:#lkirish', 'eye'], data: 'landing' },
+    { name: '90-v23-kirish-kartochkasi', vp: { width: 1440, height: 1000 }, steps: ['go-students', 'student-profile', 'login-card'], data: 'a1' },
+    { name: '91-v23-kartochka-bosma', vp: { width: 1440, height: 1000 }, steps: ['go-students', 'student-profile', 'login-card', 'print-media'], data: 'a1' },
+    { name: '92-v23-talabalar-jadvali', vp: { width: 1568, height: 950 }, steps: ['go-students'], data: 'a1' },
+    { name: '93-v23-mobil-qidiruv', vp: { width: 390, height: 844 }, steps: ['go-students'], data: 'a1' }
   ];
   const page = await browser.newPage();
   const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
@@ -125,6 +132,8 @@ function stateFor(name) {
       location.reload();
     }, state);
     await page.waitForTimeout(320);
+    /* Brauzer skrolni tiklab qo'yadi — har bir surat tepadan boshlanadi */
+    await page.evaluate(() => { try { history.scrollRestoration = 'manual'; } catch (e) { } window.scrollTo(0, 0); });
     await page.evaluate(t => {
       if (t === 'login-student' || t === 'login-admin' || t === 'login-mentor') { /* sessiya fixturadan */ }
       else if (t.startsWith('go-')) document.querySelector('[data-act="go"][data-route="' + t.slice(3) + '"]')?.click();
@@ -151,6 +160,9 @@ function stateFor(name) {
         }, 120);
       }
       else if (t === 'csv-import') setTimeout(() => document.querySelector('[data-act="import-csv"]')?.click(), 120);
+      else if (t === 'login-card') setTimeout(() => document.querySelector('[data-act="login-card"]')?.click(), 120);
+      else if (t === 'eye') setTimeout(() => document.querySelector('[data-act="eye"]')?.click(), 220);
+      else if (t === 'top') setTimeout(() => window.scrollTo(0, 0), 160);
       else if (t.startsWith('land-sec:')) setTimeout(() => document.querySelector(t.slice(9))?.scrollIntoView({ block: 'start' }), 150);
       else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="apply"]')?.click(), 320);
       else if (t === 'admin-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click(), 320);
@@ -175,6 +187,9 @@ function stateFor(name) {
         else if (t.startsWith('lesson-')) document.querySelector('[data-act="lesson-open"][data-id="' + t.slice(7) + '"]')?.click();
         else if (t === 'student-profile') setTimeout(() => document.querySelector('[data-act="student-open"]')?.click(), 200);
         else if (t === 'csv-import') setTimeout(() => document.querySelector('[data-act="import-csv"]')?.click(), 120);
+        else if (t === 'login-card') setTimeout(() => document.querySelector('[data-act="login-card"]')?.click(), 120);
+        else if (t === 'eye') setTimeout(() => document.querySelector('[data-act="eye"]')?.click(), 220);
+        else if (t === 'top') setTimeout(() => window.scrollTo(0, 0), 160);
         else if (t.startsWith('land-sec:')) setTimeout(() => document.querySelector(t.slice(9))?.scrollIntoView({ block: 'start' }), 150);
         else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="apply"]')?.click(), 320);
         else if (t === 'admin-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click(), 320);
@@ -208,8 +223,10 @@ function stateFor(name) {
       await page.click('[data-act="close-modal"]');
       await page.waitForTimeout(450);
     }
+    if (s.steps.includes('print-media')) { await page.emulateMedia({ media: 'print' }); await page.waitForTimeout(320); }
     await page.waitForTimeout(850);
     await page.screenshot({ path: path.join(OUT, s.name + '.png'), fullPage: false });
+    if (s.steps.includes('print-media')) await page.emulateMedia({ media: 'screen' });
     console.log('  ✓ ' + s.name);
   }
   await browser.close();
