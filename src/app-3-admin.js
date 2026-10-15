@@ -751,23 +751,26 @@ function vAdminAdmins() {
     '<button class="btn btn-primary" data-act="new-admin">' + ico('plus', 'sm') + 'Admin qo‘shish</button></div>';
 
   h += '<div class="grid g4">' +
-    kpi('users', 'shield', list.length, 'Admin va mentorlar', 'navigatsiya huquqi') +
-    kpi('trend', 'check', active, 'Faol akkaunt', 'bloklanmagan') +
-    kpi('clock', 'alert', needPass, 'Parol o‘rnatilmagan', 'birinchi kirish kutilmoqda') +
-    kpi('award', 'award', list.filter(a => a.adminRole === 'founder').length, 'Founder', 'to‘liq huquq') +
+    kpi('shield', list.length, 'Admin va mentorlar', 'navigatsiya huquqi', '') +
+    kpi('check', active, 'Faol akkaunt', 'bloklanmagan', 'a') +
+    kpi('alert', needPass, 'Parol o‘rnatilmagan', 'birinchi kirish kutilmoqda', needPass ? 'r' : '') +
+    kpi('award', list.filter(a => a.adminRole === 'founder').length, 'Founder', 'to‘liq huquq', 'c') +
     '</div>';
 
-  h += '<div class="card" style="padding:14px 12px"><div class="table-scroll"><div class="trows">' +
-    '<div class="trow head"><span>Admin</span><span class="cell-hide">Rol</span><span class="cell-hide">Ruxsatlar</span><span class="cell-hide">Oxirgi kirish</span><span class="tr">Amallar</span></div>' +
+  h += '<div class="card" style="padding:14px 12px"><div class="table-scroll"><div class="trows adm">' +
+    '<div class="trow head admh"><span>Admin</span><span class="cell-hide">Rol</span><span class="cell-hide">Ruxsatlar</span><span class="cell-hide">Oxirgi kirish</span><span class="tr">Amallar</span></div>' +
     list.map(a => {
       const rl = ADMIN_ROLES[a.adminRole] || { l: 'Admin', i: 'shield' };
-      const perms = (a.perms || []).includes('__all') ? 'Barcha huquqlar' : (a.perms || []).map(p => (ADMIN_PERMS.find(x => x[0] === p) || [p, p])[1]).join(', ') || '—';
+      /* To'liq ro'yxat tooltip'da, ustunda ixcham ko'rinish (matn kesilmaydi) */
+      const permList = (a.perms || []).map(p => (ADMIN_PERMS.find(x => x[0] === p) || [p, p])[1]);
+      const perms = (a.perms || []).includes('__all') ? 'Barcha huquqlar' : (permList.length ? permList.length + ' ta ruxsat' : '—');
+      const permTip = (a.perms || []).includes('__all') ? 'Barcha bo‘lim va amallar' : (permList.join(', ') || 'Ruxsat berilmagan');
       return '<div class="trow">' +
         '<div class="row" style="gap:11px;min-width:0">' + avatar({ id: a.id, name: a.name, act: a.status === 'active', last: 0 }, 'xs') +
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(a.name) + '</div>' +
         '<div class="xs muted ellip">@' + esc(a.nick) + ' • ' + esc(a.email || '—') + '</div></div></div>' +
-        '<span class="cell-hide"><span class="tag ' + (a.adminRole === 'founder' ? 'a' : a.adminRole === 'head-mentor' ? 'p' : '') + '">' + ico(rl.i, 'sm') + esc(rl.l) + '</span></span>' +
-        '<span class="cell-hide xs muted ellip">' + esc(perms) + '</span>' +
+        '<span class="cell-hide" title="' + esc(rl.l) + '"><span class="tag ' + (a.adminRole === 'founder' ? 'a' : a.adminRole === 'head-mentor' ? 'p' : '') + '">' + ico(rl.i, 'sm') + esc(rl.l) + '</span></span>' +
+        '<span class="cell-hide xs muted ellip" title="' + esc(permTip) + '">' + esc(perms) + '</span>' +
         '<span class="cell-hide xs muted">' + (a.lastLogin ? fmtD(new Date(a.lastLogin).toISOString().slice(0, 10)) : (a.mustSetPass ? 'kirilmagan' : '—')) + '</span>' +
         '<span class="tr row" style="gap:6px;justify-content:flex-end">' +
         (a.status === 'blocked' ? '<span class="tag hot">bloklangan</span>' : '') +

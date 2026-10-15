@@ -832,7 +832,7 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 2.3.0', B.w.AIL.version() === '2.3.0');
+t('versiya 2.3.1', B.w.AIL.version() === '2.3.1');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ============ 17. LANDING SAHIFASI: HERO, BO'LIMLAR, KIRISH/ARIZA ============
@@ -1516,6 +1516,50 @@ group('25. Dizayn sayqali: parol ko‘zi, ikonkalar, bosma, skrol-spy');
   t('JS xatosi yo‘q (dizayn sayqali)', L.errors.length === 0 && P.errors.length === 0 && A1.errors.length === 0 && S1.errors.length === 0);
 }
 
+/* ============= 26. SAHIFA AUDITI (v2.3.1) ================================ */
+/* Har bir sahifani ochib: KPI qiymatlari silkimmaganini, NaN/undefined yo'qligini,
+   jadval ustunlarida matn kesilmaganini tekshiradi (ui-audit.js ning jsdom varianti) */
+group('26. Sahifa auditi: KPI, jadval, matn butunligi');
+{
+  const ICONS_RE = /^(home|book|task|users|clock|user|dash|check|check-c|plus|search|bell|out|flame|trophy|medal|star|play|video|doc|link|code|upload|cal|right|left|down|up|x|sun|moon|target|rocket|ai|chat|terminal|cube|flag|award|cert|shield|heart|spark|filter|download|edit|trash|eye|send|lock|alert|trend|help|phone|mail|copy|print|refresh|menu|grid|bolt|pin|globe|settings|users-plus|briefcase|hand|eye-off|key)$/;
+  const ADMIN_ROUTES = ['admin', 'students', 'adminTasks', 'adminAdmins', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings'];
+  const STUD_ROUTES = ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friends', 'info'];
+  const scan = (Q2, label) => {
+    const app = Q2.d.getElementById('app');
+    const vals = [...Q2.d.querySelectorAll('.kpi .v')].map(v => v.textContent.trim());
+    const bad = vals.filter(v => ICONS_RE.test(v));
+    t(label + ': KPI qiymatlari silkimmagan' + (vals.length ? ' (' + vals.length + ' ta)' : ''), bad.length === 0);
+    const txt = app.textContent || '';
+    t(label + ': matnda NaN/undefined/[object Object] yo‘q', !/NaN|undefined|\[object Object\]|Infinity/.test(txt));
+    const ovf = Q2.d.querySelectorAll('.lbl-x').length;   /* kelajakdagi belgi uchun */
+    t(label + ': sahifa JS xatosisiz chizildi', Q2.errors.length === 0);
+    return vals;
+  };
+  const A2 = bootS('a1');
+  const aVals = scan(A2, 'admin/bosh');
+  t('admin bosh sahifasida 5 ta KPI bor', aVals.length === 5);
+  for (const r of ADMIN_ROUTES.slice(1)) {
+    A2.w.AIL.go(r);
+    scan(A2, 'admin/' + r);
+  }
+  const S2 = bootS('s1');
+  scan(S2, 'talaba/bosh');
+  for (const r of STUD_ROUTES.slice(1)) {
+    S2.w.AIL.go(r);
+    scan(S2, 'talaba/' + r);
+  }
+  /* Adminlar sahifasi maxsus: rol va ruxsat ustunlari mazmunli */
+  A2.w.AIL.go('adminAdmins');
+  const admTxt = A2.d.getElementById('app').textContent;
+  t('adminlar ro‘yxatida rol yorliqlari ko‘rinadi (Founder/Mentor)',
+    /Founder/.test(admTxt) && /Mentor/.test(admTxt) && !/Bosh mentorBosh mentor/.test(admTxt));
+  t('adminlar ro‘yxatida ruxsatlar ixcham ko‘rinishda', /ta ruxsat|Barcha huquqlar/.test(admTxt));
+  t('KPI qiymati ikona nomi emas — adminlar sahifasida raqamlar', (() => {
+    const vals = [...A2.d.querySelectorAll('.kpi .v')].map(v => v.textContent.trim());
+    return vals.every(v => /^[0-9]+$/.test(v));
+  })());
+}
+
 /* ============= 21. STATIK QO'RIQCHI: MANBA KODDA NAMUNA MA'LUMOT YO'Q ======= */
 group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
 {
@@ -1534,11 +1578,11 @@ group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
   t('src fixtura faylini chaqirmaydi', !/fixtures/.test(srcAll) && !/require\(/.test(srcAll));
   t('tozalash funksiyasi mavjud (purgeDemoState)', /function purgeDemoState\(/.test(srcAll) && /needsSetup/.test(srcAll) && /function createFounderAccount\(/.test(srcAll));
   t('qurilgan index.html ham namuna ismlaridan xoli', stNames.every(x => !HTML.includes(x)) && adNames.every(x => !HTML.includes(x)));
-  t('versiya izchil (src = sw.js = package.json = 2.3.0)', (() => {
+  t('versiya izchil (src = sw.js = package.json = 2.3.1)', (() => {
     const ver = /const APP_VERSION = '([^']+)'/.exec(srcAll)[1];
     const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-    return ver === '2.3.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
+    return ver === '2.3.1' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
   })());
 }
 

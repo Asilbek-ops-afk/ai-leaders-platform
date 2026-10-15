@@ -4,7 +4,7 @@ Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** bar
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
 **eng yangi holat — oxirgi bo'lim (v2.0.0)**.
 
-**Oxirgi versiya:** v2.3.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (443 test, 175 joylashuv, 83 skrinshot)
+**Oxirgi versiya:** v2.3.1 · **Holat:** ✅ barcha tekshiruvlar o'tdi (495 test + sahifa auditi, 175 joylashuv, 90 skrinshot)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -17,6 +17,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [**v2.2.0**](#v220--landing-sahifa-va-skrollda-ochiladigan-kirishariza) | **v2.2.0** | **Landing sahifa + skrollda 3D ochiladigan kirish/ariza bo'limi & ariza oqimi** |
 | [**v2.2.1**](#v221--kirish-faqat-nick-bilan-hemis-id-kirishda-ishlatilmaydi) | **v2.2.1** | **Kirish faqat nick bilan: HEMIS ID — adminga, talabaga unikal nick (1 HEMIS = 1 nick)** |
 | [**v2.3.0**](#v230--dizayn-sayqali-professional-polish) | **v2.3.0** | **Dizayn sayqali: ikonkalar (emoji o'rniga), parol ko'zi, bosmaga tayyor kartochka, skrol-spy, mikro-animatsiya, laptop zichligi** |
+| [**v2.3.1**](#v231--ichki-bolimlar-auditi-va-avtomatik-ui-tekshiruvi) | **v2.3.1** | **Ichki bo'limlar auditi + avtomatik UI tekshiruvi (`npm run test:ui`): KPI siljishi, matn kesilishi, gorizontal toshish** |
 
 ---
 
@@ -551,3 +552,44 @@ dizayn tizimi yagona tilga keltirildi.
 | Noutbuk sinovi | ✔ 1568×768 va 1366×700: yon panel to'liq ko'rinadi, hero CTA ekranga sig'adi |
 | JS xatolari | ✔ 0 (jsdom + playwright) |
 | Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.3.0** |
+
+---
+
+## v2.3.1 — Ichki bo'limlar auditi va avtomatik UI tekshiruvi
+
+**Baho (foydalanuvchi):** «Davom et» — v2.3.0 dan keyin hali ko'zdan kechirilmagan qismlar (Adminlar, buyruq
+paneli, bildirishnomalar, CSV import, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish, bo'sh holat)
+tekshirildi va topilgan nuqsonlar tuzatildi.
+
+### Topilgan nuqsonlar va tuzatishlar
+
+| # | Nuqson | Tuzatish |
+|---|---|---|
+| 1 | **Adminlar sahifasida KPI kartalari qiymat o'rniga ikona nomlarini ko'rsatardi** («shield», «check», «alert», «award») — `kpi()` argumentlari bir pog'ona siljib ketgan (`kpi(ic, val, lab, d, tone)`) | Argumentlar tartibga solindi: 7 / 7 / 6 / 1 raqamlari + to'g'ri rang toni (`a`, `r`, `c`) |
+| 2 | **Adminlar jadvali umumiy ustun kengliklariga sig'masdi**: «Kontent menejer», «Kurator (nazorat)» teglari va ruxsat matni qo'shni ustunga o'tib ketardi | Jadval uchun alohida kengliklar (`.trows.adm`), teglar uchun `overflow:hidden` + ellipsis va to'liq matn `title` tooltip'ida |
+| 3 | **«Ruxsatlar» ustuni matni kesilardi** («Talabalar va akkauntlar, Vaz…») | Ustun ixchamlashtirildi — «3 ta ruxsat» / «Barcha huquqlar», to'liq ro'yxat tooltip'da. Matn endi hech qachon kesilmaydi |
+| 4 | Bunday nuqsonlar **qo'lda ko'rishda oson ko'zdan qochadi** | Yangi vosita: **`npm run test:ui`** — barcha sahifa va modallarni aylanib chiqib KPI siljishi, ustun matni kesilishi, NaN/undefined va gorizontal toshishni avtomatik topadi |
+
+### Yangi vosita: `npm run test:ui` (sahifa auditi)
+
+`tools/tests/ui-audit.js` — admin 9 bo'lim + talaba 7 bo'lim + 6 modal + buyruq panelini Playwright'da ochib:
+
+| Tekshiruv | Nima ushlaydi |
+|---|---|
+| KPI qiymati | Qiymat ikona nomiga teng bo'lsa → argumentlar siljigan (`kpi('users','shield',…)`) |
+| Ustun matni | `scrollWidth > clientWidth` → matn kesilgan/to'lib-toshgan |
+| Matn butunligi | `NaN`, `undefined`, `[object Object]`, `Infinity` |
+| Joylashuv | Gorizontal skroll, JS xatolari |
+
+`npm test`ga ham **26-guruh** sifatida qo'shildi (har bir sahifa uchun KPI silkimmagani + matn butunligi + JS xatosi,
+jsdom'da): jami **495 tekshiruv**.
+
+### Tekshiruv natijalari (v2.3.1)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **495 ta, 0 xato** (26-guruh: barcha 16 sahifa auditi) |
+| Sahifa auditi | ✔ `npm run test:ui` → **nuqson topilmadi** (admin 9 + talaba 7 sahifa + 6 modal) |
+| Joylashuv testi | ✔ 175 tekshiruv, 0 gorizontal toshish |
+| Skrinshotlar | ✔ **90 ta** (100 qadam) — yangi 7 ta: Adminlar, buyruq paneli, bildirishnomalar, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish |
+| Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.3.1** |

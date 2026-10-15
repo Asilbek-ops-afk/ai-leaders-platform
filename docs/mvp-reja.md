@@ -111,6 +111,10 @@ o'tish **15 daqiqalik ish** (sxema va login tizimi shunga tayyor quriladi).
 
 Platformada namuna ma'lumot **yo'q** (v2.0.0 da butunlay olib tashlandi). Haqiqiy ro'yxat endi **platformaning o'zida** yuklanadi (v2.1.0):
 
+**Sifat nazorati (v2.3.1):** har bir sahifa va modal uchun avtomatik audit — `npm run test:ui` KPI qiymatlari
+siljishini, jadval ustunlarida matn kesilishini, `NaN/undefined` va gorizontal toshishni topadi; `npm test`da
+26-guruh sifatida ham ishlaydi.
+
 **Dizayn (v2.3.0):** interfeys qayta-qayta ko'zdan kechirildi va yagona dizayn tiliga keltirildi — emoji o'rniga
 68 ta o'z SVG ikonkasi, parol ko'zi, bosmaga tayyor kirish kartochkasi (A4), skrol-spy navigatsiya, mikro-animatsiya,
 yopishqoq jadval sarlavhasi, laptop zichligi (1568×768) va mobil sayqal.

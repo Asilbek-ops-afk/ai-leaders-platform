@@ -116,7 +116,16 @@ function stateFor(name) {
     { name: '90-v23-kirish-kartochkasi', vp: { width: 1440, height: 1000 }, steps: ['go-students', 'student-profile', 'login-card'], data: 'a1' },
     { name: '91-v23-kartochka-bosma', vp: { width: 1440, height: 1000 }, steps: ['go-students', 'student-profile', 'login-card', 'print-media'], data: 'a1' },
     { name: '92-v23-talabalar-jadvali', vp: { width: 1568, height: 950 }, steps: ['go-students'], data: 'a1' },
-    { name: '93-v23-mobil-qidiruv', vp: { width: 390, height: 844 }, steps: ['go-students'], data: 'a1' }
+    { name: '93-v23-mobil-qidiruv', vp: { width: 390, height: 844 }, steps: ['go-students'], data: 'a1' },
+
+    /* v2.3.1 — ko'zdan kechirilmagan bo'limlar */
+    { name: '94-v231-adminlar', vp: { width: 1568, height: 950 }, steps: ['go-adminAdmins'], data: 'a1' },
+    { name: '95-v231-buyruq-paneli', vp: { width: 1568, height: 950 }, steps: ['go-admin', 'palette', 'palette-q'], data: 'a1' },
+    { name: '96-v231-bildirishnomalar', vp: { width: 1568, height: 950 }, steps: ['go-admin', 'notifs'], data: 'a1' },
+    { name: '97-v231-jamoalar', vp: { width: 1568, height: 950 }, steps: ['go-adminGroups'], data: 'a1' },
+    { name: '98-v231-sozlamalar', vp: { width: 1568, height: 950 }, steps: ['go-settings'], data: 'a1' },
+    { name: '99-v231-sertifikat', vp: { width: 1568, height: 950 }, steps: ['go-info', 'cert-modal'], data: 's1' },
+    { name: '100-v231-birinchi-ishga-tushirish', vp: { width: 1568, height: 950 }, steps: [], data: 'empty' }
   ];
   const page = await browser.newPage();
   const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
@@ -162,6 +171,8 @@ function stateFor(name) {
       else if (t === 'csv-import') setTimeout(() => document.querySelector('[data-act="import-csv"]')?.click(), 120);
       else if (t === 'login-card') setTimeout(() => document.querySelector('[data-act="login-card"]')?.click(), 120);
       else if (t === 'eye') setTimeout(() => document.querySelector('[data-act="eye"]')?.click(), 220);
+      else if (t === 'notifs') setTimeout(() => document.querySelector('[data-act="notifs"]')?.click(), 220);
+      else if (t === 'cert-modal') setTimeout(() => document.querySelector('[data-act="cert"]')?.click(), 220);
       else if (t === 'top') setTimeout(() => window.scrollTo(0, 0), 160);
       else if (t.startsWith('land-sec:')) setTimeout(() => document.querySelector(t.slice(9))?.scrollIntoView({ block: 'start' }), 150);
       else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="apply"]')?.click(), 320);
@@ -189,6 +200,8 @@ function stateFor(name) {
         else if (t === 'csv-import') setTimeout(() => document.querySelector('[data-act="import-csv"]')?.click(), 120);
         else if (t === 'login-card') setTimeout(() => document.querySelector('[data-act="login-card"]')?.click(), 120);
         else if (t === 'eye') setTimeout(() => document.querySelector('[data-act="eye"]')?.click(), 220);
+        else if (t === 'notifs') setTimeout(() => document.querySelector('[data-act="notifs"]')?.click(), 220);
+        else if (t === 'cert-modal') setTimeout(() => document.querySelector('[data-act="cert"]')?.click(), 220);
         else if (t === 'top') setTimeout(() => window.scrollTo(0, 0), 160);
         else if (t.startsWith('land-sec:')) setTimeout(() => document.querySelector(t.slice(9))?.scrollIntoView({ block: 'start' }), 150);
         else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="apply"]')?.click(), 320);

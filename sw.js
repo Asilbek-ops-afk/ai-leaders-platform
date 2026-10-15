@@ -1,5 +1,5 @@
 /* AI Leaders — Service Worker (PWA): oflayn ishlash va tez yuklash */
-const CACHE = 'ai-leaders-v2.3.0';
+const CACHE = 'ai-leaders-v2.3.1';
 const ASSETS = ['/', '/index.html', '/manifest.webmanifest',
   '/assets/icon-192.png', '/assets/icon-512.png', '/assets/apple-touch-icon.png', '/assets/og.png'];
 

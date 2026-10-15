@@ -7,7 +7,7 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **443 ta tekshiruv, 0 xato** |
+| 🧪 **Testlar** | `npm test` → **495 ta tekshiruv, 0 xato** • `npm run test:ui` → **sahifa auditi** |
 | 🔐 **Kirish** | Talaba: **faqat nick** + parol (HEMIS ID kirishda ishlatilmaydi) • Admin: email + parol |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
@@ -146,7 +146,8 @@ ai-leaders/
 ├── tools/
 │   ├── make-assets.py         # ikon va OG rasmni generatsiya qiladi (Pillow)
 │   └── tests/
-│       ├── run.js             # 443 ta avtomatik test (jsdom)
+│       ├── run.js             # 495 ta avtomatik test (jsdom)
+│       ├── ui-audit.js        # sahifa auditi: KPI siljishi, matn kesilishi, toshish (playwright)
 │       ├── layout.js          # 175 joylashuv (overflow) tekshiruvi (playwright)
 │       ├── live.js            # 18 ta jonli sayt tekshiruvi
 │       ├── fixtures.js        # test uchun namuna ma'lumot (manba kodda YO'Q)
@@ -175,7 +176,8 @@ git clone https://github.com/Asilbek-ops-afk/ai-leaders-platform.git
 cd ai-leaders-platform
 
 npm run build       # src → index.html + dist/
-npm test            # 443 ta avtomatik test (jsdom kerak: npm install)
+npm test            # 495 ta avtomatik test (jsdom kerak: npm install)
+npm run test:ui     # sahifa auditi (playwright kerak)
 npm run test:layout # 175 ta joylashuv tekshiruvi (playwright: npx playwright install chromium)
 npm run assets      # ikon/OG rasmni qayta generatsiya qilish (Python + Pillow)
 npm run check       # sintaksis tekshiruvi
@@ -199,7 +201,7 @@ npm run deploy                       # build + wrangler pages deploy dist/
 Loyihada ikki darajali sifat nazorati bor:
 
 **1) `npm test` — funksional testlar (jsdom, haqiqiy DOM)**
-25 guruh, **443 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
+26 guruh, **495 ta tekshiruv**: bo'sh platforma va Founder yaratish, namuna holat migratsiyasi,
 **CSV import** (fayl → tekshiruv hisoboti → akkauntlar + kartochkalar), **chekka holatlar**
 (vazifasiz jamoa, yetim a'zo, bo'sh tuzilmalarda `NaN`siz hisoblar),
 kirish va rol himoyasi, 7 talaba bo'limi, 8 admin bo'limi,
@@ -208,7 +210,7 @@ fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, e
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**83 ta skrinshot** (93 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari**, **CSV import oynasi** va **v2.3.0 dizayn sayqali** (parol ko'zi, kirish kartochkasi + bosma ko'rinishi, jadval, mobil qidiruv)
+**90 ta skrinshot** (100 qadam): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari**, **CSV import oynasi** va **v2.3.0 dizayn sayqali** (parol ko'zi, kirish kartochkasi + bosma ko'rinishi, jadval, mobil qidiruv) va **v2.3.1 ichki bo'limlar** (Adminlar, buyruq paneli, bildirishnomalar, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish)
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 
@@ -220,7 +222,7 @@ Admin va talaba bo'limlari ketma-ket ochiladi, har biri uchun `document.scrollWi
 18 ta tekshiruv: sahifa yuklanishi, brend, SEO/PWA teglari, manifest, service worker, rasm va sarlavha (header) sozlamalari.
 
 **5) `npm run test:remote` — jonli saytda to'liq funksional testlar**
-Xuddi `npm test` kabi to'liq to'plam (443 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
+Xuddi `npm test` kabi to'liq to'plam (495 ta), lekin lokal `index.html` o'rniga **internetdagi** sahifa yuklab olinadi
 (`TEST_URL=<url> node tools/tests/run.js`). Deploydan keyin «haqiqatan shu versiya chiqdimi?» degan savolga javob beradi.
 
 ---
