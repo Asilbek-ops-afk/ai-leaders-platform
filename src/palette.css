@@ -1,0 +1,131 @@
+/* ==========================================================================
+   MERINO & VENICE — brend palitrasi (v2.6.0)
+   Uch rang:  Merino #F5EEDD · Rock Blue #84B3CE · Venice Blue #16587B
+   Qoida: ranglar shu uchlikdan va ularning soyalaridan olinadi.
+   Qorong'i mavzu  = «Venice kechasi»  (chuqur ko'k zamin, merino siyoh)
+   Yorug' mavzu    = «Merino qog'oz»   (iliq qog'oz, venetsiya siyohi)
+   ========================================================================== */
+
+/* ---------- 1. Tonlar (alfa bilan ishlatish uchun RGB uchliklar) ---------- */
+:root{
+  --brand-rgb:132,179,206;      /* Rock Blue */
+  --brand2-rgb:207,226,239;     /* Rock Blue — och */
+  --accent-rgb:245,238,221;     /* Merino */
+  --ok-rgb:127,201,169; --warn-rgb:227,179,106; --danger-rgb:238,156,134; --coin-rgb:233,201,140;
+  --brand-tone:#C6DDEC; --brand2-tone:#DCEBF3; --accent-tone:#F5EEDD;
+  --ok-tone:#A7DCC5; --warn-tone:#EBCE9A; --danger-tone:#F3B7A6; --coin-tone:#EBCE9A;
+  --brand-ink:#CFE2EF; --brand2-ink:#D6E9F2; --accent-ink:#F5EEDD;
+  --ok-ink:#A9DCC4; --warn-ink:#EBCE9A; --danger-ink:#F3B7A6;
+  --cert-line:#2A5E7C; --cert-line-2:#38678A; --cert-sub:#A9C8DA;
+}
+[data-theme="light"]{
+  --brand-rgb:22,88,123; --brand2-rgb:47,125,166; --accent-rgb:22,88,123;
+  --ok-rgb:31,122,90; --warn-rgb:138,95,20; --danger-rgb:168,68,47; --coin-rgb:138,95,20;
+  --brand-tone:#16587B; --brand2-tone:#2F7DA6; --accent-tone:#16587B;
+  --ok-tone:#1F7A5A; --warn-tone:#8A5F14; --danger-tone:#A8442F; --coin-tone:#8A5F14;
+  --brand-ink:#16587B; --brand2-ink:#185C7A; --accent-ink:#16587B;
+  --ok-ink:#14603F; --warn-ink:#7A5310; --danger-ink:#9B3A28;
+  --logo-fill:rgba(255,253,247,.82);
+  --cert-line:#DCCFB4; --cert-line-2:#C9B893; --cert-sub:#4A6C85;
+}
+
+/* ---------- 2. Jurnal tipografiyasi: serif sarlavhalar ---------- */
+.h1,.h2,.h3,.lh2,.lhero h1,.page-head .h1,.cert .h1,.auth-form .h1,.lbrand-t,.mbox .h1,.mbox .h2{
+  font-family:var(--f-d);letter-spacing:-.015em;font-weight:700}
+.h1,.lh2,.lhero h1{letter-spacing:-.025em;line-height:1.08}
+.h2{font-size:17.5px;line-height:1.2}
+.h3{font-size:15.5px;line-height:1.25}
+.h1+.h2,.h1+.ph-sub{letter-spacing:normal}
+/* serif raqamlar uchun «eski uslub» figurasi jozibali, lekin jadvalda chiziqsiz —
+   shuning uchun kattaroq sarlavhalardagina ishlatiladi, KPI raqamlari sans bo'lib qoladi */
+.kpi .v,.big,.hero-stat b,.lb-xp{font-family:var(--f);font-variant-numeric:tabular-nums}
+
+/* ---------- 3. Venetsiya yorug' mavzu sayqali ---------- */
+/* 3.1 fon: iliq qog'oz + yumshoq ko'k nur */
+body{background:
+  radial-gradient(1100px 620px at 12% -8%,rgba(132,179,206,.30),transparent 62%),
+  radial-gradient(900px 560px at 92% 4%,rgba(22,88,123,.20),transparent 64%),
+  var(--bg)}
+[data-theme="light"] body{background:
+  radial-gradient(1000px 560px at 8% -10%,rgba(132,179,206,.42),transparent 62%),
+  radial-gradient(820px 520px at 96% 0%,rgba(22,88,123,.16),transparent 64%),var(--bg)}
+
+/* 3.2 yorug' mavzuda hero to'ri ko'k chizig'li bo'lishi kerak */
+[data-theme="light"] .hero::after,[data-theme="light"] .auth-art::before{
+  background-image:linear-gradient(rgba(22,88,123,.09) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(22,88,123,.09) 1px,transparent 1px)}
+[data-theme="light"] .hero{background:
+  radial-gradient(700px 340px at 88% -20%,rgba(132,179,206,.5),transparent 62%),
+  radial-gradient(520px 300px at 6% 120%,rgba(245,238,221,.9),transparent 62%),var(--panel)}
+[data-theme="light"] .card.glass{background:
+  linear-gradient(160deg,rgba(132,179,206,.35),rgba(245,238,221,.6) 45%,var(--panel)),var(--panel)}
+
+/* 3.3 «accent» chiplar: yorug' mavzuda teskari siyoh (merino matn, venetsiya fon) */
+[data-theme="light"] .tag.a,[data-theme="light"] .chip.a.on{
+  background:var(--brand);color:var(--paper);border-color:transparent}
+[data-theme="light"] .tag.a .i,[data-theme="light"] .chip.a .i{color:var(--paper)}
+[data-theme="light"] .kpi.a .ic{background:rgba(var(--brand-rgb),.14);color:var(--brand);border-color:rgba(var(--brand-rgb),.3)}
+[data-theme="light"] .kpi.a::before{background:var(--brand)}
+[data-theme="light"] .kpi.a::after{background:radial-gradient(circle,rgba(22,88,123,.28),transparent 70%)}
+[data-theme="light"] .streak{background:linear-gradient(135deg,rgba(132,179,206,.35),rgba(22,88,123,.18));
+  border-color:rgba(22,88,123,.3);color:#0F3D57}
+[data-theme="light"] .streak .i{color:#B4703A}
+
+/* 3.4 tugmalar: chuqur siyoh gradient + merino matn */
+.btn-primary,.chip.on,.seg.on-accent button.on{color:var(--on-brand)}
+[data-theme="light"] .btn-soft,[data-theme="light"] .btn-ghost{border-color:rgba(22,88,123,.28);color:#12405C}
+[data-theme="light"] .btn-ghost:hover{border-color:rgba(22,88,123,.5);background:rgba(22,88,123,.06)}
+
+/* 3.5 yon panel va topbar: qog'oz + siyoh chizig'i */
+[data-theme="light"] .card{border-color:#E9E0CA}
+[data-theme="light"] .kpi{border-color:#E9E0CA}
+[data-theme="light"] .searchbar{background:#FBF6EA;border-color:#E2D8C0}
+[data-theme="light"] .lrow,[data-theme="light"] .trow{background:#FCF8EE}
+[data-theme="light"] .empty{background:rgba(132,179,206,.1)}
+[data-theme="light"] .bar{background:rgba(22,88,123,.10)}
+
+/* 3.6 qorong'i mavzuda tugma chekkasi (chuqur ko'k fonda ko'rinishi uchun) */
+.btn-primary{box-shadow:0 10px 26px -16px rgba(6,28,41,.9),inset 0 1px 0 rgba(255,255,255,.14)}
+:root .kpi .ic{color:var(--brand-tone)}
+
+/* ---------- 4. Hero va strelkalar palitraga moslashadi ---------- */
+.spark-orb{background:radial-gradient(circle,rgba(132,179,206,.7),transparent 70%)}
+:root .streak{background:linear-gradient(135deg,rgba(227,179,106,.22),rgba(238,156,134,.16));
+  border-color:rgba(227,179,106,.38);color:#EBCE9A}
+[data-theme="light"] .streak{color:#7A4A16}
+
+/* ---------- 5. Sertifikat: qog'oz ustida siyoh ---------- */
+.cert{background:var(--cert-bg,linear-gradient(160deg,var(--panel),var(--panel-2)));border-color:var(--cert-line)}
+.cert .sig{border-top-color:var(--cert-line-2);color:var(--cert-sub,var(--muted))}
+[data-theme="light"] .cert{background:linear-gradient(160deg,#FFFDF7,#F7EEDC 60%,#F2E7D2)}
+[data-theme="light"] .cert .watermark{opacity:.18}
+
+/* ---------- 6. Grain/tekstura: iliq qog'oz ---------- */
+[data-theme="light"] body::after{mix-blend-mode:multiply;opacity:.06}
+
+/* ---------- 7. Landing (kirish sahifasi) palitraga moslashadi ---------- */
+.lnav-theme{width:38px;height:38px;margin-left:6px;order:2}
+.lnav-cta{order:3}
+/* 7.1 yorug' mavzuda sharlar: merino ko'rinmas — rock/venice nurlari */
+[data-theme="light"] .lhero-orb.o1{background:#84B3CE;opacity:.55}
+[data-theme="light"] .lhero-orb.o2{background:#16587B;opacity:.34}
+[data-theme="light"] .lhero-orb.o3{background:#84B3CE;opacity:.3}
+[data-theme="light"] .ltag{background:#FFFDF7;border-color:var(--line-2);color:var(--txt2)}
+[data-theme="light"] .ltag.p,[data-theme="light"] .ltag.a{
+  background:linear-gradient(135deg,rgba(132,179,206,.34),rgba(245,238,221,.7));border-color:rgba(22,88,123,.28);color:var(--brand)}
+[data-theme="light"] .lfcard{background:#FFFDF7;box-shadow:0 18px 40px -26px rgba(22,88,123,.5);border-color:var(--line-2)}
+[data-theme="light"] .lchip{background:#FFFDF7;border-color:var(--line-2)}
+[data-theme="light"] .lcue{color:var(--muted)}
+[data-theme="light"] .lcue-m{border-color:rgba(22,88,123,.35)}
+/* 7.2 kirish kartasi: qog'oz varaq + siyoh ramka */
+[data-theme="light"] .lauth-card,[data-theme="light"] .lcard{background:#FFFDF7;border-color:var(--line-2)}
+[data-theme="light"] .auth-tab{background:#F6EFDF;border-color:var(--line-2)}
+[data-theme="light"] .auth-tab.on{background:var(--grad);color:var(--paper)}
+/* 7.3 landing sarlavhalari serif */
+.lh2{font-family:var(--f-d);font-weight:700;letter-spacing:-.02em}
+.lhero h1{font-family:var(--f-d);font-weight:700}
+.lbrand-t{font-family:var(--f-d);letter-spacing:.02em}
+/* 7.4 footer: venetsiya siyohi (ikkala mavzuda ham) */
+.lfoot{background:#0F3D57;color:#E7F0F6}
+[data-theme="light"] .lfoot{background:linear-gradient(180deg,#12405C,#0D3349);color:#F5EEDD}
+[data-theme="light"] .lfoot a{color:#E7F0F6}

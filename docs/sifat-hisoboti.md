@@ -2,9 +2,9 @@
 
 Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** barcha kamchiliklarni,
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
-**eng yangi holat — oxirgi bo'lim (v2.5.0)**.
+**eng yangi holat — oxirgi bo'lim (v2.6.0)**.
 
-**Oxirgi versiya:** v2.5.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
+**Oxirgi versiya:** v2.6.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -20,6 +20,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [**v2.3.1**](#v231--ichki-bolimlar-auditi-va-avtomatik-ui-tekshiruvi) | **v2.3.1** | **Ichki bo'limlar auditi + avtomatik UI tekshiruvi (`npm run test:ui`): KPI siljishi, matn kesilishi, gorizontal toshish** |
 | [**v2.3.2**](#v232--kontrast-aa-auditi-va-faollik-taqsimoti) | **v2.3.2** | **WCAG AA kontrast auditi (ikkala mavzu), yorug' mavzu rang tuzatishlari, haqiqiy «Faollik taqsimoti» (o'ylab topilgan egri chiziq o'rniga)** |
 | [**v2.3.3**](#v233--katta-klub-unumdorligi-bosma-va-ornatilgan-ilova) | **v2.3.3** | **200+ talabada unumdorlik (indeks + kesh), bosmada orqa sahifa tushib qolishi tuzatildi, o'rnatilgan ilova (safe-area) rejimi, 3 yangi vosita: `test:scale`, `test:print`, `test:standalone`** |
+| [**v2.6.0**](#v260--merino--venice-palitrasi-jurnal-tipografiyasi) | **v2.6.0** | **Rang tizimi #F5EEDD · #84B3CE · #16587B uchligiga o'tdi: Venetsiya kechasi (tungi) + Merino qog'oz (yorug'), serif sarlavhalar, yangi og.png/ikonkalar, landing uchun mavzu tugmasi** |
 | [**v2.5.0**](#v250--craft-qatlami-sahifalar-tirik-va-qolda-ishlangan) | **v2.5.0** | **Craft qatlami: jonli lenta, faollik xaritasi, uchqun grafigi, jonli soat, kursor nuri, raqamlar sanalishi, qo'lda chizilgan bo'sh holatlar** |
 | [**v2.4.0**](#v240--premium-dizayn-sayqali-va-ortiqcha-matnlar-qisqartirildi) | **v2.4.0** | **Premium dizayn tizimi (chuqurlik, yorug'lik, gradient sarlavhalar, jonli statistika), modul kartalari qayta ishlandi, ortiqcha matnlar qisqartirildi, auditga 2 yangi nazorat: yorliq kesilishi va matn to'qnashuvi** |
 
@@ -819,3 +820,54 @@ va `prefers-reduced-motion` yoqilganda barcha animatsiya to'xtaydi.
 | O'rnatilgan ilova rejimi | ✔ 0 nuqson |
 | Skrinshotlar | ✔ **96 ta** yangilandi |
 | Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.5.0** |
+
+---
+
+## v2.6.0 — Merino & Venice palitrasi, jurnal tipografiyasi
+
+**Baho (foydalanuvchi):** uch rangli palitra berildi — **Merino #F5EEDD · Rock Blue #84B3CE · Venice Blue #16587B**
+va «shu 3 rangdan foydalanib uyg'unlashtirib, kreativ yondash, mukammal dizayn» topshirig'i berildi.
+
+Ranglar faqat «qo'shilmadi» — butun tizim ular atrofida qayta qurildi.
+
+### Ikki mavzu = bitta palitraning ikki yo'nalishi
+
+| Mavzu | Zamin | Matn | Nur |
+|---|---|---|---|
+| **Venetsiya kechasi** (tungi) | `#0A2A3D` (Venice Blue'ning qoraytirilgani — «siyoh») | Merino `#F5EEDD` | Rock Blue `#84B3CE` |
+| **Merino qog'oz** (yorug') | `#F5EEDD` (asl merino) | Venice Blue `#16587B` | Qog'oz `#FFFDF7` + Rock Blue aksent |
+
+Ya'ni ikkala mavzu ham aynan shu uch rangdan o'sadi; hech qanday begona neon rang qolmadi
+(eski binafsha/moviy/limon/neon-yashil/qizil — barchasi palitra ichidagi soyalar bilan almashtirildi).
+
+### Nima qilindi
+
+| Qatlam | Tafsilot |
+|---|---|
+| **Algoritmik almashtirish** | `style.css` (95), `premium.css` (20), `craft.css` (20), 5 ta JS fayl (55) — jami **190 ta rang almashtirildi**; har bir `rgba(132,179,206,…)` ton endi `--brand-rgb` orqali boshqariladi |
+| **Yangi qatlam** | `src/palette.css` — tonlar (brand/ok/warn/danger/coin), yorug' mavzu sayqali, serif tipografiya, landing va footer ranglari |
+| **Tipografiya** | Sarlavhalar (`.h1/.h2/.h3/.lh2/.lhero h1`, brend nomi, sertifikat) — **serif** (Iowan/Palatino/Georgia); KPI raqamlari aniq sans + `tabular-nums` bo'lib qoldi. Brend nimasi: muhandislik aniqlik + klub jurnali estetikasi |
+| **Yorug' mavzu sayqali** | Qog'oz fonlar (`#FFFDF7`, `#FBF6EA`), siyoh soyalari (ko'k asosli), yorliqlar **yumshoq fon + to'q siyoh** ko'rinishiga o'tdi (ilgari to'q rang fon bo'lib, matn ko'rinmay qolgan edi) |
+| **Tungi mavzu sayqali** | Ko'k zamin + Rock Blue kartalar; Merino faqat asosiy tugmada matn sifatida (yuqori kontrast) |
+| **Landing** | Yangi **mavzu tugmasi** navigatsiyada (kirish ekranida mavzuni almashtirish); yorug' mavzuda sharlar Rock/Venice nuriga o'tadi; footer — venetsiya siyohi |
+| **Brend assetlari** | `tools/make-assets.py` palitraga o'tkazildi va qayta generatsiya qilindi: logotip, 5 ikonka, **og.png** (1200×630 — endi ko'k zamin + merino yozuv). Hajm: 236 KB → **60 KB** (og.png 121 KB → 23.5 KB, `--ordered` dither bilan) |
+| **Meta** | `theme-color` (#0A2A3D / #F5EEDD), manifest, inline favicon — hammasi yangi palitrada |
+
+### Ko'rikda topilgan va tuzatilgan nuqsonlar
+
+| Nuqson | Sabab | Tuzatish |
+|---|---|---|
+| **Yorliq matni ko'rinmas** (Statistika, «Izlanuvchi», «4/5», yon panel sarlavhalari) | Yorug' mavzuda `--brand-tone` kabi *matn tonlari* `--brand` bilan bir xil to'q rangga aylangan, lekin ular **fon** sifatida ham ishlatilardi | Yorug' mavzudagi barcha yorliqlar `rgba(tone,.12–.16)` yumshoq fon + to'q siyoh matnga o'tkazildi |
+| **Do'stlar sahifasidagi «4.9» baho yorlig'i** | `#1d6b8c` oq fon ustida 4.48 kontrast (AA chegarasidan 0.02 past) | `--brand2-ink` → `#185C7A` (kontrast 4.9+) |
+
+### Tekshiruv natijalari (v2.6.0)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **507 ta, 0 xato** |
+| Sahifa auditi (kontrast, kesilish, to'qnashuv) | ✔ **0 nuqson** — dark va light, 16 sahifa, 6 modal |
+| Joylashuv | ✔ 175 tekshiruv, 0 gorizontal toshish |
+| Katta klub (200 talaba) | ✔ 0 nuqson |
+| Chop etish / o'rnatilgan ilova | ✔ 0 nuqson |
+| Skrinshotlar | ✔ **96 ta** yangi palitrada yangilandi |
+| Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.6.0** |

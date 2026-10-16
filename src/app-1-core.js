@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.5.0';
+const APP_VERSION = '2.6.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -396,14 +396,14 @@ function crest(g, size) {
   const s = size || 52;
   const h = (esc(g.name.charCodeAt(0) + g.name.charCodeAt(1) % 360));
   return '<svg class="crest" style="width:' + s + 'px;height:' + s + 'px" viewBox="0 0 64 64" aria-hidden="true">' +
-    '<defs><linearGradient id="cg' + g.id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
+    '<defs><linearGradient id="cg' + g.id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--brand)"/><stop offset="1" style="stop-color:var(--brand-2)"/></linearGradient></defs>' +
     '<path d="M32 3 56 17v30L32 61 8 47V17z" fill="rgba(124,92,255,.16)" stroke="url(#cg' + g.id + ')" stroke-width="2.4" stroke-linejoin="round"/>' +
     '<text x="32" y="39" text-anchor="middle" font-family="Inter,sans-serif" font-size="19" font-weight="800" fill="#EAF0FF">' + esc(initials(g.name)) + '</text></svg>';
 }
 function ring(pct, size, sub) {
   const s = size || 96, r = (s - 11) / 2, c = 2 * Math.PI * r;
   return '<div class="ring" style="width:' + s + 'px;height:' + s + 'px">' +
-    '<svg width="' + s + '" height="' + s + '"><defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
+    '<svg width="' + s + '" height="' + s + '"><defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--brand)"/><stop offset="1" style="stop-color:var(--brand-2)"/></linearGradient></defs>' +
     '<circle class="bgc" cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r + '" stroke-width="7"/>' +
     '<circle class="fgc" cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r + '" stroke-width="7" stroke-dasharray="' + c + '" stroke-dashoffset="' + (c * (1 - pct / 100)) + '" style="transition:stroke-dashoffset .6s"/></svg>' +
     '<div class="val"><div style="font-size:' + Math.round(s / 4) + 'px">' + pct + '%</div>' + (sub ? '<div class="xs muted">' + esc(sub) + '</div>' : '') + '</div></div>';
@@ -444,11 +444,11 @@ const MOBILE_ADMIN = ['admin', 'students', 'adminTasks', 'adminGroups', 'stats']
 /* ---------- 7. Shell ---------- */
 function brandBlock(big, withCollapse) {
   return '<div class="brand"><svg class="mark" style="width:' + (big ? 46 : 42) + 'px;height:' + (big ? 46 : 42) + 'px" viewBox="0 0 64 64" aria-hidden="true">' +
-    '<defs><linearGradient id="bm' + (big ? 'b' : 's') + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset=".55" stop-color="#5B8CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
-    '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="#0A0F1E" stroke="url(#bm' + (big ? 'b' : 's') + ')" stroke-width="2.6" stroke-linejoin="round"/>' +
+    '<defs><linearGradient id="bm' + (big ? 'b' : 's') + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--brand)"/><stop offset=".55" style="stop-color:var(--brand-3)"/><stop offset="1" style="stop-color:var(--brand-2)"/></linearGradient></defs>' +
+    '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" style="fill:var(--logo-fill)" stroke="url(#bm' + (big ? 'b' : 's') + ')" stroke-width="2.6" stroke-linejoin="round"/>' +
     '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#bm' + (big ? 'b' : 's') + ')" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
-    '<circle cx="32" cy="17.8" r="3.7" fill="#C6FF4F"/><circle cx="21" cy="46.5" r="3" fill="#22D3EE"/><circle cx="43" cy="46.5" r="3" fill="#7C5CFF"/></svg>' +
+    '<path d="M25.6 37.6h12.8" style="stroke:var(--accent)" stroke-width="4.6" stroke-linecap="round"/>' +
+    '<circle cx="32" cy="17.8" r="3.7" style="fill:var(--accent)"/><circle cx="21" cy="46.5" r="3" style="fill:var(--brand-2)"/><circle cx="43" cy="46.5" r="3" style="fill:var(--brand)"/></svg>' +
     '<div class="brand-txt"><strong>AI LEADERS</strong><em>STARTUP CLUB</em></div>' +
     (withCollapse ? '<button class="collapse-btn" data-act="collapse" title="Yon panelni yig‘ish / ochish" aria-label="Yon panelni yig‘ish">' +
       ico(UI.collapsed ? 'right' : 'left', 'sm') + '</button>' : '') + '</div>';
@@ -1071,7 +1071,7 @@ function lessonModal(l) {
     (QUIZZES[l.id] ? '<div class="card" style="margin-top:14px"><div class="card-h"><h2 class="h2">' + ico('help') + 'Qisqa tekshiruv</h2>' +
       '<span class="tag ' + ((S.quizDone[st.id] || []).includes(l.id) ? 'g' : 'c') + '">' + ((S.quizDone[st.id] || []).includes(l.id) ? 'topshirilgan' : '3 savol • +15 XP') + '</span></div>' +
       '<div class="col" style="gap:12px">' + QUIZZES[l.id].map((q, qi) => '<div><div class="small" style="font-weight:750;margin-bottom:7px">' + (qi + 1) + '. ' + esc(q.q) + '</div>' +
-        '<div class="col" style="gap:6px">' + q.o.map((o, oi) => '<label class="row small t2" style="gap:9px;cursor:pointer"><input type="radio" name="q' + qi + '" value="' + oi + '" style="accent-color:#7C5CFF;width:16px;height:16px">' + esc(o) + '</label>').join('') + '</div></div>').join('') + '</div>' +
+        '<div class="col" style="gap:6px">' + q.o.map((o, oi) => '<label class="row small t2" style="gap:9px;cursor:pointer"><input type="radio" name="q' + qi + '" value="' + oi + '" style="accent-color:var(--brand);width:16px;height:16px">' + esc(o) + '</label>').join('') + '</div></div>').join('') + '</div>' +
       '<button class="btn btn-soft btn-sm btn-block" style="margin-top:12px" data-act="quiz-submit" data-id="' + l.id + '">' + ico('check-c', 'sm') + 'Javoblarni tekshirish</button></div>' : '') +
     '<div class="row" style="margin-top:14px;gap:10px">' +
     (done ? '<button class="btn btn-soft grow" disabled>' + ico('check-c', 'sm') + 'Tugatilgan</button>'
@@ -1152,7 +1152,7 @@ function certModal(c) {
   const st = me();
   openModal(
     mhead('Sertifikat', 'Modul ' + c.m.n + ' • ' + fmtFull(c.date)) +
-    '<div class="cert" id="cert-print"><svg class="watermark" viewBox="0 0 64 64"><path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="none" stroke="#7C5CFF" stroke-width="2.6"/><path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="#22D3EE" stroke-width="4"/><path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4"/></svg>' +
+    '<div class="cert" id="cert-print"><svg class="watermark" viewBox="0 0 64 64"><path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="none" style="stroke:var(--brand)" stroke-width="2.6"/><path d="M21 46.5 32 17.8l11 28.7" fill="none" style="stroke:var(--brand-2)" stroke-width="4"/><path d="M25.6 37.6h12.8" style="stroke:var(--accent)" stroke-width="4"/></svg>' +
     '<div class="wl">AI Leaders • Startup Club</div>' +
     '<div class="small" style="color:#A9BCE8;margin-top:10px">Bu hujjat quyidagi shaxsga beriladi</div>' +
     '<div class="nm">' + esc(st.name) + '</div>' +

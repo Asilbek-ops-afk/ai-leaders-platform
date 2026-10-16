@@ -447,7 +447,7 @@ function vAdminLessons() {
     /* Talaba yo'q bo'lsa foiz ko'rsatish chalg'itadi */
     const completeTxt = S.students.length ? (completers + ' talaba 100% tugatgan') : 'hali talaba qo‘shilmagan';
     return '<div class="card"><div class="card-h"><div class="row" style="gap:12px">' +
-      '<div class="lead" style="width:42px;height:42px;border-radius:13px;background:rgba(124,92,255,.16);border-color:rgba(124,92,255,.3);color:#C4B4FF">' + ico(mm.icon) + '</div>' +
+      '<div class="lead" style="width:42px;height:42px;border-radius:13px;background:rgba(124,92,255,.16);border-color:rgba(124,92,255,.3);color:var(--brand-tone)">' + ico(mm.icon) + '</div>' +
       '<div><div class="up muted">' + mm.n + '-modul</div><h2 class="h2">' + esc(mm.title) + '</h2>' +
       '<div class="xs muted">' + ls.length + ' dars • ' + completeTxt + ' • ' + (t ? 'vazifa: ' + esc(t.title) : 'vazifa yo‘q') + '</div></div></div>' +
       '<div class="row" style="gap:8px"><button class="btn btn-xs btn-soft" data-act="new-lesson-mod" data-id="' + mm.id + '">' + ico('plus', 'sm') + 'Dars</button>' +
@@ -544,12 +544,12 @@ function vAdminDeadlines() {
     '<button class="btn-icon" style="width:36px;height:36px" data-act="cal-prev">' + ico('left', 'sm') + '</button>' +
     '<h2 class="h2" style="min-width:150px;text-align:center">' + esc(cal.label) + '</h2>' +
     '<button class="btn-icon" style="width:36px;height:36px" data-act="cal-next">' + ico('right', 'sm') + '</button></div>' +
-    '<div class="row xs muted wrap" style="gap:12px"><span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#7C5CFF;display:block"></i>umumiy</span>' +
-    '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#C6FF4F;display:block"></i>jamoa uchun</span></div></div>' +
+    '<div class="row xs muted wrap" style="gap:12px"><span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--brand);display:block"></i>umumiy</span>' +
+    '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:block"></i>jamoa uchun</span></div></div>' +
     '<div class="cal">' + UZ_D.map(d => '<div class="hd">' + d + '</div>').join('') +
     cal.cells.map(c => { const ds = isoDate(c.d), items = map[ds] || [];
       return '<div class="d ' + (c.out ? 'out ' : '') + (ds === today ? 'today ' : '') + (items.length ? 'has' : '') + '" ' + (items.length ? 'data-act="cal-day2" data-d="' + ds + '"' : '') + '>' +
-        '<span class="n">' + c.d.getDate() + '</span><div class="dots">' + items.slice(0, 4).map(it => '<i style="background:' + (it.k === 'team' ? '#C6FF4F' : '#7C5CFF') + '"></i>').join('') + '</div></div>';
+        '<span class="n">' + c.d.getDate() + '</span><div class="dots">' + items.slice(0, 4).map(it => '<i style="background:' + (it.k === 'team' ? 'var(--accent)' : 'var(--brand)') + '"></i>').join('') + '</div></div>';
     }).join('') + '</div></div>' +
 
     '<div class="col" style="gap:14px"><div class="card"><div class="card-h"><h2 class="h2">' + ico('alert') + 'Kechikkanlar ro‘yxati</h2>' +

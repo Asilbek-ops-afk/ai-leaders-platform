@@ -137,6 +137,12 @@ ambivent fon (aurora, blueprint to'r, donador tekstura), jurnal uslubidagi sahif
 qo'lda chizilgan bo'sh holat illyustratsiyalari. Qatlam view kodiga tegmaydi, jsdom'da o'chadi va
 `prefers-reduced-motion` yoqilganda barcha animatsiya to'xtaydi.
 
+**Brend palitrasi (v2.6.0):** Merino #F5EEDD · Rock Blue #84B3CE · Venice Blue #16587B.
+Tungi mavzu «Venetsiya kechasi» (ko'k zamin + merino siyoh), yorug' mavzu «Merino qog'oz»
+(iliq qog'oz + venetsiya siyohi). Barcha neon ranglar palitra ichidagi soyalar bilan almashtirildi
+(190 nuqta), sarlavhalar serif tipografiyaga o'tdi, `palette.css` — yagona rang manbasi,
+`tools/make-assets.py` yangi logotip/ikonka/og.png ni generatsiya qiladi.
+
 **Dizayn (v2.3.0):** interfeys qayta-qayta ko'zdan kechirildi va yagona dizayn tiliga keltirildi — emoji o'rniga
 68 ta o'z SVG ikonkasi, parol ko'zi, bosmaga tayyor kirish kartochkasi (A4), skrol-spy navigatsiya, mikro-animatsiya,
 yopishqoq jadval sarlavhasi, laptop zichligi (1568×768) va mobil sayqal.

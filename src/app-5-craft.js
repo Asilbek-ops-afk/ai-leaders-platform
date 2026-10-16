@@ -127,7 +127,7 @@ function sparkSVG(values) {
   let len = 0; for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
   const last = pts[pts.length - 1] || [0, 0];
   return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
-    '<defs><linearGradient id="' + id + 'L" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient>' +
+    '<defs><linearGradient id="' + id + 'L" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--brand)"/><stop offset="1" style="stop-color:var(--brand-2)"/></linearGradient>' +
     '<linearGradient id="' + id + 'G" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(124,92,255,.55)"/><stop offset="1" stop-color="rgba(124,92,255,0)"/></linearGradient></defs>' +
     '<path class="area" d="' + line + ' L' + w + ' ' + h + ' L0 ' + h + ' Z" fill="url(#' + id + 'G)"/>' +
     '<path class="line" style="--len:' + Math.round(len) + ';stroke:url(#' + id + 'L)" d="' + line + '"/>' +

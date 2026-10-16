@@ -163,7 +163,7 @@ function buildAccounts() {
 /* Talaba profillari bir marta quriladi (akkauntlar shundan foydalanadi) */
 const STUDENTS = buildStudents();
 
-const FIXTURE_VERSION = '2.5.0';
+const FIXTURE_VERSION = '2.6.0';
 
 /* To'liq namunaviy holat (localStorage'ga yoziladi) */
 function demoState() {

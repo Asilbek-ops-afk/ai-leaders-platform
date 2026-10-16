@@ -60,11 +60,11 @@ function vAuth() {
 /* Logotip (brend hexagon) — unique gradient id bilan */
 function landLogo(id, sz) {
   return '<svg style="width:' + sz + 'px;height:' + sz + 'px;flex:0 0 auto" viewBox="0 0 64 64">' +
-    '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
-    '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="rgba(10,15,30,.55)" stroke="url(#' + id + ')" stroke-width="2.6" stroke-linejoin="round"/>' +
+    '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--brand)"/><stop offset="1" style="stop-color:var(--brand-2)"/></linearGradient></defs>' +
+    '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" style="fill:var(--logo-fill)" stroke="url(#' + id + ')" stroke-width="2.6" stroke-linejoin="round"/>' +
     '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#' + id + ')" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
-    '<circle cx="32" cy="17.8" r="3.7" fill="#C6FF4F"/><circle cx="21" cy="46.5" r="3" fill="#22D3EE"/><circle cx="43" cy="46.5" r="3" fill="#7C5CFF"/></svg>';
+    '<path d="M25.6 37.6h12.8" style="stroke:var(--accent)" stroke-width="4.6" stroke-linecap="round"/>' +
+    '<circle cx="32" cy="17.8" r="3.7" style="fill:var(--accent)"/><circle cx="21" cy="46.5" r="3" style="fill:var(--brand-2)"/><circle cx="43" cy="46.5" r="3" style="fill:var(--brand)"/></svg>';
 }
 function landBrand() {
   return '<div class="lbrand">' + landLogo('lgL', 42) +
@@ -78,6 +78,8 @@ function landNav() {
     [['#limkon', 'Imkoniyatlar'], ['#ljarayon', 'Jarayon'], ['#ldastur', 'Dastur'], ['#lsavol', 'Savollar']]
       .map(x => '<a href="' + x[0] + '" data-act="to-sec" data-sec="' + x[0] + '">' + esc(x[1]) + '</a>').join('') +
     '</nav>' +
+    '<button class="btn-icon lnav-theme" data-act="theme" aria-label="Mavzu" title="Yorug‘/tungi rejim">' +
+      ico(UI.theme === 'dark' ? 'sun' : 'moon', 'sm') + '</button>' +
     '<button class="btn btn-primary btn-sm lnav-cta" data-act="to-auth">' + ico('lock', 'sm') + 'Kirish</button>' +
     '</header>';
 }
@@ -316,14 +318,14 @@ function landScrollTo(sel) {
 /* Kirish ekranining chap tomoni (brend + tavsif) */
 function authArt() {
   const nMod = S.modules.length, nL = S.lessons.length;
-  return '<div class="row auth-brand" style="gap:14px"><svg style="width:54px;height:54px" viewBox="0 0 64 64"><defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>' +
+  return '<div class="row auth-brand" style="gap:14px"><svg style="width:54px;height:54px" viewBox="0 0 64 64"><defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--brand)"/><stop offset="1" style="stop-color:var(--brand-2)"/></linearGradient></defs>' +
     '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="rgba(10,15,30,.7)" stroke="url(#ag)" stroke-width="2.6" stroke-linejoin="round"/>' +
     '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#ag)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
-    '<circle cx="32" cy="17.8" r="3.7" fill="#C6FF4F"/><circle cx="21" cy="46.5" r="3" fill="#22D3EE"/><circle cx="43" cy="46.5" r="3" fill="#7C5CFF"/></svg>' +
+    '<path d="M25.6 37.6h12.8" style="stroke:var(--accent)" stroke-width="4.6" stroke-linecap="round"/>' +
+    '<circle cx="32" cy="17.8" r="3.7" style="fill:var(--accent)"/><circle cx="21" cy="46.5" r="3" style="fill:var(--brand-2)"/><circle cx="43" cy="46.5" r="3" style="fill:var(--brand)"/></svg>' +
     '<div><div style="font-size:19px;font-weight:850;letter-spacing:.12em">AI LEADERS</div><div class="xs" style="letter-spacing:.34em;color:#8C9CC8;font-weight:750">STARTUP CLUB</div></div></div>' +
-    '<div class="spark-orb float-slow" style="width:260px;height:260px;background:#7C5CFF;top:16%;right:-60px"></div>' +
-    '<div class="spark-orb float-slow" style="width:200px;height:200px;background:#22D3EE;bottom:6%;left:-40px;animation-delay:1.4s"></div>' +
+    '<div class="spark-orb float-slow" style="width:260px;height:260px;background:var(--brand);top:16%;right:-60px"></div>' +
+    '<div class="spark-orb float-slow" style="width:200px;height:200px;background:var(--brand-2);bottom:6%;left:-40px;animation-delay:1.4s"></div>' +
     '<div class="auth-copy">' +
     '<span class="tag p" style="margin-bottom:14px">' + ico('rocket', 'sm') + '0 dan startapgacha</span>' +
     '<h1 style="font-size:clamp(28px,4vw,44px);line-height:1.08;letter-spacing:-.03em;margin:14px 0 12px;font-weight:880">G‘oyadan ishlaydigan mahsulotgacha — jamoada, kuzatuv ostida.</h1>' +
@@ -471,8 +473,8 @@ function contentFoot() {
     '<div class="cf-brand"><svg style="width:26px;height:26px" viewBox="0 0 64 64" aria-hidden="true">' +
     '<path d="M32 3.4 56.6 17.6v28.8L32 60.6 7.4 46.4V17.6Z" fill="rgba(10,15,30,.7)" stroke="url(#agf)" stroke-width="3" stroke-linejoin="round"/>' +
     '<path d="M21 46.5 32 17.8l11 28.7" fill="none" stroke="url(#agf)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M25.6 37.6h12.8" stroke="#C6FF4F" stroke-width="4.6" stroke-linecap="round"/>' +
-    '<defs><linearGradient id="agf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs></svg>' +
+    '<path d="M25.6 37.6h12.8" style="stroke:var(--accent)" stroke-width="4.6" stroke-linecap="round"/>' +
+    '<defs><linearGradient id="agf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--brand)"/><stop offset="1" style="stop-color:var(--brand-2)"/></linearGradient></defs></svg>' +
     '<span><b>AI Leaders</b> <em>Startup Club</em></span></div>' +
     '<nav class="cf-links" aria-label="Tezkor havolalar">' + links.map(l =>
       '<a href="#" data-act="go" data-route="' + l[0] + '">' + esc(l[1]) + '</a>').join('') + '</nav>' +

@@ -82,7 +82,7 @@ function vHome() {
     '<div class="col" style="gap:9px">' + QUESTS.map(x => {
       const done = q.done.includes(x.id);
       return '<button class="lrow press ' + (done ? 'done' : '') + '" data-act="quest" data-id="' + x.id + '" style="text-align:left;width:100%">' +
-        '<div class="lead" style="' + (done ? 'background:rgba(56,225,160,.16);border-color:rgba(56,225,160,.34);color:#7CF0C3' : '') + '">' + ico(done ? 'check' : x.i) + '</div>' +
+        '<div class="lead" style="' + (done ? 'background:rgba(56,225,160,.16);border-color:rgba(56,225,160,.34);color:var(--ok-tone)' : '') + '">' + ico(done ? 'check' : x.i) + '</div>' +
         '<div class="grow"><div class="small" style="font-weight:750">' + esc(x.t) + '</div><div class="xs muted">' + esc(x.s) + '</div></div>' +
         '<span class="tag ' + (done ? 'g' : '') + '">+' + x.xp + ' XP</span></button>';
     }).join('') + '</div>' +
@@ -95,7 +95,7 @@ function vHome() {
       '<div class="lead">' + ico(modOf(d.t.m).icon) + '</div>' +
       '<div class="grow"><div class="small ellip" style="font-weight:750">' + esc(d.t.title) + '</div><div class="xs muted">' + modOf(d.t.m).n + '-modul • ' + fmtFull(d.due) + '</div></div>' +
       tlPill(d.tl) + '</button>').join('') : '<div class="empty">Faol deadline yo‘q</div>') + '</div>' +
-    (near && near.tl.late ? '<div class="card tight" style="margin-top:10px;border-color:rgba(255,92,122,.34);background:rgba(255,92,122,.07)"><div class="row small" style="gap:8px;color:#FF9AAB">' + ico('alert', 'sm') + 'Mentorga kechikish sababini yozib qo‘ying — bu streak va bahoga ijobiy ta’sir qiladi.</div></div>' : '') +
+    (near && near.tl.late ? '<div class="card tight" style="margin-top:10px;border-color:rgba(255,92,122,.34);background:rgba(255,92,122,.07)"><div class="row small" style="gap:8px;color:var(--danger-tone)">' + ico('alert', 'sm') + 'Mentorga kechikish sababini yozib qo‘ying — bu streak va bahoga ijobiy ta’sir qiladi.</div></div>' : '') +
     '</div></div>';
 
   /* Yo'l xaritasi */
@@ -153,7 +153,7 @@ function vHome() {
     '<div class="chart">' + week.map((w, i) => { const v = Math.max(6, Math.round(w.v / maxv * 100)); return '<div class="b' + (i === week.length - 2 ? ' hi' : '') + '"><div class="fill" style="height:' + v + '%;animation-delay:' + (i * 55) + 'ms"></div><span>' + w.l + '</span></div>'; }).join('') + '</div>' +
     '<div class="divider"></div>' +
     '<div class="row between wrap" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('flame', 'sm') + 'Oxirgi 7 kun:</div>' +
-    '<div class="row" style="gap:5px">' + Array.from({ length: 7 }).map((_, i) => { const on = (6 - i) < st.streak; return '<span title="' + (on ? 'bajarilgan' : 'bo\u2019sh') + '" style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:' + (on ? 'linear-gradient(135deg,#7C5CFF,#22D3EE)' : 'var(--panel-3)') + ';color:' + (on ? '#08101F' : 'var(--muted)') + ';font-size:10px;font-weight:800">' + (on ? '\u2713' : '') + '</span>'; }).join('') + '</div></div></div>';
+    '<div class="row" style="gap:5px">' + Array.from({ length: 7 }).map((_, i) => { const on = (6 - i) < st.streak; return '<span title="' + (on ? 'bajarilgan' : 'bo\u2019sh') + '" style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:' + (on ? 'linear-gradient(135deg,var(--brand),var(--brand-2))' : 'var(--panel-3)') + ';color:' + (on ? 'var(--on-brand)' : 'var(--muted)') + ';font-size:10px;font-weight:800">' + (on ? '\u2713' : '') + '</span>'; }).join('') + '</div></div></div>';
 
   h += '<div class="card rail-card"><div class="card-h"><h2 class="h2">' + ico('spark') + 'Klubda nima bo\u2019lyapti</h2></div>' +
     '<div class="col" style="gap:0">' + (S.activity.length ? S.activity.slice(0, 4).map(a => '<div class="wall-item" style="padding:9px 0">' +
@@ -178,7 +178,7 @@ function vLessons() {
   if (nl) {
     const mm = modOf(nl.m);
     h += '<div class="card glass"><div class="row wrap between" style="gap:14px">' +
-      '<div class="row" style="gap:14px;min-width:260px"><div class="lead" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--grad);color:#08101F">' + ico('play', 'lg') + '</div>' +
+      '<div class="row" style="gap:14px;min-width:260px"><div class="lead" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--grad);color:var(--on-brand)">' + ico('play', 'lg') + '</div>' +
       '<div><div class="up muted">' + mm.n + '-modul • ' + (TYPES[nl.type] || TYPES.video).l + ' • ' + nl.dur + ' daq</div>' +
       '<div class="h2" style="margin-top:4px">' + esc(nl.t) + '</div><div class="small muted" style="margin-top:3px">Kurs progressi ' + p.pct + '% — bugun bitta dars yetarli.</div></div></div>' +
       '<button class="btn btn-primary" data-act="lesson-open" data-id="' + nl.id + '">' + ico('play', 'sm') + 'Davom etish</button></div></div>';
@@ -406,7 +406,7 @@ function vDeadlines() {
     '<button class="' + (isCal ? 'on' : '') + '" data-act="cal-mode" data-m="-1">Oylik kalendar</button></div></div>';
 
   if (near) h += '<div class="card glass"><div class="row wrap between" style="gap:14px">' +
-    '<div class="row" style="gap:13px;min-width:280px"><div class="lead" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(255,92,122,.14);color:#FF9AAB;border:1px solid rgba(255,92,122,.3)">' + ico('clock', 'lg') + '</div>' +
+    '<div class="row" style="gap:13px;min-width:280px"><div class="lead" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(255,92,122,.14);color:var(--danger-tone);border:1px solid rgba(255,92,122,.3)">' + ico('clock', 'lg') + '</div>' +
     '<div><div class="up muted">Eng yaqin deadline</div><div class="h2" style="margin:3px 0">' + esc(near.t.title) + '</div>' +
     '<div class="small muted">' + fmtFull(near.due) + ' • ' + wd(near.due) + ' kuni</div></div></div>' +
     (near.tl.late
@@ -429,13 +429,13 @@ function vDeadlines() {
       '<div class="row" style="gap:8px"><button class="btn-icon" style="width:36px;height:36px" data-act="cal-prev">' + ico('left', 'sm') + '</button>' +
       '<h2 class="h2" style="min-width:150px;text-align:center">' + esc(cal.label) + '</h2>' +
       '<button class="btn-icon" style="width:36px;height:36px" data-act="cal-next">' + ico('right', 'sm') + '</button></div>' +
-      '<div class="row xs muted wrap" style="gap:12px"><span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#7C5CFF;display:block"></i>vazifa deadline</span>' +
-      '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#22D3EE;display:block"></i>dars</span>' +
-      '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#38E1A0;display:block"></i>qabul qilingan</span></div></div>' +
+      '<div class="row xs muted wrap" style="gap:12px"><span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--brand);display:block"></i>vazifa deadline</span>' +
+      '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--brand-2);display:block"></i>dars</span>' +
+      '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--ok);display:block"></i>qabul qilingan</span></div></div>' +
       '<div class="cal">' + UZ_D.map(d => '<div class="hd">' + d + '</div>').join('') +
       cal.cells.map(c => {
         const ds = isoDate(c.d), items = map[ds] || [], isToday = ds === today;
-        const dots = items.slice(0, 4).map(it => '<i style="background:' + (it.k === 'lesson' ? '#22D3EE' : it.s && it.s.status === 'accepted' ? '#38E1A0' : '#7C5CFF') + '"></i>').join('');
+        const dots = items.slice(0, 4).map(it => '<i style="background:' + (it.k === 'lesson' ? 'var(--brand-2)' : it.s && it.s.status === 'accepted' ? 'var(--ok)' : 'var(--brand)') + '"></i>').join('');
         return '<div class="d ' + (c.out ? 'out ' : '') + (isToday ? 'today ' : '') + (items.length ? 'has' : '') + '" ' + (items.length ? 'data-act="cal-day" data-d="' + ds + '"' : '') + '>' +
           '<span class="n">' + c.d.getDate() + '</span><div class="dots">' + dots + '</div></div>';
       }).join('') + '</div></div>';
@@ -580,7 +580,7 @@ function vInfo() {
 
   h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('cert') + 'Sertifikatlar</h2>' +
     '<span class="small muted">' + cs.length + ' ta</span></div>' +
-    (cs.length ? '<div class="grid g2">' + cs.map(c => '<div class="lrow"><div class="lead" style="background:rgba(198,255,79,.14);color:#D7FF8A;border-color:rgba(198,255,79,.3)">' + ico('cert') + '</div>' +
+    (cs.length ? '<div class="grid g2">' + cs.map(c => '<div class="lrow"><div class="lead" style="background:rgba(198,255,79,.14);color:var(--accent-tone);border-color:rgba(198,255,79,.3)">' + ico('cert') + '</div>' +
       '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">Modul ' + c.m.n + ': ' + esc(c.m.title) + '</div>' +
       '<div class="xs muted">Kod: ' + esc(c.code) + '</div></div>' +
       '<button class="btn btn-xs btn-soft" data-act="cert" data-id="' + c.m.id + '">Ochish</button></div>').join('') + '</div>'
