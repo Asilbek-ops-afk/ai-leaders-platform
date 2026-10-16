@@ -213,7 +213,7 @@ fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, e
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**96 ta skrinshot** (104 qadam + 2 o‘rnatilgan rejim): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari**, **CSV import oynasi**, **v2.3.0 dizayn sayqali** (parol ko'zi, kirish kartochkasi + bosma ko'rinishi, jadval, mobil qidiruv), **v2.3.1 ichki bo'limlar** (Adminlar, buyruq paneli, bildirishnomalar, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish) va **v2.3.2 yorug' mavzu** (admin, statistika, vazifa) + **faollik taqsimoti**
+**96 ta skrinshot** (repo‘ga kirmaydi — `docs/screens/` .gitignore‘da, buyruq bilan qayta yaratiladi): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari**, **CSV import oynasi**, **v2.3.0 dizayn sayqali** (parol ko'zi, kirish kartochkasi + bosma ko'rinishi, jadval, mobil qidiruv), **v2.3.1 ichki bo'limlar** (Adminlar, buyruq paneli, bildirishnomalar, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish) va **v2.3.2 yorug' mavzu** (admin, statistika, vazifa) + **faollik taqsimoti**
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 

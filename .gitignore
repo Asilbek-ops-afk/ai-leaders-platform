@@ -3,3 +3,6 @@ node_modules/
 *.log
 .wrangler/
 tmp/
+
+# Skrinshotlar — generatsiya qilinadigan artefakt (npm run screens bilan qayta yaratiladi)
+docs/screens/
