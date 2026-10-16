@@ -2,9 +2,9 @@
 
 Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** barcha kamchiliklarni,
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
-**eng yangi holat — oxirgi bo'lim (v2.3.3)**.
+**eng yangi holat — oxirgi bo'lim (v2.4.0)**.
 
-**Oxirgi versiya:** v2.3.3 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 4 ta yangi vosita)
+**Oxirgi versiya:** v2.4.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -20,6 +20,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [**v2.3.1**](#v231--ichki-bolimlar-auditi-va-avtomatik-ui-tekshiruvi) | **v2.3.1** | **Ichki bo'limlar auditi + avtomatik UI tekshiruvi (`npm run test:ui`): KPI siljishi, matn kesilishi, gorizontal toshish** |
 | [**v2.3.2**](#v232--kontrast-aa-auditi-va-faollik-taqsimoti) | **v2.3.2** | **WCAG AA kontrast auditi (ikkala mavzu), yorug' mavzu rang tuzatishlari, haqiqiy «Faollik taqsimoti» (o'ylab topilgan egri chiziq o'rniga)** |
 | [**v2.3.3**](#v233--katta-klub-unumdorligi-bosma-va-ornatilgan-ilova) | **v2.3.3** | **200+ talabada unumdorlik (indeks + kesh), bosmada orqa sahifa tushib qolishi tuzatildi, o'rnatilgan ilova (safe-area) rejimi, 3 yangi vosita: `test:scale`, `test:print`, `test:standalone`** |
+| [**v2.4.0**](#v240--premium-dizayn-sayqali-va-ortiqcha-matnlar-qisqartirildi) | **v2.4.0** | **Premium dizayn tizimi (chuqurlik, yorug'lik, gradient sarlavhalar, jonli statistika), modul kartalari qayta ishlandi, ortiqcha matnlar qisqartirildi, auditga 2 yangi nazorat: yorliq kesilishi va matn to'qnashuvi** |
 
 ---
 
@@ -687,3 +688,65 @@ ko'rinish va o'qilishga qaratilgan edi; bu safar **yuk ostidagi xatti-harakat** 
 | Joylashuv testi | ✔ 175 tekshiruv, 0 gorizontal toshish |
 | Skrinshotlar | ✔ **96 ta** — yangi: `105-standalone-talaba.png`, `106-standalone-admin-light.png` |
 | Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.3.3** |
+
+---
+
+## v2.4.0 — Premium dizayn sayqali va ortiqcha matnlar qisqartirildi
+
+**Baho (foydalanuvchi):** «Dizayn juda oddiy bo‘lib qolgan — mukammal qilib ber; foydalanuvchi qiziqishini
+oshirish uchun ortiqcha yozuvlarni kamaytir; mukammallikka yetmaguncha qayta-qayta ishla». Shu bois
+ko‘rik **uch marta** takrorlandi: (1) umumiy sayqal, (2) matn va ierarxiya, (3) har bir ekran (desktop,
+noutbuk, telefon, yorug‘ mavzu) ko‘zdan kechirilib, nuqsonlar tuzatildi.
+
+### Dizayn tizimi: «oddiy»dan «qimmat»ga
+
+| Qatlam | Nima o‘zgardi |
+|---|---|
+| **Chuqurlik** | Uch pog‘onali soya tizimi (`--sh-sm/md/lg`) + har bir kartada tepada yorug‘ qirra (`--edge`). Kartalar endi fon tekisligidan ko‘tarilib turadi |
+| **Yorug‘lik** | KPI kartalarida brend rangli radial nur (har bir ton uchun alohida: binafsha / moviy / limon / qizil), ikonka qutilarida ichki yorug‘lik |
+| **Sarlavhalar** | `h1` — gradient matn (oq → binafsha → moviy; yorug‘ mavzuda to‘q variant). Sahifa sarlavhasi ostida brend gradientli 72px aksent chiziq |
+| **Tugmalar** | Asosiy tugmada yorug‘lik «shimmer» harakati (hover’da chapdan o‘ngga o‘tadi), soya va qirra; soft/ghost tugmalarda ramka chuqurligi |
+| **Jonli elementlar** | Progress chiziqlarida gradient + nur, diagramma ustunlarida soya va hover yorqinligi, toast’da chap tomonda rangli chiziq, modal va toast soyalari |
+| **Navigatsiya** | Bo‘lim sarlavhalari chizig‘i (`.nav-lbl` → nozik gradient liniya), menyu elementi hover’da siljiydi va ikonka kattalashadi, faol elementda ichki qirra + nur, logo hover’da buriladi |
+| **Harakat** | Barcha yangi animatsiyalar `prefers-reduced-motion` bilan o‘chadi; 200+ talabali jadval tezligi saqlanadi (qatlam soni kam) |
+
+### Modul kartalari qayta ishlandi
+
+Raqamli «watermark» (56px «1») teg bilan **ustma-ust tushardi**. Yangi ko‘rinish: ustki yorliq
+**«1-MODUL»** (vazifa kartalari bilan bir xil til), **tugagan bo‘shliqsiz** tavsif (2 qatorga qisqartiriladi),
+vazifa sarlavhasi ham 2 qatorda to‘liq ko‘rinadi (ilgari «AI bilan tanishuv: 5 ta amaliy topsh…» deb kesilardi),
+`border-radius` va soya birlashtirildi.
+
+### Matnlar: ortiqcha yozuv kamaytirildi, o‘rniga haqiqiy raqamlar
+
+| Sahifa | Ilgari | Hozir |
+|---|---|---|
+| Bosh sahifa (talaba) | «Bugun “…” darsidan boshlaymiz — 12 daqiqa yetadi. Haftalik reytingda 3-o‘rindasiz» + 3 qator uzun izoh | «Keyingi dars — “…” · 12 daqiqa · reytingda **3-o‘rin**» + 4 ta **statistika chipi** (9/15 dars · 2 vazifa · 1 840 XP · 870 haftalik XP) |
+| Boshlash yo‘riqnomasi | 5 karta · katta bo‘shliq · har birida «Boshlash» tugmasi | Bitta siqilgan ro‘yxat: bajarilganlar belgi bilan qoladi, **joriy qadam ajralib turadi** (brend ramka + nur). Ekran 40% kam joy egallaydi |
+| Darslar | «Har modul: qisqa darslar (10–15 daq) + amaliy vazifa + deadline. Modul 3 ochilgan, jami 6 modul» | «**6** modul · **3** ochilgan · **9/29** dars tugatilgan» |
+| Vazifa (talaba) | «Havola yoki fayl yuboring — mentor tekshiradi va izoh yozadi…» | «**6** vazifa · **2** qabul qilingan · **1** jarayonda» |
+| Talabalar (admin) | «Guruh, daraja va faollik bo‘yicha kuzatuv. Profilni ochib…» | «**18** talaba · **14** faol · **6** jamoa · **6** kechikkan» |
+| Statistika | «Asosiy ko‘rsatkichlar: faollik, intizom, modul tugatish…» | «**14/18** faol · **47%** o‘z vaqtida · **13** modul tugatgan · **0** loyiha chiqargan» |
+| Jamoalar / Deadline / Darslar(admin) / Vazifalar / Sozlamalar / Adminlar | uzun tavsif satrlari | har biri **4 ta raqamli ko‘rsatkich** bilan |
+
+Ya’ni har bir sahifa boshida endi «nima qilinadi» emas, **«hozir nima bo‘lib turibdi»** ko‘rinadi —
+bu foydalanuvchini ilgari tortadi va ekranda foydali ma’lumot zichligini oshiradi.
+
+### Auditga ikki yangi nazorat qo‘shildi
+
+| Tekshiruv | Nima ushlaydi | Tekshirilgan |
+|---|---|---|
+| **Yorliq kesilishi** | Qisqa matnli elementlar (tugma, teg, menyu, tab): `scrollWidth > clientWidth` | Sun’iy nuqson bilan sinov: `.mod .tag{max-width:44px}` → audit **4 ta nuqson**ni to‘g‘ri ko‘rsatdi |
+| **Matn to‘qnashuvi** | Element emas, **matn darajasida** (Range API) o‘lchanadi: ikonka bilan aralash bloklar ham qamrab olinadi; kesilgan (ellipsis/scroll) matn «to‘qnashuv» hisoblanmaydi | Sun’iy nuqson bilan sinov: raqamli watermark qaytarilganda audit **«1-modul ⨯ Tugatilgan»** ni to‘g‘ri topdi |
+
+### Tekshiruv natijalari (v2.4.0)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **507 ta, 0 xato** (27 guruh) |
+| Sahifa auditi (matn, kesilish, kontrast, to‘qnashuv) | ✔ **0 nuqson** — dark va light, 16 sahifa + 6 modal |
+| Joylashuv | ✔ 175 tekshiruv, 0 gorizontal toshish |
+| Katta klub | ✔ 200 talaba, 0 nuqson |
+| Chop etish / o‘rnatilgan ilova | ✔ 0 nuqson |
+| Skrinshotlar | ✔ **96 ta** yangilandi (yangi dizayn bilan) |
+| Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.4.0** |

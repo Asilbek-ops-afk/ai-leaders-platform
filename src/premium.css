@@ -1,0 +1,200 @@
+/* ==========================================================================
+   v2.4.0 — PREMIUM SAYQAL
+   Maqsad: interfeys «oddiy» emas, chuqur va qimmat ko'rinsin.
+   Qoidalar: barcha yangi ranglar mavjud palitradan olinadi (kontrast AA
+   saqlanadi), animatsiyalar `prefers-reduced-motion` bilan o'chadi,
+   qatlamlar soni kam — 200+ talabali jadval ham tez qoladi.
+   ========================================================================== */
+
+/* --- 1. Yuza va chuqurlik ------------------------------------------------- */
+:root{
+  --sh-sm:0 2px 6px -2px rgba(0,0,0,.5);
+  --sh-md:0 14px 34px -18px rgba(0,0,0,.75),0 2px 8px -4px rgba(0,0,0,.5);
+  --sh-lg:0 30px 70px -30px rgba(5,8,20,.95),0 8px 24px -14px rgba(0,0,0,.6);
+  --edge:rgba(255,255,255,.06);           /* yuqori yorug' qirra */
+  --glow-p:rgba(124,92,255,.45);
+  --glow-c:rgba(34,211,238,.4);
+  --glow-a:rgba(198,255,79,.35);
+}
+[data-theme="light"]{
+  --sh-sm:0 1px 3px rgba(16,26,56,.08);
+  --sh-md:0 10px 26px -16px rgba(20,34,74,.35),0 1px 3px rgba(16,26,56,.06);
+  --sh-lg:0 28px 60px -32px rgba(20,34,74,.45),0 4px 14px -8px rgba(20,34,74,.14);
+  --edge:rgba(255,255,255,.9);
+}
+.card{
+  background-image:linear-gradient(180deg,var(--edge),transparent 88px);
+  box-shadow:var(--sh-md),inset 0 1px 0 var(--edge);
+  transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .35s,background .3s;
+}
+.card.soft{box-shadow:inset 0 1px 0 var(--edge)}
+.card.glass{box-shadow:var(--sh-md),inset 0 1px 0 rgba(255,255,255,.08)}
+@media (hover:hover){
+  .card.hoverable:hover{transform:translateY(-2px);border-color:var(--line-2);box-shadow:var(--sh-lg)}
+}
+
+/* --- 2. Sarlavhalar va sahifa boshi -------------------------------------- */
+.h1{
+  background:linear-gradient(96deg,#FFFFFF 0%,#E4DDFF 38%,#A9E9F8 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+}
+[data-theme="light"] .h1{background:linear-gradient(96deg,#0A1024 0%,#3A2AA8 55%,#0A5566 100%);-webkit-background-clip:text;background-clip:text}
+.page-head{position:relative;padding-bottom:15px;border-bottom:1px solid var(--line)}
+.page-head::after{content:"";position:absolute;left:0;bottom:-1px;width:72px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--brand),var(--brand-2) 70%,transparent)}
+.page-head .h1{margin-bottom:2px}
+.h2{letter-spacing:-.015em}
+.big{font-variant-numeric:tabular-nums}
+
+/* --- 3. KPI kartalari ---------------------------------------------------- */
+.kpi{padding:16px 16px 15px;box-shadow:var(--sh-md),inset 0 1px 0 var(--edge)}
+.kpi::after{content:"";position:absolute;right:-34px;top:-40px;width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,var(--glow-p),transparent 70%);opacity:.5;pointer-events:none}
+.kpi.c::after{background:radial-gradient(circle,var(--glow-c),transparent 70%)}
+.kpi.a::after{background:radial-gradient(circle,var(--glow-a),transparent 70%)}
+.kpi.r::after{background:radial-gradient(circle,rgba(255,92,122,.4),transparent 70%)}
+.kpi .ic{width:40px;height:40px;border-radius:13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px -14px var(--glow-p)}
+.kpi.c .ic{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px -14px var(--glow-c)}
+.kpi.a .ic{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px -14px var(--glow-a)}
+.kpi .v{font-size:28px}
+.kpi .small{letter-spacing:-.005em}
+@media (hover:hover){.kpi:hover{box-shadow:var(--sh-lg),inset 0 1px 0 var(--edge)}}
+
+/* --- 4. Tugmalar --------------------------------------------------------- */
+.btn{border-radius:13px;transition:transform .16s,background .2s,border-color .2s,box-shadow .25s,opacity .2s}
+.btn-primary{position:relative;overflow:hidden;box-shadow:0 14px 30px -18px rgba(124,92,255,.95),inset 0 1px 0 rgba(255,255,255,.28)}
+.btn-primary::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(104deg,transparent 22%,rgba(255,255,255,.42) 46%,transparent 62%);
+  transform:translateX(-130%);transition:transform .7s cubic-bezier(.3,1,.4,1)}
+@media (hover:hover){.btn-primary:hover::after{transform:translateX(130%)}}
+.btn-soft{background:var(--panel-2);border-color:var(--line);box-shadow:inset 0 1px 0 var(--edge)}
+.btn-soft:hover{border-color:var(--line-2);background:var(--panel-3)}
+.btn-ghost{border-color:var(--line)}
+.btn-ghost:hover{background:var(--panel-2)}
+.btn-icon{background:var(--panel-2);border:1px solid var(--line);border-radius:13px;box-shadow:inset 0 1px 0 var(--edge)}
+.btn-icon:hover{border-color:var(--line-2);color:var(--txt)}
+
+/* --- 5. Teglar, chiziqlar, diagramma ------------------------------------- */
+.tag{box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.bar{height:9px;box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+.bar>i{background:linear-gradient(90deg,var(--brand) 0%,var(--brand-2) 100%);box-shadow:0 0 14px -3px var(--glow-p)}
+.bar.accent>i{background:linear-gradient(90deg,var(--accent) 0%,var(--brand-2) 100%);box-shadow:0 0 14px -3px var(--glow-a)}
+.chart .fill{box-shadow:0 12px 26px -16px var(--glow-p),inset 0 1px 0 rgba(255,255,255,.25)}
+.chart .b.hi .fill{box-shadow:0 12px 26px -16px var(--glow-a),inset 0 1px 0 rgba(255,255,255,.3)}
+@media (hover:hover){.chart .b:hover .fill{filter:brightness(1.12)}}
+.divider{background:linear-gradient(90deg,var(--line),transparent)}
+
+/* --- 6. Yon panel -------------------------------------------------------- */
+.nav-lbl{display:flex;align-items:center;gap:10px}
+.nav-lbl::after{content:"";flex:1 1 auto;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.nav-item{gap:12px}
+.nav-item .i{transition:transform .25s cubic-bezier(.2,1.2,.35,1),color .2s}
+@media (hover:hover){
+  .nav-item:hover{transform:translateX(2px)}
+  .nav-item:hover .i{transform:scale(1.08)}
+}
+.nav-item.on{box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 14px 30px -22px var(--glow-p)}
+.nav-item.on .i{color:#C4B4FF}
+[data-theme="light"] .nav-item.on .i{color:#4B2FD0}
+.nav-item .cnt{box-shadow:0 6px 14px -8px rgba(255,92,122,.9)}
+.brand .mark{transition:transform .5s cubic-bezier(.2,1.2,.3,1)}
+@media (hover:hover){.brand:hover .mark{transform:rotate(-6deg) scale(1.05)}}
+.userbox{box-shadow:inset 0 1px 0 var(--edge);transition:border-color .2s}
+.userbox:hover{border-color:var(--line-2)}
+.verline{opacity:.6}
+
+/* --- 7. Yuqori panel ----------------------------------------------------- */
+.topbar{box-shadow:0 10px 30px -26px rgba(0,0,0,.9)}
+[data-theme="light"] .topbar{box-shadow:0 10px 26px -26px rgba(20,34,74,.5)}
+.searchbar{box-shadow:inset 0 1px 0 var(--edge)}
+.searchbar:focus-within{border-color:rgba(124,92,255,.55);box-shadow:0 0 0 4px rgba(124,92,255,.14),inset 0 1px 0 var(--edge)}
+.kbd{border:1px solid var(--line);border-radius:7px;padding:2px 6px;font-size:10.5px;font-weight:750;color:var(--muted);background:var(--panel-3)}
+.globalstrip{border-bottom:1px solid var(--line)}
+
+/* --- 8. Ro'yxat qatorlari, jadval, bo'sh holat -------------------------- */
+.lrow{box-shadow:inset 0 1px 0 var(--edge)}
+@media (hover:hover){.lrow:hover{transform:translateX(2px)}}
+.trows .trow:not(.head):hover{border-color:var(--line-2);background-image:linear-gradient(90deg,rgba(124,92,255,.06),transparent 60%)}
+.trow{border-radius:12px}
+.empty{background:radial-gradient(420px 160px at 50% 0%,rgba(124,92,255,.08),transparent 70%)}
+.empty .i{filter:drop-shadow(0 8px 18px rgba(124,92,255,.35))}
+
+/* --- 9. Modal, toast, drawer -------------------------------------------- */
+.mbox{box-shadow:var(--sh-lg),inset 0 1px 0 var(--edge)}
+.toast{box-shadow:var(--sh-md);position:relative;overflow:hidden}
+.toast::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad)}
+.toast.ok::before{background:linear-gradient(180deg,#38E1A0,#22D3EE)}
+.toast.warn::before{background:linear-gradient(180deg,#FFB43A,#FF5C7A)}
+
+/* --- 10. Modul kartalari va darslar -------------------------------------
+   Katta raqamli «watermark» teg bilan to'qnashardi — o'rniga kichik
+   ustki yorliq («3-modul») ishlatiladi: toza va vazifa kartalari bilan bir til. */
+.mod{overflow:hidden;box-shadow:var(--sh-md),inset 0 1px 0 var(--edge)}
+.mod .mnum{display:block;font-size:10.5px;font-weight:850;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.mod.locked{opacity:.72}
+.mod.locked .micon{opacity:.75}
+.mod .micon{box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 12px 26px -18px var(--glow-p)}
+.mod .tag{position:relative;z-index:3}
+.mod .h2{line-height:1.25}
+.clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lesson-row{border-radius:13px}
+.lesson-row:hover{background:var(--panel-2)}
+.lesson-row .i{transition:transform .25s cubic-bezier(.2,1.2,.35,1)}
+.lesson-row:hover .i{transform:scale(1.08)}
+
+/* --- 11. Hero (talaba bosh sahifasi) ------------------------------------ */
+.hero{box-shadow:var(--sh-lg),inset 0 1px 0 var(--edge)}
+.hero .h1{font-size:clamp(24px,3.6vw,32px)}
+.hero-ring{filter:drop-shadow(0 18px 40px rgba(124,92,255,.35))}
+.hero-stat{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+  border-radius:var(--r-sm);padding:12px 14px;box-shadow:inset 0 1px 0 var(--edge)}
+.qrow{box-shadow:inset 0 1px 0 var(--edge)}
+.qrow.done{border-color:rgba(56,225,160,.3)}
+.qrow .lead{box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+
+/* --- 12. Mavzu tugmasi va mayda sayqal ---------------------------------- */
+.seg{box-shadow:inset 0 1px 0 var(--edge)}
+.seg button.on{box-shadow:0 6px 18px -10px rgba(0,0,0,.9),inset 0 1px 0 var(--edge)}
+.streak,.coin{box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.cert{box-shadow:var(--sh-lg)}
+.fab{box-shadow:0 20px 40px -14px rgba(124,92,255,.95),inset 0 1px 0 rgba(255,255,255,.3)}
+.toTop{box-shadow:var(--sh-md)}
+
+/* --- 13. Harakatni hurmat qilish ---------------------------------------- */
+@media (prefers-reduced-motion: reduce){
+  .btn-primary::after{display:none}
+  .card,.kpi,.nav-item,.lrow,.lesson-row{transition:none!important}
+  .nav-item:hover,.lrow:hover,.lesson-row:hover{transform:none!important}
+}
+
+/* --- 14. Hero yordamchi elementlari -------------------------------------- */
+.hero-sub{margin:9px 0 0;max-width:56ch;font-size:14.5px}
+.hero-stat{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:11px;font-size:12.5px;color:var(--txt2);
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);box-shadow:inset 0 1px 0 var(--edge)}
+.hero-stat b{color:var(--txt);font-weight:800;font-variant-numeric:tabular-nums}
+.hero-stat .i{color:var(--brand-2);opacity:.9}
+[data-theme="light"] .hero-stat .i{color:#04687C}
+
+/* --- 15. Boshlash yo'riqnomasi (siqilgan qadamlar) ----------------------- */
+.qstrip{display:flex;flex-direction:column;gap:8px}
+.qstep{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;border:1px solid var(--line);
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));box-shadow:inset 0 1px 0 var(--edge)}
+.qstep .qnum{width:28px;height:28px;flex:0 0 auto;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:12.5px;font-weight:850;background:var(--panel-3);border:1px solid var(--line);color:var(--txt2)}
+.qstep .qtxt{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}
+.qstep .qtxt b{font-size:13px;font-weight:750;color:var(--txt)}
+.qstep .qtxt em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.qstep.done{background:linear-gradient(180deg,rgba(56,225,160,.07),transparent);border-color:rgba(56,225,160,.22)}
+.qstep.done .qnum{background:rgba(56,225,160,.16);border-color:rgba(56,225,160,.32);color:#5FE8B4}
+.qstep.done .qtxt b{color:var(--txt2);font-weight:650}
+.qstep.done .qtxt em{display:none}
+[data-theme="light"] .qstep.done .qnum{background:#E2FBF1;border-color:#A6EAD3;color:#086B4A}
+.qstep.now{border-color:rgba(124,92,255,.42);background:linear-gradient(180deg,rgba(124,92,255,.12),transparent 80%);
+  box-shadow:0 18px 40px -30px var(--glow-p),inset 0 1px 0 var(--edge)}
+.qstep.now .qnum{background:var(--grad);color:#0A0F1E;border-color:transparent}
+.qok{color:#5FE8B4;display:inline-flex}
+[data-theme="light"] .qok{color:#086B4A}
+@media(max-width:700px){
+  .qstep{flex-wrap:wrap}
+  .qstep .qtxt{flex-basis:60%}
+}

@@ -301,7 +301,8 @@ function vStudents() {
     : f === 'late' ? lateSet.has(s.id)
     : myGroup(s) && myGroup(s).id === f);
   let h = '<div class="page-head"><div><h1 class="h1">Talabalar</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Guruh, daraja va faollik bo‘yicha kuzatuv. Profilni ochib vazifa, deadline va baholarni ko‘rish mumkin.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + S.students.length + '</b> talaba · <b>' + activeCount() + '</b> faol · <b>' +
+      S.groups.length + '</b> jamoa · <b>' + lateSet.size + '</b> kechikkan</p></div>' +
     '<div class="row wrap" style="gap:9px">' +
     (actionAllowed('students') && UI.lastImport ? '<button class="btn btn-ghost btn-sm" data-act="import-undo" title="Oxirgi CSV import natijasini o‘chirish">' + ico('trash', 'sm') + 'Oxirgi importni bekor qilish (' + UI.lastImport.studentIds.length + ')</button>' : '') +
     (actionAllowed('students') ? '<button class="btn btn-soft btn-sm" data-act="import-csv">' + ico('upload', 'sm') + 'CSV import</button>' : '') +
@@ -379,7 +380,8 @@ function vAdminTasks() {
   const sorted = [...S.submissions].sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
   const subs = f === 'all' ? sorted : sorted.filter(p => p.status === f);
   let h = '<div class="page-head"><div><h1 class="h1">Vazifalar</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Vazifa bering, tekshiring, baho va izoh yozing. Deadline’larni jamoa bo‘yicha boshqaring.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + S.submissions.length + '</b> topshiriq · <b>' + reviewQueue().length + '</b> navbatda · <b>' +
+      S.submissions.filter(p => p.status === 'revise').length + '</b> qayta ishlash</p></div>' +
     '<div class="row wrap" style="gap:9px">' + (actionAllowed('tasks') ? '<button class="btn btn-primary btn-sm" data-act="new-task">' + ico('plus', 'sm') + 'Yangi vazifa</button>' +
     '<button class="btn btn-soft btn-sm" data-act="deadline-open" data-id="">' + ico('clock', 'sm') + 'Deadline belgilash</button>' : '') + '</div></div>';
   if (!S.tasks.length) return h + emptyCard('task', 'Hali vazifa berilmagan',
@@ -428,7 +430,8 @@ function vAdminTasks() {
 /* ---------- Darslar (admin) ---------- */
 function vAdminLessons() {
   let h = '<div class="page-head"><div><h1 class="h1">Darslar va kontent</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Modullar bo‘yicha darslar: video, matn va amaliyot. 10–15 daqiqalik qisqa format saqlanadi.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + S.modules.length + '</b> modul · <b>' + S.lessons.length + '</b> dars · <b>' +
+      Math.round(S.lessons.reduce((a, l) => a + l.dur, 0) / Math.max(1, S.lessons.length)) + '</b> daqiqa o‘rtacha</p></div>' +
     '<div class="row wrap" style="gap:9px"><button class="btn btn-primary btn-sm" data-act="new-lesson">' + ico('plus', 'sm') + 'Dars qo‘shish</button>' +
     '<button class="btn btn-soft btn-sm" data-act="new-module">' + ico('flag', 'sm') + 'Yangi modul</button></div></div>';
 
@@ -466,7 +469,8 @@ function vAdminLessons() {
 function vAdminGroups() {
   const free = S.students.filter(s => !myGroup(s));
   let h = '<div class="page-head"><div><h1 class="h1">Jamoalar</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Jamoa tuzish, a’zolarni biriktirish va mentor juftlash. Jamoa = startap mashqi.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + S.groups.length + '</b> jamoa · <b>' + S.students.length + '</b> a’zo · <b>' +
+      new Set(S.groups.map(x => x.mentor).filter(Boolean)).size + '</b> mentor</p></div>' +
     '<button class="btn btn-primary btn-sm" data-act="new-group">' + ico('flag', 'sm') + 'Yangi jamoa</button></div>';
 
   if (!S.groups.length) return h + emptyCard('flag', 'Hali jamoa tuzilmagan',
@@ -525,7 +529,8 @@ function vAdminDeadlines() {
     actionAllowed('tasks') ? '<button class="btn btn-primary" data-act="new-task">' + ico('plus', 'sm') + 'Vazifa berish</button>' : '');
 
   let h = '<div class="page-head"><div><h1 class="h1">Deadline boshqaruvi</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Umumiy va jamoa uchun alohida sanalar. Kechikkanlarni bir joydan ko‘rasiz.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + S.tasks.length + '</b> umumiy deadline · <b>' + S.groups.reduce((a, g2) => a + Object.keys(g2.dl || {}).length, 0) +
+      '</b> jamoa uchun alohida · <b>' + lateSet.size + '</b> kechikkan</p></div>' +
     '<button class="btn btn-primary btn-sm" data-act="deadline-open" data-id="">' + ico('plus', 'sm') + 'Deadline belgilash</button></div>';
 
   h += '<div class="grid g4">' +
@@ -579,7 +584,8 @@ function vStats() {
   const keptWeek = S.students.filter(x => x.last <= 7).length;
 
   let h = '<div class="page-head"><div><h1 class="h1">Statistika</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Asosiy ko‘rsatkichlar: faollik, intizom, modul tugatish va loyiha chiqarish.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + k.active + '/' + k.total + '</b> faol · <b>' + k.onTime + '%</b> o‘z vaqtida · <b>' +
+      grads + '</b> modul tugatgan · <b>' + deployed + '</b> loyiha chiqargan</p></div>' +
     (actionAllowed('stats') ? '<button class="btn btn-soft btn-sm" data-act="export">' + ico('download', 'sm') + 'Hisobotni yuklab olish</button>' : '') + '</div>';
   if (!S.students.length) return h + emptyCard('trend', 'Statistika uchun ma’lumot yo‘q',
     'Talabalar qo‘shilib, vazifalar topshirila boshlagach bu yerda faollik, intizom va modul tugatish ko‘rsatkichlari paydo bo‘ladi.');
@@ -691,7 +697,8 @@ function vAdminSettings() {
   const k = kpisAdmin();
   const size = (() => { try { return (new Blob([JSON.stringify(S)]).size / 1024).toFixed(1); } catch (e) { return '—'; } })();
   let h = '<div class="page-head"><div><h1 class="h1">Sozlamalar</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Zaxira nusxa, mentorlar, galereya va platforma ma’lumotlari.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + S.modules.length + '</b> modul · <b>' + S.mentors.length + '</b> mentor · <b>' +
+      S.gallery.length + '</b> galereya yozuvi · zaxira nusxa mavjud</p></div>' +
     '<span class="tag c">' + ico('shield', 'sm') + 'v' + APP_VERSION + '</span></div>';
 
   h += '<div class="grid g4">' +
@@ -756,7 +763,8 @@ function vAdminAdmins() {
   const needPass = list.filter(a => a.mustSetPass).length;
   let h = '<div class="row wrap between" style="gap:12px"><div>' +
     '<h1 class="h1">Adminlar</h1>' +
-    '<p class="small muted" style="margin:6px 0 0">Klub boshqaruvi: rollar, ruxsatlar va kirish huquqlari. Faqat siz (founder) ko‘rasiz.</p></div>' +
+    '<p class="small muted" style="margin:6px 0 0"><b>' + list.length + '</b> akkaunt · <b>' + active + '</b> faol · <b>' +
+      needPass + '</b> parol kutilmoqda · faqat founder ko‘radi</p></div>' +
     '<button class="btn btn-primary" data-act="new-admin">' + ico('plus', 'sm') + 'Admin qo‘shish</button></div>';
 
   h += '<div class="grid g4">' +

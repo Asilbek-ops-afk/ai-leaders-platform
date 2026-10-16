@@ -105,12 +105,64 @@ async function auditPage(page, label, checks) {
     out.settings.overflowX = document.documentElement.scrollWidth > window.innerWidth + 1;
     out.counts.kpi = document.querySelectorAll('.kpi').length;
     out.counts.rows = document.querySelectorAll('.trow').length;
+    /* 5) qisqa yorliqlar kesilganmi — tugma, teg, menyu elementi (uzun matnlar emas) */
+    out.clipped = [];
+    document.querySelectorAll('button,.tag,.nav-item,.bn,.seg button,.chip,.kbd').forEach(el => {
+      const txt = (el.textContent || '').trim();
+      if (txt.length < 3 || txt.length > 26) return;
+      if (el.scrollWidth > el.clientWidth + 3 && el.clientWidth > 0)
+        out.clipped.push(txt + ' (' + el.scrollWidth + '>' + el.clientWidth + ')');
+    });
+    /* 6) ustma-ust tushgan matnlar (watermark/teg to'qnashuvi) */
+    out.overlap = [];
+    {
+      /* Matn darajasida o'lchaymiz (Range API): ikonka bilan aralash elementlar ham qamrab olinadi */
+      /* Kesilgan (ellipsis/scroll) matn «ustma-ust» hisoblanmasin: uning layout o'lchami
+         konteynerdan tashqariga chiqadi, lekin foydalanuvchi uni ko'rmaydi. */
+      const clippedOut = (el, r) => {
+        let n = el;
+        while (n && n !== document.body) {
+          const cs = getComputedStyle(n);
+          if (cs.overflow !== 'visible' || cs.overflowX !== 'visible' || cs.overflowY !== 'visible') {
+            const nr = n.getBoundingClientRect();
+            if (r.left < nr.left - 1 || r.right > nr.right + 1 || r.top < nr.top - 1 || r.bottom > nr.bottom + 1) return true;
+          }
+          n = n.parentElement;
+        }
+        return false;
+      };
+      const leaves = [];
+      document.querySelectorAll('#app *').forEach(el => {
+        const tn = [...el.childNodes].find(n => n.nodeType === 3 && n.textContent.trim().length > 1);
+        if (!tn) return;
+        const cs = getComputedStyle(el);
+        if (cs.visibility === 'hidden' || cs.display === 'none' || parseFloat(cs.opacity) < .25) return;
+        const rg = document.createRange(); rg.selectNodeContents(tn);
+        const r = rg.getBoundingClientRect();
+        if (r.width < 8 || r.height < 5) return;
+        if (clippedOut(el, r)) return;
+        leaves.push({ el, t: tn.textContent.trim(), r });
+      });
+      for (let i = 0; i < leaves.length; i++) {
+        for (let j = i + 1; j < leaves.length; j++) {
+          const a = leaves[i], b = leaves[j];
+          if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
+          const ox = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left);
+          const oy = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
+          if (ox > 3 && oy > 3) out.overlap.push(a.t.slice(0, 22) + ' ⨯ ' + b.t.slice(0, 22));
+          if (out.overlap.length > 6) break;
+        }
+        if (out.overlap.length > 6) break;
+      }
+    }
     return out;
   }, ICONS);
   res.badKpi.forEach(x => report(label, 'KPI qiymati ikona nomi bo‘lib qolgan: ' + x));
   res.overs.forEach(x => report(label, 'ustun matni to‘lib-toshgan: ' + x));
   res.junk.forEach(x => report(label, 'matnda «' + x + '» bor'));
   if (res.settings.overflowX) report(label, 'gorizontal toshish');
+  res.clipped.slice(0, 4).forEach(x => report(label, 'yorliq kesilgan: ' + x));
+  res.overlap.slice(0, 4).forEach(x => report(label, 'matnlar ustma-ust tushgan: ' + x));
   if (checks && checks.minKpi && res.counts.kpi < checks.minKpi) report(label, 'KPI kartalari kam: ' + res.counts.kpi);
   return res;
 }

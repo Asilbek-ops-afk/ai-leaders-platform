@@ -21,20 +21,21 @@ function vHome() {
     (g ? '<span class="tag c">' + ico('users', 'sm') + esc(g.name) + ' jamoasi</span>' : '') + streakPill(st) +
     '<span class="tag a">' + ico('coin', 'sm') + nf(st.coins) + ' coin</span></div>' +
     '<div><h1 class="h1">' + wallClock() + ', ' + esc(st.name.split(' ')[0]) + '! <span class="wave">' + ico('hand', 'sm') + '</span></h1>' +
-    '<p class="t2" style="margin:8px 0 0;max-width:52ch">' + (nl ? 'Bugun “' + esc(nl.t) + '” darsidan boshlaymiz — ' + nl.dur + ' daqiqa yetadi. ' : 'Barcha darslar tugatilgan, endi loyihaga e’tibor bering. ') +
-    'Haftalik reytingda <b>' + wxpRank(st.id) + '-o‘rinda</b>siz.</p></div>' +
+    '<p class="t2 hero-sub">' + (nl ? 'Keyingi dars — “' + esc(nl.t) + '” · ' + nl.dur + ' daqiqa' : 'Barcha darslar tugatilgan — loyihaga e’tibor') +
+    ' · reytingda <b>' + wxpRank(st.id) + '-o‘rin</b></p></div>' +
     '<div class="row wrap" style="gap:10px">' +
     (nl ? '<button class="btn btn-primary" data-act="lesson-open" data-id="' + nl.id + '">' + ico('play', 'sm') + 'Darsda davom etish</button>' : '') +
     (nt ? '<button class="btn btn-soft" data-act="submit-open" data-id="' + nt.id + '">' + ico('upload', 'sm') + 'Vazifa topshirish</button>' : '') +
     '<button class="btn btn-ghost" data-act="go" data-route="team">' + ico('users', 'sm') + 'Jamoa</button></div>' +
-    '<div class="row wrap" style="gap:14px;margin-top:4px">' +
-    '<div class="row small t2" style="gap:7px">' + ico('check-c', 'sm') + p.done + '/' + p.total + ' dars tugatilgan (ochilgan modullar)</div>' +
-    '<div class="row small t2" style="gap:7px">' + ico('task', 'sm') + acceptedOf(st) + ' vazifa qabul qilingan</div>' +
-    '<div class="row small t2" style="gap:7px">' + ico('trophy', 'sm') + nf(st.xp) + ' umumiy XP</div></div>' +
+    '<div class="row wrap" style="gap:9px;margin-top:2px">' +
+    '<span class="hero-stat">' + ico('check-c', 'sm') + '<b>' + p.done + '/' + p.total + '</b> dars</span>' +
+    '<span class="hero-stat">' + ico('task', 'sm') + '<b>' + acceptedOf(st) + '</b> vazifa</span>' +
+    '<span class="hero-stat">' + ico('trophy', 'sm') + '<b>' + nf(st.xp) + '</b> XP</span>' +
+    '<span class="hero-stat">' + ico('bolt', 'sm') + '<b>' + nf(st.wxp) + '</b> haftalik XP</span></div>' +
     '</div>' +
     '<div class="card glass" style="align-self:stretch;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center">' +
     ring(p.pct, 118, 'kurs') +
-    '<div><div class="h3">Kurs progressi</div><div class="small muted">' + (nl ? 'Keyingi: ' + esc(nl.t).slice(0, 34) + '…' : 'Hammasi bajarilgan') + '</div></div>' +
+    '<div><div class="h3">Kurs progressi</div><div class="small muted">' + (nl ? 'keyingi darsga qadar' : 'kurs tugatilgan') + '</div></div>' +
     bar(p.pct) +
     '<div class="row" style="gap:8px;width:100%"><div class="card tight soft grow tc"><div class="big">' + st.streak + '</div><div class="xs muted">kun streak</div></div>' +
     '<div class="card tight soft grow tc"><div class="big">' + wxpRank(st.id) + '</div><div class="xs muted">haftalik o‘rin</div></div></div>' +
@@ -59,15 +60,14 @@ function vHome() {
     '</div>';
 
   /* Boshlash checklisti (hammasi bajarilgach yashiriladi) */
+  /* Qadamlar siqilgan qatorlarda: bajarilganlari belgi bo'lib qoladi, joriysi ajralib turadi */
   if (doneSteps < steps.length) h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('flag') + 'Boshlash yo‘riqnomasi</h2>' +
-    '<span class="tag ' + (doneSteps === steps.length ? 'g' : 'p') + '">' + doneSteps + '/' + steps.length + ' bajarildi</span></div>' +
-    '<p class="small muted" style="margin:-4px 0 12px">' + steps.length + ' qadam — klubda to‘liq moslashish uchun. Har biri 5 daqiqada bajariladi.</p>' +
-    '<div class="grid g4">' + steps.map(x => '<div class="card tight soft"><div class="row" style="gap:9px">' +
-      '<div class="lead" style="width:30px;height:30px;border-radius:10px;' + (x.d ? 'background:rgba(56,225,160,.16);border-color:rgba(56,225,160,.34);color:#7CF0C3' : '') + '">' + ico(x.d ? 'check' : 'flag', 'sm') + '</div>' +
-      '<div class="small" style="font-weight:750">' + esc(x.t) + '</div></div>' +
-      '<div class="xs muted" style="margin:8px 0 10px">' + esc(x.s) + '</div>' +
-      (x.d ? '<span class="tag g">' + ico('check-c', 'sm') + 'Bajarildi</span>'
-        : '<button class="btn btn-xs btn-soft btn-block" data-act="' + (x.route ? 'go' : x.a) + '" ' +
+    '<span class="tag ' + (doneSteps === steps.length ? 'g' : 'p') + '">' + doneSteps + '/' + steps.length + '</span></div>' +
+    '<div class="qstrip">' + steps.map((x, i) => '<div class="qstep' + (x.d ? ' done' : ' now') + '">' +
+      '<span class="qnum">' + (x.d ? ico('check', 'sm') : i + 1) + '</span>' +
+      '<span class="qtxt"><b>' + esc(x.t) + '</b><em>' + esc(x.s) + '</em></span>' +
+      (x.d ? '<span class="qok">' + ico('check-c', 'sm') + '</span>'
+        : '<button class="btn btn-xs btn-primary" data-act="' + (x.route ? 'go' : x.a) + '" ' +
           (x.route ? 'data-route="' + x.route + '"' : (x.id ? 'data-id="' + x.id + '"' : '')) + '>' + ico('right', 'sm') + 'Boshlash</button>') +
       '</div>').join('') + '</div></div>';
 
@@ -169,9 +169,10 @@ function vHome() {
 function vLessons() {
   if (UI.module) return vModule(UI.module);
   const st = me(), p = progress(st), nl = nextLesson(st), unlocked = unlockedCount(st);
+  const lessonsDone = st.done.length;
   let h = '<div class="page-head"><div><h1 class="h1">Darslar</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Har modul: qisqa darslar (10–15 daq) + amaliy vazifa + deadline. ' +
-    'Modul <b>' + unlocked + '</b> ochilgan, jami <b>' + S.modules.length + '</b> modul.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + S.modules.length + '</b> modul · <b>' + unlocked + '</b> ochilgan · ' +
+    lessonsDone + '/' + S.lessons.length + ' dars tugatilgan</p></div>' +
     '<div class="row" style="gap:10px">' + ring(p.pct, 74) + '</div></div>';
 
   if (nl) {
@@ -190,15 +191,15 @@ function vLessons() {
     const ls = lessonsOfModule(mm.id);
     const durSum = ls.reduce((a, l) => a + l.dur, 0);
     return '<div class="card mod ' + (lock ? 'locked' : '') + '">' +
-      '<span class="mnum">' + mm.n + '</span>' +
+      '<span class="mnum">' + mm.n + '-modul</span>' +
       '<div class="row between" style="align-items:flex-start">' +
       '<div class="micon">' + ico(lock ? 'lock' : mm.icon) + '</div>' +
       (done ? '<span class="tag g">' + ico('check-c', 'sm') + 'Tugatilgan</span>' : lock ? '<span class="tag">' + ico('lock', 'sm') + 'Yopiq</span>' : '<span class="tag p">' + ico('bolt', 'sm') + 'Jarayonda</span>') + '</div>' +
       '<div class="h2">' + esc(mm.title) + '</div>' +
-      '<p class="small muted" style="margin:6px 0 12px;min-height:38px">' + esc(mm.desc) + '</p>' +
+      '<p class="small muted clamp2" style="margin:6px 0 12px">' + esc(mm.desc) + '</p>' +
       bar(mp.pct, done ? 'accent' : '') +
       '<div class="row between" style="margin-top:8px"><span class="xs muted">' + mp.done + '/' + mp.total + ' dars • ' + durSum + ' daqiqa</span><span class="xs" style="font-weight:800">' + mp.pct + '%</span></div>' +
-      (t ? '<div class="divider"></div><div class="row between" style="gap:10px"><div style="min-width:0"><div class="small ellip" style="font-weight:700">' + esc(t.title) + '</div><div class="xs muted">Deadline: ' + fmtFull(dueOf(st, t)) + '</div></div>' +
+      (t ? '<div class="divider"></div><div class="row between" style="gap:10px"><div style="min-width:0"><div class="small clamp2" style="font-weight:700">' + esc(t.title) + '</div><div class="xs muted">Deadline: ' + fmtFull(dueOf(st, t)) + '</div></div>' +
         '<button class="btn btn-xs ' + (lock ? 'btn-ghost' : 'btn-soft') + '" data-act="' + (sub && sub.status === 'accepted' ? 'task-open' : 'submit-open') + '" data-id="' + t.id + '">' + (sub && sub.status === 'accepted' ? 'Ko‘rish' : 'Topshirish') + '</button></div>' : '') +
       '<button class="btn ' + (lock ? 'btn-ghost' : 'btn-primary') + ' btn-sm btn-block" style="margin-top:12px" data-act="module-open" data-id="' + mm.id + '">' +
       (lock ? ico('lock', 'sm') + 'Avvalgi modulni tugating' : done ? ico('eye', 'sm') + 'Takrorlash' : ico('book', 'sm') + 'Modulni ochish') + '</button></div>';
@@ -263,7 +264,8 @@ function vTasks() {
     emptyCard('task', 'Hozircha vazifa yo‘q', 'Administrator vazifa bergan zahoti u shu bo‘limda deadline bilan ko‘rinadi. Hozir darslardan boshlash mumkin.');
 
   let h = '<div class="page-head"><div><h1 class="h1">Vazifa</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Havola yoki fayl yuboring — mentor tekshiradi va izoh yozadi. Qabul qilingan vazifa keyingi modulni ochadi.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + all.length + '</b> vazifa · <b>' + all.filter(d => d.s && d.s.status === 'accepted').length + '</b> qabul qilingan · <b>' +
+      all.filter(d => d.s && (d.s.status === 'in_review' || d.s.status === 'revise')).length + '</b> jarayonda</p></div>' +
     '<button class="btn btn-primary" ' + (nextTask(st) ? 'data-act="submit-open" data-id="' + nextTask(st).id + '"' : 'disabled') + '>' + ico('upload', 'sm') + 'Yangi topshiriq</button></div>';
 
   h += '<div class="grid g4">' +
@@ -320,7 +322,7 @@ function vTeam() {
   const roles = ['Founder', 'Builder', 'Designer', 'Growth'];
 
   let h = '<div class="page-head"><div><h1 class="h1">Team</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Jamoa — startap mashqi. Har hafta standup, har kuni kichik hissa.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + esc(g.name) + '</b> · <b>' + g.members.length + '</b> a’zo · <b>' + nf(g.xp) + '</b> XP' + (m ? ' · mentor: <b>' + esc(m.name) + '</b>' : '') + '</p></div>' +
     '<span class="tag p">' + ico('trophy', 'sm') + 'Jamoalar reytingi: #' + teamRank(g.id) + '/6</span></div>';
 
   h += '<div class="card glass"><div class="row wrap between" style="gap:16px">' +
@@ -392,12 +394,14 @@ function vDeadlines() {
     '<p class="t2 small" style="margin:6px 0 0">Deadline — baho emas, odat. Kechikkanlar mentor yordamiga muhtoj bo‘ladi.</p></div></div>' +
     emptyCard('cal', 'Deadline hali qo‘yilmagan', 'Administrator vazifalarni deadline bilan berganda shu kalendar to‘ladi. Dars jadvali «Darslar» bo‘limida.');
   const near = all.filter(d => !d.s || d.s.status !== 'accepted').slice(0, 1)[0];
+  const lateN = all.filter(d => !d.s && d.tl.late).length;   /* kechikkanlar soni */
+  const nx = all.find(d => !d.s && !d.tl.late);               /* keyingi ochiq deadline */
   const nowD = new Date(), dow = (nowD.getDay() + 6) % 7;
   const weekStart = new Date(nowD); weekStart.setDate(nowD.getDate() - dow);
   const strip = Array.from({ length: 7 }).map((_, i) => { const dt = new Date(weekStart); dt.setDate(weekStart.getDate() + i); return dt; });
 
   let h = '<div class="page-head"><div><h1 class="h1">Deadlines</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Deadline — baho emas, odat. Kechikkanlar mentor yordamiga muhtoj bo‘ladi.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + all.length + '</b> deadline · <b>' + lateN + '</b> kechikkan · keyingisi: <b>' + esc(nx ? nx.t.title : '—') + '</b></p></div>' +
     '<div class="seg on-accent"><button class="' + (isCal ? '' : 'on') + '" data-act="cal-mode" data-m="0">Haftalik</button>' +
     '<button class="' + (isCal ? 'on' : '') + '" data-act="cal-mode" data-m="-1">Oylik kalendar</button></div></div>';
 
@@ -469,7 +473,7 @@ function vFriends() {
     emptyCard('users', 'Hozircha klubda faqat siz borsiz', 'Boshqa talabalar qo‘shilgach do‘stlar ro‘yxati, so‘rovlar va XP musobaqasi ishga tushadi.');
 
   let h = '<div class="page-head"><div><h1 class="h1">Friends</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Do‘stlar reytingi, o‘zaro yordam va mentor talaba juftliklari — birgalikda tezroq o‘rganiladi.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + fr.length + '</b> do‘st · <b>' + inc.length + '</b> yangi so‘rov · <b>' + S.students.length + '</b> talaba klubda</p></div>' +
     '<div class="row" style="gap:10px"><span class="tag c">' + ico('users', 'sm') + fr.length + ' do‘st</span><span class="tag a">' + ico('flame', 'sm') + fr.filter(onl).length + ' onlayn</span></div></div>';
 
   h += '<div class="grid g4">' +
@@ -542,7 +546,8 @@ function vFriends() {
 function vInfo() {
   const st = me(), g = myGroup(st), p = progress(st), m = medal(st), bs = myBadges(st), cs = certsOf(st);
   let h = '<div class="page-head"><div><h1 class="h1">Ma’lumot</h1>' +
-    '<p class="t2 small" style="margin:6px 0 0">Profilingiz, yutuqlar, sertifikatlar va sozlamalar.</p></div>' +
+    '<p class="t2 small" style="margin:6px 0 0"><b>' + p.done + '/' + p.total + '</b> dars · <b>' + acceptedOf(st) + '</b> vazifa · <b>' +
+      certsOf(st).length + '</b> sertifikat · <b>' + nf(st.coins) + '</b> coin</p></div>' +
     '<button class="btn btn-soft" data-act="edit-profile">' + ico('edit', 'sm') + 'Profilni tahrirlash</button></div>';
 
   h += '<div class="card glass"><div class="row wrap between" style="gap:16px">' +

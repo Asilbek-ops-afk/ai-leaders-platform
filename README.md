@@ -12,7 +12,7 @@
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
 | 📦 **Hajm** | Bitta `index.html` (~330 KB), tashqi kutubxonasiz |
-| 🎨 **Dizayn** | Dark/light mavzu, o'z ikonalar to'plami (68 SVG), mikro-animatsiya, `prefers-reduced-motion` qo'llab-quvvatlanadi |
+| 🎨 **Dizayn** | Dark/light mavzu, premium chuqurlik tizimi (soya + yorug' qirra), gradient sarlavhalar, o'z ikonalar to'plami (68 SVG), mikro-animatsiya, `prefers-reduced-motion` |
 
 ---
 
@@ -213,7 +213,7 @@ fayl biriktirish, jamoa devori va jamoaviy topshirish, kalendar navigatsiyasi, e
 sozlamalar saqlanishi, sana mantig'i, PWA/SEO teglari, buzilgan `localStorage`'dan tiklanish.
 
 **2) `node tools/tests/screens.js` — vizual QA (playwright, Chromium)**
-**96 ta skrinshot** (repo‘ga kirmaydi — `docs/screens/` .gitignore‘da, buyruq bilan qayta yaratiladi): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari**, **CSV import oynasi**, **v2.3.0 dizayn sayqali** (parol ko'zi, kirish kartochkasi + bosma ko'rinishi, jadval, mobil qidiruv), **v2.3.1 ichki bo'limlar** (Adminlar, buyruq paneli, bildirishnomalar, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish) va **v2.3.2 yorug' mavzu** (admin, statistika, vazifa) + **faollik taqsimoti**
+**96 ta skrinshot** (repo‘ga kirmaydi — `docs/screens/` .gitignore‘da, `npm run screens` bilan qayta yaratiladi): 15 desktop sahifa, 6 mobil ko'rinish, 7 modal/light-tema holati, **10 noutbuk ko'rinishi**, **v2.x bo'sh platforma holatlari**, **CSV import oynasi**, **v2.3.0 dizayn sayqali** (parol ko'zi, kirish kartochkasi + bosma ko'rinishi, jadval, mobil qidiruv), **v2.3.1 ichki bo'limlar** (Adminlar, buyruq paneli, bildirishnomalar, Jamoalar, Sozlamalar, sertifikat, birinchi ishga tushirish) va **v2.3.2 yorug' mavzu** (admin, statistika, vazifa) + **faollik taqsimoti**
 (1920×1080, 1440×900, 1366×768 — keng ekran tuzilishi, yig'ilgan yon panel, buyruq paneli, yorliqlar oynasi, light tema)
 → `docs/screens/`.
 

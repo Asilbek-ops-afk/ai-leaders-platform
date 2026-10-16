@@ -125,6 +125,12 @@ egri chiziqdan haqiqiy **«Faollik taqsimoti»**ga o'tkazildi (talabalarning oxi
 avtomatik vosita: `test:scale` (katta klub), `test:print` (haqiqiy PDF — kartochka/sertifikat 1 varaqda),
 `test:standalone` (o'rnatilgan ilova rejimida xavfsiz hududlar).
 
+**Premium sayqal (v2.4.0):** dizayn qayta ishlandi — `src/premium.css` qatlami (chuqurlik/soya tizimi, kartalarda
+yorug' qirra, KPI nur effektlari, gradient sarlavhalar, tugma shimmer'i, navigatsiya sayqali). Har bir sahifa
+boshidagi uzun tavsiflar **jonli raqamlar** bilan almashtirildi; modul kartalari «3-MODUL» yorlig'i bilan
+toza ko'rinishga o'tdi; boshlash yo'riqnomasi 5 kartadan siqilgan ro'yxatga aylandi. Auditga yorliq kesilishi
+va matn to'qnashuvi nazorati qo'shildi (ikkalasi sun'iy nuqson bilan tekshirilgan).
+
 **Dizayn (v2.3.0):** interfeys qayta-qayta ko'zdan kechirildi va yagona dizayn tiliga keltirildi — emoji o'rniga
 68 ta o'z SVG ikonkasi, parol ko'zi, bosmaga tayyor kirish kartochkasi (A4), skrol-spy navigatsiya, mikro-animatsiya,
 yopishqoq jadval sarlavhasi, laptop zichligi (1568×768) va mobil sayqal.
