@@ -12,9 +12,9 @@
   --sh-md:0 14px 34px -18px rgba(0,0,0,.75),0 2px 8px -4px rgba(0,0,0,.5);
   --sh-lg:0 30px 70px -30px rgba(5,8,20,.95),0 8px 24px -14px rgba(0,0,0,.6);
   --edge:rgba(255,255,255,.06);           /* yuqori yorug' qirra */
-  --glow-p:rgba(var(--brand-rgb),.45);
-  --glow-c:rgba(var(--brand2-rgb),.4);
-  --glow-a:rgba(var(--accent-rgb),.35);
+  --glow-p:rgba(124,92,255,.45);
+  --glow-c:rgba(34,211,238,.4);
+  --glow-a:rgba(198,255,79,.35);
 }
 [data-theme="light"]{
   --sh-sm:0 1px 3px rgba(16,26,56,.08);
@@ -35,10 +35,10 @@
 
 /* --- 2. Sarlavhalar va sahifa boshi -------------------------------------- */
 .h1{
-  background:linear-gradient(96deg,#FFFDF7 0%,#E4DDFF 38%,#A9E9F8 100%);
+  background:linear-gradient(96deg,#FFFFFF 0%,#E4DDFF 38%,#A9E9F8 100%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
 }
-[data-theme="light"] .h1{background:linear-gradient(96deg,var(--brand-ink) 0%,#3A2AA8 55%,var(--brand2-ink) 100%);-webkit-background-clip:text;background-clip:text}
+[data-theme="light"] .h1{background:linear-gradient(96deg,#0A1024 0%,#3A2AA8 55%,#0A5566 100%);-webkit-background-clip:text;background-clip:text}
 .page-head{position:relative;padding-bottom:15px;border-bottom:1px solid var(--line)}
 .page-head::after{content:"";position:absolute;left:0;bottom:-1px;width:72px;height:2px;border-radius:2px;
   background:linear-gradient(90deg,var(--brand),var(--brand-2) 70%,transparent)}
@@ -52,7 +52,7 @@
   background:radial-gradient(circle,var(--glow-p),transparent 70%);opacity:.5;pointer-events:none}
 .kpi.c::after{background:radial-gradient(circle,var(--glow-c),transparent 70%)}
 .kpi.a::after{background:radial-gradient(circle,var(--glow-a),transparent 70%)}
-.kpi.r::after{background:radial-gradient(circle,rgba(var(--danger-rgb),.4),transparent 70%)}
+.kpi.r::after{background:radial-gradient(circle,rgba(255,92,122,.4),transparent 70%)}
 .kpi .ic{width:40px;height:40px;border-radius:13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px -14px var(--glow-p)}
 .kpi.c .ic{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px -14px var(--glow-c)}
 .kpi.a .ic{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px -14px var(--glow-a)}
@@ -62,7 +62,7 @@
 
 /* --- 4. Tugmalar --------------------------------------------------------- */
 .btn{border-radius:13px;transition:transform .16s,background .2s,border-color .2s,box-shadow .25s,opacity .2s}
-.btn-primary{position:relative;overflow:hidden;box-shadow:0 14px 30px -18px rgba(var(--brand-rgb),.95),inset 0 1px 0 rgba(255,255,255,.28)}
+.btn-primary{position:relative;overflow:hidden;box-shadow:0 14px 30px -18px rgba(124,92,255,.95),inset 0 1px 0 rgba(255,255,255,.28)}
 .btn-primary::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(104deg,transparent 22%,rgba(255,255,255,.42) 46%,transparent 62%);
   transform:translateX(-130%);transition:transform .7s cubic-bezier(.3,1,.4,1)}
@@ -94,9 +94,9 @@
   .nav-item:hover .i{transform:scale(1.08)}
 }
 .nav-item.on{box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 14px 30px -22px var(--glow-p)}
-.nav-item.on .i{color:var(--brand-tone)}
-[data-theme="light"] .nav-item.on .i{color:var(--brand-ink)}
-.nav-item .cnt{box-shadow:0 6px 14px -8px rgba(var(--danger-rgb),.9)}
+.nav-item.on .i{color:#C4B4FF}
+[data-theme="light"] .nav-item.on .i{color:#4B2FD0}
+.nav-item .cnt{box-shadow:0 6px 14px -8px rgba(255,92,122,.9)}
 .brand .mark{transition:transform .5s cubic-bezier(.2,1.2,.3,1)}
 @media (hover:hover){.brand:hover .mark{transform:rotate(-6deg) scale(1.05)}}
 .userbox{box-shadow:inset 0 1px 0 var(--edge);transition:border-color .2s}
@@ -107,24 +107,24 @@
 .topbar{box-shadow:0 10px 30px -26px rgba(0,0,0,.9)}
 [data-theme="light"] .topbar{box-shadow:0 10px 26px -26px rgba(20,34,74,.5)}
 .searchbar{box-shadow:inset 0 1px 0 var(--edge)}
-.searchbar:focus-within{border-color:rgba(var(--brand-rgb),.55);box-shadow:0 0 0 4px rgba(var(--brand-rgb),.14),inset 0 1px 0 var(--edge)}
+.searchbar:focus-within{border-color:rgba(124,92,255,.55);box-shadow:0 0 0 4px rgba(124,92,255,.14),inset 0 1px 0 var(--edge)}
 .kbd{border:1px solid var(--line);border-radius:7px;padding:2px 6px;font-size:10.5px;font-weight:750;color:var(--muted);background:var(--panel-3)}
 .globalstrip{border-bottom:1px solid var(--line)}
 
 /* --- 8. Ro'yxat qatorlari, jadval, bo'sh holat -------------------------- */
 .lrow{box-shadow:inset 0 1px 0 var(--edge)}
 @media (hover:hover){.lrow:hover{transform:translateX(2px)}}
-.trows .trow:not(.head):hover{border-color:var(--line-2);background-image:linear-gradient(90deg,rgba(var(--brand-rgb),.06),transparent 60%)}
+.trows .trow:not(.head):hover{border-color:var(--line-2);background-image:linear-gradient(90deg,rgba(124,92,255,.06),transparent 60%)}
 .trow{border-radius:12px}
-.empty{background:radial-gradient(420px 160px at 50% 0%,rgba(var(--brand-rgb),.08),transparent 70%)}
-.empty .i{filter:drop-shadow(0 8px 18px rgba(var(--brand-rgb),.35))}
+.empty{background:radial-gradient(420px 160px at 50% 0%,rgba(124,92,255,.08),transparent 70%)}
+.empty .i{filter:drop-shadow(0 8px 18px rgba(124,92,255,.35))}
 
 /* --- 9. Modal, toast, drawer -------------------------------------------- */
 .mbox{box-shadow:var(--sh-lg),inset 0 1px 0 var(--edge)}
 .toast{box-shadow:var(--sh-md);position:relative;overflow:hidden}
 .toast::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad)}
-.toast.ok::before{background:linear-gradient(180deg,var(--ok),var(--brand-2))}
-.toast.warn::before{background:linear-gradient(180deg,var(--warn),var(--danger))}
+.toast.ok::before{background:linear-gradient(180deg,#38E1A0,#22D3EE)}
+.toast.warn::before{background:linear-gradient(180deg,#FFB43A,#FF5C7A)}
 
 /* --- 10. Modul kartalari va darslar -------------------------------------
    Katta raqamli «watermark» teg bilan to'qnashardi — o'rniga kichik
@@ -145,11 +145,11 @@
 /* --- 11. Hero (talaba bosh sahifasi) ------------------------------------ */
 .hero{box-shadow:var(--sh-lg),inset 0 1px 0 var(--edge)}
 .hero .h1{font-size:clamp(24px,3.6vw,32px)}
-.hero-ring{filter:drop-shadow(0 18px 40px rgba(var(--brand-rgb),.35))}
+.hero-ring{filter:drop-shadow(0 18px 40px rgba(124,92,255,.35))}
 .hero-stat{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
   border-radius:var(--r-sm);padding:12px 14px;box-shadow:inset 0 1px 0 var(--edge)}
 .qrow{box-shadow:inset 0 1px 0 var(--edge)}
-.qrow.done{border-color:rgba(var(--ok-rgb),.3)}
+.qrow.done{border-color:rgba(56,225,160,.3)}
 .qrow .lead{box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
 
 /* --- 12. Mavzu tugmasi va mayda sayqal ---------------------------------- */
@@ -157,7 +157,7 @@
 .seg button.on{box-shadow:0 6px 18px -10px rgba(0,0,0,.9),inset 0 1px 0 var(--edge)}
 .streak,.coin{box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
 .cert{box-shadow:var(--sh-lg)}
-.fab{box-shadow:0 20px 40px -14px rgba(var(--brand-rgb),.95),inset 0 1px 0 rgba(255,255,255,.3)}
+.fab{box-shadow:0 20px 40px -14px rgba(124,92,255,.95),inset 0 1px 0 rgba(255,255,255,.3)}
 .toTop{box-shadow:var(--sh-md)}
 
 /* --- 13. Harakatni hurmat qilish ---------------------------------------- */
@@ -173,7 +173,7 @@
   background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);box-shadow:inset 0 1px 0 var(--edge)}
 .hero-stat b{color:var(--txt);font-weight:800;font-variant-numeric:tabular-nums}
 .hero-stat .i{color:var(--brand-2);opacity:.9}
-[data-theme="light"] .hero-stat .i{color:var(--brand2-ink)}
+[data-theme="light"] .hero-stat .i{color:#04687C}
 
 /* --- 15. Boshlash yo'riqnomasi (siqilgan qadamlar) ----------------------- */
 .qstrip{display:flex;flex-direction:column;gap:8px}
@@ -184,16 +184,16 @@
 .qstep .qtxt{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}
 .qstep .qtxt b{font-size:13px;font-weight:750;color:var(--txt)}
 .qstep .qtxt em{font-style:normal;font-size:11.5px;color:var(--muted)}
-.qstep.done{background:linear-gradient(180deg,rgba(var(--ok-rgb),.07),transparent);border-color:rgba(var(--ok-rgb),.22)}
-.qstep.done .qnum{background:rgba(var(--ok-rgb),.16);border-color:rgba(var(--ok-rgb),.32);color:var(--ok-tone)}
+.qstep.done{background:linear-gradient(180deg,rgba(56,225,160,.07),transparent);border-color:rgba(56,225,160,.22)}
+.qstep.done .qnum{background:rgba(56,225,160,.16);border-color:rgba(56,225,160,.32);color:#5FE8B4}
 .qstep.done .qtxt b{color:var(--txt2);font-weight:650}
 .qstep.done .qtxt em{display:none}
-[data-theme="light"] .qstep.done .qnum{background:#E7F3ED;border-color:var(--ok-tone);color:var(--ok-ink)}
-.qstep.now{border-color:rgba(var(--brand-rgb),.42);background:linear-gradient(180deg,rgba(var(--brand-rgb),.12),transparent 80%);
+[data-theme="light"] .qstep.done .qnum{background:#E2FBF1;border-color:#A6EAD3;color:#086B4A}
+.qstep.now{border-color:rgba(124,92,255,.42);background:linear-gradient(180deg,rgba(124,92,255,.12),transparent 80%);
   box-shadow:0 18px 40px -30px var(--glow-p),inset 0 1px 0 var(--edge)}
-.qstep.now .qnum{background:var(--grad);color:var(--on-brand);border-color:transparent}
-.qok{color:var(--ok-tone);display:inline-flex}
-[data-theme="light"] .qok{color:var(--ok-ink)}
+.qstep.now .qnum{background:var(--grad);color:#0A0F1E;border-color:transparent}
+.qok{color:#5FE8B4;display:inline-flex}
+[data-theme="light"] .qok{color:#086B4A}
 @media(max-width:700px){
   .qstep{flex-wrap:wrap}
   .qstep .qtxt{flex-basis:60%}

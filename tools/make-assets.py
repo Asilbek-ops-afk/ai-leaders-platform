@@ -10,8 +10,7 @@ OUT = os.path.join(ROOT, 'assets')
 os.makedirs(OUT, exist_ok=True)
 FB = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
 FR = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-# Merino & Venice palitrasi: #F5EEDD · #84B3CE · #16587B
-PURP, BLUE, CYAN, LIME, DARK = (22, 88, 123), (47, 125, 166), (132, 179, 206), (245, 238, 221), (10, 42, 61)
+PURP, BLUE, CYAN, LIME, DARK = (124, 92, 255), (91, 140, 255), (34, 211, 238), (198, 255, 79), (7, 11, 24)
 
 
 def gradient(size, c1, c2, diagonal=True):
@@ -80,8 +79,8 @@ def og_image():
     # fon gradientlari
     glow = Image.new('RGB', (W, H), DARK)
     gd = ImageDraw.Draw(glow)
-    gd.ellipse([W - 620, -260, W + 180, 420], fill=(23, 92, 126))
-    gd.ellipse([-260, H - 420, 420, H + 200], fill=(15, 61, 87))
+    gd.ellipse([W - 620, -260, W + 180, 420], fill=(28, 40, 96))
+    gd.ellipse([-260, H - 420, 420, H + 200], fill=(40, 26, 92))
     glow = glow.filter(ImageFilter.GaussianBlur(150))
     img = Image.blend(img, glow, 0.85)
     d = ImageDraw.Draw(img)
@@ -100,17 +99,17 @@ def og_image():
     f_sm = ImageFont.truetype(FR, 22)
     d.text((78, 320), 'AI LEADERS', font=f_h1, fill=(255, 255, 255))
     d.text((80, 398), 'STARTUP CLUB  •  0 DAN STARTAPGACHA', font=f_up, fill=CYAN)
-    d.text((80, 448), 'Vazifa va deadline tizimi, jamoaviy loyiha,', font=f_h2, fill=(233, 240, 244))
-    d.text((80, 486), 'mentor kuzatuvi va o\u2018quv yo\u2018li xaritasi.', font=f_h2, fill=(233, 240, 244))
+    d.text((80, 448), 'Vazifa va deadline tizimi, jamoaviy loyiha,', font=f_h2, fill=(200, 210, 235))
+    d.text((80, 486), 'mentor kuzatuvi va o\u2018quv yo\u2018li xaritasi.', font=f_h2, fill=(200, 210, 235))
     # chiplar
     x = 80
     for txt in ['6 modul', '29 dars', '6 jamoa', 'Demo Day']:
         w = d.textlength(txt, font=f_ch) + 44
-        d.rounded_rectangle([x, 540, x + w, 588], radius=24, fill=(17, 56, 79), outline=(132, 179, 206), width=2)
-        d.text((x + 22, 551), txt, font=f_ch, fill=(245, 238, 221))
+        d.rounded_rectangle([x, 540, x + w, 588], radius=24, fill=(22, 30, 58), outline=(84, 104, 168), width=2)
+        d.text((x + 22, 551), txt, font=f_ch, fill=(226, 234, 255))
         x += w + 14
     dom = 'ai-leaders-platform.pages.dev'
-    d.text((W - 80 - d.textlength(dom, font=f_sm), 26), dom, font=f_sm, fill=(169, 200, 218))
+    d.text((W - 80 - d.textlength(dom, font=f_sm), 26), dom, font=f_sm, fill=(150, 165, 195))
     # aksent chiziq
     d.rounded_rectangle([0, H - 8, W, H], radius=0, fill=PURP)
     d.rounded_rectangle([0, H - 8, W * 0.34, H], radius=0, fill=CYAN)

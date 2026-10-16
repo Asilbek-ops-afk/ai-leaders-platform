@@ -2,9 +2,9 @@
 
 Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** barcha kamchiliklarni,
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
-**eng yangi holat — oxirgi bo'lim (v2.6.0)**.
+**eng yangi holat — oxirgi bo'lim (v2.5.0)**.
 
-**Oxirgi versiya:** v2.6.1 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
+**Oxirgi versiya:** v2.5.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -20,7 +20,6 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [**v2.3.1**](#v231--ichki-bolimlar-auditi-va-avtomatik-ui-tekshiruvi) | **v2.3.1** | **Ichki bo'limlar auditi + avtomatik UI tekshiruvi (`npm run test:ui`): KPI siljishi, matn kesilishi, gorizontal toshish** |
 | [**v2.3.2**](#v232--kontrast-aa-auditi-va-faollik-taqsimoti) | **v2.3.2** | **WCAG AA kontrast auditi (ikkala mavzu), yorug' mavzu rang tuzatishlari, haqiqiy «Faollik taqsimoti» (o'ylab topilgan egri chiziq o'rniga)** |
 | [**v2.3.3**](#v233--katta-klub-unumdorligi-bosma-va-ornatilgan-ilova) | **v2.3.3** | **200+ talabada unumdorlik (indeks + kesh), bosmada orqa sahifa tushib qolishi tuzatildi, o'rnatilgan ilova (safe-area) rejimi, 3 yangi vosita: `test:scale`, `test:print`, `test:standalone`** |
-| [**v2.6.0**](#v260--merino--venice-palitrasi-jurnal-tipografiyasi) | **v2.6.0** | **Rang tizimi #F5EEDD · #84B3CE · #16587B uchligiga o'tdi: Venetsiya kechasi (tungi) + Merino qog'oz (yorug'), serif sarlavhalar, yangi og.png/ikonkalar, landing uchun mavzu tugmasi** |
 | [**v2.5.0**](#v250--craft-qatlami-sahifalar-tirik-va-qolda-ishlangan) | **v2.5.0** | **Craft qatlami: jonli lenta, faollik xaritasi, uchqun grafigi, jonli soat, kursor nuri, raqamlar sanalishi, qo'lda chizilgan bo'sh holatlar** |
 | [**v2.4.0**](#v240--premium-dizayn-sayqali-va-ortiqcha-matnlar-qisqartirildi) | **v2.4.0** | **Premium dizayn tizimi (chuqurlik, yorug'lik, gradient sarlavhalar, jonli statistika), modul kartalari qayta ishlandi, ortiqcha matnlar qisqartirildi, auditga 2 yangi nazorat: yorliq kesilishi va matn to'qnashuvi** |
 
@@ -823,86 +822,27 @@ va `prefers-reduced-motion` yoqilganda barcha animatsiya to'xtaydi.
 
 ---
 
-## v2.6.0 — Merino & Venice palitrasi, jurnal tipografiyasi
+## v2.7.0 — Merino palitrasi qaytarildi, v2.5.0 dizayni tiklandi
 
-**Baho (foydalanuvchi):** uch rangli palitra berildi — **Merino #F5EEDD · Rock Blue #84B3CE · Venice Blue #16587B**
-va «shu 3 rangdan foydalanib uyg'unlashtirib, kreativ yondash, mukammal dizayn» topshirig'i berildi.
+**Foydalanuvchi bahosi:** «juda bachkana bo'lib qolib — oldingi holatiga qaytar». Ya'ni uch rangli
+«qog'oz va siyoh» palitrasi (v2.6.0/v2.6.1) ma'qul ko'rilmadi.
 
-Ranglar faqat «qo'shilmadi» — butun tizim ular atrofida qayta qurildi.
+Qaror: hech qanday janjalsiz, **v2.5.0 dizayn holati aynan tiklandi** (`git checkout 895d2ec`):
 
-### Ikki mavzu = bitta palitraning ikki yo'nalishi
-
-| Mavzu | Zamin | Matn | Nur |
-|---|---|---|---|
-| **Venetsiya kechasi** (tungi) | `#0A2A3D` (Venice Blue'ning qoraytirilgani — «siyoh») | Merino `#F5EEDD` | Rock Blue `#84B3CE` |
-| **Merino qog'oz** (yorug') | `#F5EEDD` (asl merino) | Venice Blue `#16587B` | Qog'oz `#FFFDF7` + Rock Blue aksent |
-
-Ya'ni ikkala mavzu ham aynan shu uch rangdan o'sadi; hech qanday begona neon rang qolmadi
-(eski binafsha/moviy/limon/neon-yashil/qizil — barchasi palitra ichidagi soyalar bilan almashtirildi).
-
-### Nima qilindi
-
-| Qatlam | Tafsilot |
+| Tiklangan | Tafsilot |
 |---|---|
-| **Algoritmik almashtirish** | `style.css` (95), `premium.css` (20), `craft.css` (20), 5 ta JS fayl (55) — jami **190 ta rang almashtirildi**; har bir `rgba(132,179,206,…)` ton endi `--brand-rgb` orqali boshqariladi |
-| **Yangi qatlam** | `src/palette.css` — tonlar (brand/ok/warn/danger/coin), yorug' mavzu sayqali, serif tipografiya, landing va footer ranglari |
-| **Tipografiya** | Sarlavhalar (`.h1/.h2/.h3/.lh2/.lhero h1`, brend nomi, sertifikat) — **serif** (Iowan/Palatino/Georgia); KPI raqamlari aniq sans + `tabular-nums` bo'lib qoldi. Brend nimasi: muhandislik aniqlik + klub jurnali estetikasi |
-| **Yorug' mavzu sayqali** | Qog'oz fonlar (`#FFFDF7`, `#FBF6EA`), siyoh soyalari (ko'k asosli), yorliqlar **yumshoq fon + to'q siyoh** ko'rinishiga o'tdi (ilgari to'q rang fon bo'lib, matn ko'rinmay qolgan edi) |
-| **Tungi mavzu sayqali** | Ko'k zamin + Rock Blue kartalar; Merino faqat asosiy tugmada matn sifatida (yuqori kontrast) |
-| **Landing** | Yangi **mavzu tugmasi** navigatsiyada (kirish ekranida mavzuni almashtirish); yorug' mavzuda sharlar Rock/Venice nuriga o'tadi; footer — venetsiya siyohi |
-| **Brend assetlari** | `tools/make-assets.py` palitraga o'tkazildi va qayta generatsiya qilindi: logotip, 5 ikonka, **og.png** (1200×630 — endi ko'k zamin + merino yozuv). Hajm: 236 KB → **60 KB** (og.png 121 KB → 23.5 KB, `--ordered` dither bilan) |
-| **Meta** | `theme-color` (#0A2A3D / #F5EEDD), manifest, inline favicon — hammasi yangi palitrada |
+| Rang tizimi | Tungi: to'q ko'k zamin + binafsha/moviy/limon neon; kunduzgi: och sovuq-oq mavzu |
+| Qatlamlar | `style.css` + `premium.css` + `craft.css` (Merino uchun qo'shilgan `palette.css` o'chirildi) |
+| Brend assetlari | Ikonkalar va OG rasm neytral to'q-ko'k fonda — brend belgisi (oq «A» + limon uchqun) o'zgarmagan |
+| Funksiyalar | Craft qatlami (jonli lenta, faollik xaritasi, uchqun grafigi, jonli soat) to'liq saqlanadi |
 
-### Ko'rikda topilgan va tuzatilgan nuqsonlar
+**Versiya** `2.7.0` — brauzer keshini yangilash uchun (service worker cache ham `ai-leaders-v2.7.0`).
 
-| Nuqson | Sabab | Tuzatish |
-|---|---|---|
-| **Yorliq matni ko'rinmas** (Statistika, «Izlanuvchi», «4/5», yon panel sarlavhalari) | Yorug' mavzuda `--brand-tone` kabi *matn tonlari* `--brand` bilan bir xil to'q rangga aylangan, lekin ular **fon** sifatida ham ishlatilardi | Yorug' mavzudagi barcha yorliqlar `rgba(tone,.12–.16)` yumshoq fon + to'q siyoh matnga o'tkazildi |
-| **Do'stlar sahifasidagi «4.9» baho yorlig'i** | `#1d6b8c` oq fon ustida 4.48 kontrast (AA chegarasidan 0.02 past) | `--brand2-ink` → `#185C7A` (kontrast 4.9+) |
-
-### Tekshiruv natijalari (v2.6.0)
+### Tekshiruv (v2.7.0)
 
 | Daraja | Natija |
 |---|---|
-| Funksional testlar | ✔ **507 ta, 0 xato** |
-| Sahifa auditi (kontrast, kesilish, to'qnashuv) | ✔ **0 nuqson** — dark va light, 16 sahifa, 6 modal |
-| Joylashuv | ✔ 175 tekshiruv, 0 gorizontal toshish |
-| Katta klub (200 talaba) | ✔ 0 nuqson |
-| Chop etish / o'rnatilgan ilova | ✔ 0 nuqson |
-| Skrinshotlar | ✔ **96 ta** yangi palitrada yangilandi |
-| Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.6.0** |
-
----
-
-## v2.6.1 — Palitra ustidagi ijodiy qatlam va qoldiq ranglar
-
-v2.6.0 dan keyin qo'lda ko'rik (kunduzgi va tungi rejim, 5 yo'nalish) o'tkazildi va uch guruh ish qilindi.
-
-### 1. Qoldiq neon ranglar (nuqson)
-
-Kod bazasida **40 ta eski neon rang** inline uslublarda qolib ketgan edi (binafsha `rgba(124,92,255,…)`,
-moviy `rgba(34,211,238,…)`, limon `rgba(198,255,79,…)`) — mentor izohi kartalari, e'lon bloklari, admin
-ogohlantirishlari, sertifikat ikonkalari, chat pufakchasi. Barchasi mavzu tokenlariga o'tkazildi
-(`rgba(var(--brand-rgb),…)` va h.k.) — endi ular ikki mavzuda ham avtomatik to'g'ri rangda.
-
-**Guruh gerbi (crest)** ham nuqsonli edi: ichidagi to'ldirish binafsha, harfning rangi esa har doim
-och (`#EAF0FF`) — kunduzgi rejimda o'qilmasdi. Endi gerb brend tokenlarida va harf `var(--txt)` bilan.
-
-### 2. Ijodiy qatlam (ranglar jadvalidan olingan imzolar)
-
-| Imzo | Tafsilot |
-|---|---|
-| **Uch rangli chiziq** | Topbar, landing nav, mobil pastki menyu va landing footer'ida 3px chiziq — jadvaldagi uch bo'lakning aynan o'zi (33.4% / 66.7% nisbatda) |
-| **Konsentrik doiralar** | Hero va landing hero'sida jadvaldagi doira motivining takrori (radial-gradient halqalar) |
-| **«Qo'lda qo'yilgan» kartalar** | Landing suzuvchi kartalari ±2° burilgan, hover'da to'g'rilanadi (`prefers-reduced-motion`da o'chadi) |
-| **Avatar oilasi** | Ism bo'yicha rang endi 190–232° (teal→ko'k) oralig'ida: tasodifiy pushti/yashil avatarlar yo'q, lekin yorqinlik farqi saqlanadi — odamlar farqlanadi |
-
-### 3. Tekshiruv natijalari (v2.6.1)
-
-| Daraja | Natija |
-|---|---|
-| Funksional testlar | ✔ **507 ta, 0 xato** |
-| Sahifa auditi (kontrast, kesilish, to'qnashuv) | ✔ **0 nuqson** (dark + light, 16 sahifa, 6 modal) |
+| Funksional testlar | ✔ 507 ta, 0 xato |
+| Sahifa auditi (kontrast, kesilish, to'qnashuv) | ✔ 0 nuqson |
 | Joylashuv · katta klub · chop etish · o'rnatilgan ilova | ✔ 175/0 · 0 · 0 · 0 |
-| Skrinshotlar | ✔ 96 ta yangi holatda |
-| Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.6.1** |
+| Skrinshotlar | ✔ 96 ta v2.5.0 dizaynida qayta olindi |

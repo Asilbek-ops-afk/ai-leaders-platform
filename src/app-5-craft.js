@@ -127,8 +127,8 @@ function sparkSVG(values) {
   let len = 0; for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
   const last = pts[pts.length - 1] || [0, 0];
   return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
-    '<defs><linearGradient id="' + id + 'L" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--brand)"/><stop offset="1" style="stop-color:var(--brand-2)"/></linearGradient>' +
-    '<linearGradient id="' + id + 'G" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(var(--brand-rgb),.55)"/><stop offset="1" stop-color="rgba(var(--brand-rgb),0)"/></linearGradient></defs>' +
+    '<defs><linearGradient id="' + id + 'L" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient>' +
+    '<linearGradient id="' + id + 'G" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(124,92,255,.55)"/><stop offset="1" stop-color="rgba(124,92,255,0)"/></linearGradient></defs>' +
     '<path class="area" d="' + line + ' L' + w + ' ' + h + ' L0 ' + h + ' Z" fill="url(#' + id + 'G)"/>' +
     '<path class="line" style="--len:' + Math.round(len) + ';stroke:url(#' + id + 'L)" d="' + line + '"/>' +
     '<circle class="dot" cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="3.4"/></svg>';
@@ -285,9 +285,8 @@ function craftAvatars() {
   document.querySelectorAll('.content .av').forEach(el => {
     if (el.dataset.h) return; el.dataset.h = '1';
     const s = el.getAttribute('title') || el.textContent || '';
-    let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 997;
-    el.style.setProperty('--h', 190 + (h % 42));            /* 190–232°: palitra oilasi (teal→ko'k) */
-    el.style.setProperty('--l', (36 + (h % 5) * 4) + '%');  /* 36–52%: yorqinlik farqi saqlanadi */
+    let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
+    el.style.setProperty('--h', h);
   });
 }
 /* ---------- kursor nuri, to'lqin, jonli soat, mavzu o'tishi ---------- */

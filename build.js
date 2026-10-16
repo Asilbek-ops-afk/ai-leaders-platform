@@ -4,7 +4,7 @@ const fs = require('fs'), path = require('path');
 const root = __dirname, src = path.join(root, 'src');
 const order = ['app-1-core.js', 'app-2-student.js', 'app-3-admin.js', 'app-4-app.js', 'app-5-craft.js'];
 /* style.css + premium.css — bitta uslublar to'plami (premium keyin qo'shiladi) */
-const css = ['style.css', 'premium.css', 'craft.css', 'palette.css'].map(f => fs.readFileSync(path.join(src, f), 'utf8')).join('\n');
+const css = ['style.css', 'premium.css', 'craft.css'].map(f => fs.readFileSync(path.join(src, f), 'utf8')).join('\n');
 const js = order.map(f => '/* ===== ' + f + ' ===== */\n' + fs.readFileSync(path.join(src, f), 'utf8')).join('\n');
 if (js.includes('</script')) throw new Error('XATO: JS ichida </script> bor — inline qilib bo‘lmaydi');
 const tpl = fs.readFileSync(path.join(src, 'template.html'), 'utf8');

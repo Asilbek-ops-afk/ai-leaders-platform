@@ -79,7 +79,7 @@ function addStudentModal(pre) {
   openModal(mhead(p0.lead ? 'Arizani talabaga aylantirish' : 'Talaba qo‘shish',
     p0.lead ? 'Ariza ma’lumotlari to‘ldirilgan — HEMIS ID ni kiriting' : 'Yangi a’zoni klubga ro‘yxatdan o‘tkazish') +
     '<form data-form="new-student"' + (p0.lead ? ' data-lead="' + esc(p0.lead) + '"' : '') + ' class="col" style="gap:13px">' +
-    '<div class="card soft tight" style="background:rgba(var(--brand-rgb),.10);border-color:rgba(var(--brand-rgb),.28)">' +
+    '<div class="card soft tight" style="background:rgba(124,92,255,.10);border-color:rgba(124,92,255,.28)">' +
     '<div class="row" style="gap:10px">' + ico('shield', 'sm') +
     '<div><div class="small" style="font-weight:750">HEMIS ID — ro‘yxatga olish uchun asos</div>' +
     '<div class="xs muted" style="margin-top:3px">Talaba HEMIS ID sini topshiradi → siz kiritasiz → tizim unikal <b>nick</b> beradi. Talaba saytga aynan shu nick bilan kiradi. Bitta HEMIS ID — bitta talaba.</div></div></div></div>' +
@@ -96,7 +96,7 @@ function addStudentModal(pre) {
 function csvImportModal(report) {
   let body = '';
   if (!report) {
-    body = '<div class="card soft tight" style="background:rgba(var(--brand-rgb),.10);border-color:rgba(var(--brand-rgb),.28)">' +
+    body = '<div class="card soft tight" style="background:rgba(124,92,255,.10);border-color:rgba(124,92,255,.28)">' +
       '<div class="row" style="gap:10px">' + ico('upload', 'sm') +
       '<div><div class="small" style="font-weight:750">CSV fayl: ism, HEMIS ID, telefon, jamoa…</div>' +
       '<div class="xs muted" style="margin-top:3px">Ustunlar: <b>ism_familiya, hemis_id</b> (majburiy) • telefon, jamoa, telegram, maqsad (ixtiyoriy). ' +
@@ -129,7 +129,7 @@ function csvImportModal(report) {
 /* Import hisoboti + yangi kirish kartochkalari ro'yxati */
 function csvDoneModal(res) {
   openModal(mhead('Import yakunlandi', res.created.length + ' talaba qo‘shildi' + (res.newGroups ? ' • ' + res.newGroups + ' yangi jamoa' : '')) +
-    '<div class="card soft tight" style="background:rgba(var(--brand2-rgb),.10);border-color:rgba(var(--brand2-rgb),.28)">' +
+    '<div class="card soft tight" style="background:rgba(34,211,238,.10);border-color:rgba(34,211,238,.28)">' +
     '<div class="xs muted">Har bir talaba kirish kartochkasini oldi: <b>kirish — nick bilan</b> (HEMIS ID faqat arxiv/nazorat uchun), parolni birinchi kirishda o‘zi o‘rnatadi. ' +
     'Kartochkalarni chop etish uchun «Chop etish / PDF» tugmasidan foydalaning.</div></div>' +
     '<div class="col" style="gap:7px;margin-top:12px;max-height:280px;overflow:auto">' +
@@ -205,8 +205,8 @@ function vAdmin() {
 
   /* Landing sahifasidan kelgan yangi arizalar — birinchi navbatda ko'rinadi */
   if ((S.leads || []).length && actionAllowed('students')) {
-    h += '<div class="lrow" style="border-color:rgba(var(--accent-rgb),.34);background:rgba(var(--accent-rgb),.06);border-radius:var(--r-sm);border:1px solid rgba(var(--accent-rgb),.34);margin-bottom:14px">' +
-      '<div class="lead" style="background:rgba(var(--accent-rgb),.14)">' + ico('send', 'sm') + '</div>' +
+    h += '<div class="lrow" style="border-color:rgba(198,255,79,.34);background:rgba(198,255,79,.06);border-radius:var(--r-sm);border:1px solid rgba(198,255,79,.34);margin-bottom:14px">' +
+      '<div class="lead" style="background:rgba(198,255,79,.14)">' + ico('send', 'sm') + '</div>' +
       '<div class="grow" style="min-width:0"><div class="small" style="font-weight:780">' + S.leads.length + ' ta yangi ariza keldi</div>' +
       '<div class="xs muted ellip">Oxirgisi: ' + esc(S.leads[0].name) + ' • ' + esc(S.leads[0].phone) + '</div></div>' +
       '<button class="btn btn-sm btn-primary" data-act="go" data-route="students">Arizalarni ko‘rish</button></div>';
@@ -310,9 +310,9 @@ function vStudents() {
 
   /* Landing sahifasidan kelgan arizalar */
   if ((S.leads || []).length) {
-    h += '<div class="card" style="margin-bottom:14px;border-color:rgba(var(--accent-rgb),.34)">' +
+    h += '<div class="card" style="margin-bottom:14px;border-color:rgba(198,255,79,.34)">' +
       '<div class="card-h"><div class="row" style="gap:11px">' +
-      '<div class="feat-ic" style="background:rgba(var(--accent-rgb),.14);border-color:rgba(var(--accent-rgb),.34)">' + ico('send', 'sm') + '</div>' +
+      '<div class="feat-ic" style="background:rgba(198,255,79,.14);border-color:rgba(198,255,79,.34)">' + ico('send', 'sm') + '</div>' +
       '<div><h2 class="h2">Yangi arizalar (' + S.leads.length + ')</h2>' +
       '<div class="xs muted">Landing sahifasidagi «Ariza» formasidan. «Talaba qilish» bosilganda ma’lumotlar ' +
       'to‘ldirilgan holda ochiladi — siz faqat <b>HEMIS ID</b> ni kiritasiz; tizim unga unikal nick beradi va kirish kartochkasini chiqaradi.</div></div></div></div>' +
@@ -447,7 +447,7 @@ function vAdminLessons() {
     /* Talaba yo'q bo'lsa foiz ko'rsatish chalg'itadi */
     const completeTxt = S.students.length ? (completers + ' talaba 100% tugatgan') : 'hali talaba qo‘shilmagan';
     return '<div class="card"><div class="card-h"><div class="row" style="gap:12px">' +
-      '<div class="lead" style="width:42px;height:42px;border-radius:13px;background:rgba(var(--brand-rgb),.16);border-color:rgba(var(--brand-rgb),.3);color:var(--brand-tone)">' + ico(mm.icon) + '</div>' +
+      '<div class="lead" style="width:42px;height:42px;border-radius:13px;background:rgba(124,92,255,.16);border-color:rgba(124,92,255,.3);color:#C4B4FF">' + ico(mm.icon) + '</div>' +
       '<div><div class="up muted">' + mm.n + '-modul</div><h2 class="h2">' + esc(mm.title) + '</h2>' +
       '<div class="xs muted">' + ls.length + ' dars • ' + completeTxt + ' • ' + (t ? 'vazifa: ' + esc(t.title) : 'vazifa yo‘q') + '</div></div></div>' +
       '<div class="row" style="gap:8px"><button class="btn btn-xs btn-soft" data-act="new-lesson-mod" data-id="' + mm.id + '">' + ico('plus', 'sm') + 'Dars</button>' +
@@ -483,7 +483,7 @@ function vAdminGroups() {
     kpi('trophy', esc(topGroup() ? topGroup().name : '—'), 'Yetakchi jamoa', topGroup() ? nf(topGroup().xp) + ' XP' : 'jamoa yo‘q', 'c') +
     kpi('target', S.gallery.length, 'Galereyadagi loyiha', 'Demo Day’ga tayyor', '') + '</div>';
 
-  if (free.length) h += '<div class="card" style="border-color:rgba(var(--accent-rgb),.3);background:linear-gradient(120deg,rgba(var(--accent-rgb),.07),transparent 60%)"><div class="row wrap between" style="gap:12px">' +
+  if (free.length) h += '<div class="card" style="border-color:rgba(198,255,79,.3);background:linear-gradient(120deg,rgba(198,255,79,.07),transparent 60%)"><div class="row wrap between" style="gap:12px">' +
     '<div class="row" style="gap:11px">' + ico('users-plus') + '<div><div class="small" style="font-weight:750">' + free.length + ' talaba hali jamoasiz</div>' +
     '<div class="xs muted">' + free.map(s => esc(s.name)).join(', ') + '</div></div></div>' +
     '<button class="btn btn-soft btn-sm" data-act="go" data-route="adminGroups">Jamoalarga taqsimlash</button></div></div>';
@@ -544,12 +544,12 @@ function vAdminDeadlines() {
     '<button class="btn-icon" style="width:36px;height:36px" data-act="cal-prev">' + ico('left', 'sm') + '</button>' +
     '<h2 class="h2" style="min-width:150px;text-align:center">' + esc(cal.label) + '</h2>' +
     '<button class="btn-icon" style="width:36px;height:36px" data-act="cal-next">' + ico('right', 'sm') + '</button></div>' +
-    '<div class="row xs muted wrap" style="gap:12px"><span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--brand);display:block"></i>umumiy</span>' +
-    '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:block"></i>jamoa uchun</span></div></div>' +
+    '<div class="row xs muted wrap" style="gap:12px"><span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#7C5CFF;display:block"></i>umumiy</span>' +
+    '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#C6FF4F;display:block"></i>jamoa uchun</span></div></div>' +
     '<div class="cal">' + UZ_D.map(d => '<div class="hd">' + d + '</div>').join('') +
     cal.cells.map(c => { const ds = isoDate(c.d), items = map[ds] || [];
       return '<div class="d ' + (c.out ? 'out ' : '') + (ds === today ? 'today ' : '') + (items.length ? 'has' : '') + '" ' + (items.length ? 'data-act="cal-day2" data-d="' + ds + '"' : '') + '>' +
-        '<span class="n">' + c.d.getDate() + '</span><div class="dots">' + items.slice(0, 4).map(it => '<i style="background:' + (it.k === 'team' ? 'var(--accent)' : 'var(--brand)') + '"></i>').join('') + '</div></div>';
+        '<span class="n">' + c.d.getDate() + '</span><div class="dots">' + items.slice(0, 4).map(it => '<i style="background:' + (it.k === 'team' ? '#C6FF4F' : '#7C5CFF') + '"></i>').join('') + '</div></div>';
     }).join('') + '</div></div>' +
 
     '<div class="col" style="gap:14px"><div class="card"><div class="card-h"><h2 class="h2">' + ico('alert') + 'Kechikkanlar ro‘yxati</h2>' +
@@ -835,7 +835,7 @@ function loginCardModal(accId) {
   const a = accById(accId);
   if (!a) return;
   openModal(mhead('Kirish kartochkasi', (a.role === 'admin' ? 'Admin akkaunti' : 'Talaba akkaunti')) +
-    '<div class="card soft" id="loginCard" style="background:linear-gradient(135deg,rgba(var(--brand-rgb),.16),rgba(var(--brand2-rgb),.10));border-color:rgba(var(--brand-rgb),.34)">' +
+    '<div class="card soft" id="loginCard" style="background:linear-gradient(135deg,rgba(124,92,255,.16),rgba(34,211,238,.10));border-color:rgba(124,92,255,.34)">' +
     '<div class="row between" style="gap:12px"><div class="row" style="gap:11px">' + avatar({ id: a.id, name: a.name, act: true, last: 0 }, 'sm') +
     '<div><div class="h3">' + esc(a.name) + '</div><div class="xs muted">' + esc(a.role === 'admin' ? (ADMIN_ROLES[a.adminRole] || { l: 'Admin' }).l : 'Talaba') + (a.groupId ? ' • ' + esc((groupOf(a.groupId) || {}).name || '') : '') + '</div></div></div>' +
     '<span class="tag a">' + ico('shield', 'sm') + 'AI Leaders</span></div>' +

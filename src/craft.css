@@ -13,20 +13,20 @@
 /* ---------- 0. Qo'shimcha tokenlar ---------- */
 :root{
   --edge:rgba(255,255,255,.07);
-  --hair:linear-gradient(90deg,transparent,rgba(var(--brand-rgb),.55),rgba(var(--brand2-rgb),.5),transparent);
-  --glow-brand:0 0 0 1px rgba(var(--brand-rgb),.28),0 18px 40px -26px rgba(var(--brand-rgb),.65);
-  --sh-1:0 1px 2px rgba(6,28,41,.5),0 10px 26px -18px rgba(6,28,41,.9);
-  --sh-2:0 2px 4px rgba(6,28,41,.45),0 24px 52px -28px rgba(6,10,32,.95);
+  --hair:linear-gradient(90deg,transparent,rgba(124,92,255,.55),rgba(34,211,238,.5),transparent);
+  --glow-brand:0 0 0 1px rgba(124,92,255,.28),0 18px 40px -26px rgba(124,92,255,.65);
+  --sh-1:0 1px 2px rgba(3,6,18,.5),0 10px 26px -18px rgba(3,6,18,.9);
+  --sh-2:0 2px 4px rgba(3,6,18,.45),0 24px 52px -28px rgba(6,10,32,.95);
   --sh-3:0 30px 70px -34px rgba(6,10,32,1);
-  --tile:linear-gradient(160deg,rgba(var(--brand-rgb),.16),rgba(var(--brand2-rgb),.07) 60%,transparent);
+  --tile:linear-gradient(160deg,rgba(124,92,255,.16),rgba(34,211,238,.07) 60%,transparent);
 }
 [data-theme="light"]{
-  --edge:rgba(22,88,123,.07);
-  --glow-brand:0 0 0 1px rgba(var(--brand-rgb),.2),0 16px 32px -22px rgba(60,74,140,.55);
-  --sh-1:0 1px 2px rgba(22,88,123,.09),0 10px 24px -18px rgba(24,36,80,.28);
-  --sh-2:0 2px 4px rgba(22,88,123,.09),0 22px 44px -26px rgba(24,36,80,.32);
+  --edge:rgba(10,16,36,.05);
+  --glow-brand:0 0 0 1px rgba(124,92,255,.2),0 16px 32px -22px rgba(60,74,140,.55);
+  --sh-1:0 1px 2px rgba(24,36,80,.06),0 10px 24px -18px rgba(24,36,80,.28);
+  --sh-2:0 2px 4px rgba(24,36,80,.06),0 22px 44px -26px rgba(24,36,80,.32);
   --sh-3:0 30px 60px -30px rgba(24,36,80,.34);
-  --tile:linear-gradient(160deg,rgba(var(--brand-rgb),.12),rgba(var(--brand2-rgb),.08) 60%,transparent);
+  --tile:linear-gradient(160deg,rgba(124,92,255,.12),rgba(34,211,238,.08) 60%,transparent);
 }
 
 /* ---------- 1. AMBIYENT: fon nafas oladi ---------- */
@@ -34,17 +34,17 @@
 .app:not(.authscreen) .main::before{
   content:"";position:fixed;inset:-25% -15% -15%;z-index:0;pointer-events:none;
   background:
-    radial-gradient(38% 42% at 18% 12%,rgba(var(--brand-rgb),.34),transparent 66%),
-    radial-gradient(34% 38% at 86% 6%,rgba(var(--brand2-rgb),.26),transparent 68%),
-    radial-gradient(30% 34% at 62% 82%,rgba(var(--accent-rgb),.16),transparent 70%);
+    radial-gradient(38% 42% at 18% 12%,rgba(124,92,255,.30),transparent 66%),
+    radial-gradient(34% 38% at 86% 6%,rgba(34,211,238,.22),transparent 68%),
+    radial-gradient(30% 34% at 62% 82%,rgba(198,255,79,.12),transparent 70%);
   filter:blur(46px);opacity:.85;
   animation:aurora 54s ease-in-out infinite alternate;
   will-change:transform}
 [data-theme="light"] .app:not(.authscreen) .main::before{
   background:
-    radial-gradient(38% 42% at 18% 12%,rgba(var(--brand-rgb),.20),transparent 66%),
-    radial-gradient(34% 38% at 86% 6%,rgba(var(--brand2-rgb),.20),transparent 68%),
-    radial-gradient(30% 34% at 62% 82%,rgba(var(--accent-rgb),.22),transparent 72%);
+    radial-gradient(38% 42% at 18% 12%,rgba(124,92,255,.20),transparent 66%),
+    radial-gradient(34% 38% at 86% 6%,rgba(34,211,238,.20),transparent 68%),
+    radial-gradient(30% 34% at 62% 82%,rgba(198,255,79,.22),transparent 72%);
   opacity:.9}
 @keyframes aurora{
   0%{transform:translate3d(-2%,-1%,0) scale(1)}
@@ -69,23 +69,23 @@ body::after{
 
 /* topbar ostida yuguradigan nur chizig'i */
 .topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(var(--brand-rgb),.85),rgba(var(--brand2-rgb),.85),transparent);
+  background:linear-gradient(90deg,transparent,rgba(124,92,255,.85),rgba(34,211,238,.85),transparent);
   background-size:45% 100%;background-repeat:no-repeat;animation:sweep 6.5s linear infinite;opacity:.75}
 @keyframes sweep{0%{background-position:-45% 0}100%{background-position:145% 0}}
 /* yon panel: yumshoq nur + faol bo'lim */
 .sidebar::after{content:"";position:absolute;top:0;right:-1px;bottom:0;width:1px;
-  background:linear-gradient(180deg,transparent,rgba(var(--brand-rgb),.5) 22%,rgba(var(--brand2-rgb),.42) 62%,transparent)}
+  background:linear-gradient(180deg,transparent,rgba(124,92,255,.5) 22%,rgba(34,211,238,.42) 62%,transparent)}
 .sidebar{position:sticky;overflow:hidden}
 .sidebar::before{content:"";position:absolute;inset:auto -40% -30% -40%;height:60%;
-  background:radial-gradient(60% 60% at 50% 100%,rgba(var(--brand-rgb),.22),transparent 70%);pointer-events:none}
+  background:radial-gradient(60% 60% at 50% 100%,rgba(124,92,255,.22),transparent 70%);pointer-events:none}
 
 /* ---------- 2. TOPBAR: jonli soat va holat ---------- */
 .liveclock{display:inline-flex;align-items:center;gap:8px;padding:7px 12px 7px 10px;border-radius:999px;
   background:var(--panel-2);border:1px solid var(--line);font-size:12.5px;font-weight:750;color:var(--txt2);
   font-variant-numeric:tabular-nums;white-space:nowrap}
 .liveclock b{color:var(--txt);font-weight:850}
-.liveclock .pulse{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(var(--ok-rgb),.55);animation:pulse 2.4s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(var(--ok-rgb),.5)}70%{box-shadow:0 0 0 9px rgba(var(--ok-rgb),0)}100%{box-shadow:0 0 0 0 rgba(var(--ok-rgb),0)}}
+.liveclock .pulse{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(56,225,160,.55);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(56,225,160,.5)}70%{box-shadow:0 0 0 9px rgba(56,225,160,0)}100%{box-shadow:0 0 0 0 rgba(56,225,160,0)}}
 
 /* jonli soat kichik ekranlarda topbarni siqmasin */
 @media (max-width:900px){.liveclock{display:none}}
@@ -93,7 +93,7 @@ body::after{
 /* ---------- 3. SAHIFA SARLAVHASI: jurnal (editorial) uslubi ---------- */
 .page-head{position:relative;padding-bottom:14px;align-items:flex-end}
 .page-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
-  background:linear-gradient(90deg,rgba(var(--brand-rgb),.7),rgba(var(--brand2-rgb),.45) 34%,transparent 78%)}
+  background:linear-gradient(90deg,rgba(124,92,255,.7),rgba(34,211,238,.45) 34%,transparent 78%)}
 .ph-eyebrow{display:flex;align-items:center;gap:9px;font-size:10.5px;font-weight:850;letter-spacing:.2em;
   text-transform:uppercase;color:var(--muted);margin-bottom:7px}
 .ph-eyebrow i{width:22px;height:1px;background:linear-gradient(90deg,var(--brand),var(--brand-2));display:block}
@@ -110,15 +110,15 @@ body::after{
 .card,.kpi,.mod{box-shadow:var(--sh-1)}
 .card{border-color:var(--line)}
 .card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
-  background:linear-gradient(160deg,rgba(255,255,255,.14),transparent 34%,transparent 70%,rgba(var(--brand2-rgb),.14));
+  background:linear-gradient(160deg,rgba(255,255,255,.14),transparent 34%,transparent 70%,rgba(34,211,238,.14));
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;opacity:.9}
-[data-theme="light"] .card::before{background:linear-gradient(160deg,rgba(var(--brand-rgb),.22),transparent 38%,transparent 72%,rgba(var(--brand2-rgb),.22))}
+[data-theme="light"] .card::before{background:linear-gradient(160deg,rgba(124,92,255,.22),transparent 38%,transparent 72%,rgba(34,211,238,.22))}
 /* kursor nuri (faqat sichqonchali qurilmada, JS --mx/--my ni yozadi) */
 @media (hover:hover) and (pointer:fine){
   .card,.kpi,.mod{--mx:-200px;--my:-200px}
   .card::after,.kpi::after,.mod::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-    background:radial-gradient(260px circle at var(--mx) var(--my),rgba(var(--brand-rgb),.13),transparent 62%);
+    background:radial-gradient(260px circle at var(--mx) var(--my),rgba(124,92,255,.13),transparent 62%);
     opacity:0;transition:opacity .35s}
   .card:hover::after,.kpi:hover::after,.mod:hover::after{opacity:1}
   .card:hover,.kpi:hover{transform:translateY(-3px);box-shadow:var(--sh-2);border-color:var(--line-2)}
@@ -127,7 +127,7 @@ body::after{
 .kpi{overflow:hidden}
 /* bo'lim sarlavhasi: ikonka plitkasi + ingichka chiziq */
 .card-h .h2 .i,.cm-h .h2 .i{width:32px;height:32px;padding:7px;border-radius:11px;box-sizing:border-box;
-  background:var(--tile);border:1px solid rgba(var(--brand-rgb),.28);color:#C9BBFF}
+  background:var(--tile);border:1px solid rgba(124,92,255,.28);color:#C9BBFF}
 [data-theme="light"] .card-h .h2 .i,[data-theme="light"] .cm-h .h2 .i{color:#5B45E0}
 .card-h{border-bottom:1px dashed var(--line);padding-bottom:11px}
 .card-h .h2{font-size:15.5px;letter-spacing:-.02em}
@@ -138,18 +138,18 @@ body::after{
    ba'zi renderlarda raqamni butunlay ko'rinmas qilib qo'yardi.) */
 .kpi .v{font-size:32px;letter-spacing:-.05em;color:var(--txt);text-shadow:0 1px 0 rgba(255,255,255,.05)}
 .kpi.c .v{color:#E3F8FE}.kpi.a .v{color:#F0FFCB}.kpi.r .v{color:#FFE1E7}
-[data-theme="light"] .kpi .v{color:var(--brand-ink);text-shadow:none}
+[data-theme="light"] .kpi .v{color:#0A1024;text-shadow:none}
 [data-theme="light"] .kpi.c .v{color:#0B3945}[data-theme="light"] .kpi.a .v{color:#2E3B00}[data-theme="light"] .kpi.r .v{color:#4A0C17}
 .micro{font-size:10px;font-weight:850;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-.kpi .ic{box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 18px -14px rgba(var(--brand-rgb),.9)}
+.kpi .ic{box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 18px -14px rgba(124,92,255,.9)}
 .kpi .v sup{font-size:.5em;font-weight:800;letter-spacing:0;margin-left:3px;opacity:.7}
 
 /* Hero kartasidagi progress chizig'i flex-ustun ichida 2px ga siqilib qolardi */
 .hero .card.glass>.bar{width:100%;min-width:0}
 /* progress: gradient + yuguruvchi yorug'lik */
 .bar{position:relative;overflow:hidden;height:9px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
-[data-theme="light"] .bar{background:rgba(22,88,123,.09)}
-.bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--brand),var(--brand-3) 55%,var(--brand-2));
+[data-theme="light"] .bar{background:rgba(16,26,60,.07)}
+.bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#7C5CFF,#5B8CFF 55%,#22D3EE);
   box-shadow:0 0 18px -2px rgba(90,140,255,.85);position:relative;transition:width .9s cubic-bezier(.2,.8,.25,1)}
 .bar>i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
   background-size:40% 100%;background-repeat:no-repeat;animation:sheen 2.6s linear infinite}
@@ -157,14 +157,14 @@ body::after{
 
 /* ---------- 6. AVATAR / YORLIQ / HOLAT ---------- */
 .av{background:linear-gradient(140deg,hsl(var(--h,265) 72% 58%),hsl(calc(var(--h,265) + 44) 76% 52%));
-  color:#FFFDF7;font-weight:850;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 16px -10px hsl(var(--h,265) 70% 40%);position:relative}
+  color:#fff;font-weight:850;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 16px -10px hsl(var(--h,265) 70% 40%);position:relative}
 .av::after{content:"";position:absolute;inset:-3px;border-radius:inherit;border:1px solid rgba(255,255,255,.14);pointer-events:none}
-[data-theme="light"] .av{color:#FFFDF7}
+[data-theme="light"] .av{color:#fff}
 .tag,.st{box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
 .st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;margin-right:5px;opacity:.95}
-.st.ok::before{box-shadow:0 0 0 3px rgba(var(--ok-rgb),.16)}
+.st.ok::before{box-shadow:0 0 0 3px rgba(56,225,160,.16)}
 .st.run::before{animation:pulse 2s infinite}
-.st.bad::before{box-shadow:0 0 0 3px rgba(var(--danger-rgb),.16)}
+.st.bad::before{box-shadow:0 0 0 3px rgba(255,92,122,.16)}
 .streak{box-shadow:0 8px 22px -14px rgba(255,140,60,.9)}
 
 /* ---------- 7. JONLI KOMPONENTLAR ---------- */
@@ -188,11 +188,11 @@ body::after{
 .heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:4px;width:max-content}
 .heat i{width:13px;height:13px;border-radius:4px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.04);
   transition:transform .18s,box-shadow .18s}
-[data-theme="light"] .heat i{background:rgba(22,88,123,.09);border-color:rgba(16,26,60,.05)}
-.heat i[data-v="1"]{background:rgba(var(--brand-rgb),.35)}
-.heat i[data-v="2"]{background:rgba(var(--brand-rgb),.6)}
-.heat i[data-v="3"]{background:rgba(var(--brand-rgb),.82)}
-.heat i[data-v="4"]{background:linear-gradient(140deg,var(--brand),var(--brand-2));box-shadow:0 0 12px -2px rgba(var(--brand-rgb),.9)}
+[data-theme="light"] .heat i{background:rgba(16,26,60,.07);border-color:rgba(16,26,60,.05)}
+.heat i[data-v="1"]{background:rgba(124,92,255,.35)}
+.heat i[data-v="2"]{background:rgba(124,92,255,.6)}
+.heat i[data-v="3"]{background:rgba(124,92,255,.82)}
+.heat i[data-v="4"]{background:linear-gradient(140deg,#7C5CFF,#22D3EE);box-shadow:0 0 12px -2px rgba(124,92,255,.9)}
 .heat i:hover{transform:scale(1.35)}
 .heat-row{align-items:stretch}
 .heat-row .card{display:flex;flex-direction:column}
@@ -210,18 +210,18 @@ body::after{
 .spark .area{fill:url(#sparkG);opacity:.5}
 .spark .line{fill:none;stroke:url(#sparkL);stroke-width:2.2;stroke-linecap:round;
   stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);animation:draw 1.4s .15s cubic-bezier(.3,.9,.3,1) forwards}
-.spark .dot{fill:var(--accent);stroke:rgba(5,7,15,.8);stroke-width:2}
+.spark .dot{fill:#C6FF4F;stroke:rgba(5,7,15,.8);stroke-width:2}
 @keyframes draw{to{stroke-dashoffset:0}}
 
 /* 7.4 vaqt chizig'i (deadline) */
 .tl2{position:relative;padding-left:26px}
 .tl2::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;border-radius:2px;
-  background:linear-gradient(180deg,rgba(var(--brand-rgb),.9),rgba(var(--brand2-rgb),.55),transparent)}
+  background:linear-gradient(180deg,rgba(124,92,255,.9),rgba(34,211,238,.55),transparent)}
 .tl2-i{position:relative;margin-bottom:10px}
 .tl2-i::before{content:"";position:absolute;left:-22px;top:16px;width:11px;height:11px;border-radius:50%;
-  background:var(--panel);border:2px solid var(--brand);box-shadow:0 0 0 3px rgba(var(--brand-rgb),.16)}
-.tl2-i.now::before{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px rgba(var(--accent-rgb),.18);animation:pulse 2.4s infinite}
-.tl2-i.late::before{border-color:var(--danger);box-shadow:0 0 0 3px rgba(var(--danger-rgb),.16)}
+  background:var(--panel);border:2px solid var(--brand);box-shadow:0 0 0 3px rgba(124,92,255,.16)}
+.tl2-i.now::before{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px rgba(198,255,79,.18);animation:pulse 2.4s infinite}
+.tl2-i.late::before{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,92,122,.16)}
 .tl2-d{font-size:11px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 
 /* 7.5 reyting jadvali */
@@ -229,19 +229,19 @@ body::after{
 .lb-r{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--r-sm);border:1px solid var(--line);
   background:var(--panel-2);transition:.18s}
 .lb-r:hover{border-color:var(--line-2);transform:translateX(3px)}
-.lb-r.me{border-color:rgba(var(--brand-rgb),.5);background:linear-gradient(90deg,rgba(var(--brand-rgb),.14),transparent 70%)}
+.lb-r.me{border-color:rgba(124,92,255,.5);background:linear-gradient(90deg,rgba(124,92,255,.14),transparent 70%)}
 .lb-n{width:26px;height:26px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:850;
   background:var(--panel-3);border:1px solid var(--line);color:var(--txt2);font-variant-numeric:tabular-nums}
-.lb-r.g1 .lb-n{background:linear-gradient(140deg,var(--coin),#FF9F1C);color:#2A1B00;border-color:transparent;box-shadow:0 8px 18px -10px rgba(var(--warn-rgb),.9)}
-.lb-r.g2 .lb-n{background:linear-gradient(140deg,#E6EDFB,var(--txt2));color:#1A2138;border-color:transparent}
-.lb-r.g3 .lb-n{background:linear-gradient(140deg,#D9B48C,#B98A5E);color:#2A1500;border-color:transparent}
+.lb-r.g1 .lb-n{background:linear-gradient(140deg,#FFD75E,#FF9F1C);color:#2A1B00;border-color:transparent;box-shadow:0 8px 18px -10px rgba(255,180,58,.9)}
+.lb-r.g2 .lb-n{background:linear-gradient(140deg,#E6EDFB,#AEB9D6);color:#1A2138;border-color:transparent}
+.lb-r.g3 .lb-n{background:linear-gradient(140deg,#F0B27A,#C97B3C);color:#2A1500;border-color:transparent}
 .lb-xp{margin-left:auto;font-weight:850;font-size:13px;color:var(--txt);white-space:nowrap}
 .lb-bar{flex:1;min-width:40px;max-width:220px}
 
 /* 7.6 bo'sh holat — qo'lda chizilgan illyustratsiya */
 .empty{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;padding:30px 18px;border-style:dashed}
 .empty .i.xl{opacity:.9}
-.empty-art{width:104px;height:72px;color:var(--brand-2);opacity:.9;filter:drop-shadow(0 8px 18px rgba(var(--brand2-rgb),.25))}
+.empty-art{width:104px;height:72px;color:var(--brand-2);opacity:.9;filter:drop-shadow(0 8px 18px rgba(34,211,238,.25))}
 .empty .empty-art+.i,.empty .i+.empty-t{margin-top:2px}
 .empty-t{margin-top:-2px}
 .empty-art path,.empty-art circle,.empty-art rect{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
@@ -258,7 +258,7 @@ body::after{
 .rip{position:relative;overflow:hidden}
 .rip .rip-w{position:absolute;border-radius:50%;background:rgba(255,255,255,.4);transform:translate(-50%,-50%) scale(0);
   animation:rip .55s ease-out forwards;pointer-events:none}
-[data-theme="light"] .rip .rip-w{background:rgba(var(--brand-rgb),.28)}
+[data-theme="light"] .rip .rip-w{background:rgba(124,92,255,.28)}
 @keyframes rip{to{opacity:0;transform:translate(-50%,-50%) scale(1)}}
 /* marshrut almashganda kontent «nafas oladi» */
 .swap-in{animation:swapIn .42s cubic-bezier(.2,.85,.25,1)}
@@ -270,7 +270,7 @@ body::after{
 .nav-item:hover::after{height:42%}
 .nav-item.on::after{height:62%}
 .fab{position:relative}
-.fab::after{content:"";position:absolute;inset:-4px;border-radius:inherit;border:1px solid rgba(var(--brand-rgb),.5);animation:pulse 3s infinite}
+.fab::after{content:"";position:absolute;inset:-4px;border-radius:inherit;border:1px solid rgba(124,92,255,.5);animation:pulse 3s infinite}
 /* mobil pastki menyu: faol bo'lim ko'tariladi */
 .bottomnav .bn.on{transform:translateY(-2px)}
 .bottomnav .bn .i{transition:transform .2s}

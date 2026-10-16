@@ -82,7 +82,7 @@ function vHome() {
     '<div class="col" style="gap:9px">' + QUESTS.map(x => {
       const done = q.done.includes(x.id);
       return '<button class="lrow press ' + (done ? 'done' : '') + '" data-act="quest" data-id="' + x.id + '" style="text-align:left;width:100%">' +
-        '<div class="lead" style="' + (done ? 'background:rgba(var(--ok-rgb),.16);border-color:rgba(var(--ok-rgb),.34);color:var(--ok-tone)' : '') + '">' + ico(done ? 'check' : x.i) + '</div>' +
+        '<div class="lead" style="' + (done ? 'background:rgba(56,225,160,.16);border-color:rgba(56,225,160,.34);color:#7CF0C3' : '') + '">' + ico(done ? 'check' : x.i) + '</div>' +
         '<div class="grow"><div class="small" style="font-weight:750">' + esc(x.t) + '</div><div class="xs muted">' + esc(x.s) + '</div></div>' +
         '<span class="tag ' + (done ? 'g' : '') + '">+' + x.xp + ' XP</span></button>';
     }).join('') + '</div>' +
@@ -95,7 +95,7 @@ function vHome() {
       '<div class="lead">' + ico(modOf(d.t.m).icon) + '</div>' +
       '<div class="grow"><div class="small ellip" style="font-weight:750">' + esc(d.t.title) + '</div><div class="xs muted">' + modOf(d.t.m).n + '-modul • ' + fmtFull(d.due) + '</div></div>' +
       tlPill(d.tl) + '</button>').join('') : '<div class="empty">Faol deadline yo‘q</div>') + '</div>' +
-    (near && near.tl.late ? '<div class="card tight" style="margin-top:10px;border-color:rgba(var(--danger-rgb),.34);background:rgba(var(--danger-rgb),.07)"><div class="row small" style="gap:8px;color:var(--danger-tone)">' + ico('alert', 'sm') + 'Mentorga kechikish sababini yozib qo‘ying — bu streak va bahoga ijobiy ta’sir qiladi.</div></div>' : '') +
+    (near && near.tl.late ? '<div class="card tight" style="margin-top:10px;border-color:rgba(255,92,122,.34);background:rgba(255,92,122,.07)"><div class="row small" style="gap:8px;color:#FF9AAB">' + ico('alert', 'sm') + 'Mentorga kechikish sababini yozib qo‘ying — bu streak va bahoga ijobiy ta’sir qiladi.</div></div>' : '') +
     '</div></div>';
 
   /* Yo'l xaritasi */
@@ -143,7 +143,7 @@ function vHome() {
     '<button class="btn btn-ghost btn-sm btn-block" data-act="shortcuts">' + ico('help', 'sm') + 'Klaviatura yorliqlari</button>' +
     '</div></div>';
 
-  if (lateCount) h += '<div class="card rail-card" style="border-color:rgba(var(--danger-rgb),.34);background:linear-gradient(120deg,rgba(var(--danger-rgb),.08),transparent 70%)">' +
+  if (lateCount) h += '<div class="card rail-card" style="border-color:rgba(255,92,122,.34);background:linear-gradient(120deg,rgba(255,92,122,.08),transparent 70%)">' +
     '<div class="row" style="gap:11px;align-items:flex-start">' + ico('alert') +
     '<div><div class="small" style="font-weight:750">' + lateCount + ' ta topshiriq kechikdi</div>' +
     '<div class="xs muted" style="margin-top:4px">Mentorga sababini yozing \u2014 deadline\u2019ni individual surish mumkin.</div>' +
@@ -153,7 +153,7 @@ function vHome() {
     '<div class="chart">' + week.map((w, i) => { const v = Math.max(6, Math.round(w.v / maxv * 100)); return '<div class="b' + (i === week.length - 2 ? ' hi' : '') + '"><div class="fill" style="height:' + v + '%;animation-delay:' + (i * 55) + 'ms"></div><span>' + w.l + '</span></div>'; }).join('') + '</div>' +
     '<div class="divider"></div>' +
     '<div class="row between wrap" style="gap:10px"><div class="row small t2" style="gap:8px">' + ico('flame', 'sm') + 'Oxirgi 7 kun:</div>' +
-    '<div class="row" style="gap:5px">' + Array.from({ length: 7 }).map((_, i) => { const on = (6 - i) < st.streak; return '<span title="' + (on ? 'bajarilgan' : 'bo\u2019sh') + '" style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:' + (on ? 'linear-gradient(135deg,var(--brand),var(--brand-2))' : 'var(--panel-3)') + ';color:' + (on ? 'var(--on-brand)' : 'var(--muted)') + ';font-size:10px;font-weight:800">' + (on ? '\u2713' : '') + '</span>'; }).join('') + '</div></div></div>';
+    '<div class="row" style="gap:5px">' + Array.from({ length: 7 }).map((_, i) => { const on = (6 - i) < st.streak; return '<span title="' + (on ? 'bajarilgan' : 'bo\u2019sh') + '" style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:' + (on ? 'linear-gradient(135deg,#7C5CFF,#22D3EE)' : 'var(--panel-3)') + ';color:' + (on ? '#08101F' : 'var(--muted)') + ';font-size:10px;font-weight:800">' + (on ? '\u2713' : '') + '</span>'; }).join('') + '</div></div></div>';
 
   h += '<div class="card rail-card"><div class="card-h"><h2 class="h2">' + ico('spark') + 'Klubda nima bo\u2019lyapti</h2></div>' +
     '<div class="col" style="gap:0">' + (S.activity.length ? S.activity.slice(0, 4).map(a => '<div class="wall-item" style="padding:9px 0">' +
@@ -178,7 +178,7 @@ function vLessons() {
   if (nl) {
     const mm = modOf(nl.m);
     h += '<div class="card glass"><div class="row wrap between" style="gap:14px">' +
-      '<div class="row" style="gap:14px;min-width:260px"><div class="lead" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--grad);color:var(--on-brand)">' + ico('play', 'lg') + '</div>' +
+      '<div class="row" style="gap:14px;min-width:260px"><div class="lead" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--grad);color:#08101F">' + ico('play', 'lg') + '</div>' +
       '<div><div class="up muted">' + mm.n + '-modul • ' + (TYPES[nl.type] || TYPES.video).l + ' • ' + nl.dur + ' daq</div>' +
       '<div class="h2" style="margin-top:4px">' + esc(nl.t) + '</div><div class="small muted" style="margin-top:3px">Kurs progressi ' + p.pct + '% — bugun bitta dars yetarli.</div></div></div>' +
       '<button class="btn btn-primary" data-act="lesson-open" data-id="' + nl.id + '">' + ico('play', 'sm') + 'Davom etish</button></div></div>';
@@ -219,7 +219,7 @@ function vModule(mid) {
     '<div class="row" style="gap:10px">' + (doneAll ? '<span class="tag g">' + ico('check-c', 'sm') + 'Modul tugatilgan</span>' : '<span class="tag p">' + mp.pct + '% bajarildi</span>') +
     '<span class="tag c">' + ico('clock', 'sm') + ls.reduce((a, l) => a + l.dur, 0) + ' daqiqa</span></div></div>';
 
-  if (lock) h += '<div class="card" style="border-color:rgba(var(--warn-rgb),.34)"><div class="row">' + ico('lock') + '<div>Bu modul hali yopiq. Avvalgi modulning vazifasi qabul qilinishi kerak.</div></div></div>';
+  if (lock) h += '<div class="card" style="border-color:rgba(255,180,58,.34)"><div class="row">' + ico('lock') + '<div>Bu modul hali yopiq. Avvalgi modulning vazifasi qabul qilinishi kerak.</div></div></div>';
 
   h += '<div class="grid split-16">' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('book') + 'Darslar ro‘yxati</h2>' +
@@ -295,7 +295,7 @@ function vTasks() {
       '<p class="small muted" style="margin:6px 0 10px;max-width:70ch">' + esc(t.brief) + '</p>' +
       (s && s.file ? '<div class="row xs muted wrap" style="gap:8px;margin-bottom:8px">' + ico('upload', 'sm') + 'Fayl: <b>' + esc(s.file) + '</b>' +
         (s.fileData ? '<button class="btn btn-xs btn-ghost" data-act="open-file" data-sub="' + s.id + '">' + ico('download', 'sm') + 'Yuklab olish</button>' : '') + '</div>' : '') +
-      (s && s.fb ? '<div class="card soft tight" style="border-color:rgba(var(--brand-rgb),.3)"><div class="xs up muted" style="margin-bottom:5px">Mentor izohi' + (s.rev ? ' • ' + esc(s.rev) : '') + '</div><div class="small t2">' + esc(s.fb) + '</div></div>' : '') +
+      (s && s.fb ? '<div class="card soft tight" style="border-color:rgba(124,92,255,.3)"><div class="xs up muted" style="margin-bottom:5px">Mentor izohi' + (s.rev ? ' • ' + esc(s.rev) : '') + '</div><div class="small t2">' + esc(s.fb) + '</div></div>' : '') +
       (s ? '<div class="row xs muted" style="gap:8px;margin-top:10px">' + ico('clock', 'sm') + fmtFull(s.at) + ' topshirildi</div>' : '') +
       '</div>' +
       '<div class="col" style="gap:8px;min-width:190px">' +
@@ -406,7 +406,7 @@ function vDeadlines() {
     '<button class="' + (isCal ? 'on' : '') + '" data-act="cal-mode" data-m="-1">Oylik kalendar</button></div></div>';
 
   if (near) h += '<div class="card glass"><div class="row wrap between" style="gap:14px">' +
-    '<div class="row" style="gap:13px;min-width:280px"><div class="lead" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(var(--danger-rgb),.14);color:var(--danger-tone);border:1px solid rgba(var(--danger-rgb),.3)">' + ico('clock', 'lg') + '</div>' +
+    '<div class="row" style="gap:13px;min-width:280px"><div class="lead" style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(255,92,122,.14);color:#FF9AAB;border:1px solid rgba(255,92,122,.3)">' + ico('clock', 'lg') + '</div>' +
     '<div><div class="up muted">Eng yaqin deadline</div><div class="h2" style="margin:3px 0">' + esc(near.t.title) + '</div>' +
     '<div class="small muted">' + fmtFull(near.due) + ' • ' + wd(near.due) + ' kuni</div></div></div>' +
     (near.tl.late
@@ -419,7 +419,7 @@ function vDeadlines() {
     h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('cal') + 'Haftalik lenta</h2><span class="small muted">' + fmtFull(today) + '</span></div>' +
       '<div class="grid strip7" id="week-strip">' + strip.map(dt => {
         const ds = isoDate(dt), items = map[ds] || [], isToday = ds === today, past = ds < today;
-        return '<div class="card tight" style="min-height:150px;' + (isToday ? 'border-color:var(--brand-2);box-shadow:0 0 0 1px rgba(var(--brand2-rgb),.35) inset;' : past ? 'opacity:.75;' : '') + '">' +
+        return '<div class="card tight" style="min-height:150px;' + (isToday ? 'border-color:var(--brand-2);box-shadow:0 0 0 1px rgba(34,211,238,.35) inset;' : past ? 'opacity:.75;' : '') + '">' +
           '<div class="row between" style="margin-bottom:8px"><span class="xs muted" style="font-weight:800">' + UZ_D[(dt.getDay() + 6) % 7] + '</span>' +
           '<span class="small" style="font-weight:850;color:' + (isToday ? 'var(--brand-2)' : 'inherit') + '">' + dt.getDate() + '</span></div>' +
           '<div class="col" style="gap:6px">' + (items.length ? items.slice(0, 3).map(it => '<div class="tag ' + (it.k === 'task' ? (it.s && it.s.status === 'accepted' ? 'g' : 'p') : 'c') + '" style="white-space:normal;text-align:left;line-height:1.3">' + ico(it.k === 'task' ? 'task' : 'book', 'sm') + esc(it.l.slice(0, 30)) + '</div>').join('') : '<span class="xs muted">—</span>') + '</div></div>';
@@ -429,13 +429,13 @@ function vDeadlines() {
       '<div class="row" style="gap:8px"><button class="btn-icon" style="width:36px;height:36px" data-act="cal-prev">' + ico('left', 'sm') + '</button>' +
       '<h2 class="h2" style="min-width:150px;text-align:center">' + esc(cal.label) + '</h2>' +
       '<button class="btn-icon" style="width:36px;height:36px" data-act="cal-next">' + ico('right', 'sm') + '</button></div>' +
-      '<div class="row xs muted wrap" style="gap:12px"><span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--brand);display:block"></i>vazifa deadline</span>' +
-      '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--brand-2);display:block"></i>dars</span>' +
-      '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:var(--ok);display:block"></i>qabul qilingan</span></div></div>' +
+      '<div class="row xs muted wrap" style="gap:12px"><span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#7C5CFF;display:block"></i>vazifa deadline</span>' +
+      '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#22D3EE;display:block"></i>dars</span>' +
+      '<span class="row" style="gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#38E1A0;display:block"></i>qabul qilingan</span></div></div>' +
       '<div class="cal">' + UZ_D.map(d => '<div class="hd">' + d + '</div>').join('') +
       cal.cells.map(c => {
         const ds = isoDate(c.d), items = map[ds] || [], isToday = ds === today;
-        const dots = items.slice(0, 4).map(it => '<i style="background:' + (it.k === 'lesson' ? 'var(--brand-2)' : it.s && it.s.status === 'accepted' ? 'var(--ok)' : 'var(--brand)') + '"></i>').join('');
+        const dots = items.slice(0, 4).map(it => '<i style="background:' + (it.k === 'lesson' ? '#22D3EE' : it.s && it.s.status === 'accepted' ? '#38E1A0' : '#7C5CFF') + '"></i>').join('');
         return '<div class="d ' + (c.out ? 'out ' : '') + (isToday ? 'today ' : '') + (items.length ? 'has' : '') + '" ' + (items.length ? 'data-act="cal-day" data-d="' + ds + '"' : '') + '>' +
           '<span class="n">' + c.d.getDate() + '</span><div class="dots">' + dots + '</div></div>';
       }).join('') + '</div></div>';
@@ -580,7 +580,7 @@ function vInfo() {
 
   h += '<div class="card"><div class="card-h"><h2 class="h2">' + ico('cert') + 'Sertifikatlar</h2>' +
     '<span class="small muted">' + cs.length + ' ta</span></div>' +
-    (cs.length ? '<div class="grid g2">' + cs.map(c => '<div class="lrow"><div class="lead" style="background:rgba(var(--accent-rgb),.14);color:var(--accent-tone);border-color:rgba(var(--accent-rgb),.3)">' + ico('cert') + '</div>' +
+    (cs.length ? '<div class="grid g2">' + cs.map(c => '<div class="lrow"><div class="lead" style="background:rgba(198,255,79,.14);color:#D7FF8A;border-color:rgba(198,255,79,.3)">' + ico('cert') + '</div>' +
       '<div class="grow" style="min-width:0"><div class="small ellip" style="font-weight:750">Modul ' + c.m.n + ': ' + esc(c.m.title) + '</div>' +
       '<div class="xs muted">Kod: ' + esc(c.code) + '</div></div>' +
       '<button class="btn btn-xs btn-soft" data-act="cert" data-id="' + c.m.id + '">Ochish</button></div>').join('') + '</div>'
