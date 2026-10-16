@@ -120,6 +120,11 @@ siljishini, jadval ustunlarida matn kesilishini, `NaN/undefined` va gorizontal t
 matn va aksent ranglar quyuqlashtirildi. Statistikaning «Kohortani ushlab turish» kartasi **o'ylab topilgan**
 egri chiziqdan haqiqiy **«Faollik taqsimoti»**ga o'tkazildi (talabalarning oxirgi faolligi bo'yicha chelaklar).
 
+**Yuk ostida ishlash (v2.3.3):** 200 talaba / 900 topshiriqda sahifalar chizilishi tekshirildi va tezlashtirildi
+(topshiriq indeksi + chizish davri keshi): «Talabalar» 623 → 89 ms, «Deadline'lar» 524 → 25 ms. Uch yangi
+avtomatik vosita: `test:scale` (katta klub), `test:print` (haqiqiy PDF — kartochka/sertifikat 1 varaqda),
+`test:standalone` (o'rnatilgan ilova rejimida xavfsiz hududlar).
+
 **Dizayn (v2.3.0):** interfeys qayta-qayta ko'zdan kechirildi va yagona dizayn tiliga keltirildi — emoji o'rniga
 68 ta o'z SVG ikonkasi, parol ko'zi, bosmaga tayyor kirish kartochkasi (A4), skrol-spy navigatsiya, mikro-animatsiya,
 yopishqoq jadval sarlavhasi, laptop zichligi (1568×768) va mobil sayqal.

@@ -295,10 +295,10 @@ function vAdmin() {
 /* ---------- Talabalar ---------- */
 function vStudents() {
   const f = UI.studentsFilter || 'all';
-  const lateIds = lateStudents().map(x => x.st.id);
+  const lateSet = lateIds(); /* bir marta hisoblanadi (kesh) */
   const list = S.students.filter(s => f === 'all' ? true
     : f === 'inactive' ? !onl(s)
-    : f === 'late' ? lateIds.includes(s.id)
+    : f === 'late' ? lateSet.has(s.id)
     : myGroup(s) && myGroup(s).id === f);
   let h = '<div class="page-head"><div><h1 class="h1">Talabalar</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Guruh, daraja va faollik bo‘yicha kuzatuv. Profilni ochib vazifa, deadline va baholarni ko‘rish mumkin.</p></div>' +
@@ -334,12 +334,12 @@ function vStudents() {
   h += '<div class="grid g4">' +
     kpi('users', S.students.length, 'Jami talaba', S.groups.length + ' jamoada', '') +
     kpi('bolt', activeCount(), 'Faol', activityPct() + '% haftalik faollik', 'a') +
-    kpi('clock', lateStudents().length, 'Kechikkanlar', 'Yordam kerak', 'r') +
+    kpi('clock', lateSet.size, 'Kechikkanlar', 'Yordam kerak', 'r') +
     kpi('star', (S.students.reduce((a, s) => a + (Number(s.score) || 0), 0) / Math.max(1, S.students.length)).toFixed(1), 'O‘rtacha ball', '100 ballik tizim', 'c') + '</div>';
 
   h += '<div class="row wrap between" style="gap:10px">' +
     '<div class="seg">' +
-    [['all', 'Barchasi (' + S.students.length + ')'], ['late', 'Kechikkan (' + [...new Set(lateIds)].length + ')'], ['inactive', 'Jim (' + S.students.filter(x => !onl(x)).length + ')']]
+    [['all', 'Barchasi (' + S.students.length + ')'], ['late', 'Kechikkan (' + lateSet.size + ')'], ['inactive', 'Jim (' + S.students.filter(x => !onl(x)).length + ')']]
       .map(([k, l]) => '<button class="' + (f === k ? ' on' : '') + '" data-act="filter-s" data-f="' + k + '">' + esc(l) + '</button>').join('') +
     '</div><div class="seg">' + S.groups.map(g => [g.id, g.name + ' (' + g.members.length + ')'])
       .map(([k, l]) => '<button class="' + (f === k ? ' on' : '') + '" data-act="filter-s" data-f="' + k + '">' + esc(l) + '</button>').join('') +
@@ -358,7 +358,7 @@ function vStudents() {
     '<div class="trow head">' + thBtn('name', 'Talaba') + '<span class="cell-hide">' + thBtn('group', 'Jamoa') + '</span>' +
     '<span class="cell-hide">' + thBtn('progress', 'Progress') + '</span><span class="cell-hide">' + thBtn('score', 'Faollik / baho') + '</span>' +
     '<span class="tr">Amallar</span></div>' +
-    sorted.map(s => { const p = progress(s); const g = myGroup(s); const late = lateStudents().some(x => x.st.id === s.id);
+    sorted.map(s => { const p = progress(s); const g = myGroup(s); const late = lateSet.has(s.id);
       return '<div class="trow"><div class="row" style="gap:10px;min-width:0">' + avatar(s, 'sm') +
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s.name) + '</div>' +
         '<div class="xs muted ellip">' + esc(s.tg) + ' • ' + esc(medal(s).n) + '</div></div></div>' +
@@ -518,6 +518,7 @@ function vAdminDeadlines() {
     (map[d] = map[d] || []).push({ l: (taskOf(tid) || { title: tid }).title + ' — ' + g.name, k: 'team' });
   }));
   const late = lateStudents();
+  const lateSet = lateIds();
   const today = todayISO();
   if (!S.tasks.length) return emptyCard('cal', 'Deadline’lar hali belgilanmagan',
     'Vazifa yaratilganda uning sanasi shu kalendarga tushadi; jamoa uchun alohida sanalar ham belgilashingiz mumkin.',
@@ -553,7 +554,7 @@ function vAdminDeadlines() {
       '<button class="btn btn-xs btn-soft" data-act="nudge" data-id="' + x.st.id + '">' + ico('bell', 'sm') + '</button></div>').join('') + '</div>'
       : '<div class="empty">' + ico('trophy', 'sm') + ' Kechikkan yo‘q</div>') + '</div>' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('users') + 'Jamoalar kesimida</h2></div>' +
-    '<div class="col" style="gap:10px">' + S.groups.map(g => { const k2 = g.members.filter(id => lateStudents().some(x => x.st.id === id && (x.st.group === g.id))).length;
+    '<div class="col" style="gap:10px">' + S.groups.map(g => { const k2 = g.members.filter(id => lateSet.has(id)).length;
       return '<div class="row between small"><span class="row" style="gap:9px">' + crest(g, 26) + esc(g.name) + '</span>' +
         '<span class="row" style="gap:8px"><span class="tag ' + (k2 ? 'r' : 'g') + '">' + (k2 ? k2 + ' kechikkan' : 'intizomli') + '</span>' +
         '<button class="btn btn-xs btn-ghost" data-act="deadline-open" data-id="' + g.id + '">' + ico('clock', 'sm') + '</button></span></div>'; }).join('') + '</div></div></div></div>';

@@ -1035,6 +1035,14 @@ p,.llede,.lsub,.fq-a-in{text-wrap:pretty}
   .mbox{box-shadow:none!important;border:0!important;animation:none!important;max-height:none!important}
   html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .print-only{display:block!important}
+  /* Modal ochiq holda chop etilganda FAQAT modal chiqadi (orqadagi sahifa tushib qolmaydi).
+     Ilgari sertifikat bilan birga «Ma'lumot» sahifasi ham bosilardi — 2 varaq. */
+  body:has(.mback) #app{display:none!important}
+  body:has(.mback) .mback{position:static!important;display:block!important;background:#fff!important;padding:0!important;
+    overflow:visible!important;backdrop-filter:none!important;animation:none!important}
+  body:has(.mback) .mbox{max-height:none!important;overflow:visible!important;box-shadow:none!important;margin:0 auto}
+  body:has(.mback) .mback .btn,.mback .no-print{display:none!important}   /* modal ichidagi tugmalar qog'ozga tushmasin */
+  .mback .mhead .btn-icon{display:none!important}
   /* Kirish kartochkasi chop etilganda faqat karta chiqadi (orqa fon toza) */
   /* Butun ilova o'rniga faqat kartochka chiqadi (body overflow:visible bo'lmasa kontent kesiladi) */
   body:has(#loginCard){overflow:visible!important;height:auto!important}
@@ -1059,6 +1067,24 @@ p,.llede,.lsub,.fq-a-in{text-wrap:pretty}
   .mbox{max-width:none;box-shadow:none;border:0;padding:0}
   .cert{color:#0A1024;background:#fff;border-color:#0A1024}
 }
+/* ---------- o'rnatilgan ilova (standalone) rejimi ----------
+   Telefonda «Bosh ekranga qo'shish» qilinganda ilova brauzer panelisiz ochiladi:
+   yuqorida status-bar/notch, yonlarda va pastda xavfsiz hudud (safe-area) paydo bo'ladi.
+   env() qiymatlari oddiy brauzerda 0 bo'ladi — ya'ni bu blok hech narsani buzmaydi. */
+@media (display-mode: standalone), (display-mode: minimal-ui){
+  .topbar{padding-top:calc(11px + env(safe-area-inset-top) + env(safe-area-inset-bottom,0px)*0)}
+  .sidebar{padding-top:calc(18px + env(safe-area-inset-top))}
+  .lnav{padding-top:calc(13px + env(safe-area-inset-top))}
+  .lprog{top:env(safe-area-inset-top)}
+  .auth{padding-top:env(safe-area-inset-top)}
+  .content{padding-left:calc(18px + env(safe-area-inset-left));padding-right:calc(18px + env(safe-area-inset-right))}
+  .bottomnav{padding-left:calc(8px + env(safe-area-inset-left));padding-right:calc(8px + env(safe-area-inset-right))}
+  .fab{right:calc(15px + env(safe-area-inset-right))}
+}
+@media (display-mode: standalone) and (orientation: landscape){
+  .sidebar{padding-left:calc(14px + env(safe-area-inset-left))}
+}
+
 /* ---------- haftalik lenta (7 kun) ---------- */
 .strip7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
 @media(max-width:760px){

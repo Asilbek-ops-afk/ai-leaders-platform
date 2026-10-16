@@ -1089,6 +1089,14 @@ p,.llede,.lsub,.fq-a-in{text-wrap:pretty}
   .mbox{box-shadow:none!important;border:0!important;animation:none!important;max-height:none!important}
   html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .print-only{display:block!important}
+  /* Modal ochiq holda chop etilganda FAQAT modal chiqadi (orqadagi sahifa tushib qolmaydi).
+     Ilgari sertifikat bilan birga «Ma'lumot» sahifasi ham bosilardi — 2 varaq. */
+  body:has(.mback) #app{display:none!important}
+  body:has(.mback) .mback{position:static!important;display:block!important;background:#fff!important;padding:0!important;
+    overflow:visible!important;backdrop-filter:none!important;animation:none!important}
+  body:has(.mback) .mbox{max-height:none!important;overflow:visible!important;box-shadow:none!important;margin:0 auto}
+  body:has(.mback) .mback .btn,.mback .no-print{display:none!important}   /* modal ichidagi tugmalar qog'ozga tushmasin */
+  .mback .mhead .btn-icon{display:none!important}
   /* Kirish kartochkasi chop etilganda faqat karta chiqadi (orqa fon toza) */
   /* Butun ilova o'rniga faqat kartochka chiqadi (body overflow:visible bo'lmasa kontent kesiladi) */
   body:has(#loginCard){overflow:visible!important;height:auto!important}
@@ -1113,6 +1121,24 @@ p,.llede,.lsub,.fq-a-in{text-wrap:pretty}
   .mbox{max-width:none;box-shadow:none;border:0;padding:0}
   .cert{color:#0A1024;background:#fff;border-color:#0A1024}
 }
+/* ---------- o'rnatilgan ilova (standalone) rejimi ----------
+   Telefonda «Bosh ekranga qo'shish» qilinganda ilova brauzer panelisiz ochiladi:
+   yuqorida status-bar/notch, yonlarda va pastda xavfsiz hudud (safe-area) paydo bo'ladi.
+   env() qiymatlari oddiy brauzerda 0 bo'ladi — ya'ni bu blok hech narsani buzmaydi. */
+@media (display-mode: standalone), (display-mode: minimal-ui){
+  .topbar{padding-top:calc(11px + env(safe-area-inset-top) + env(safe-area-inset-bottom,0px)*0)}
+  .sidebar{padding-top:calc(18px + env(safe-area-inset-top))}
+  .lnav{padding-top:calc(13px + env(safe-area-inset-top))}
+  .lprog{top:env(safe-area-inset-top)}
+  .auth{padding-top:env(safe-area-inset-top)}
+  .content{padding-left:calc(18px + env(safe-area-inset-left));padding-right:calc(18px + env(safe-area-inset-right))}
+  .bottomnav{padding-left:calc(8px + env(safe-area-inset-left));padding-right:calc(8px + env(safe-area-inset-right))}
+  .fab{right:calc(15px + env(safe-area-inset-right))}
+}
+@media (display-mode: standalone) and (orientation: landscape){
+  .sidebar{padding-left:calc(14px + env(safe-area-inset-left))}
+}
+
 /* ---------- haftalik lenta (7 kun) ---------- */
 .strip7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
 @media(max-width:760px){
@@ -1219,7 +1245,7 @@ p,.llede,.lsub,.fq-a-in{text-wrap:pretty}
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.3.2';
+const APP_VERSION = '2.3.3';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -1395,7 +1421,25 @@ function loadState() {
     return pruneOrphans(p);
   } catch (e) { return blankState(); }
 }
-function save() { try { localStorage.setItem(VKEY, JSON.stringify(S)); } catch (e) { } }
+function save() { try { localStorage.setItem(VKEY, JSON.stringify(S)); } catch (e) { } rcClear(); }
+
+/* ==========================================================================
+   Chizish davridagi kesh (katta klub = 200+ talaba, 900+ topshiriq)
+   Bir sahifani chizishda bir xil hisob-kitob yuzlab marta takrorlanadi
+   (masalan «kechikkanlar» ro'yxati har bir qatorda qayta hisoblanardi).
+   Kesh har bir save()/paint() da tozalanadi — ma'lumot o'zgarsa qayta o'qiladi.
+   ========================================================================== */
+let RC = null;
+function rcClear() { RC = null; }
+function rc(key, fn) { if (!RC) RC = new Map(); if (!RC.has(key)) RC.set(key, fn()); return RC.get(key); }
+/* Topshiriqlar indeksi: st|task → yozuv (qidiruv O(1)) */
+function subIndex() {
+  return rc('subIdx', () => { const m = new Map(); S.submissions.forEach(p => m.set(p.st + '|' + p.task, p)); return m; });
+}
+/* Talaba → uning topshiriqlari */
+function subsIndex() {
+  return rc('subsIdx', () => { const m = new Map(); S.submissions.forEach(p => { const a = m.get(p.st); if (a) a.push(p); else m.set(p.st, [p]); }); return m; });
+}
 function resetAll() {
   /* Barcha ma'lumotlar (akkauntlar, talabalar, yozuvlar) butunlay o'chiriladi.
      Platforma yangi o'rnatilgan holatga qaytadi — birinchi ishga tushirish ekrani ochiladi. */
@@ -1420,8 +1464,8 @@ const myGroups = st => S.groups.filter(g => g.members.includes(st.id));
 const myGroup = st => myGroups(st)[0] || null;
 const lessonsOfModule = m => S.lessons.filter(l => l.m === m);
 const totalLessons = () => S.lessons.length;
-const subsOf = st => S.submissions.filter(p => p.st === st.id);
-const subOf = (st, task) => S.submissions.find(p => p.st === st.id && p.task === task);
+const subsOf = st => subsIndex().get(st.id) || [];
+const subOf = (st, task) => subIndex().get(st.id + '|' + task);
 const acceptedOf = st => subsOf(st).filter(p => p.status === 'accepted').length;
 const notifOf = st => S.notifs.filter(n => n.for === st.id);
 const unreadOf = st => notifOf(st).filter(n => n.un).length;
@@ -1504,13 +1548,18 @@ function nextLesson(st) { const ls = openLessons(st); return ls.find(l => !st.do
 function nextTask(st) { return S.tasks.find(t => { const s = subOf(st, t.id); return !s || s.status === 'revise'; }) || null; }
 function deadlinesOf(st) { return S.tasks.map(t => { const s = subOf(st, t.id); const due = dueOf(st, t); return { t, s, due, tl: timeLeft(due), late: !s && timeLeft(due).late }; }); }
 function lateStudents() {
-  const out = [];
-  S.tasks.forEach(t => S.students.forEach(st => { const s = subOf(st, t.id); if (!s && timeLeft(dueOf(st, t)).late) out.push({ st, t, due: dueOf(st, t) }); }));
-  return out;
+  return rc('late', () => {
+    const out = [];
+    S.tasks.forEach(t => S.students.forEach(st => { const s = subOf(st, t.id); if (!s && timeLeft(dueOf(st, t)).late) out.push({ st, t, due: dueOf(st, t) }); }));
+    return out;
+  });
 }
+/* Kechikkanlar ID to'plami — jadval qatorlarida O(1) tekshiruv uchun */
+function lateIds() { return rc('lateIds', () => new Set(lateStudents().map(x => x.st.id))); }
 function onTimePct() {
   let ok = 0, all = 0;
-  S.submissions.forEach(p => { const t = taskOf(p.task); const st = get(S.students, p.st); if (!t || !st) return; all++; if (new Date(p.at) <= new Date(dueOf(st, t) + 'T23:59:59')) ok++; });
+  /* p.at — ISO sana (YYYY-MM-DD), shuning uchun matn taqqoslash to'g'ri va tez */
+  S.submissions.forEach(p => { const t = taskOf(p.task); const st = get(S.students, p.st); if (!t || !st) return; all++; if (p.at <= dueOf(st, t)) ok++; });
   return all ? Math.round(ok / all * 100) : 0;
 }
 function activeCount() { return S.students.filter(s => s.act).length; }
@@ -3287,10 +3336,10 @@ function vAdmin() {
 /* ---------- Talabalar ---------- */
 function vStudents() {
   const f = UI.studentsFilter || 'all';
-  const lateIds = lateStudents().map(x => x.st.id);
+  const lateSet = lateIds(); /* bir marta hisoblanadi (kesh) */
   const list = S.students.filter(s => f === 'all' ? true
     : f === 'inactive' ? !onl(s)
-    : f === 'late' ? lateIds.includes(s.id)
+    : f === 'late' ? lateSet.has(s.id)
     : myGroup(s) && myGroup(s).id === f);
   let h = '<div class="page-head"><div><h1 class="h1">Talabalar</h1>' +
     '<p class="t2 small" style="margin:6px 0 0">Guruh, daraja va faollik bo‘yicha kuzatuv. Profilni ochib vazifa, deadline va baholarni ko‘rish mumkin.</p></div>' +
@@ -3326,12 +3375,12 @@ function vStudents() {
   h += '<div class="grid g4">' +
     kpi('users', S.students.length, 'Jami talaba', S.groups.length + ' jamoada', '') +
     kpi('bolt', activeCount(), 'Faol', activityPct() + '% haftalik faollik', 'a') +
-    kpi('clock', lateStudents().length, 'Kechikkanlar', 'Yordam kerak', 'r') +
+    kpi('clock', lateSet.size, 'Kechikkanlar', 'Yordam kerak', 'r') +
     kpi('star', (S.students.reduce((a, s) => a + (Number(s.score) || 0), 0) / Math.max(1, S.students.length)).toFixed(1), 'O‘rtacha ball', '100 ballik tizim', 'c') + '</div>';
 
   h += '<div class="row wrap between" style="gap:10px">' +
     '<div class="seg">' +
-    [['all', 'Barchasi (' + S.students.length + ')'], ['late', 'Kechikkan (' + [...new Set(lateIds)].length + ')'], ['inactive', 'Jim (' + S.students.filter(x => !onl(x)).length + ')']]
+    [['all', 'Barchasi (' + S.students.length + ')'], ['late', 'Kechikkan (' + lateSet.size + ')'], ['inactive', 'Jim (' + S.students.filter(x => !onl(x)).length + ')']]
       .map(([k, l]) => '<button class="' + (f === k ? ' on' : '') + '" data-act="filter-s" data-f="' + k + '">' + esc(l) + '</button>').join('') +
     '</div><div class="seg">' + S.groups.map(g => [g.id, g.name + ' (' + g.members.length + ')'])
       .map(([k, l]) => '<button class="' + (f === k ? ' on' : '') + '" data-act="filter-s" data-f="' + k + '">' + esc(l) + '</button>').join('') +
@@ -3350,7 +3399,7 @@ function vStudents() {
     '<div class="trow head">' + thBtn('name', 'Talaba') + '<span class="cell-hide">' + thBtn('group', 'Jamoa') + '</span>' +
     '<span class="cell-hide">' + thBtn('progress', 'Progress') + '</span><span class="cell-hide">' + thBtn('score', 'Faollik / baho') + '</span>' +
     '<span class="tr">Amallar</span></div>' +
-    sorted.map(s => { const p = progress(s); const g = myGroup(s); const late = lateStudents().some(x => x.st.id === s.id);
+    sorted.map(s => { const p = progress(s); const g = myGroup(s); const late = lateSet.has(s.id);
       return '<div class="trow"><div class="row" style="gap:10px;min-width:0">' + avatar(s, 'sm') +
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s.name) + '</div>' +
         '<div class="xs muted ellip">' + esc(s.tg) + ' • ' + esc(medal(s).n) + '</div></div></div>' +
@@ -3510,6 +3559,7 @@ function vAdminDeadlines() {
     (map[d] = map[d] || []).push({ l: (taskOf(tid) || { title: tid }).title + ' — ' + g.name, k: 'team' });
   }));
   const late = lateStudents();
+  const lateSet = lateIds();
   const today = todayISO();
   if (!S.tasks.length) return emptyCard('cal', 'Deadline’lar hali belgilanmagan',
     'Vazifa yaratilganda uning sanasi shu kalendarga tushadi; jamoa uchun alohida sanalar ham belgilashingiz mumkin.',
@@ -3545,7 +3595,7 @@ function vAdminDeadlines() {
       '<button class="btn btn-xs btn-soft" data-act="nudge" data-id="' + x.st.id + '">' + ico('bell', 'sm') + '</button></div>').join('') + '</div>'
       : '<div class="empty">' + ico('trophy', 'sm') + ' Kechikkan yo‘q</div>') + '</div>' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('users') + 'Jamoalar kesimida</h2></div>' +
-    '<div class="col" style="gap:10px">' + S.groups.map(g => { const k2 = g.members.filter(id => lateStudents().some(x => x.st.id === id && (x.st.group === g.id))).length;
+    '<div class="col" style="gap:10px">' + S.groups.map(g => { const k2 = g.members.filter(id => lateSet.has(id)).length;
       return '<div class="row between small"><span class="row" style="gap:9px">' + crest(g, 26) + esc(g.name) + '</span>' +
         '<span class="row" style="gap:8px"><span class="tag ' + (k2 ? 'r' : 'g') + '">' + (k2 ? k2 + ' kechikkan' : 'intizomli') + '</span>' +
         '<button class="btn btn-xs btn-ghost" data-act="deadline-open" data-id="' + g.id + '">' + ico('clock', 'sm') + '</button></span></div>'; }).join('') + '</div></div></div></div>';
@@ -4334,6 +4384,7 @@ function renderApp() {
   return sidebar() + '<div class="main">' + topbar() + '<div class="content">' + currentView() + contentFoot() + '</div></div>' + bottomnav() + toTopBtn();
 }
 function paint(keepScroll) {
+  rcClear(); /* kesh faqat bitta chizish davomida amal qiladi */
   const el = document.getElementById('app');
   el.className = UI.authShow ? 'app authscreen' : 'app' + (UI.collapsed ? ' collapsed' : '');
   el.innerHTML = renderApp();
@@ -4686,7 +4737,7 @@ document.addEventListener('click', e => {
     case 'print-card': {
       const box = document.getElementById('loginCard');
       openModal('<div id="printZone">' + (box ? box.outerHTML : '') + '</div>' +
-        '<div class="row" style="gap:10px;margin-top:12px"><button class="btn btn-primary grow" data-act="print">' + ico('print', 'sm') + 'Chop etish</button>' +
+        '<div class="row no-print" style="gap:10px;margin-top:12px"><button class="btn btn-primary grow" data-act="print">' + ico('print', 'sm') + 'Chop etish</button>' +
         '<button class="btn btn-ghost" data-act="close-modal">Yopish</button></div>', 'narrow');
       break;
     }

@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.3.2';
+const APP_VERSION = '2.3.3';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -183,7 +183,25 @@ function loadState() {
     return pruneOrphans(p);
   } catch (e) { return blankState(); }
 }
-function save() { try { localStorage.setItem(VKEY, JSON.stringify(S)); } catch (e) { } }
+function save() { try { localStorage.setItem(VKEY, JSON.stringify(S)); } catch (e) { } rcClear(); }
+
+/* ==========================================================================
+   Chizish davridagi kesh (katta klub = 200+ talaba, 900+ topshiriq)
+   Bir sahifani chizishda bir xil hisob-kitob yuzlab marta takrorlanadi
+   (masalan «kechikkanlar» ro'yxati har bir qatorda qayta hisoblanardi).
+   Kesh har bir save()/paint() da tozalanadi — ma'lumot o'zgarsa qayta o'qiladi.
+   ========================================================================== */
+let RC = null;
+function rcClear() { RC = null; }
+function rc(key, fn) { if (!RC) RC = new Map(); if (!RC.has(key)) RC.set(key, fn()); return RC.get(key); }
+/* Topshiriqlar indeksi: st|task → yozuv (qidiruv O(1)) */
+function subIndex() {
+  return rc('subIdx', () => { const m = new Map(); S.submissions.forEach(p => m.set(p.st + '|' + p.task, p)); return m; });
+}
+/* Talaba → uning topshiriqlari */
+function subsIndex() {
+  return rc('subsIdx', () => { const m = new Map(); S.submissions.forEach(p => { const a = m.get(p.st); if (a) a.push(p); else m.set(p.st, [p]); }); return m; });
+}
 function resetAll() {
   /* Barcha ma'lumotlar (akkauntlar, talabalar, yozuvlar) butunlay o'chiriladi.
      Platforma yangi o'rnatilgan holatga qaytadi — birinchi ishga tushirish ekrani ochiladi. */
@@ -208,8 +226,8 @@ const myGroups = st => S.groups.filter(g => g.members.includes(st.id));
 const myGroup = st => myGroups(st)[0] || null;
 const lessonsOfModule = m => S.lessons.filter(l => l.m === m);
 const totalLessons = () => S.lessons.length;
-const subsOf = st => S.submissions.filter(p => p.st === st.id);
-const subOf = (st, task) => S.submissions.find(p => p.st === st.id && p.task === task);
+const subsOf = st => subsIndex().get(st.id) || [];
+const subOf = (st, task) => subIndex().get(st.id + '|' + task);
 const acceptedOf = st => subsOf(st).filter(p => p.status === 'accepted').length;
 const notifOf = st => S.notifs.filter(n => n.for === st.id);
 const unreadOf = st => notifOf(st).filter(n => n.un).length;
@@ -292,13 +310,18 @@ function nextLesson(st) { const ls = openLessons(st); return ls.find(l => !st.do
 function nextTask(st) { return S.tasks.find(t => { const s = subOf(st, t.id); return !s || s.status === 'revise'; }) || null; }
 function deadlinesOf(st) { return S.tasks.map(t => { const s = subOf(st, t.id); const due = dueOf(st, t); return { t, s, due, tl: timeLeft(due), late: !s && timeLeft(due).late }; }); }
 function lateStudents() {
-  const out = [];
-  S.tasks.forEach(t => S.students.forEach(st => { const s = subOf(st, t.id); if (!s && timeLeft(dueOf(st, t)).late) out.push({ st, t, due: dueOf(st, t) }); }));
-  return out;
+  return rc('late', () => {
+    const out = [];
+    S.tasks.forEach(t => S.students.forEach(st => { const s = subOf(st, t.id); if (!s && timeLeft(dueOf(st, t)).late) out.push({ st, t, due: dueOf(st, t) }); }));
+    return out;
+  });
 }
+/* Kechikkanlar ID to'plami — jadval qatorlarida O(1) tekshiruv uchun */
+function lateIds() { return rc('lateIds', () => new Set(lateStudents().map(x => x.st.id))); }
 function onTimePct() {
   let ok = 0, all = 0;
-  S.submissions.forEach(p => { const t = taskOf(p.task); const st = get(S.students, p.st); if (!t || !st) return; all++; if (new Date(p.at) <= new Date(dueOf(st, t) + 'T23:59:59')) ok++; });
+  /* p.at — ISO sana (YYYY-MM-DD), shuning uchun matn taqqoslash to'g'ri va tez */
+  S.submissions.forEach(p => { const t = taskOf(p.task); const st = get(S.students, p.st); if (!t || !st) return; all++; if (p.at <= dueOf(st, t)) ok++; });
   return all ? Math.round(ok / all * 100) : 0;
 }
 function activeCount() { return S.students.filter(s => s.act).length; }

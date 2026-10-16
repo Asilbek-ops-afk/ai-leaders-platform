@@ -163,7 +163,7 @@ function buildAccounts() {
 /* Talaba profillari bir marta quriladi (akkauntlar shundan foydalanadi) */
 const STUDENTS = buildStudents();
 
-const FIXTURE_VERSION = '2.3.2';
+const FIXTURE_VERSION = '2.3.3';
 
 /* To'liq namunaviy holat (localStorage'ga yoziladi) */
 function demoState() {
@@ -208,6 +208,47 @@ function withSession(accId) {
   if (a.studentId) st.user = a.studentId;
   return st;
 }
+/* Katta klub holati: n ta talaba, ~n/5 jamoa, to'liq topshiriq oqimi.
+   Unumdorlik va raqamlar to'g'riligini 200+ talabada sinash uchun. */
+function bigState(n) {
+  const st = withSession('a1');
+  const names = ['Dilshod', 'Aziza', 'Jasur', 'Malika', 'Bekzod', 'Zilola', 'Umid', 'Shahzoda', 'Otabek', 'Nodira', 'Rustam', 'Gulnora',
+    'Farrux', 'Sevara', 'Temur', 'Kamola', 'Anvar', 'Lola', 'Sardor', 'Nigora'];
+  const sur = ['Rahimov', 'Karimova', 'Toshmatov', 'Sobirova', 'Nazarov', 'Yusupova', 'Murodov', 'Ergasheva', 'Ruzimov', 'Ismoilova',
+    'Qodirov', 'Sharipova', 'Abdullayev', 'Mamadaliyeva', 'Sultonov', 'Nurmatova', 'Yoqubov', 'Tosheva', 'Yo‘ldoshev', 'Xolmatov'];
+  const base = st.students[0];
+  const students = [], accounts = [];
+  st.groups = [];
+  const gCount = Math.max(1, Math.round(n / 5));
+  for (let g = 0; g < gCount; g++) st.groups.push({ id: 'G' + g, name: 'Jamoa ' + (g + 1), project: 'Loyiha ' + (g + 1), mentor: 'mt' + (g % 3 + 1), members: [], xp: 0, dl: {} });
+  for (let i = 0; i < n; i++) {
+    const id = 'S' + i, gid = 'G' + (i % gCount);
+    const s0 = Object.assign({}, base, {
+      id, name: names[i % names.length] + ' ' + sur[(i * 7) % sur.length], tg: '@talaba' + (i + 1),
+      phone: '+998 90 ' + String(1000000 + i).slice(0, 3) + ' ' + String(1000000 + i).slice(3, 5) + ' ' + String(1000000 + i).slice(5, 7),
+      group: gid, xp: 200 + (i * 37) % 2300, wxp: (i * 53) % 1000, streak: i % 17, coins: (i * 11) % 900,
+      score: Math.round((6 + (i % 40) / 10) * 10) / 10, done: base.done.slice(0, 1 + (i % 11)), last: i % 15,
+      act: i % 3 !== 0, bio: 'Sinov profili ' + (i + 1), goal: 'Maqsad ' + (i + 1)
+    });
+    students.push(s0);
+    st.groups[i % gCount].members.push(id);
+    st.groups[i % gCount].xp += s0.xp;
+    accounts.push({ id: 'acc-' + id, role: 'student', studentId: id, nick: 'talaba' + (i + 1), name: s0.name, phone: s0.phone,
+      hemisId: null, groupId: gid, pass: null, mustSetPass: true, status: 'active', demo: true, created: s0.joined, lastLogin: null });
+  }
+  const statuses = ['accepted', 'in_review', 'revise', 'accepted', 'accepted'], subs = [];
+  st.tasks.forEach((t, ti) => students.forEach((s0, i) => {
+    if ((i + ti) % 4 === 3) return;   /* bir qismi topshirmagan — kechikkanlar ham bo'ladi */
+    subs.push({ id: 'p' + ti + '_' + i, task: t.id, st: s0.id, link: 'https://github.com/x/y' + i, note: 'Izoh ' + i,
+      at: t.dl, status: statuses[(i + ti) % statuses.length], score: 60 + (i % 40), fb: 'Izoh', rev: 'Malika Abdurahmonova' });
+  }));
+  st.submissions = subs;
+  st.accounts = st.accounts.filter(a => a.role !== 'student').concat(accounts);
+  st.students = students;
+  st.walls = {}; st.gallery = [];
+  return st;
+}
+
 /* Bo'sh (yangi o'rnatilgan) holat — birinchi ishga tushirish ekrani uchun */
 function emptyState() {
   return { role: 'student', user: 's1', theme: 'dark', students: [], submissions: [], walls: {}, gallery: [], groups: [], mentors: [],
@@ -215,4 +256,4 @@ function emptyState() {
     session: null, settings: { notif: true, weekly: true, publicProfile: true, friendBoard: false },
     meta: { version: FIXTURE_VERSION, created: todayISO(), demoPurged: true } };
 }
-module.exports = { demoState, withSession, emptyState, FIXTURE_VERSION };
+module.exports = { demoState, withSession, emptyState, bigState, FIXTURE_VERSION };

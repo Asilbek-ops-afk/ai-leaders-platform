@@ -2,9 +2,9 @@
 
 Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** barcha kamchiliklarni,
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
-**eng yangi holat — oxirgi bo'lim (v2.3.2)**.
+**eng yangi holat — oxirgi bo'lim (v2.3.3)**.
 
-**Oxirgi versiya:** v2.3.2 · **Holat:** ✅ barcha tekshiruvlar o'tdi (495 test + sahifa auditi, 175 joylashuv, 94 skrinshot)
+**Oxirgi versiya:** v2.3.3 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 4 ta yangi vosita)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -19,6 +19,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [**v2.3.0**](#v230--dizayn-sayqali-professional-polish) | **v2.3.0** | **Dizayn sayqali: ikonkalar (emoji o'rniga), parol ko'zi, bosmaga tayyor kartochka, skrol-spy, mikro-animatsiya, laptop zichligi** |
 | [**v2.3.1**](#v231--ichki-bolimlar-auditi-va-avtomatik-ui-tekshiruvi) | **v2.3.1** | **Ichki bo'limlar auditi + avtomatik UI tekshiruvi (`npm run test:ui`): KPI siljishi, matn kesilishi, gorizontal toshish** |
 | [**v2.3.2**](#v232--kontrast-aa-auditi-va-faollik-taqsimoti) | **v2.3.2** | **WCAG AA kontrast auditi (ikkala mavzu), yorug' mavzu rang tuzatishlari, haqiqiy «Faollik taqsimoti» (o'ylab topilgan egri chiziq o'rniga)** |
+| [**v2.3.3**](#v233--katta-klub-unumdorligi-bosma-va-ornatilgan-ilova) | **v2.3.3** | **200+ talabada unumdorlik (indeks + kesh), bosmada orqa sahifa tushib qolishi tuzatildi, o'rnatilgan ilova (safe-area) rejimi, 3 yangi vosita: `test:scale`, `test:print`, `test:standalone`** |
 
 ---
 
@@ -636,3 +637,53 @@ butun ilova bo'ylab **4.97** (dark mavzudagi `--muted`).
 | Joylashuv testi | ✔ 175 tekshiruv, 0 gorizontal toshish |
 | Skrinshotlar | ✔ **94 ta** (104 qadam) — yangi 4 ta: yorug' mavzu admin, yorug' mavzu statistika, yorug' mavzu vazifa, faollik taqsimoti |
 | Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.3.2** |
+
+---
+
+## v2.3.3 — Katta klub unumdorligi, bosma va o'rnatilgan ilova
+
+**Baho (foydalanuvchi):** dizayn ko'rigining to'rtinchi bosqichi — «davom et». Avvalgi uch ko'rik
+ko'rinish va o'qilishga qaratilgan edi; bu safar **yuk ostidagi xatti-harakat** (200+ talaba),
+**chop etish** va **telefonga o'rnatilgan ilova** rejimi tekshirildi.
+
+### Topilgan nuqsonlar va tuzatishlar
+
+| # | Nuqson | Tuzatish |
+|---|---|---|
+| 1 | **Modal ochiq holda chop etilganda orqadagi sahifa ham bosilardi** — sertifikat PDF'i 2 varaq bo'lib chiqardi (1-varaqda «Ma'lumot» sahifasi, keyin sertifikat) | `@media print` ga modal-ustuvorlik qo'shildi: `body:has(.mback) #app{display:none}`. Endi modal ochiq holda faqat modal chiqadi — sertifikat **1 varaq** |
+| 2 | Kirish kartochkasi chop etilganda **«Chop etish» va «Yopish» tugmalari qog'ozga tushardi** | Tugmalar `.no-print` bilan belgilandi (modal ichidagi tugmalar bosmada ko'rinmaydi) |
+| 3 | **Katta ro'yxatda kvadratik (O(N²)) hisob-kitob**: har bir jadval qatorida `lateStudents()` qayta chaqirilardi — 200 talaba + 900 topshiriqda «Talabalar» sahifasi **623 ms**, «Deadline'lar» **524 ms** | Topshiriq indeksi (`st|task` Map) + chizish davri keshi (`rc/rcClear`) qo'shildi; bir chizishda bir xil hisob-kitob bir marta bajariladi. Natija: **623 → 89 ms** va **524 → 25 ms** (7 barobar tez) |
+| 4 | `onTimePct()` har topshiriq uchun `Date` obyekti yasardi | ISO sanalarni matn sifatida taqqoslash (`p.at <= dueOf(...)`) — bir xil natija, tez |
+| 5 | **O'rnatilgan ilova (PWA) rejimida hech qanday `safe-area` hisobi yo'q edi**: telefonda status-bar/notch ostida qolish xavfi bor edi | `@media (display-mode: standalone), (display-mode: minimal-ui)` bloki: topbar/yon panel/login/landing yuqori xavfsiz hududni, pastki navbat va FAB yon/past hududlarni hisobga oladi. Brauzerda `env()` = 0 — hech narsani o'zgartirmaydi |
+| 6 | Jamoalar reytingida nol XP'da `0/0 = NaN` (v2.3.2 da tuzatilgan) — bunday sinf xatolar qaytmasligi uchun **avtomatik nazorat yo'q edi** | `npm test`ga **27-guruh** qo'shildi: 200 talabali holat jsdom'da chiziladi, raqamlar izchilligi (KPI = filtr yorlig'i = qatorlar soni), NaN yo'qligi va 3 sekundlik unumdorlik chegarasi tekshiriladi |
+
+### Uch yangi vosita
+
+| Buyruq | Nima qiladi |
+|---|---|
+| `npm run test:scale` | 200 talaba / 40 jamoa / 900 topshiriq yasab, 9 admin sahifasini ochadi: chizish vaqti, NaN, matn kesilishi, gorizontal toshish, saralash va filtr tezligi (chegara 900 ms / 1600 ms) |
+| `npm run test:print` | **Haqiqiy PDF** chiqaradi (`page.pdf` + `pdftotext`): kartochka va sertifikat **bitta varaqda**, orqa sahifa va navigatsiya bosmaga tushmasligi, matn o'qilishini tekshiradi. `emulateMedia` bilan emas — haqiqiy chop etish CSS'i bilan |
+| `npm run test:standalone` | Ilovani `--app=` rejimida (o'rnatilgan ilova kabi) ochadi, CDP orqali **xavfsiz hudud** (status-bar 59px, past 34px) beradi va topbar/yon panel/pastki navbat to'qnashmasligini o'lchaydi. Linux'da DISPLAY yo'q bo'lsa o'zini `xvfb-run` ostida qayta ishga tushiradi |
+
+### O'lchangan natijalar (200 talaba)
+
+| Sahifa | Ilgari | Hozir |
+|---|---|---|
+| Talabalar (200 qator) | 623 ms | **89 ms** |
+| Deadline'lar | 524 ms | **25 ms** |
+| Filtr «Jim» | 584 ms | **85 ms** |
+| Filtr «Barchasi» | 721 ms | **87 ms** |
+| Jamoa a'zolari kesimi | 58 ms | **73 ms** |
+
+### Tekshiruv natijalari (v2.3.3)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **507 ta, 0 xato** (27 guruh; yangi 27-guruh — katta klub) |
+| Sahifa auditi + kontrast | ✔ `npm run test:ui` → **0 nuqson** (dark va light) |
+| Katta klub | ✔ `npm run test:scale` → **0 nuqson** (200 talaba) |
+| Chop etish | ✔ `npm run test:print` → **0 nuqson** (kartochka va sertifikat 1 varaq) |
+| O'rnatilgan ilova | ✔ `npm run test:standalone` → **0 nuqson** (safe-area hisobga olingan) |
+| Joylashuv testi | ✔ 175 tekshiruv, 0 gorizontal toshish |
+| Skrinshotlar | ✔ **96 ta** — yangi: `105-standalone-talaba.png`, `106-standalone-admin-light.png` |
+| Versiya izchilligi | ✔ `src` = `sw.js` cache = `package.json` = **2.3.3** |

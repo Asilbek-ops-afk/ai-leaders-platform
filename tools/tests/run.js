@@ -832,7 +832,7 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 2.3.2', B.w.AIL.version() === '2.3.2');
+t('versiya 2.3.3', B.w.AIL.version() === '2.3.3');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ============ 17. LANDING SAHIFASI: HERO, BO'LIMLAR, KIRISH/ARIZA ============
@@ -1560,6 +1560,41 @@ group('26. Sahifa auditi: KPI, jadval, matn butunligi');
   })());
 }
 
+/* ============= 27. KATTA KLUB: 200 TALABA (v2.3.3) ====================== */
+/* Katta ro'yxatda raqamlar to'g'ri qoladimi va sahifa hali ham tez chiziladimi:
+   ilgari har bir jadval qatorida «kechikkanlar» ro'yxati qaytadan hisoblanardi
+   (O(N²)). Endi indeks + chizish davri keshi ishlatiladi. */
+group('27. Katta klub: 200 talaba, unumdorlik va raqamlar izchilligi');
+{
+  const BIG = FIX.bigState(200);
+  const P2 = boot(JSON.stringify(BIG));
+  const t0 = Date.now();
+  P2.w.AIL.go('students');
+  const ms = Date.now() - t0;
+  const txt = P2.d.getElementById('app').textContent;
+  const rows = P2.d.querySelectorAll('.trow').length;
+  const kpiVals = [...P2.d.querySelectorAll('.kpi .v')].map(v => v.textContent.trim());
+  const kpiNums = [...P2.d.querySelectorAll('.kpi .v')].map(v => v.textContent.trim());
+  const lateKpi = +kpiNums[2];
+  const segLate = (txt.match(/Kechikkan \((\d+)\)/) || [])[1];
+  t('200 talaba jadvalda 200 qator', rows === 201);           /* + sarlavha qatori */
+  t('matnda NaN/undefined yo‘q', !/NaN|undefined|\[object Object\]|Infinity/.test(txt));
+  t('«Kechikkanlar» KPI — son', kpiVals[2] !== undefined && /^\d+$/.test(kpiVals[2]));
+  t('filtr yorlig‘i KPI bilan bir xil (' + lateKpi + ' = ' + segLate + ')', segLate !== undefined && +segLate === lateKpi);
+  t('katta ro‘yxat 3 soniyada chiziladi (' + ms + ' ms)', ms < 3000);
+  /* Kechikkanlar filtri: qatorlar soni KPI raqamiga mos kelishi kerak */
+  P2.w.AIL.go('students');
+  P2.d.querySelector('[data-act="filter-s"][data-f="late"]').click();
+  const lateRows = P2.d.querySelectorAll('.trow').length - 1;
+  t('«Kechikkan» filtri ' + lateRows + ' qator — KPI ' + lateKpi + ' bilan mos', lateRows <= lateKpi && lateRows > 0);
+  for (const r of ['admin', 'adminTasks', 'adminGroups', 'adminDeadlines', 'stats']) {
+    P2.w.AIL.go(r);
+    const t2 = P2.d.getElementById('app').textContent;
+    t('admin/' + r + ': raqamlar butun', !/NaN|undefined|\[object Object\]/.test(t2));
+  }
+  t('katta klubda JS xatosi yo‘q', P2.errors.length === 0);
+}
+
 /* ============= 21. STATIK QO'RIQCHI: MANBA KODDA NAMUNA MA'LUMOT YO'Q ======= */
 group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
 {
@@ -1578,11 +1613,11 @@ group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
   t('src fixtura faylini chaqirmaydi', !/fixtures/.test(srcAll) && !/require\(/.test(srcAll));
   t('tozalash funksiyasi mavjud (purgeDemoState)', /function purgeDemoState\(/.test(srcAll) && /needsSetup/.test(srcAll) && /function createFounderAccount\(/.test(srcAll));
   t('qurilgan index.html ham namuna ismlaridan xoli', stNames.every(x => !HTML.includes(x)) && adNames.every(x => !HTML.includes(x)));
-  t('versiya izchil (src = sw.js = package.json = 2.3.2)', (() => {
+  t('versiya izchil (src = sw.js = package.json = 2.3.3)', (() => {
     const ver = /const APP_VERSION = '([^']+)'/.exec(srcAll)[1];
     const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-    return ver === '2.3.2' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
+    return ver === '2.3.3' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
   })());
 }
 

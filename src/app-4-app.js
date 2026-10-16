@@ -485,6 +485,7 @@ function renderApp() {
   return sidebar() + '<div class="main">' + topbar() + '<div class="content">' + currentView() + contentFoot() + '</div></div>' + bottomnav() + toTopBtn();
 }
 function paint(keepScroll) {
+  rcClear(); /* kesh faqat bitta chizish davomida amal qiladi */
   const el = document.getElementById('app');
   el.className = UI.authShow ? 'app authscreen' : 'app' + (UI.collapsed ? ' collapsed' : '');
   el.innerHTML = renderApp();
@@ -837,7 +838,7 @@ document.addEventListener('click', e => {
     case 'print-card': {
       const box = document.getElementById('loginCard');
       openModal('<div id="printZone">' + (box ? box.outerHTML : '') + '</div>' +
-        '<div class="row" style="gap:10px;margin-top:12px"><button class="btn btn-primary grow" data-act="print">' + ico('print', 'sm') + 'Chop etish</button>' +
+        '<div class="row no-print" style="gap:10px;margin-top:12px"><button class="btn btn-primary grow" data-act="print">' + ico('print', 'sm') + 'Chop etish</button>' +
         '<button class="btn btn-ghost" data-act="close-modal">Yopish</button></div>', 'narrow');
       break;
     }
