@@ -495,6 +495,7 @@ function paint(keepScroll) {
   const top = document.getElementById('toTop');
   if (top && window.scrollY > 640) top.classList.add('show');
   if (UI.authShow) initLanding();   /* landing: skrollda ochilish animatsiyasi */
+  craftPaint();   /* craft qatlami: jonli lenta, faollik xaritasi, sarlavha sayqali */
 }
 function go(route) {
   if (isAdmin() && STUDENT_ONLY.includes(route)) route = 'admin';

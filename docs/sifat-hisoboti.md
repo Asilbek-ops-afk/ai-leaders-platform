@@ -2,9 +2,9 @@
 
 Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** barcha kamchiliklarni,
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
-**eng yangi holat — oxirgi bo'lim (v2.4.0)**.
+**eng yangi holat — oxirgi bo'lim (v2.5.0)**.
 
-**Oxirgi versiya:** v2.4.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
+**Oxirgi versiya:** v2.5.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -20,6 +20,7 @@ tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha pa
 | [**v2.3.1**](#v231--ichki-bolimlar-auditi-va-avtomatik-ui-tekshiruvi) | **v2.3.1** | **Ichki bo'limlar auditi + avtomatik UI tekshiruvi (`npm run test:ui`): KPI siljishi, matn kesilishi, gorizontal toshish** |
 | [**v2.3.2**](#v232--kontrast-aa-auditi-va-faollik-taqsimoti) | **v2.3.2** | **WCAG AA kontrast auditi (ikkala mavzu), yorug' mavzu rang tuzatishlari, haqiqiy «Faollik taqsimoti» (o'ylab topilgan egri chiziq o'rniga)** |
 | [**v2.3.3**](#v233--katta-klub-unumdorligi-bosma-va-ornatilgan-ilova) | **v2.3.3** | **200+ talabada unumdorlik (indeks + kesh), bosmada orqa sahifa tushib qolishi tuzatildi, o'rnatilgan ilova (safe-area) rejimi, 3 yangi vosita: `test:scale`, `test:print`, `test:standalone`** |
+| [**v2.5.0**](#v250--craft-qatlami-sahifalar-tirik-va-qolda-ishlangan) | **v2.5.0** | **Craft qatlami: jonli lenta, faollik xaritasi, uchqun grafigi, jonli soat, kursor nuri, raqamlar sanalishi, qo'lda chizilgan bo'sh holatlar** |
 | [**v2.4.0**](#v240--premium-dizayn-sayqali-va-ortiqcha-matnlar-qisqartirildi) | **v2.4.0** | **Premium dizayn tizimi (chuqurlik, yorug'lik, gradient sarlavhalar, jonli statistika), modul kartalari qayta ishlandi, ortiqcha matnlar qisqartirildi, auditga 2 yangi nazorat: yorliq kesilishi va matn to'qnashuvi** |
 
 ---
@@ -750,3 +751,71 @@ bu foydalanuvchini ilgari tortadi va ekranda foydali ma’lumot zichligini oshir
 | Chop etish / o‘rnatilgan ilova | ✔ 0 nuqson |
 | Skrinshotlar | ✔ **96 ta** yangilandi (yangi dizayn bilan) |
 | Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.4.0** |
+
+---
+
+## v2.5.0 — «Craft» qatlami: sahifalar tirik va qo'lda ishlangan
+
+**Baho (foydalanuvchi):** «Sahifalar dizayni juda oddiy bo'lib qolibdi — inson qo'lda mukammal qilgandek bo'lsin,
+kimgadir kirganda qiziqtiradigan, huddim websayt jonli bo'lib, professional dizayner qilgandek bo'lsin».
+
+Shu maqsadda uch tamoyilli **craft qatlami** yozildi (`src/craft.css` + `src/app-5-craft.js`).
+Qatlam view kodiga umuman tegmaydi: `paint()` oxirida DOM'ni sayqallaydi, jsdom'da (testlarda) o'chadi
+va `prefers-reduced-motion` yoqilganda barcha animatsiya to'xtaydi.
+
+### 1. Ambivent: fon «nafas oladi»
+
+| Element | Nima qilindi |
+|---|---|
+| Aurora | `.main::before` — binafsha/moviy/limon nuri 54 soniyada sekin siljiydi (`filter: blur(46px)`) |
+| Blueprint to'r | Radial nuqtali to'r yuqoridan pastga so'nadi (kontent ortida, `pointer-events:none`) |
+| Donador tekstura | SVG `feTurbulence` shovqini 3.5% shaffoflikda — «bosma qog'oz» hissi (`mix-blend-mode:overlay`) |
+| Topbar nuri | Topbar ostida brend gradienti yuguradi; yon panelda vertikal nur chizig'i |
+| Soya/karta | Uch pog'onali soya (`--sh-1/2/3`) + karta chetida gradient qirra (`mask-composite`) |
+
+### 2. Hunar: har bir detal qo'lda sayqallangan
+
+- **Sahifa sarlavhasi** endi jurnal (editorial) uslubida: ustki yozuv `TA'LIM · DARSLAR · 02 · AI LEADERS STARTUP CLUB`,
+  gradient hairline, sarlavha ostidagi raqamli ko'rsatkichlar (raqamlar `tabular-nums` bilan ajratilgan).
+- **KPI kartalari**: 32px raqam, ton bo'yicha (moviy/limon/qizil) rang, plitka ikonkasida ichki nur.
+- **Avatar**: ism bo'yicha barqaror rang (hash → hue), gradient + halqa; holat nuqtasi.
+- **Holat chiplari** (`Tekshirilmoqda`, `Kechikkan`…): rangli nuqta, jarayondagi holatda pulsatsiya.
+- **Progress chiziqlari**: gradient + yuguruvchi yorug'lik, qiymatga 0.9 soniyada o'sadi.
+- **Reyting jadvali**: 1/2/3 o'rinlar oltin/kumush/bronza medal, `me` qatori brend nuri bilan.
+- **Vaqt chizig'i** (deadline): vertikal gradient liniya + holatga qarab tugun (joriy — limon puls, kechikkan — qizil).
+- **Bo'sh holatlar**: 5 xil qo'lda chizilgan SVG illyustratsiya (darslar, vazifa, do'stlar, deadline, jamoa).
+
+### 3. Harakat: sahifa kirilganda jonlanadi
+
+| Effekt | Tafsilot |
+|---|---|
+| **Jonli lenta** | Har bir sahifa tepasida «JONLI» yuguruvchi lenta — klubdagi haqiqiy harakatlar (topshiriqlar + yangiliklar): «Aziza Karimova "Prompt kutubxonasi" — 88 ball · bugun». Sichqoncha ustiga kelganda to'xtaydi |
+| **Faollik xaritasi** | 8/12 haftalik issiqlik xaritasi — har katak bir kun, **haqiqiy topshiriqlar** asosida; yonida jami/faol kun/eng faol kun/o'rtacha ko'rsatkichlari |
+| **Uchqun grafigi** | Oxirgi 14 kun topshirish dinamikasi (chizilish animatsiyasi bilan) + bugun/shu hafta/o'tgan haftaga nisbatan ko'rsatkichlar |
+| **Jonli soat** | Topbar'da real vaqt (`12:45 Toshkent`) va pulsatsiyalanuvchi yashil nuqta (≤900px da yashiriladi) |
+| **Kursor nuri** | Faqat sichqonchali qurilmada: karta kursor ostida yorishadi, hover'da 3px ko'tariladi |
+| **Raqamlar sanalishi** | Sahifa almashganda KPI raqamlari 0 dan haqiqiy qiymatga sanaladi (bir marta, 520ms) |
+| **To'lqin** | Tugma bosilganda bosilgan nuqtadan to'lqin (`.rip`) |
+| **Paydo bo'lish** | Kontent bloklari navbat bilan (46ms oraliq) yuqoriga surilib paydo bo'ladi |
+
+### Qo'lda ko'rikda topilgan va tuzatilgan nuqsonlar
+
+| Nuqson | Sabab | Tuzatish |
+|---|---|---|
+| **KPI raqamlari ko'rinmay qoldi** (Umumiy XP, Coin, foizlar) | `background: linear-gradient(...)` shorthand `background-clip:text`ni tiklab, matnni shaffof qilib qo'yardi | Gradient-clip olib tashlandi — raqam oddiy `color` bilan yoziladi (5 ton) |
+| **Hero'dagi progress chizig'i 2px ga siqilib qolgan** | `flex-direction:column` ichida `.bar` o'z kengligini yo'qotgan | `.hero .card.glass>.bar{width:100%}` |
+| **Telefonda topbar chetidan chiqib ketgan soat** | `.hide-sm` 760px da ishlamaydi, soat 390px da ham ko'rinardi | `@media (max-width:900px){.liveclock{display:none}}` |
+| **Yorug' mavzu «noto'g'ri» ko'rinishi** | Sinov skriptida `data-theme` `localStorage` orqali emas, to'g'ridan-to'g'ri qo'yilgan edi | Tekshirildi: qorong'i↔yorug' o'tish va doimiylik to'g'ri ishlaydi (skrinshot tasdiqlandi) |
+
+### Tekshiruv natijalari (v2.5.0)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **507 ta, 0 xato** |
+| Sahifa auditi (matn, kesilishi, kontrast, to'qnashuv) | ✔ **0 nuqson** (dark + light, 16 sahifa, 6 modal) |
+| Joylashuv (5 ekran o'lchami) | ✔ 175 tekshiruv, 0 gorizontal toshish |
+| Katta klub (200 talaba) | ✔ 0 nuqson |
+| Chop etish (haqiqiy PDF) | ✔ 4 sahifa toza |
+| O'rnatilgan ilova rejimi | ✔ 0 nuqson |
+| Skrinshotlar | ✔ **96 ta** yangilandi |
+| Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.5.0** |

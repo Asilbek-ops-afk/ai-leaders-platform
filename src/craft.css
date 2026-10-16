@@ -1,0 +1,300 @@
+/* ==========================================================================
+   AI LEADERS — CRAFT qatlami (v2.5.0)
+   Maqsad: sahifa «qo'lda, professional dizayner tomonidan» ishlangandek va
+   «tirik» ko'rinishi. Uchta tamoyil:
+     1) AMBIYENT   — fon nafas oladi (aurora, donador tekstura, blueprint to'r);
+     2) HUNAR      — har bir detal qo'lda sayqallangan (qirra, nur, soya, tipografiya);
+     3) HARAKAT    — sahifa kirilganda jonlanadi (navbat bilan paydo bo'lish,
+                     sonlar sanaladi, grafiklar o'sadi, kursor nuri yuguradi).
+   Muhim: barcha animatsiya prefers-reduced-motion'da o'chadi (audit ham shu
+   rejimda ishlaydi), shuning uchun test natijalari barqaror qoladi.
+   ========================================================================== */
+
+/* ---------- 0. Qo'shimcha tokenlar ---------- */
+:root{
+  --edge:rgba(255,255,255,.07);
+  --hair:linear-gradient(90deg,transparent,rgba(124,92,255,.55),rgba(34,211,238,.5),transparent);
+  --glow-brand:0 0 0 1px rgba(124,92,255,.28),0 18px 40px -26px rgba(124,92,255,.65);
+  --sh-1:0 1px 2px rgba(3,6,18,.5),0 10px 26px -18px rgba(3,6,18,.9);
+  --sh-2:0 2px 4px rgba(3,6,18,.45),0 24px 52px -28px rgba(6,10,32,.95);
+  --sh-3:0 30px 70px -34px rgba(6,10,32,1);
+  --tile:linear-gradient(160deg,rgba(124,92,255,.16),rgba(34,211,238,.07) 60%,transparent);
+}
+[data-theme="light"]{
+  --edge:rgba(10,16,36,.05);
+  --glow-brand:0 0 0 1px rgba(124,92,255,.2),0 16px 32px -22px rgba(60,74,140,.55);
+  --sh-1:0 1px 2px rgba(24,36,80,.06),0 10px 24px -18px rgba(24,36,80,.28);
+  --sh-2:0 2px 4px rgba(24,36,80,.06),0 22px 44px -26px rgba(24,36,80,.32);
+  --sh-3:0 30px 60px -30px rgba(24,36,80,.34);
+  --tile:linear-gradient(160deg,rgba(124,92,255,.12),rgba(34,211,238,.08) 60%,transparent);
+}
+
+/* ---------- 1. AMBIYENT: fon nafas oladi ---------- */
+.app:not(.authscreen) .main{position:relative;isolation:isolate}
+.app:not(.authscreen) .main::before{
+  content:"";position:fixed;inset:-25% -15% -15%;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(38% 42% at 18% 12%,rgba(124,92,255,.30),transparent 66%),
+    radial-gradient(34% 38% at 86% 6%,rgba(34,211,238,.22),transparent 68%),
+    radial-gradient(30% 34% at 62% 82%,rgba(198,255,79,.12),transparent 70%);
+  filter:blur(46px);opacity:.85;
+  animation:aurora 54s ease-in-out infinite alternate;
+  will-change:transform}
+[data-theme="light"] .app:not(.authscreen) .main::before{
+  background:
+    radial-gradient(38% 42% at 18% 12%,rgba(124,92,255,.20),transparent 66%),
+    radial-gradient(34% 38% at 86% 6%,rgba(34,211,238,.20),transparent 68%),
+    radial-gradient(30% 34% at 62% 82%,rgba(198,255,79,.22),transparent 72%);
+  opacity:.9}
+@keyframes aurora{
+  0%{transform:translate3d(-2%,-1%,0) scale(1)}
+  50%{transform:translate3d(2%,2%,0) scale(1.06)}
+  100%{transform:translate3d(-1%,3%,0) scale(1.02)}
+}
+/* blueprint to'r — kontent ortida, yuqoridan pastga so'nadi */
+.app:not(.authscreen) .main::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.075) 1px,transparent 1px);
+  background-size:26px 26px;
+  mask-image:radial-gradient(120% 62% at 78% 0%,#000 8%,transparent 72%)}
+[data-theme="light"] .app:not(.authscreen) .main::after{
+  background-image:radial-gradient(rgba(16,26,60,.10) 1px,transparent 1px)}
+/* donador tekstura — «bosma qog'oz» hissi */
+body::after{
+  content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.9'/></svg>")}
+[data-theme="light"] body::after{opacity:.05;mix-blend-mode:multiply}
+.app:not(.authscreen) .main>.content{position:relative;z-index:1}
+.app:not(.authscreen) .main>.topbar{z-index:40}
+
+/* topbar ostida yuguradigan nur chizig'i */
+.topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(124,92,255,.85),rgba(34,211,238,.85),transparent);
+  background-size:45% 100%;background-repeat:no-repeat;animation:sweep 6.5s linear infinite;opacity:.75}
+@keyframes sweep{0%{background-position:-45% 0}100%{background-position:145% 0}}
+/* yon panel: yumshoq nur + faol bo'lim */
+.sidebar::after{content:"";position:absolute;top:0;right:-1px;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(124,92,255,.5) 22%,rgba(34,211,238,.42) 62%,transparent)}
+.sidebar{position:sticky;overflow:hidden}
+.sidebar::before{content:"";position:absolute;inset:auto -40% -30% -40%;height:60%;
+  background:radial-gradient(60% 60% at 50% 100%,rgba(124,92,255,.22),transparent 70%);pointer-events:none}
+
+/* ---------- 2. TOPBAR: jonli soat va holat ---------- */
+.liveclock{display:inline-flex;align-items:center;gap:8px;padding:7px 12px 7px 10px;border-radius:999px;
+  background:var(--panel-2);border:1px solid var(--line);font-size:12.5px;font-weight:750;color:var(--txt2);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.liveclock b{color:var(--txt);font-weight:850}
+.liveclock .pulse{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(56,225,160,.55);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(56,225,160,.5)}70%{box-shadow:0 0 0 9px rgba(56,225,160,0)}100%{box-shadow:0 0 0 0 rgba(56,225,160,0)}}
+
+/* jonli soat kichik ekranlarda topbarni siqmasin */
+@media (max-width:900px){.liveclock{display:none}}
+
+/* ---------- 3. SAHIFA SARLAVHASI: jurnal (editorial) uslubi ---------- */
+.page-head{position:relative;padding-bottom:14px;align-items:flex-end}
+.page-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,rgba(124,92,255,.7),rgba(34,211,238,.45) 34%,transparent 78%)}
+.ph-eyebrow{display:flex;align-items:center;gap:9px;font-size:10.5px;font-weight:850;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.ph-eyebrow i{width:22px;height:1px;background:linear-gradient(90deg,var(--brand),var(--brand-2));display:block}
+.ph-eyebrow b{color:var(--txt2);font-weight:850}
+.page-head .h1{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.045em;line-height:1.04;margin:0}
+.ph-sub{margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:7px 12px;color:var(--txt2);font-size:13px}
+.ph-sub .dot{width:3px;height:3px;border-radius:50%;background:var(--muted);opacity:.8}
+.ph-sub b{color:var(--txt);font-weight:850;font-variant-numeric:tabular-nums}
+.ph-sub .ph-k{display:inline-flex;align-items:center;gap:6px}
+.ph-sub .ph-k .i{color:var(--brand-2);opacity:.9}
+.ph-side{display:flex;align-items:center;gap:12px}
+
+/* ---------- 4. KARTA HUNARI: qirra, nur, ko'tarilish ---------- */
+.card,.kpi,.mod{box-shadow:var(--sh-1)}
+.card{border-color:var(--line)}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,.14),transparent 34%,transparent 70%,rgba(34,211,238,.14));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;opacity:.9}
+[data-theme="light"] .card::before{background:linear-gradient(160deg,rgba(124,92,255,.22),transparent 38%,transparent 72%,rgba(34,211,238,.22))}
+/* kursor nuri (faqat sichqonchali qurilmada, JS --mx/--my ni yozadi) */
+@media (hover:hover) and (pointer:fine){
+  .card,.kpi,.mod{--mx:-200px;--my:-200px}
+  .card::after,.kpi::after,.mod::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(260px circle at var(--mx) var(--my),rgba(124,92,255,.13),transparent 62%);
+    opacity:0;transition:opacity .35s}
+  .card:hover::after,.kpi:hover::after,.mod:hover::after{opacity:1}
+  .card:hover,.kpi:hover{transform:translateY(-3px);box-shadow:var(--sh-2);border-color:var(--line-2)}
+  .card,.kpi{transition:transform .22s cubic-bezier(.2,.8,.25,1),box-shadow .22s,border-color .22s}
+}
+.kpi{overflow:hidden}
+/* bo'lim sarlavhasi: ikonka plitkasi + ingichka chiziq */
+.card-h .h2 .i,.cm-h .h2 .i{width:32px;height:32px;padding:7px;border-radius:11px;box-sizing:border-box;
+  background:var(--tile);border:1px solid rgba(124,92,255,.28);color:#C9BBFF}
+[data-theme="light"] .card-h .h2 .i,[data-theme="light"] .cm-h .h2 .i{color:#5B45E0}
+.card-h{border-bottom:1px dashed var(--line);padding-bottom:11px}
+.card-h .h2{font-size:15.5px;letter-spacing:-.02em}
+
+/* ---------- 5. TIPOGRAFIYA: raqamlar va mikro-yorliqlar ---------- */
+.kpi .v,.big,.h1,.h2,.hero-stat b,.ph-sub b,.tl2-d,.lb-xp{font-variant-numeric:tabular-nums}
+/* Raqam gradient-clip EMAS — matn har doim aniq ko'rinadi. (background-clip:text
+   ba'zi renderlarda raqamni butunlay ko'rinmas qilib qo'yardi.) */
+.kpi .v{font-size:32px;letter-spacing:-.05em;color:var(--txt);text-shadow:0 1px 0 rgba(255,255,255,.05)}
+.kpi.c .v{color:#E3F8FE}.kpi.a .v{color:#F0FFCB}.kpi.r .v{color:#FFE1E7}
+[data-theme="light"] .kpi .v{color:#0A1024;text-shadow:none}
+[data-theme="light"] .kpi.c .v{color:#0B3945}[data-theme="light"] .kpi.a .v{color:#2E3B00}[data-theme="light"] .kpi.r .v{color:#4A0C17}
+.micro{font-size:10px;font-weight:850;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.kpi .ic{box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 18px -14px rgba(124,92,255,.9)}
+.kpi .v sup{font-size:.5em;font-weight:800;letter-spacing:0;margin-left:3px;opacity:.7}
+
+/* Hero kartasidagi progress chizig'i flex-ustun ichida 2px ga siqilib qolardi */
+.hero .card.glass>.bar{width:100%;min-width:0}
+/* progress: gradient + yuguruvchi yorug'lik */
+.bar{position:relative;overflow:hidden;height:9px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
+[data-theme="light"] .bar{background:rgba(16,26,60,.07)}
+.bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#7C5CFF,#5B8CFF 55%,#22D3EE);
+  box-shadow:0 0 18px -2px rgba(90,140,255,.85);position:relative;transition:width .9s cubic-bezier(.2,.8,.25,1)}
+.bar>i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  background-size:40% 100%;background-repeat:no-repeat;animation:sheen 2.6s linear infinite}
+@keyframes sheen{0%{background-position:-40% 0}100%{background-position:140% 0}}
+
+/* ---------- 6. AVATAR / YORLIQ / HOLAT ---------- */
+.av{background:linear-gradient(140deg,hsl(var(--h,265) 72% 58%),hsl(calc(var(--h,265) + 44) 76% 52%));
+  color:#fff;font-weight:850;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 16px -10px hsl(var(--h,265) 70% 40%);position:relative}
+.av::after{content:"";position:absolute;inset:-3px;border-radius:inherit;border:1px solid rgba(255,255,255,.14);pointer-events:none}
+[data-theme="light"] .av{color:#fff}
+.tag,.st{box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;margin-right:5px;opacity:.95}
+.st.ok::before{box-shadow:0 0 0 3px rgba(56,225,160,.16)}
+.st.run::before{animation:pulse 2s infinite}
+.st.bad::before{box-shadow:0 0 0 3px rgba(255,92,122,.16)}
+.streak{box-shadow:0 8px 22px -14px rgba(255,140,60,.9)}
+
+/* ---------- 7. JONLI KOMPONENTLAR ---------- */
+/* 7.1 yuguruvchi lenta (so'nggi faollik) */
+.tick{position:relative;overflow:hidden;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);
+  display:flex;align-items:center;gap:12px;padding:9px 12px 9px 14px;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.tick-lb{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:850;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--txt2);white-space:nowrap;padding-right:12px;border-right:1px solid var(--line)}
+.tick-lb .pulse{width:7px;height:7px;border-radius:50%;background:var(--danger);animation:pulse 2s infinite}
+.tick-vp{overflow:hidden;flex:1;min-width:0;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.tick-tr{display:flex;gap:26px;width:max-content;animation:marq 46s linear infinite}
+.tick:hover .tick-tr{animation-play-state:paused}
+.tick-it{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--txt2);white-space:nowrap}
+.tick-it b{color:var(--txt);font-weight:800}
+.tick-it .i{color:var(--brand-2)}
+.tick-it em{font-style:normal;color:var(--muted);font-size:11.5px}
+.tick-it .pip{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:.5}
+@keyframes marq{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
+
+/* 7.2 faollik issiqlik xaritasi */
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:4px;width:max-content}
+.heat i{width:13px;height:13px;border-radius:4px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.04);
+  transition:transform .18s,box-shadow .18s}
+[data-theme="light"] .heat i{background:rgba(16,26,60,.07);border-color:rgba(16,26,60,.05)}
+.heat i[data-v="1"]{background:rgba(124,92,255,.35)}
+.heat i[data-v="2"]{background:rgba(124,92,255,.6)}
+.heat i[data-v="3"]{background:rgba(124,92,255,.82)}
+.heat i[data-v="4"]{background:linear-gradient(140deg,#7C5CFF,#22D3EE);box-shadow:0 0 12px -2px rgba(124,92,255,.9)}
+.heat i:hover{transform:scale(1.35)}
+.heat-row{align-items:stretch}
+.heat-row .card{display:flex;flex-direction:column}
+.heat-row .spark{height:64px;margin:6px 0 2px}
+.heat-row .card>.row.wrap:last-child{margin-top:auto}
+.mini-stat{flex:1 1 92px;min-width:92px;padding:9px 11px;border-radius:var(--r-sm);background:var(--panel-2);border:1px solid var(--line)}
+.mini-stat .big{font-size:19px;font-weight:850;letter-spacing:-.03em;line-height:1.1}
+.heat-card .heat{margin-top:4px}
+.heat-w{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}
+.heat-lg{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted);font-weight:750}
+.heat-lg i{width:11px;height:11px;border-radius:3px;display:block}
+
+/* 7.3 uchqun grafigi (sparkline) */
+.spark{display:block;width:100%;height:52px;overflow:visible}
+.spark .area{fill:url(#sparkG);opacity:.5}
+.spark .line{fill:none;stroke:url(#sparkL);stroke-width:2.2;stroke-linecap:round;
+  stroke-dasharray:var(--len,300);stroke-dashoffset:var(--len,300);animation:draw 1.4s .15s cubic-bezier(.3,.9,.3,1) forwards}
+.spark .dot{fill:#C6FF4F;stroke:rgba(5,7,15,.8);stroke-width:2}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* 7.4 vaqt chizig'i (deadline) */
+.tl2{position:relative;padding-left:26px}
+.tl2::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;border-radius:2px;
+  background:linear-gradient(180deg,rgba(124,92,255,.9),rgba(34,211,238,.55),transparent)}
+.tl2-i{position:relative;margin-bottom:10px}
+.tl2-i::before{content:"";position:absolute;left:-22px;top:16px;width:11px;height:11px;border-radius:50%;
+  background:var(--panel);border:2px solid var(--brand);box-shadow:0 0 0 3px rgba(124,92,255,.16)}
+.tl2-i.now::before{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px rgba(198,255,79,.18);animation:pulse 2.4s infinite}
+.tl2-i.late::before{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,92,122,.16)}
+.tl2-d{font-size:11px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+
+/* 7.5 reyting jadvali */
+.lb{display:flex;flex-direction:column;gap:7px}
+.lb-r{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--r-sm);border:1px solid var(--line);
+  background:var(--panel-2);transition:.18s}
+.lb-r:hover{border-color:var(--line-2);transform:translateX(3px)}
+.lb-r.me{border-color:rgba(124,92,255,.5);background:linear-gradient(90deg,rgba(124,92,255,.14),transparent 70%)}
+.lb-n{width:26px;height:26px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:850;
+  background:var(--panel-3);border:1px solid var(--line);color:var(--txt2);font-variant-numeric:tabular-nums}
+.lb-r.g1 .lb-n{background:linear-gradient(140deg,#FFD75E,#FF9F1C);color:#2A1B00;border-color:transparent;box-shadow:0 8px 18px -10px rgba(255,180,58,.9)}
+.lb-r.g2 .lb-n{background:linear-gradient(140deg,#E6EDFB,#AEB9D6);color:#1A2138;border-color:transparent}
+.lb-r.g3 .lb-n{background:linear-gradient(140deg,#F0B27A,#C97B3C);color:#2A1500;border-color:transparent}
+.lb-xp{margin-left:auto;font-weight:850;font-size:13px;color:var(--txt);white-space:nowrap}
+.lb-bar{flex:1;min-width:40px;max-width:220px}
+
+/* 7.6 bo'sh holat — qo'lda chizilgan illyustratsiya */
+.empty{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;padding:30px 18px;border-style:dashed}
+.empty .i.xl{opacity:.9}
+.empty-art{width:104px;height:72px;color:var(--brand-2);opacity:.9;filter:drop-shadow(0 8px 18px rgba(34,211,238,.25))}
+.empty .empty-art+.i,.empty .i+.empty-t{margin-top:2px}
+.empty-t{margin-top:-2px}
+.empty-art path,.empty-art circle,.empty-art rect{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.empty-art .dash{stroke-dasharray:4 6;opacity:.6}
+.empty-t{font-weight:800;color:var(--txt2);font-size:14px}
+
+/* ---------- 8. HARAKAT: sahifa jonlanadi ---------- */
+.rv{opacity:0;transform:translateY(12px);animation:rvIn .55s cubic-bezier(.2,.85,.25,1) forwards;animation-delay:calc(var(--d,0)*46ms)}
+@keyframes rvIn{to{opacity:1;transform:none}}
+.hoverable{transition:transform .2s cubic-bezier(.2,.8,.25,1),box-shadow .2s}
+.rise-1{animation:riseIn .6s cubic-bezier(.2,.85,.25,1) both}
+@keyframes riseIn{from{opacity:0;transform:translateY(16px) scale(.995)}}
+/* bosilganda to'lqin */
+.rip{position:relative;overflow:hidden}
+.rip .rip-w{position:absolute;border-radius:50%;background:rgba(255,255,255,.4);transform:translate(-50%,-50%) scale(0);
+  animation:rip .55s ease-out forwards;pointer-events:none}
+[data-theme="light"] .rip .rip-w{background:rgba(124,92,255,.28)}
+@keyframes rip{to{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+/* marshrut almashganda kontent «nafas oladi» */
+.swap-in{animation:swapIn .42s cubic-bezier(.2,.85,.25,1)}
+@keyframes swapIn{from{opacity:0;transform:translateY(10px) scale(.998);filter:blur(3px)}}
+/* yon panel menyusi jonli */
+.nav-item{position:relative;overflow:hidden}
+.nav-item::after{content:"";position:absolute;left:0;top:50%;width:3px;height:0;border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg,var(--brand),var(--brand-2));transform:translateY(-50%);transition:height .24s}
+.nav-item:hover::after{height:42%}
+.nav-item.on::after{height:62%}
+.fab{position:relative}
+.fab::after{content:"";position:absolute;inset:-4px;border-radius:inherit;border:1px solid rgba(124,92,255,.5);animation:pulse 3s infinite}
+/* mobil pastki menyu: faol bo'lim ko'tariladi */
+.bottomnav .bn.on{transform:translateY(-2px)}
+.bottomnav .bn .i{transition:transform .2s}
+.bottomnav .bn.on .i{transform:scale(1.12)}
+
+
+/* ---------- 9. Harakatga sezgir foydalanuvchilar uchun o'chirish ---------- */
+@media (prefers-reduced-motion:reduce){
+  .app:not(.authscreen) .main::before{animation:none}
+  .topbar::after{animation:none;opacity:.5}
+  .bar>i::after{animation:none}
+  .liveclock .pulse,.tick-lb .pulse,.fab::after,.st.run::before,.streak .i{animation:none}
+  .tick-tr{animation:none}
+  .spark .line{animation:none;stroke-dashoffset:0}
+  .rv{opacity:1;transform:none;animation:none}
+  .rise-1{animation:none}
+  .swap-in{animation:none}
+  .heat i:hover{transform:none}
+  .card:hover,.kpi:hover{transform:none}
+}
+/* kam quvvatli qurilmalarda aurora nurini yumshatish */
+@media (max-width:700px){
+  .app:not(.authscreen) .main::before{filter:blur(38px);opacity:.7}
+  .tick-tr{gap:18px}
+  .lb-bar{display:none}
+  .ph-side{width:100%;justify-content:flex-start}
+}

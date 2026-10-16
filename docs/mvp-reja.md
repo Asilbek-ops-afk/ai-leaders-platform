@@ -131,6 +131,12 @@ boshidagi uzun tavsiflar **jonli raqamlar** bilan almashtirildi; modul kartalari
 toza ko'rinishga o'tdi; boshlash yo'riqnomasi 5 kartadan siqilgan ro'yxatga aylandi. Auditga yorliq kesilishi
 va matn to'qnashuvi nazorati qo'shildi (ikkalasi sun'iy nuqson bilan tekshirilgan).
 
+**Craft qatlami (v2.5.0):** `src/craft.css` + `src/app-5-craft.js` — sahifa «tirik» ko'rinishga o'tdi:
+ambivent fon (aurora, blueprint to'r, donador tekstura), jurnal uslubidagi sahifa sarlavhalari, jonli lenta,
+8/12 haftalik faollik xaritasi, 14 kunlik uchqun grafigi, jonli soat, kursor nuri, raqamlarning sanalishi,
+qo'lda chizilgan bo'sh holat illyustratsiyalari. Qatlam view kodiga tegmaydi, jsdom'da o'chadi va
+`prefers-reduced-motion` yoqilganda barcha animatsiya to'xtaydi.
+
 **Dizayn (v2.3.0):** interfeys qayta-qayta ko'zdan kechirildi va yagona dizayn tiliga keltirildi — emoji o'rniga
 68 ta o'z SVG ikonkasi, parol ko'zi, bosmaga tayyor kirish kartochkasi (A4), skrol-spy navigatsiya, mikro-animatsiya,
 yopishqoq jadval sarlavhasi, laptop zichligi (1568×768) va mobil sayqal.

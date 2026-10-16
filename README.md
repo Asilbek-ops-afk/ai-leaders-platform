@@ -12,7 +12,7 @@
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
 | 📦 **Hajm** | Bitta `index.html` (~330 KB), tashqi kutubxonasiz |
-| 🎨 **Dizayn** | Dark/light mavzu, premium chuqurlik tizimi (soya + yorug' qirra), gradient sarlavhalar, o'z ikonalar to'plami (68 SVG), mikro-animatsiya, `prefers-reduced-motion` |
+| 🎨 **Dizayn** | Dark/light mavzu, «craft» qatlami (ambivent aurora, jonli lenta, faollik xaritasi, uchqun grafigi, jonli soat), premium chuqurlik tizimi, o'z ikonalar to'plami (68 SVG), `prefers-reduced-motion` |
 
 ---
 
