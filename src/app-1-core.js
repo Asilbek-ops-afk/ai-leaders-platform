@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.6.0';
+const APP_VERSION = '2.6.1';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -394,11 +394,12 @@ function avatar(st, size) {
 }
 function crest(g, size) {
   const s = size || 52;
-  const h = (esc(g.name.charCodeAt(0) + g.name.charCodeAt(1) % 360));
+  /* guruh belgisi rangi — palitra oilasi (190–232°) */
+  const h = 190 + ((g.name.charCodeAt(0) * 31 + (g.name.charCodeAt(1) || 7)) % 42);
   return '<svg class="crest" style="width:' + s + 'px;height:' + s + 'px" viewBox="0 0 64 64" aria-hidden="true">' +
     '<defs><linearGradient id="cg' + g.id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--brand)"/><stop offset="1" style="stop-color:var(--brand-2)"/></linearGradient></defs>' +
-    '<path d="M32 3 56 17v30L32 61 8 47V17z" fill="rgba(124,92,255,.16)" stroke="url(#cg' + g.id + ')" stroke-width="2.4" stroke-linejoin="round"/>' +
-    '<text x="32" y="39" text-anchor="middle" font-family="Inter,sans-serif" font-size="19" font-weight="800" fill="#EAF0FF">' + esc(initials(g.name)) + '</text></svg>';
+    '<path d="M32 3 56 17v30L32 61 8 47V17z" fill="rgba(var(--brand-rgb),.16)" stroke="url(#cg' + g.id + ')" stroke-width="2.4" stroke-linejoin="round"/>' +
+    '<text x="32" y="39" text-anchor="middle" font-family="Inter,sans-serif" font-size="19" font-weight="800" style="fill:var(--txt)">' + esc(initials(g.name)) + '</text></svg>';
 }
 function ring(pct, size, sub) {
   const s = size || 96, r = (s - 11) / 2, c = 2 * Math.PI * r;
@@ -1107,7 +1108,7 @@ function subViewModal(p) {
       '<span class="small ellip">' + esc(p.file) + '</span></div>' +
       (p.fileData ? '<button class="btn btn-xs btn-soft" data-act="open-file" data-sub="' + p.id + '">' + ico('download', 'sm') + 'Yuklab olish</button>'
         : '<span class="xs muted">faqat nom saqlangan</span>') + '</div></div>' : '') +
-    (p.fb ? '<div class="card soft" style="margin-top:12px;border-color:rgba(124,92,255,.3)"><div class="up muted" style="margin-bottom:6px">Mentor izohi</div><p style="margin:0" class="t2">' + esc(p.fb) + '</p>' +
+    (p.fb ? '<div class="card soft" style="margin-top:12px;border-color:rgba(var(--brand-rgb),.3)"><div class="up muted" style="margin-bottom:6px">Mentor izohi</div><p style="margin:0" class="t2">' + esc(p.fb) + '</p>' +
       (p.rev ? '<div class="xs muted" style="margin-top:8px">— ' + esc(p.rev) + '</div>' : '') + '</div>' : '') +
     (adm && p.status === 'in_review' ? '<hr class="hr"><form data-form="review" data-sub="' + p.id + '" class="col" style="gap:12px">' +
       '<div class="row" style="gap:12px"><div class="field grow"><label>Baho (0–100)</label><input class="inp" name="score" type="number" min="0" max="100" value="85" required></div>' +
@@ -1175,7 +1176,7 @@ function galleryModal(item) {
     '<i style="height:8px;border-radius:4px;background:rgba(255,255,255,.24);width:58%;display:block"></i>' +
     '<i style="height:6px;border-radius:4px;background:rgba(255,255,255,.18);width:84%;display:block"></i>' +
     '<i style="height:6px;border-radius:4px;background:rgba(255,255,255,.18);width:42%;display:block"></i>' +
-    '<i style="height:26px;border-radius:6px;background:rgba(198,255,79,.35);width:38%;display:block;margin-top:auto"></i></div></div>' +
+    '<i style="height:26px;border-radius:6px;background:rgba(var(--accent-rgb),.35);width:38%;display:block;margin-top:auto"></i></div></div>' +
     '<div class="row wrap" style="gap:8px;margin-top:12px"><span class="tag a">' + ico('star', 'sm') + 'Hafta tanlovi</span><span class="tag c">' + ico('bolt', 'sm') + '2 haftada qurilgan</span></div>' +
     '<div class="row" style="margin-top:14px;gap:10px"><a class="btn btn-primary grow" href="' + esc(item.link) + '" target="_blank" rel="noopener">' + ico('globe', 'sm') + 'Jonli ko‘rish</a>' +
     '<button class="btn btn-soft" data-act="cheer">' + ico('heart', 'sm') + 'Qo‘llab-quvvatlash</button></div>', 'wide');

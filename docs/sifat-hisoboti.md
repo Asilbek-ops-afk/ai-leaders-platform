@@ -4,7 +4,7 @@ Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** bar
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
 **eng yangi holat — oxirgi bo'lim (v2.6.0)**.
 
-**Oxirgi versiya:** v2.6.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
+**Oxirgi versiya:** v2.6.1 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -871,3 +871,38 @@ Ya'ni ikkala mavzu ham aynan shu uch rangdan o'sadi; hech qanday begona neon ran
 | Chop etish / o'rnatilgan ilova | ✔ 0 nuqson |
 | Skrinshotlar | ✔ **96 ta** yangi palitrada yangilandi |
 | Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.6.0** |
+
+---
+
+## v2.6.1 — Palitra ustidagi ijodiy qatlam va qoldiq ranglar
+
+v2.6.0 dan keyin qo'lda ko'rik (kunduzgi va tungi rejim, 5 yo'nalish) o'tkazildi va uch guruh ish qilindi.
+
+### 1. Qoldiq neon ranglar (nuqson)
+
+Kod bazasida **40 ta eski neon rang** inline uslublarda qolib ketgan edi (binafsha `rgba(124,92,255,…)`,
+moviy `rgba(34,211,238,…)`, limon `rgba(198,255,79,…)`) — mentor izohi kartalari, e'lon bloklari, admin
+ogohlantirishlari, sertifikat ikonkalari, chat pufakchasi. Barchasi mavzu tokenlariga o'tkazildi
+(`rgba(var(--brand-rgb),…)` va h.k.) — endi ular ikki mavzuda ham avtomatik to'g'ri rangda.
+
+**Guruh gerbi (crest)** ham nuqsonli edi: ichidagi to'ldirish binafsha, harfning rangi esa har doim
+och (`#EAF0FF`) — kunduzgi rejimda o'qilmasdi. Endi gerb brend tokenlarida va harf `var(--txt)` bilan.
+
+### 2. Ijodiy qatlam (ranglar jadvalidan olingan imzolar)
+
+| Imzo | Tafsilot |
+|---|---|
+| **Uch rangli chiziq** | Topbar, landing nav, mobil pastki menyu va landing footer'ida 3px chiziq — jadvaldagi uch bo'lakning aynan o'zi (33.4% / 66.7% nisbatda) |
+| **Konsentrik doiralar** | Hero va landing hero'sida jadvaldagi doira motivining takrori (radial-gradient halqalar) |
+| **«Qo'lda qo'yilgan» kartalar** | Landing suzuvchi kartalari ±2° burilgan, hover'da to'g'rilanadi (`prefers-reduced-motion`da o'chadi) |
+| **Avatar oilasi** | Ism bo'yicha rang endi 190–232° (teal→ko'k) oralig'ida: tasodifiy pushti/yashil avatarlar yo'q, lekin yorqinlik farqi saqlanadi — odamlar farqlanadi |
+
+### 3. Tekshiruv natijalari (v2.6.1)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **507 ta, 0 xato** |
+| Sahifa auditi (kontrast, kesilish, to'qnashuv) | ✔ **0 nuqson** (dark + light, 16 sahifa, 6 modal) |
+| Joylashuv · katta klub · chop etish · o'rnatilgan ilova | ✔ 175/0 · 0 · 0 · 0 |
+| Skrinshotlar | ✔ 96 ta yangi holatda |
+| Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.6.1** |

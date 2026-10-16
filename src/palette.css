@@ -129,3 +129,48 @@ body{background:
 .lfoot{background:#0F3D57;color:#E7F0F6}
 [data-theme="light"] .lfoot{background:linear-gradient(180deg,#12405C,#0D3349);color:#F5EEDD}
 [data-theme="light"] .lfoot a{color:#E7F0F6}
+
+/* ==========================================================================
+   4. IJODIY QATLAM — ranglar jadvalidan olingan imzo detallar
+   (v2.6.1) Uch rangli chiziq, konsentrik doiralar motivi va qo'lda
+   qo'yilgandek burilgan kartalar — jadvalning o'zidan olingan uslub.
+   ========================================================================== */
+
+/* 4.1 Imzo: uch rangli 3px chiziq (jadvaldagi uch bo'lakning aynan o'zi) */
+.topbar::before,.lnav::before,.bottomnav::before,.lfoot::before{
+  content:"";position:absolute;left:0;right:0;height:3px;pointer-events:none;z-index:3;
+  background:linear-gradient(90deg,#16587B 0 33.4%,#84B3CE 33.4% 66.7%,#F5EEDD 66.7%)}
+.topbar::before,.lnav::before{top:0}
+.bottomnav::before{top:0;height:2px}
+.lfoot::before{top:-1px}
+[data-theme="light"] .topbar::before,[data-theme="light"] .lnav::before,
+[data-theme="light"] .bottomnav::before,[data-theme="light"] .lfoot::before{
+  background:linear-gradient(90deg,#16587B 0 33.4%,#84B3CE 33.4% 66.7%,#D9CBAE 66.7%)}
+.lnav{position:relative}
+.bottomnav{position:relative}
+.lfoot{position:relative}
+
+/* 4.2 Konsentrik doiralar — jadvaldagi doira motivining takrori */
+.hero::before,.lhero::after{
+  content:"";position:absolute;border-radius:50%;pointer-events:none;
+  background:
+    radial-gradient(closest-side,transparent 58%,rgba(var(--brand-rgb),.34) 59%,transparent 61.5%),
+    radial-gradient(closest-side,transparent 72%,rgba(var(--brand-rgb),.20) 73%,transparent 75.5%),
+    radial-gradient(closest-side,transparent 86%,rgba(var(--brand-rgb),.30) 87%,transparent 89.5%)}
+.hero::before{right:-96px;top:-118px;width:430px;height:430px}
+.lhero::after{right:-130px;top:14%;width:540px;height:540px}
+@media (max-width:900px){.lhero::after{width:330px;height:330px;right:-140px;opacity:.7}}
+
+/* 4.3 Suzuvchi kartalar — qo'lda qo'yilgandek biroz burilgan */
+.lfcard{transform:rotate(-1.8deg);transition:transform .3s cubic-bezier(.2,.85,.25,1),box-shadow .3s}
+.lfcard.b{transform:rotate(1.4deg)}
+.lfcard.c{transform:rotate(-.9deg)}
+.lfcard:hover{transform:rotate(0) translateX(4px)}
+@media (prefers-reduced-motion:reduce){.lfcard,.lfcard.b,.lfcard.c{transform:none}.lfcard:hover{transform:none}}
+
+/* 4.4 Avatar — palitra oilasi (tasodifiy ranglar o'rniga 190–232°) */
+.av{background:linear-gradient(140deg,hsl(var(--h,205) 46% calc(var(--l,44%) + 8%)),hsl(calc(var(--h,205) - 16) 50% var(--l,44%)));
+  color:#FFFDF7;box-shadow:inset 0 1px 0 rgba(255,253,247,.3),0 6px 16px -10px rgba(6,28,41,.55)}
+.av::after{border-color:rgba(255,253,247,.2)}
+[data-theme="light"] .av{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 16px -10px rgba(22,88,123,.45)}
+[data-theme="light"] .av::after{border-color:rgba(255,253,247,.45)}

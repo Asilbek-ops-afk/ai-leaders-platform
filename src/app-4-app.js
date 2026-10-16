@@ -351,7 +351,7 @@ function msgModal(id) {
   openModal(mhead('Xabar yozish', p.name + ' • ' + (p.tg || p.role || '')) +
     '<div class="card soft" style="max-height:190px;overflow:auto"><div class="col" style="gap:12px">' +
     '<div class="row" style="gap:9px;justify-content:flex-start"><div class="card tight soft" style="max-width:75%">Salom! Deadline yaqin, qanday ketyapti?</div></div>' +
-    '<div class="row" style="gap:9px;justify-content:flex-end"><div class="card tight" style="max-width:75%;background:rgba(124,92,255,.18);border-color:rgba(124,92,255,.34)">Ishlayapman, kechqurun yuboraman</div></div>' +
+    '<div class="row" style="gap:9px;justify-content:flex-end"><div class="card tight" style="max-width:75%;background:rgba(var(--brand-rgb),.18);border-color:rgba(var(--brand-rgb),.34)">Ishlayapman, kechqurun yuboraman</div></div>' +
     '</div></div>' +
     '<form data-form="msg" data-to="' + esc(id) + '" style="margin-top:12px">' +
     '<div class="field"><textarea class="inp" name="text" placeholder="Xabar yozing…" required></textarea></div>' +
