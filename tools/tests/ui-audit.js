@@ -21,7 +21,7 @@ const ICONS = ['home', 'book', 'task', 'users', 'clock', 'user', 'dash', 'check'
   'phone', 'mail', 'copy', 'print', 'refresh', 'menu', 'grid', 'bolt', 'pin', 'globe', 'settings', 'users-plus',
   'briefcase', 'hand', 'eye-off', 'key'];
 
-const ROUTES_ADMIN = ['admin', 'students', 'adminTasks', 'adminAdmins', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings'];
+const ROUTES_ADMIN = ['admin', 'registrations', 'students', 'adminTasks', 'adminAdmins', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings'];
 const ROUTES_STUDENT = ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friends', 'info'];
 
 let issues = 0;

@@ -107,6 +107,13 @@ function stateFor(name) {
     { name: '83-v22-landing-savollar', vp: { width: 1440, height: 950 }, steps: ['land-sec:#lsavol', 'faq-open'], data: 'landing' },
     { name: '84-v22-landing-kirish', vp: { width: 1568, height: 768 }, steps: ['land-sec:#lkirish'], data: 'landing' },
     { name: '85-v22-landing-ariza', vp: { width: 1568, height: 900 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing' },
+    /* --- v2.8.0: o'z-o'zini ro'yxatdan o'tkazish --- */
+    { name: '107-ro-royxatdan-1-qadam', vp: { width: 1440, height: 1000 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing' },
+    { name: '108-ro-royxatdan-noutbuk', vp: { width: 1568, height: 768 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing' },
+    { name: '109-ro-royxatdan-mobil', vp: { width: 390, height: 844 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing', mobile: true },
+    { name: '110-ro-parol-tiklash', vp: { width: 1440, height: 940 }, steps: ['land-sec:#lkirish', 'reset-tab'], data: 'landing' },
+    { name: '111-ro-admin-arizalar', vp: { width: 1440, height: 1000 }, steps: ['login-admin', 'go-registrations'], data: 'a1' },
+    { name: '112-ro-admin-sozlamalar-email', vp: { width: 1440, height: 1100 }, steps: ['login-admin', 'go-settings'], data: 'a1' },
     { name: '86-v22-landing-kirish-admin', vp: { width: 1440, height: 1050 }, steps: ['land-sec:#lkirish', 'admin-tab'], data: 'landing' },
     { name: '87-v22-landing-mobil', vp: { width: 390, height: 844 }, steps: ['top'], data: 'landing' },
     { name: '88-v22-landing-kirish-mobil', vp: { width: 390, height: 844 }, steps: ['land-sec:#lkirish'], data: 'landing' },
@@ -181,7 +188,8 @@ function stateFor(name) {
       else if (t === 'cert-modal') setTimeout(() => document.querySelector('[data-act="cert"]')?.click(), 220);
       else if (t === 'top') setTimeout(() => window.scrollTo(0, 0), 160);
       else if (t.startsWith('land-sec:')) setTimeout(() => document.querySelector(t.slice(9))?.scrollIntoView({ block: 'start' }), 150);
-      else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="apply"]')?.click(), 320);
+      else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="register"]')?.click(), 320);
+      else if (t === 'reset-tab') setTimeout(() => document.querySelector('[data-act="reset-open"]')?.click(), 320);
       else if (t === 'admin-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click(), 320);
       else if (t === 'faq-open') setTimeout(() => document.querySelector('.fq .fq-q')?.click(), 320);
       else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();
@@ -210,7 +218,8 @@ function stateFor(name) {
         else if (t === 'cert-modal') setTimeout(() => document.querySelector('[data-act="cert"]')?.click(), 220);
         else if (t === 'top') setTimeout(() => window.scrollTo(0, 0), 160);
         else if (t.startsWith('land-sec:')) setTimeout(() => document.querySelector(t.slice(9))?.scrollIntoView({ block: 'start' }), 150);
-        else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="apply"]')?.click(), 320);
+        else if (t === 'lead-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="register"]')?.click(), 320);
+      else if (t === 'reset-tab') setTimeout(() => document.querySelector('[data-act="reset-open"]')?.click(), 320);
         else if (t === 'admin-tab') setTimeout(() => document.querySelector('[data-act="pick-role"][data-r="admin"]')?.click(), 320);
         else if (t === 'faq-open') setTimeout(() => document.querySelector('.fq .fq-q')?.click(), 320);
         else if (t === 'palette') document.querySelector('[data-act="palette"]')?.click();

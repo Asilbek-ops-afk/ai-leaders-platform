@@ -203,6 +203,9 @@ function vAdmin() {
     (myPerms.length ? '<span class="xs muted">Huquqlar: ' + esc(myPerms.join(', ')) + '</span>' : '') + '</div></div>' +
     '<div class="row wrap" style="gap:9px">' + quick.join('') + '</div></div>';
 
+  /* R17: saytdan o'zi ro'yxatdan o'tgan, tasdiqlash kutayotgan arizalar */
+  if (actionAllowed('students')) h += regDashBanner();
+
   /* Landing sahifasidan kelgan yangi arizalar — birinchi navbatda ko'rinadi */
   if ((S.leads || []).length && actionAllowed('students')) {
     h += '<div class="lrow" style="border-color:rgba(198,255,79,.34);background:rgba(198,255,79,.06);border-radius:var(--r-sm);border:1px solid rgba(198,255,79,.34);margin-bottom:14px">' +
@@ -362,7 +365,7 @@ function vStudents() {
     sorted.map(s => { const p = progress(s); const g = myGroup(s); const late = lateSet.has(s.id);
       return '<div class="trow"><div class="row" style="gap:10px;min-width:0">' + avatar(s, 'sm') +
         '<div style="min-width:0"><div class="small ellip" style="font-weight:750">' + esc(s.name) + '</div>' +
-        '<div class="xs muted ellip">' + esc(s.tg) + ' • ' + esc(medal(s).n) + '</div></div></div>' +
+        '<div class="xs muted ellip">' + esc(s.tg) + ' • ' + esc(medal(s).n) + (accOfSt(s) && accOfSt(s).self ? ' • <span class="tag c" style="font-size:9px;padding:0 5px">o‘zi ro‘yxatdan o‘tgan</span>' : '') + '</div></div></div>' +
         '<span class="cell-hide"><span class="tag ' + (g ? 'p' : '') + '">' + (g ? esc(g.name) : 'biriktirilmagan') + '</span></span>' +
         '<span class="cell-hide"><div class="row" style="gap:8px"><div class="grow">' + bar(p.pct) + '</div><span class="xs muted nowrap">' + p.pct + '%</span></div></span>' +
         '<span class="cell-hide"><div class="row wrap" style="gap:7px">' + (late ? '<span class="tag r">kechikkan</span>' : onl(s) ? '<span class="tag g">onlayn</span>' : '<span class="tag">' + s.last + ' kun</span>') +
@@ -728,6 +731,8 @@ function vAdminSettings() {
       '<div class="xs muted">' + esc(m.role) + ' • ' + esc(m.tg) + ' • ' + S.groups.filter(g => g.mentor === m.id).length + ' jamoa</div></div></div>' +
       '<button class="btn btn-xs btn-soft" data-act="msg" data-id="' + m.id + '">' + ico('chat', 'sm') + '</button>' +
       '<button class="btn btn-xs btn-ghost" data-act="del-mentor" data-id="' + m.id + '">' + ico('trash', 'sm') + '</button></div>').join('') + '</div></div></div>';
+
+  h += '<div class="grid g2">' + regSetupCard() + regMailCard() + '</div>';
 
   h += '<div class="grid g2">' +
     '<div class="card"><div class="card-h"><h2 class="h2">' + ico('star') + 'Galereya</h2>' +

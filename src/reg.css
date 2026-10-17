@@ -1,0 +1,159 @@
+/* ==========================================================================
+   RO'YXATDAN O'TISH VA PAROLNI TIKLASH — interfeys uslublari (v2.8.0)
+   Landing ichidagi ko'p qadamli sehrgar, kod kiritish, muvaffaqiyat kartasi
+   va boshqaruv panelidagi arizalar ro'yxati uchun.
+   ========================================================================== */
+
+/* ---------- 1. Qadam ko'rsatkichi ---------- */
+.reg{display:flex;flex-direction:column;gap:14px}
+.reg-rail{display:flex;align-items:center;gap:6px}
+.reg-dot{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.reg-dot i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:850;font-style:normal;
+  background:var(--panel-3);border:1px solid var(--line);color:var(--muted);position:relative;z-index:1;transition:.2s}
+.reg-dot span{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.reg-dot::before{content:"";position:absolute;top:13px;left:calc(-50% + 13px);right:calc(50% + 13px);height:2px;background:var(--line);z-index:0}
+.reg-dot:first-child::before{display:none}
+.reg-dot.on i{background:linear-gradient(135deg,#7C5CFF,#22D3EE);border-color:transparent;color:#0A0F1E;
+  box-shadow:0 8px 20px -10px rgba(124,92,255,.9)}
+.reg-dot.on span{color:var(--txt)}
+.reg-dot.done i{background:rgba(56,225,160,.18);border-color:rgba(56,225,160,.45);color:#7CF0C3}
+.reg-dot.done::before,.reg-dot.on::before{background:linear-gradient(90deg,rgba(56,225,160,.6),rgba(124,92,255,.6))}
+.reg-head h3{margin:0;font-size:16px;font-weight:850;letter-spacing:-.02em}
+.reg-head p{margin:4px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+.reg-hint{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:rgba(34,211,238,.08);
+  border:1px solid rgba(34,211,238,.22);color:#A6E3F2;font-size:11.5px;line-height:1.55}
+.reg-hint .i{flex:0 0 auto;margin-top:1px}
+.reg-hint.warn{background:rgba(255,180,58,.09);border-color:rgba(255,180,58,.28);color:#FFD79A}
+.reg-hint.ok{background:rgba(56,225,160,.1);border-color:rgba(56,225,160,.3);color:#A6EAD3}
+
+/* ---------- 2. Tanlash kartalari (yo'nalish) ---------- */
+.pick{display:grid;gap:8px}
+.pick.g2{grid-template-columns:1fr 1fr}
+.pick-c{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:12px;border:1px solid var(--line);
+  background:var(--panel-2);font-size:12.5px;font-weight:700;color:var(--txt2);text-align:left;transition:.16s}
+.pick-c .i{color:var(--muted);transition:.16s}
+.pick-c:hover{border-color:var(--line-2);color:var(--txt)}
+.pick-c.on{border-color:rgba(124,92,255,.55);background:linear-gradient(120deg,rgba(124,92,255,.16),rgba(34,211,238,.06));color:var(--txt)}
+.pick-c.on .i{color:#C4B4FF}
+.pick-c.sm{padding:8px 10px;font-size:12px}
+
+/* ---------- 3. Parol kuchi ---------- */
+.pw{display:flex;gap:4px;margin-top:7px}
+.pw i{height:4px;flex:1;border-radius:99px;background:rgba(255,255,255,.09);transition:.2s}
+.pw.s1 i:nth-child(1){background:#FF5C7A}
+.pw.s2 i:nth-child(-n+2){background:#FFB43A}
+.pw.s3 i:nth-child(-n+3){background:#38E1A0}
+.pw.s4 i{background:linear-gradient(90deg,#38E1A0,#22D3EE)}
+.pw-lbl{margin-top:5px;font-size:10.5px;color:var(--muted);font-weight:700}
+.chk{display:flex;gap:9px;align-items:flex-start;font-size:11.5px;color:var(--txt2);line-height:1.5;cursor:pointer}
+.chk input{width:16px;height:16px;margin:1px 0 0;accent-color:#7C5CFF;flex:0 0 auto}
+.field-req{color:#FF9AAB;font-weight:800}
+
+/* ---------- 4. Kod kiritish ---------- */
+.code-boxes{display:flex;gap:8px;justify-content:space-between}
+.code-in{flex:1;min-width:0;text-align:center;font-size:19px;font-weight:850;letter-spacing:.02em;padding:11px 0;
+  border-radius:12px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--txt);font-variant-numeric:tabular-nums}
+.code-in:focus{outline:none;border-color:rgba(124,92,255,.7);box-shadow:0 0 0 3px rgba(124,92,255,.16);background:var(--panel)}
+.reg-mailto{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:99px;background:rgba(124,92,255,.14);
+  border:1px solid rgba(124,92,255,.32);color:#D6CCFF;font-size:11.5px;font-weight:750;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.reg-demo{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;font-weight:800;letter-spacing:.16em;color:#C6FF4F}
+
+/* ---------- 5. Muvaffaqiyat kartasi ---------- */
+.reg-done{display:flex;flex-direction:column;gap:12px;text-align:center;align-items:center}
+.reg-done-ic{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 25%,rgba(56,225,160,.35),rgba(34,211,238,.14));
+  border:1px solid rgba(56,225,160,.45);color:#7CF0C3;box-shadow:0 14px 34px -18px rgba(56,225,160,.9)}
+.nickcard{width:100%;padding:14px;border-radius:16px;border:1px dashed rgba(124,92,255,.5);
+  background:linear-gradient(135deg,rgba(124,92,255,.14),rgba(34,211,238,.06));display:flex;flex-direction:column;gap:4px;align-items:center}
+.nickcard .big-nick{font-size:24px;font-weight:900;letter-spacing:.04em;color:var(--txt);font-family:ui-monospace,Menlo,Consolas,monospace}
+.nickcard .xs{letter-spacing:.14em;text-transform:uppercase}
+
+/* ---------- 6. Parolni tiklash ---------- */
+.reset-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.auth-link{font-size:11.5px;font-weight:750;color:#9DB8FF;display:inline-flex;align-items:center;gap:5px}
+.auth-link:hover{color:#C4B4FF;text-decoration:underline;text-underline-offset:2px}
+
+/* ---------- 7. Boshqaruv: arizalar ro'yxati ---------- */
+.reg-list{display:flex;flex-direction:column;gap:10px}
+.reg-item{border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel-2);overflow:hidden}
+.reg-item[open]{border-color:rgba(124,92,255,.4)}
+.reg-sum{display:flex;align-items:center;gap:11px;padding:11px 13px;cursor:pointer;list-style:none}
+.reg-sum::-webkit-details-marker{display:none}
+.reg-sum .grow{min-width:0}
+.reg-sum b{display:block;font-size:13px;font-weight:800}
+.reg-sum small{display:block;font-size:11px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reg-caret{color:var(--muted);transition:transform .2s}
+.reg-item[open] .reg-caret{transform:rotate(180deg)}
+.reg-body{padding:0 13px 13px;display:flex;flex-direction:column;gap:11px;border-top:1px dashed var(--line);margin-top:-1px;padding-top:12px}
+.reg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.reg-kv{padding:8px 10px;border-radius:10px;background:var(--panel);border:1px solid var(--line);min-width:0}
+.reg-kv .k{font-size:9.5px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.reg-kv .v{font-size:12.5px;font-weight:700;margin-top:3px;word-break:break-word}
+.reg-acts{display:flex;gap:8px;flex-wrap:wrap}
+.reg-quote{font-size:12px;color:var(--txt2);line-height:1.6;padding:9px 11px;border-left:2px solid rgba(124,92,255,.5);background:rgba(124,92,255,.06);border-radius:0 10px 10px 0}
+
+/* ---------- 8. Xabarlar jurnali ---------- */
+.mail-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.mail-row:last-child{border-bottom:0}
+.mail-row .d{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--panel-3);
+  border:1px solid var(--line);color:var(--txt2);flex:0 0 auto}
+.mail-row .t{font-size:12px;font-weight:750;line-height:1.35;word-break:break-word}
+.mail-row .m{font-size:10.5px;color:var(--muted);margin-top:2px;word-break:break-all}
+.mail-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;letter-spacing:.1em;color:#C6FF4F}
+
+/* ---------- 9. Mobil ---------- */
+@media (max-width:520px){
+  .reg-dot span{display:none}
+  .reg-rail{gap:4px}
+  .pick.g2{grid-template-columns:1fr 1fr}
+  .code-boxes{gap:5px}
+  .code-in{font-size:17px;padding:10px 0}
+  .reg-sum small{white-space:normal}
+}
+[data-theme="light"] .reg-hint{background:rgba(34,211,238,.12);color:#04566B;border-color:rgba(34,211,238,.4)}
+[data-theme="light"] .reg-hint.warn{background:rgba(255,180,58,.16);color:#7A4A00;border-color:rgba(255,180,58,.45)}
+[data-theme="light"] .reg-hint.ok{background:rgba(56,225,160,.16);color:#045C40;border-color:rgba(56,225,160,.45)}
+[data-theme="light"] .reg-mailto{background:rgba(124,92,255,.1);border-color:rgba(124,92,255,.3);color:#4B32B8}
+[data-theme="light"] .auth-link{color:#4B32B8}
+[data-theme="light"] .reg-demo{color:#2E6B00}
+[data-theme="light"] .pw i{background:rgba(10,16,36,.1)}
+[data-theme="light"] .mail-code{color:#2E6B00}
+
+/* ---------- 10. Kichik tuzatishlar ---------- */
+.reg-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.code-inp{text-align:center;font-size:19px;font-weight:850;letter-spacing:.34em;font-variant-numeric:tabular-nums;padding-left:.34em}
+.reg .form-err{display:flex;align-items:flex-start;gap:7px}
+.reg .auth-tabs + .reg{margin-top:2px}
+@media (max-width:520px){.reg-g2{grid-template-columns:1fr}}
+/* Tablar: «Ro‘yxatdan o‘tish» kengroq, telefonda ikonkasi yashiriladi */
+.auth-tab.wide{flex:1.45}
+@media (max-width:560px){
+  .auth-tabs{gap:4px;padding:4px}
+  .auth-tabs .auth-tab{padding:9px 6px;font-size:11.5px;gap:4px}
+  .auth-tab.wide .i{display:none}
+}
+.reg-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.reg-stats .big{font-size:20px;font-weight:850;line-height:1.1}
+@media (max-width:400px){.reg-stats{grid-template-columns:1fr 1fr}.reg-stats > :last-child{grid-column:1/-1}}
+/* Qisqa (noutbuk) ekranlarda sehrgar to'liq ko'rinishi uchun bo'sh joyni qisqartirish */
+@media (min-width:900px) and (max-height:830px){
+  .lauth{padding-top:40px;padding-bottom:38px}
+  .lauth-hero{margin-bottom:16px}
+  .lauth-hero .lh2{font-size:clamp(23px,2.5vw,33px)}
+  .lauth-hero .lsub{font-size:13px}
+}
+/* Sehrgar qadamlari orasida o'tishda maydonlar qayta "fade-in" bo'lmasin (tez va jonli) */
+.reg form > *{opacity:1 !important;animation:none !important}
+/* Yorug' mavzuda qadam doiralari o'qilishi uchun */
+[data-theme="light"] .reg-dot i{background:#EEF1FA;border-color:#D6DDEC;color:#5A6480}
+[data-theme="light"] .reg-dot.done i{background:#E3F8EF;border-color:#8FDDBE;color:#0C6B48}
+[data-theme="light"] .reg-dot.on i{background:linear-gradient(135deg,#7C5CFF,#22D3EE);border-color:transparent;color:#fff}
+[data-theme="light"] .reg-dot span{color:#6B7590}
+[data-theme="light"] .reg-dot.on span{color:#141B33}
+[data-theme="light"] .pick-c{background:#fff;border-color:#DDE3F0}
+[data-theme="light"] .pick-c.on{background:linear-gradient(120deg,rgba(124,92,255,.14),rgba(34,211,238,.08));border-color:rgba(124,92,255,.5)}
+[data-theme="light"] .nickcard{background:linear-gradient(135deg,rgba(124,92,255,.1),rgba(34,211,238,.06))}
+[data-theme="light"] .reg-item{background:#fff}
+[data-theme="light"] .reg-kv{background:#F7F9FE}
+[data-theme="light"] .reg-quote{background:rgba(124,92,255,.05)}

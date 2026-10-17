@@ -1,11 +1,11 @@
 {
   "name": "ai-leaders-platform",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "description": "AI Leaders Startup Club — MVP: HEMIS ID + unikal nick bilan kirish, talaba va admin kabinetlari, 6 modul, deadline-jamoa-reyting tizimi",
   "private": true,
   "scripts": {
     "build": "node build.js",
-    "check": "node --check src/app-1-core.js && node --check src/app-2-student.js && node --check src/app-3-admin.js && node --check src/app-4-app.js",
+    "check": "node --check src/app-1-core.js && node --check src/app-2-student.js && node --check src/app-3-admin.js && node --check src/app-4-app.js && node --check src/app-5-craft.js && node --check src/app-6-auth.js",
     "test": "node tools/tests/run.js",
     "test:verbose": "node tools/tests/run.js --verbose",
     "assets": "python3 tools/make-assets.py",

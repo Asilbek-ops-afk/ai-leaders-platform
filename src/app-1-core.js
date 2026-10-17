@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.7.0';
+const APP_VERSION = '2.8.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -115,11 +115,12 @@ function blankState() {
     students: [], submissions: [], walls: {}, gallery: [],
     badges: BADGES.map(b => JSON.parse(JSON.stringify(b))), quests: {}, quizDone: {},
     accounts: [], session: null,
-    settings: { notif: true, weekly: true, publicProfile: true, friendBoard: false },
+    settings: { notif: true, weekly: true, publicProfile: true, friendBoard: false, autoApprove: true,
+      mail: { mode: 'demo', email: '', webhook: '' } },
     meta: { version: APP_VERSION, created: todayISO(), demoPurged: true },
     groups: [], modules: MODULES.map(m => JSON.parse(JSON.stringify(m))),
     lessons: LESSONS.map(l => JSON.parse(JSON.stringify(l))),
-    tasks: [], mentors: [], notifs: [], leads: [],
+    tasks: [], mentors: [], notifs: [], leads: [], registrations: [], reset: [], mail: [],
     friends: {}, incoming: {}, sent: {}, activity: [], weekly: [], monthGrowth: []
   };
 }
@@ -177,6 +178,10 @@ function loadState() {
     }
     const base = blankState();
     Object.keys(base).forEach(k => { if (p[k] === undefined) p[k] = base[k]; });
+    /* R17: ro'yxatdan o'tish standart holatda avtomatik tasdiqlanadi (admin o'chirishi mumkin) */
+    if (!p.settings || typeof p.settings !== 'object') p.settings = base.settings;
+    if (p.settings.autoApprove === undefined) p.settings.autoApprove = true;
+    if (!p.settings.mail || typeof p.settings.mail !== 'object') p.settings.mail = base.settings.mail;
     if (!Array.isArray(p.accounts)) p.accounts = [];
     if (p.session && !p.accounts.some(a => a.id === p.session.acc)) p.session = null;
     if (!p.session) p.session = null;
@@ -423,7 +428,7 @@ const navDefs = {
   team: { l: 'Team', i: 'users' }, deadlines: { l: 'Deadline', i: 'clock' }, friends: { l: 'Friends', i: 'user' }, info: { l: 'Ma’lumot', i: 'shield' },
   admin: { l: 'Dashboard', i: 'dash' }, students: { l: 'Talabalar', i: 'users' }, adminTasks: { l: 'Vazifalar', i: 'task' },
   adminLessons: { l: 'Darslar', i: 'book' }, adminGroups: { l: 'Jamoalar', i: 'flag' }, adminDeadlines: { l: 'Deadline’lar', i: 'cal' },
-  adminAdmins: { l: 'Adminlar', i: 'shield' },
+  registrations: { l: 'Arizalar', i: 'send' }, adminAdmins: { l: 'Adminlar', i: 'shield' },
   stats: { l: 'Statistika', i: 'trend' }, settings: { l: 'Sozlamalar', i: 'settings' }
 };
 const NAV_SEC = {
@@ -433,7 +438,7 @@ const NAV_SEC = {
     ['Ijtimoiy', ['friends', 'info']]
   ],
   admin: [
-    ['Boshqaruv', ['admin', 'students', 'adminTasks', 'adminAdmins']],
+    ['Boshqaruv', ['admin', 'registrations', 'students', 'adminTasks', 'adminAdmins']],
     ['Kontent', ['adminLessons', 'adminGroups', 'adminDeadlines']],
     ['Tahlil', ['stats', 'settings']]
   ]
@@ -464,6 +469,7 @@ function sidebar() {
       let badge = '';
       if (r === 'tasks') { const n = deadlinesOf(st).filter(x => !x.s || x.s.status === 'revise').length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
       if (r === 'adminTasks') { const n = reviewQueue().length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
+      if (r === 'registrations') { const n = regPendingCount(); badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
       if (r === 'deadlines') { const n = deadlinesOf(st).filter(x => !x.s && x.tl.late).length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
       if (r === 'friends') { const n = incomingOf(st).length; badge = n ? '<span class="cnt">' + n + '</span>' : ''; }
       const allowed = canView(r);
@@ -960,9 +966,10 @@ function authCheck(login, pass, role) {
     msg: 'Talaba kirishi faqat NICK bilan. HEMIS ID ni klub adminiga topshiring — u akkaunt ochib, sizga nick beradi.' };
   const acc = authLookup(raw, role);
   if (!acc) return { err: 'notfound', msg: role === 'student'
-    ? 'Bunday nick topilmadi. Nickni klub adminidan so‘rang (masalan: falcon).'
+    ? 'Bunday nick topilmadi. Ro‘yxatdan o‘tganingizda berilgan nickni kiriting yoki «Parolni tiklash» orqali email/telefon bo‘yicha toping.'
     : 'Bunday email topilmadi. Admin akkauntlari email bilan kiradi.' };
-  if (acc.status === 'blocked') return { err: 'blocked', msg: 'Akkaunt bloklangan. Administratorga murojaat qiling.' };
+  if (acc.status === 'blocked') return { err: 'blocked', msg: 'Akkaunt bloklangan yoki ariza rad etilgan. Administratorga murojaat qiling.' };
+  if (acc.status === 'pending') return { err: 'pending', msg: 'Arizangiz hali tasdiqlanmagan. Admin tasdiqlagach emailingizga xabar keladi — keyin shu nick va parol bilan kirasiz.' };
   if (acc.mustSetPass) return { err: 'first', acc };
   if (acc.pass !== hashPass(acc.nick, pass)) return { err: 'pass', msg: 'Parol xato. Yana bir marta urinib ko‘ring.' };
   return { ok: true, acc };
@@ -980,7 +987,7 @@ const isFounderAcc = a => !!a && a.role === 'admin' && (a.adminRole === 'founder
 const founderAcc = () => accounts().find(a => isFounderAcc(a)) || null;
 /* Har bir admin bo'limi qaysi ruxsatni talab qiladi (null — hamma admin uchun ochiq) */
 const ADMIN_SECTION_PERM = {
-  admin: null, students: 'students', adminTasks: 'tasks', adminLessons: 'content',
+  admin: null, registrations: 'students', students: 'students', adminTasks: 'tasks', adminLessons: 'content',
   adminGroups: 'groups', adminDeadlines: 'tasks', stats: 'stats', settings: 'settings', adminAdmins: '__founder'
 };
 const PERM_LABEL = { students: 'Talabalar', tasks: 'Vazifalar', content: 'Kontent', groups: 'Jamoalar', stats: 'Statistika', settings: 'Sozlamalar', admins: 'Adminlar' };
@@ -994,7 +1001,7 @@ function canView(route) {
   if (need === '__founder') return isFounder();
   return canPerm(need);
 }
-const ADMIN_ONLY_ROUTES = ['admin', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings', 'adminAdmins'];
+const ADMIN_ONLY_ROUTES = ['admin', 'registrations', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings', 'adminAdmins'];
 /* Amal (tugma/forma) uchun ruxsat: true bo'lsa — ruxsat bor */
 function actionAllowed(perm) {
   const a = meAcc();

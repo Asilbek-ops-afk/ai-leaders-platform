@@ -8,7 +8,7 @@
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
 | 🧪 **Testlar** | `npm test` → **507 ta tekshiruv, 0 xato** • `test:ui` (audit + kontrast) • `test:scale` (200 talaba) • `test:print` (PDF) • `test:standalone` (PWA) |
-| 🔐 **Kirish** | Talaba: **faqat nick** + parol (HEMIS ID kirishda ishlatilmaydi) • Admin: email + parol |
+| 🔐 **Kirish** | Talaba: **saytdan o'zi ro'yxatdan o'tadi** → unikal nick + parol • Admin: email + parol • Parolni tiklash: email/telefon kodi |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
 | 📦 **Hajm** | Bitta `index.html` (~330 KB), tashqi kutubxonasiz |
@@ -99,19 +99,27 @@ Yorliqlar oynasini sayt ichidan ko'rish: yuqori paneldagi `?` tugmasi yoki `Shif
 
 ---
 
-### 5. Kirish tizimi va akkauntlar (MVP)
+### 5. Ro'yxatdan o'tish, kirish va parolni tiklash (v2.8.0)
 
-**Talabalar** klubga HEMIS ID topshiradi → admin platformaga kiritadi → tizim har bir HEMIS ID uchun
-**unikal nick** beradi (21-school uslubida). Parolni talaba **birinchi kirishda o'zi** o'rnatadi —
-admin parol tarqatmaydi.
+**Talabalar o'zi ro'yxatdan o'tadi** (21-school uslubida): saytdagi 4 qadamli formani to'ldiradi,
+emailiga kelgan 6 xonali kodni tasdiqlaydi — tizim **unikal nick** beradi va akkaunt darhol faollashadi.
+Parolni talaba ro'yxatdan o'tishda **o'zi** o'rnatadi; admin parol tarqatmaydi.
 
 | Qadam | Kim | Nima bo'ladi |
 |---|---|---|
-| 1 | Talaba | HEMIS ID (12 xona) ni **klubga (adminga) topshiradi** — bu kirish uchun emas |
-| 2 | Admin | `Talabalar → Talaba qo'shish`: ism, HEMIS ID, telefon, jamoa |
-| 3 | Tizim | Shu HEMIS ID uchun **takrorlanmas nick** yaratadi + **Kirish kartochkasi** (chop etish/nusxalash) |
-| 4 | Talaba | Saytga **faqat nick** bilan kiradi → parolni o'zi o'rnatadi |
-| 5 | Keyingi kirishlar | Nick + o'zi tanlagan parol |
+| 1 | Talaba | Landing → **Ro'yxatdan o'tish**: ism, tug'ilgan sana, shahar, telefon, email, yo'nalish, parol |
+| 2 | Tizim | Email/telefon bandligini tekshiradi → emailga **6 xonali kod** yuboradi |
+| 3 | Talaba | Kodni kiritadi → akkaunt faollashadi, **unikal nick** (`swift_falcon`) beriladi |
+| 4 | Tizim | Nick, kirish yo'riqnomasi va keyingi xabarlar **emailga** yuboriladi |
+| 5 | Keyingi kirishlar | **Faqat nick** + o'zi tanlagan parol |
+| 6 | Parol esdan chiqsa | «Parolni tiklash»: nick / email / telefon → kod → yangi parol (adminga murojaat shart emas) |
+
+HEMIS ID endi **ixtiyoriy** maydon (12 xona) — kirishda ishlatilmaydi, faqat klub hisoboti uchun.
+Bitta HEMIS ID = bitta akkaunt; telefon va email ham takrorlanmaydi.
+
+**Xabarlar:** tasdiqlash kodi, ariza holati, parol tiklash va admin xabarlari — hammasi
+**emailga** yuboriladi. Hozir backend yo'q, shuning uchun xabarlar **demo rejimda** ilova ichidagi
+jurnalga yoziladi (Sozlamalar → Email); haqiqiy yuborish uchun FormSubmit yoki webhook ulanadi.
 
 **Admin va mentorlar** (7 kishi) email + parol bilan kiradi. Ular uchun alohida **Adminlar** bo'limi bor:
 rol (Founder, Bosh mentor, Mentor, Kontent menejer, Kurator), ruxsatlar, bloklash/o'chirish, kirish kartochkalari.
@@ -254,7 +262,7 @@ talaba qo'shadi, jamoa tuzadi, vazifa beradi, adminlarni tayinlaydi.
 
 | Qadam | Nima qilinadi |
 |---|---|
-| 1 | **Talaba qo'shish** — admin HEMIS ID (12 xona) kiritadi, tizim unikal nick beradi, kirish kartochkasi chiqadi |
+| 1 | **Talabalar o'zi qo'shiladi** — saytdagi «Ro'yxatdan o'tish» orqali (admin faqat kuzatadi) yoki `Talaba qo'shish` bilan qo'lda |
 | 2 | **Jamoa tuzish** — 3–4 talaba, mentor juftligi, jamoa devori |
 | 3 | **Vazifa + deadline** — modulga bog'lanadi, talabalar topshiradi, admin/mentor baholaydi |
 | 4 | **Admin va mentor qo'shish** — har biriga alohida rol va ruxsat beriladi |
@@ -269,10 +277,14 @@ progressi, hero (qahramon) bloki, «Klub nima beradi» 6 karta, 4 qadamli jarayo
 fon porlaydi va **karta 3D burilib ochiladi** (perspective + rotateX), maydonlar ketma-ket chiqadi.
 Animatsiya `prefers-reduced-motion` sozlamasini hurmat qiladi.
 
-Uch tab: **Talaba** (nick/HEMIS ID + parol), **Admin / Mentor** (email + parol) va **Ariza**
-(ro'yxatdan o'tish). Ariza **Admin → Talabalar → «Yangi arizalar»** blokida ko'rinadi: bir tugma
-bilan talabaga aylantiriladi (ism, telefon, telegram, maqsad avtomatik to'ldiriladi — faqat HEMIS ID
-kiritasiz), shundan keyin kirish kartochkasi chiqadi. Dashboard ham yangi arizalar haqida ogohlantiradi.
+Uch tab: **Kirish** (nick + parol), **Ro'yxatdan o'tish** (5 qadamli sehrgar) va **Admin**
+(email + parol). Ro'yxatdan o'tish sehrgari: shaxsiy ma'lumot → telefon/email → yo'nalish va maqsad →
+parol → emailga kelgan kod. Yakunda **nick kartasi** chiqadi va xush kelibsiz xati emailga ketadi.
+
+**Admin → Arizalar** bo'limida barcha ro'yxatdan o'tganlar ko'rinadi: holat (yangi / tasdiqlangan /
+rad etilgan), to'liq ma'lumot, «Xabar yozish» (email orqali) va tasdiqlash/rad etish.
+Sozlamalarda **avtomatik tasdiqlash** yoqilgan (talaba kodni tasdiqlagach darhol kiradi) — o'chirilsa,
+arizalar admin tasdig'ini kutadi. Dashboard yangi arizalar haqida ogohlantiradi.
 
 ### Dizayn tizimi (v2.3.0 sayqali)
 
@@ -290,10 +302,10 @@ kiritasiz), shundan keyin kirish kartochkasi chiqadi. Dashboard ham yangi arizal
 | **Bosma (print)** | Kirish kartochkasi toza oq sahifada chiqadi: orqa fon o'chadi, tugmalar `.no-print`, karta konturi A4'ga sig'adi + `print-only` manzil izohi |
 | **Mobil** | Bottom-nav 5 bo'lim, FAB, qisqa qidiruv maydoni, tab yorliqlari siqilmaydi (≤460px) |
 
-**Nima uchun HEMIS ID kirishda ishlatilmaydi?** HEMIS ID — talabaning identifikatori, uni talaba klubga
-topshiradi va admin akkaunt ochishda kiritadi. Kirish uchun esa har bir HEMIS ID uchun **bitta unikal nick**
-beriladi: bitta HEMIS ID = bitta nick = bitta akkaunt (takroriy ro'yxatga olish bloklanadi). Talaba HEMIS ID ni
-kirish maydoniga yozsa, platforma aniq tushuntiradi va adminga yo'naltiradi.
+**Nima uchun HEMIS ID kirishda ishlatilmaydi?** HEMIS ID — talabaning tashqi identifikatori (universitet
+tizimi). Platforma kirishi uchun har bir talabaga **unikal nick** beriladi: bitta HEMIS ID = bitta nick =
+bitta akkaunt. Talaba HEMIS ID ni kirish maydoniga yozsa, platforma aniq tushuntiradi va parolni
+tiklash/ro'yxatdan o'tish yo'lini ko'rsatadi.
 
 **Real talabalar ro'yxatini ommaviy yuklash** (CSV: ism, HEMIS ID, telefon, jamoa, telegram, maqsad):
 

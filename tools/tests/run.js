@@ -83,7 +83,23 @@ window.AIL = {
   lastImport: () => { const u = UI.lastImport; return u ? { accIds: u.accIds.length, studentIds: u.studentIds.length, groupIds: u.groupIds.length } : null; },
   impStatus: () => accounts().filter(a => a.imp).length,
   accs: () => accounts().map(a => ({ id: a.id, nick: a.nick, role: a.role, imp: !!a.imp, studentId: a.studentId })),
-  version: () => APP_VERSION
+  version: () => APP_VERSION,
+  /* R17: o'z-o'zini ro'yxatdan o'tkazish va parolni tiklash */
+  regValidate: (d2, step) => { const r = regValidate(d2, step); return { ok: !!r.ok, step: r.step || null, msg: r.msg || '' }; },
+  regStart: d2 => { const r = regStart(d2); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', step: r.step || null, reg: r.reg ? { id: r.reg.id, nick: r.reg.nick, code: r.reg.code, status: r.reg.status } : null }; },
+  regVerify: (id, code) => { const r = regVerify(id, code); return { err: r.err || null, ok: !!r.ok, msg: r.msg || '',
+    acc: r.acc ? { id: r.acc.id, nick: r.acc.nick, status: r.acc.status, studentId: r.acc.studentId } : null,
+    reg: r.reg ? { id: r.reg.id, status: r.reg.status, nick: r.reg.nick } : null }; },
+  regApprove: id => { const r = regApprove(id); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '' }; },
+  regReject: (id, why) => { const r = regReject(id, why); return { ok: !!r.ok, err: r.err || null }; },
+  accounts: () => accounts().map(a => ({ id: a.id, nick: a.nick, role: a.role, status: a.status, self: !!a.self, studentId: a.studentId })),
+  regs: () => (S.registrations || []).map(r => ({ id: r.id, nick: r.nick, status: r.status, verified: !!r.verified, email: r.email, phone: r.phone, accId: r.accId })),
+  genPairNick: () => genPairNick(),
+  passStrength: p2 => passStrength(p2),
+  resetRequest: l => { const r = resetRequest(l); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', rec: r.rec ? { id: r.rec.id, code: r.rec.code } : null, nick: r.acc ? r.acc.nick : null }; },
+  resetConfirm: (id, code, pass) => { const r = resetConfirm(id, code, pass); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '' }; },
+  mails: () => (S.mail || []).map(m => ({ kind: m.kind, to: m.to, subject: m.subject, code: m.code, status: m.status })),
+  setSetting: (k, v) => { S.settings[k] = v; save(); }
 };`;
 
 function boot(preload) {
@@ -240,7 +256,7 @@ group('1. Kirish ekrani va brend');
 {
   const A = bootF();
   t('auth ekrani ochiladi', A.has('Tizimga kirish'));
-  t('ikki rol tabi (Talaba / Admin)', A.has('Talaba') && A.has('Admin / Mentor'));
+  t('uch tab: Kirish / Ro‘yxatdan o‘tish / Admin', A.has('Kirish') && A.has('Ro‘yxatdan o‘tish') && A.has('Admin') && A.d.querySelectorAll('.auth-tab').length === 3);
   t('brend va slogan', A.has('0 dan startapgacha'));
   t('namuna rejimi tugmalari olib tashlangan (quick/quick-acc yo‘q)', !A.d.querySelector('[data-act="quick"]') && !A.d.querySelector('[data-act="quick-acc"]') && !A.has('Namuna'));
   t('talaba formasi: HEMIS ID yoki nick maydoni', !!A.d.querySelector('[data-form="login-student"] input[name="login"]'));
@@ -832,7 +848,7 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 2.7.0', B.w.AIL.version() === '2.7.0');
+t('versiya 2.8.0', B.w.AIL.version() === '2.8.0');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ============ 17. LANDING SAHIFASI: HERO, BO'LIMLAR, KIRISH/ARIZA ============
@@ -851,9 +867,9 @@ t('bo‘limlar: imkoniyatlar, jarayon, dastur, savollar', ['#limkon', '#ljarayon
 t('imkoniyat kartalari (6 ta)', C.d.querySelectorAll('.lfeat-c').length === 6);
 t('jarayon 4 qadam', C.d.querySelectorAll('.lstep').length === 4);
 t('dastur modullari bazadan (6 ta)', C.d.querySelectorAll('.lmodc').length === C.w.AIL.S.modules.length);
-t('savol-javob 5 ta, akkordeon yopiq', (() => {
+t('savol-javob 6 ta, akkordeon yopiq', (() => {
   const qs = C.d.querySelectorAll('.fq');
-  return qs.length === 5 && !qs[0].classList.contains('open');
+  return qs.length === 6 && !qs[0].classList.contains('open');
 })());
 t('FAQ bosilganda ochiladi (aria-expanded)', (() => {
   C.d.querySelector('.fq .fq-q').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
@@ -864,38 +880,114 @@ t('kirish/ariza bo‘limi va 3 tab', !!C.d.querySelector('#lkirish') && C.d.quer
 t('ochilish animatsiyasi elementi (rev-card) joyida', !!C.d.querySelector('#lkirish .rev-card'));
 t('kuzatuvchi bo‘lmagan muhitda ham ko‘rinadi (in klasslari)', C.d.querySelector('.lauth').classList.contains('in') &&
   C.d.querySelectorAll('.reveal.in').length > 0);
-t('«Hoziroq boshlash» → ariza tabi', (() => {
-  C.d.querySelector('[data-act="to-apply"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
-  return C.w.AIL.UI.authRole === 'apply' && !!C.d.querySelector('[data-form="lead"]');
+t('«Hoziroq boshlash» → ro‘yxatdan o‘tish sehrgari', (() => {
+  C.d.querySelector('[data-act="to-register"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
+  return C.w.AIL.UI.authRole === 'register' && !!C.d.querySelector('form[data-form="reg-step"]') &&
+    C.d.querySelectorAll('#lkirish .reg-dot').length === 5;
 })());
-t('ariza xatolari: ism va telefon', (() => {
-  const r1 = C.w.AIL.lead({ name: 'Al', phone: '+998901112233' });
-  const r2 = C.w.AIL.lead({ name: 'Dilnoza Karimova', phone: '123' });
-  return r1.err === 'name' && r2.err === 'phone';
+t('sehrgar 1-qadam: ism, familiya, sana, shahar, jins', (() => {
+  const f = C.d.querySelector('form[data-form="reg-step"]');
+  return ['name', 'surname', 'birth', 'city'].every(n => !!f.querySelector('[name="' + n + '"]')) &&
+    f.querySelectorAll('[data-act="reg-pick"][data-k="gender"]').length === 2;
 })());
-t('ariza saqlanadi + takroriy raqam bloklanadi', (() => {
-  const r = C.w.AIL.lead({ name: 'Dilnoza Karimova', phone: '+998 90 111 22 33', tg: '@dilnoza', goal: 'AI mahsulot' });
+t('1-qadam tekshiruvi: bo‘sh ism / yosh chegarasi', (() => {
+  const a = C.w.AIL.regValidate({ surname: 'Karimova' }, 1);
+  const b = C.w.AIL.regValidate({ name: 'Dilnoza', surname: 'Karimova', birth: '2020-01-01', gender: 'ayol', city: 'Toshkent' }, 1);
+  return a.step === 1 && /Ismni kiriting/.test(a.msg) && /12 yosh/.test(b.msg);
+})());
+t('2-qadam: telefon/email bandligi tekshiriladi', (() => {
+  const base = { name: 'Dilnoza', surname: 'Karimova', birth: '2004-05-12', gender: 'ayol', city: 'Toshkent' };
+  const dupPhone = C.w.AIL.regValidate(Object.assign({}, base, { phone: '+998 90 111 22 33', email: 'yangi@gmail.com' }), 2);
+  const dupMail = C.w.AIL.regValidate(Object.assign({}, base, { phone: '+998 90 777 88 99', email: 'bekzod@aileaders.uz' }), 2);
+  const badMail = C.w.AIL.regValidate(Object.assign({}, base, { phone: '+998 90 777 88 99', email: 'xato-mail' }), 2);
+  return /allaqachon/.test(dupPhone.msg) && /allaqachon/.test(dupMail.msg) && /Email manzil/.test(badMail.msg);
+})());
+t('2-qadam: HEMIS ID 12 xonali bo‘lishi shart (yoki bo‘sh)', (() => {
+  const base = { name: 'Dilnoza', surname: 'Karimova', birth: '2004-05-12', gender: 'ayol', city: 'Toshkent', phone: '+998 90 777 88 99', email: 'yangi@gmail.com' };
+  return !C.w.AIL.regValidate(Object.assign({}, base, { hemis: '123' }), 2).ok &&
+    C.w.AIL.regValidate(Object.assign({}, base, { hemis: '' }), 2).ok;
+})());
+t('3-qadam: yo‘nalish, daraja, maqsad majburiy', (() => {
+  const base = { name: 'Dilnoza', surname: 'Karimova', birth: '2004-05-12', gender: 'ayol', city: 'Toshkent', phone: '+998 90 777 88 99', email: 'yangi@gmail.com' };
+  return !C.w.AIL.regValidate(base, 3).ok &&
+    C.w.AIL.regValidate(Object.assign({}, base, { direction: 'ai', level: 'yangi', goal: 'AI bilan ilova yasashni o‘rganmoqchiman', source: 'Telegram' }), 3).ok;
+})());
+t('4-qadam: parol kuchi va shartlar roziligi', (() => {
+  const base = { name: 'Dilnoza', surname: 'Karimova', birth: '2004-05-12', gender: 'ayol', city: 'Toshkent', phone: '+998 90 777 88 99', email: 'yangi@gmail.com', direction: 'ai', level: 'yangi', goal: 'AI bilan ilova yasashni o‘rganmoqchiman', source: 'Telegram' };
+  const short = C.w.AIL.regValidate(Object.assign({}, base, { pass: '123', pass2: '123', terms: 'on' }), 4);
+  const noTerm = C.w.AIL.regValidate(Object.assign({}, base, { pass: 'Dilnoza2026', pass2: 'Dilnoza2026' }), 4);
+  return /kamida 6/.test(short.msg) && /shartlariga/.test(noTerm.msg) &&
+    C.w.AIL.passStrength('Dilnoza2026') >= 2 && C.w.AIL.passStrength('123') === 0;
+})());
+t('nick avtomatik va unikal beriladi (ikki so‘zli)', (() => {
+  const n1 = C.w.AIL.genPairNick(), n2 = C.w.AIL.genPairNick();
+  return /^[a-z]+_[a-z]+$/.test(n1) && n1 !== n2 && !C.w.AIL.accounts().some(a => a.nick === n1);
+})());
+let REG17 = null;
+t('ariza boshlanadi: kod emailga yuboriladi, nick zaxiralanadi', (() => {
+  const r = C.w.AIL.regStart({ name: 'Sardor', surname: 'Yusupov', birth: '2003-02-11', gender: 'erkak', city: 'Buxoro',
+    phone: '+998 90 555 44 33', email: 'sardor17@gmail.com', hemis: '555666777888', direction: 'dasturlash', level: 'asos',
+    goal: 'Backend dasturchi bo‘lib jamoaga qo‘shilish', source: 'Instagram', pass: 'Sardor2026', pass2: 'Sardor2026', terms: 'on' });
   if (!r.ok) return false;
-  const dup = C.w.AIL.lead({ name: 'Boshqa Odam', phone: '998901112233' });
-  return C.w.AIL.S.leads.length === 1 && dup.err === 'dup' && C.w.AIL.S.leads[0].status === 'new';
+  REG17 = r.reg;
+  const mails = C.w.AIL.mails();
+  return C.w.AIL.regs().length === 1 && /^\d{6}$/.test(r.reg.code) && !C.w.AIL.accounts().some(a => a.nick === r.reg.nick) &&
+    mails.some(m => m.kind === 'reg-code' && m.to === 'sardor17@gmail.com' && m.code === r.reg.code) &&
+    mails.some(m => m.kind === 'reg-code-sms');
 })());
-t('ariza formasi submit → rahmat ekrani', (() => {
-  C.set('[data-form="lead"] input[name="name"]', 'Sardor Bekov');
-  C.set('[data-form="lead"] input[name="phone"]', '+998 91 234 56 78');
-  C.submit('[data-form="lead"]');
-  return C.w.AIL.UI.leadDone === 'Sardor Bekov' && C.has('Ariza qabul qilindi') && C.w.AIL.S.leads.length === 2;
+t('xato kod qabul qilinmaydi', (() => {
+  const bad = C.w.AIL.regVerify(REG17.id, '000000');
+  return bad.err === 'code' && C.w.AIL.regs()[0].verified === false && !C.w.AIL.accounts().some(a => a.nick === REG17.nick);
 })());
-t('«Yana ariza topshirish» formani qaytaradi', (() => {
-  C.d.querySelector('[data-act="lead-reset"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
-  return !!C.d.querySelector('[data-form="lead"]') && C.w.AIL.UI.leadDone === null;
+t('to‘g‘ri kod → akkaunt darhol faol + talaba profili + xush kelibsiz xati', (() => {
+  const ok = C.w.AIL.regVerify(REG17.id, REG17.code);
+  if (!ok.ok) return false;
+  const a = C.w.AIL.accById(ok.acc.id);
+  const stud = C.w.AIL.S.students.find(x => x.id === ok.acc.studentId);
+  return a.status === 'active' && a.self === true && a.mustSetPass === false && !!stud && stud.name === 'Sardor Yusupov' &&
+    C.w.AIL.regs()[0].status === 'approved' &&
+    C.w.AIL.mails().some(m => m.kind === 'approved' && new RegExp(REG17.nick).test(m.subject));
+})());
+t('bir xil email/telefon bilan qayta ariza rad etiladi', (() => {
+  const again = C.w.AIL.regStart({ name: 'Boshqa', surname: 'Odam', birth: '2002-01-01', gender: 'erkak', city: 'Toshkent',
+    phone: '+998 90 555 44 33', email: 'sardor17@gmail.com', direction: 'ai', level: 'yangi',
+    goal: 'Bir xil telefon bilan ariza yubormoqchiman', source: 'Telegram', pass: 'Boshqa2026', pass2: 'Boshqa2026', terms: 'on' });
+  return !again.ok && again.step === 2 && /allaqachon/.test(again.msg);
+})());
+t('avtomatik tasdiqlash o‘chirilsa — ariza «pending» bo‘ladi va admin tasdiqlaydi', (() => {
+  C.w.AIL.setSetting('autoApprove', false);
+  const r = C.w.AIL.regStart({ name: 'Nilufar', surname: 'Qodirova', birth: '2005-03-03', gender: 'ayol', city: 'Nukus',
+    phone: '+998 91 222 33 44', email: 'nilufar17@gmail.com', direction: 'dizayn', level: 'tajriba',
+    goal: 'Mahsulot dizayni bo‘yicha portfel yig‘ish', source: 'Instagram', pass: 'Nilufar2026', pass2: 'Nilufar2026', terms: 'on' });
+  if (!r.ok) return false;
+  const v = C.w.AIL.regVerify(r.reg.id, r.reg.code);
+  if (!v.ok || v.acc.status !== 'pending') return false;
+  const chk = C.w.AIL.check(r.reg.nick, 'Nilufar2026', 'student');
+  const ap = C.w.AIL.regApprove(r.reg.id);
+  const after = C.w.AIL.accById(v.acc.id);
+  return chk.err === 'pending' && /tasdiqlanmagan/.test(chk.msg) && ap.ok && after.status === 'active' && !!after.studentId;
+})());
+t('parolni tiklash: email yoki telefon bilan kod, eski kod qayta ishlamaydi', (() => {
+  C.w.AIL.setSetting('autoApprove', true);
+  const acc = C.w.AIL.check('falcon', 'x', 'student');
+  const byMail = C.w.AIL.resetRequest('sardor17@gmail.com');
+  const byPhone = C.w.AIL.resetRequest('+998 90 111 22 33');
+  const noOne = C.w.AIL.resetRequest('yoq_bunday');
+  if (!byMail.ok || !byPhone.ok || noOne.err !== 'notfound') return false;
+  const wrong = C.w.AIL.resetConfirm(byMail.rec.id, '000000', 'Yangi2026');
+  const ok = C.w.AIL.resetConfirm(byMail.rec.id, byMail.rec.code, 'Yangi2026');
+  const reuse = C.w.AIL.resetConfirm(byMail.rec.id, byMail.rec.code, 'Boshqa2026');
+  const login = C.w.AIL.check(byMail.nick, 'Yangi2026', 'student');
+  return wrong.err === 'code' && ok.ok && reuse.err === 'used' && login.ok === true && !!acc;
 })());
 t('«Tizimga kirish» → talaba tabi, login formasi', (() => {
   C.d.querySelector('[data-act="to-auth"]').dispatchEvent(new C.w.MouseEvent('click', { bubbles: true }));
   return C.w.AIL.UI.authRole === 'student' && !!C.d.querySelector('[data-form="login-student"]');
 })());
-t('kirish maydoni «Nick (kirish uchun)» va HEMIS izohi', (() => {
+t('kirish maydoni: nick izohi va «Parolni tiklash» havolasi', (() => {
   const f = C.d.querySelector('[data-form="login-student"]');
-  return !!f && /Nick \(kirish uchun\)/.test(f.textContent) && /HEMIS ID kirishda ishlatilmaydi/.test(f.textContent);
+  return !!f && /Nick \(kirish uchun\)/.test(f.textContent) && /ro‘yxatdan o‘tganingizda/.test(f.textContent) &&
+    !!f.querySelector('[data-act="reset-open"]') && !!f.querySelector('[data-act="auth-help"]');
 })());
 t('HEMIS ID kiritilsa — kirish rad etiladi va adminga yo‘naltiriladi', (() => {
   const f = C.d.querySelector('[data-form="login-student"]');
@@ -937,9 +1029,9 @@ t('kirishdan keyin landing DOMdan olib tashlandi', C.d.querySelector('.land') ==
 C.click('[data-act="logout"]');
 t('chiqishda landing qaytadi (authscreen)', appCls() === 'app authscreen' && !!C.d.querySelector('.land'));
 t('chiqishdan keyin hero va kirish bo‘limi joyida', !!C.d.querySelector('.lhero') && !!C.d.querySelector('#lkirish .rev-card'));
-t('qayta kirilganda ariza raqami esda qoladi (xato bermaydi)', (() => {
-  const dup = C.w.AIL.lead({ name: 'Yangi Odam', phone: '998901112233' });
-  return dup.err === 'dup';
+t('qayta kirilganda sehrgar holati xato bermaydi', (() => {
+  C.click('[data-act="pick-role"][data-r="register"]');
+  return !!C.d.querySelector('form[data-form="reg-step"]') && C.d.querySelectorAll('.reg-dot').length === 5 && C.errors.length === 0;
 })());
 t('JS xatosi yo‘q (landing)', C.errors.length === 0);
 
@@ -974,7 +1066,7 @@ t('xato parol rad etiladi', E.w.AIL.check(E.w.AIL.accByHemis('222222222222').nic
 t('parol hesh sifatida saqlanadi (ochiq matn emas)', !E.w.AIL.accByHemis('222222222222').pass.includes('sahro2026'));
 t('mavjud bo‘lmagan nick “topilmadi” qaytaradi + maslahat', (() => {
   const r = E.w.AIL.check('yoq-bunday-nick', 'x', 'student');
-  return r.err === 'notfound' && /adminidan so‘rang/.test(r.msg);
+  return r.err === 'notfound' && /Parolni tiklash/.test(r.msg);
 })());
 /* — bloklangan akkaunt — */
 t('bloklangan akkaunt kira olmaydi', (() => { const a = E.w.AIL.accByHemis('222222222222'); E.w.AIL.setStatus(a.id, 'blocked'); const r = E.w.AIL.check(a.nick, 'sahro2026', 'student'); E.w.AIL.setStatus(a.id, 'active'); return r.err === 'blocked'; })());
@@ -1509,9 +1601,9 @@ group('25. Dizayn sayqali: parol ko‘zi, ikonkalar, bosma, skrol-spy');
     return L.d.querySelectorAll('#lnav [data-sec].on').length <= 1;
   })());
   t('kirish bo‘limida «Yordam olish» havolasi', L.has('Yordam olish') && !!L.d.querySelector('[data-act="auth-help"]'));
-  t('ariza formasi ham parol ko‘ziga ega (parol o‘rnatish)', (() => {
-    hit(L, '[data-act="pick-role"][data-r="apply"]');
-    return !!L.d.querySelector('[data-form="lead"]');
+  t('ro‘yxatdan o‘tish sehrgari landingdan ochiladi', (() => {
+    hit(L, '[data-act="pick-role"][data-r="register"]');
+    return !!L.d.querySelector('[data-form="reg-step"]') && L.d.querySelectorAll('.reg-dot').length === 5;
   })());
   t('JS xatosi yo‘q (dizayn sayqali)', L.errors.length === 0 && P.errors.length === 0 && A1.errors.length === 0 && S1.errors.length === 0);
 }
@@ -1522,7 +1614,7 @@ group('25. Dizayn sayqali: parol ko‘zi, ikonkalar, bosma, skrol-spy');
 group('26. Sahifa auditi: KPI, jadval, matn butunligi');
 {
   const ICONS_RE = /^(home|book|task|users|clock|user|dash|check|check-c|plus|search|bell|out|flame|trophy|medal|star|play|video|doc|link|code|upload|cal|right|left|down|up|x|sun|moon|target|rocket|ai|chat|terminal|cube|flag|award|cert|shield|heart|spark|filter|download|edit|trash|eye|send|lock|alert|trend|help|phone|mail|copy|print|refresh|menu|grid|bolt|pin|globe|settings|users-plus|briefcase|hand|eye-off|key)$/;
-  const ADMIN_ROUTES = ['admin', 'students', 'adminTasks', 'adminAdmins', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings'];
+  const ADMIN_ROUTES = ['admin', 'registrations', 'students', 'adminTasks', 'adminAdmins', 'adminLessons', 'adminGroups', 'adminDeadlines', 'stats', 'settings'];
   const STUD_ROUTES = ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friends', 'info'];
   const scan = (Q2, label) => {
     const app = Q2.d.getElementById('app');
@@ -1598,7 +1690,7 @@ group('27. Katta klub: 200 talaba, unumdorlik va raqamlar izchilligi');
 /* ============= 21. STATIK QO'RIQCHI: MANBA KODDA NAMUNA MA'LUMOT YO'Q ======= */
 group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
 {
-  const srcFiles = ['app-1-core.js', 'app-2-student.js', 'app-3-admin.js', 'app-4-app.js'];
+  const srcFiles = ['app-1-core.js', 'app-2-student.js', 'app-3-admin.js', 'app-4-app.js', 'app-5-craft.js', 'app-6-auth.js'];
   const srcAll = srcFiles.map(f => fs.readFileSync(path.join(ROOT, 'src', f), 'utf8')).join('\n');
   const demoSt = FIX.demoState();
   const stNames = demoSt.students.map(x => x.name).filter(x => x && x.length > 5);
@@ -1613,11 +1705,11 @@ group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
   t('src fixtura faylini chaqirmaydi', !/fixtures/.test(srcAll) && !/require\(/.test(srcAll));
   t('tozalash funksiyasi mavjud (purgeDemoState)', /function purgeDemoState\(/.test(srcAll) && /needsSetup/.test(srcAll) && /function createFounderAccount\(/.test(srcAll));
   t('qurilgan index.html ham namuna ismlaridan xoli', stNames.every(x => !HTML.includes(x)) && adNames.every(x => !HTML.includes(x)));
-  t('versiya izchil (src = sw.js = package.json = 2.7.0)', (() => {
+  t('versiya izchil (src = sw.js = package.json = 2.8.0)', (() => {
     const ver = /const APP_VERSION = '([^']+)'/.exec(srcAll)[1];
     const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-    return ver === '2.7.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
+    return ver === '2.8.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
   })());
 }
 

@@ -2,9 +2,9 @@
 
 Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** barcha kamchiliklarni,
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
-**eng yangi holat — oxirgi bo'lim (v2.5.0)**.
+**eng yangi holat — oxirgi bo'lim (v2.8.0)**.
 
-**Oxirgi versiya:** v2.5.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (507 test + sahifa auditi, 175 joylashuv, 96 skrinshot, 5 ta ixtisoslashgan vosita)
+**Oxirgi versiya:** v2.8.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (519 test + sahifa auditi, 175 joylashuv, skrinshotlar, 5 ta ixtisoslashgan vosita)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -846,3 +846,44 @@ Qaror: hech qanday janjalsiz, **v2.5.0 dizayn holati aynan tiklandi** (`git chec
 | Sahifa auditi (kontrast, kesilish, to'qnashuv) | ✔ 0 nuqson |
 | Joylashuv · katta klub · chop etish · o'rnatilgan ilova | ✔ 175/0 · 0 · 0 · 0 |
 | Skrinshotlar | ✔ 96 ta v2.5.0 dizaynida qayta olindi |
+
+
+---
+
+## v2.8.0 — Ro'yxatdan o'tish butunlay o'zgardi: talaba o'zi yoziladi
+
+**Foydalanuvchi so'rovi:** «rejalar o'zgardi, ro'yxatdan o'tish jarayonini o'zgartiramiz — talabalar
+o'zi bemalol ro'yxatdan o'tadigan qilib qo'yamiz» (21-school.uz namunasi asosida): saytda to'liq
+ma'lumot kiritiladi, **tasodifiy unikal nick** beriladi, parol **telefon yoki Gmail** orqali tiklanadi,
+**barcha xabarlar emailga** boradi.
+
+### Nima qurildi
+
+| Bo'lak | Tafsilot |
+|---|---|
+| **Landing sehrgari** | 5 qadam: Shaxsiy (ism, sana, shahar, jins) → Aloqa (telefon, email, telegram, HEMIS) → Yo'nalish (yo'nalish, daraja, maqsad, manba) → Parol (kuch ko'rsatkichi, shartlar) → Tasdiqlash (email kodi) |
+| **Unikal nick** | `swift_falcon` ko'rinishida, `NICK_WORDS` + sifatlar ro'yxatidan; mavjud akkaunt va arizalar bilan to'qnashmaydi |
+| **Email kodi** | 6 xonali, 10 daqiqa amal qiladi, qayta yuborish mumkin; SMS kanali ham jurnalga yoziladi |
+| **Parolni tiklash** | Nick / email / telefon → kod → yangi parol. Kod bir martalik; muddati o'tgan kod rad etiladi |
+| **Xabarlar jurnali** | `S.mail` — barcha xatlar (kod, ariza holati, parol, admin xabari). Sozlamalar → Email: demo/haqiqiy (FormSubmit yoki webhook) |
+| **Admin → Arizalar** | Yangi bo'lim: KPI, filtrlar, to'liq ma'lumot, tasdiqlash/rad etish, email orqali xabar, holat nishonlari. Sidebar'da kutayotgan arizalar soni |
+| **Avtomatik tasdiqlash** | Standart holatda **yoqilgan** — kod tasdiqlangach akkaunt darhol faol. Sozlamalarda o'chirilsa, admin tasdig'i kerak |
+| **Boshqa** | Sidebar'da «Arizalar», Dashboard'da ariza banneri, Talabalar jadvalida «o'zi ro'yxatdan o'tgan» nishoni, xato xabarlari sahifa qayta chizilmasdan ko'rsatiladi |
+
+### Halol cheklov
+
+Statik sayt (backend yo'q) haqiqiy SMTP orqali xat yubora olmaydi. Shuning uchun **demo rejim**:
+har bir xabar ilovadagi jurnalda ko'rinadi va tasdiqlash kodi ekranda ko'rsatiladi. Sozlamalarda
+klub emaili (FormSubmit) yoki webhook kiritilsa, xatlar haqiqiy manzilga ketadi — bu birinchi
+haqiqiy yuborishda FormSubmit tasdiqlash havolasini bosishni talab qiladi. To'liq avtomatik yuborish
+uchun keyingi qadam: Supabase Edge Function + Resend/SMTP.
+
+### Tekshiruv (v2.8.0)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **519 ta**, 0 xato (R17 uchun 20 yangi tekshiruv) |
+| Sahifa auditi (kontrast, kesilish, to'qnashuv) | ✔ 0 nuqson (`registrations` marshruti ham qamrab olindi) |
+| Joylashuv · katta klub · chop etish · o'rnatilgan ilova | ✔ 175/0 · 0 · 0 · 0 |
+| Jonli oqim sinovi (Chromium) | ✔ 4 qadam → kod → faol akkaunt → kirish; parolni tiklash (email va telefon) |
+| Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.8.0** |

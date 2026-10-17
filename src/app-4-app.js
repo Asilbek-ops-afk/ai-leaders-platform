@@ -78,7 +78,7 @@ function landNav() {
     [['#limkon', 'Imkoniyatlar'], ['#ljarayon', 'Jarayon'], ['#ldastur', 'Dastur'], ['#lsavol', 'Savollar']]
       .map(x => '<a href="' + x[0] + '" data-act="to-sec" data-sec="' + x[0] + '">' + esc(x[1]) + '</a>').join('') +
     '</nav>' +
-    '<button class="btn btn-primary btn-sm lnav-cta" data-act="to-auth">' + ico('lock', 'sm') + 'Kirish</button>' +
+    '<button class="btn btn-primary btn-sm lnav-cta" data-act="to-register">' + ico('users-plus', 'sm') + 'Ro‘yxatdan o‘tish</button>' +
     '</header>';
 }
 /* Qahramon bo'limi */
@@ -91,10 +91,10 @@ function landHero() {
     '<span class="ltag rise" data-d="0">' + ico('spark', 'sm') + '0 dan startapgacha · Toshkent</span>' +
     '<h1 class="rise" data-d="1">G‘oyadan ishlaydigan mahsulotgacha — <em>jamoada, kuzatuv&nbsp;ostida</em>.</h1>' +
     '<p class="llede rise" data-d="2">AI Leaders — 0 dan boshlovchilar uchun amaliy klub. Platformada: yo‘l xaritasi, ' +
-    'vazifa → deadline → mentor izohi → baho, jamoaviy loyihalar va reyting tizimi. Kirish — admin bergan ' +
-    'shaxsiy <b>nick</b> bilan (HEMIS ID faqat ro‘yxatga olishda kerak).</p>' +
+    'vazifa → deadline → mentor izohi → baho, jamoaviy loyihalar va reyting tizimi. Ro‘yxatdan o‘tish — saytdan, ' +
+    'bir daqiqada: tizim sizga <b>unikal nick</b> beradi va barcha xabarlar <b>emailingizga</b> boradi.</p>' +
     '<div class="lcta rise" data-d="3">' +
-    '<button class="btn btn-primary btn-lg" data-act="to-apply">' + ico('rocket', 'sm') + 'Hoziroq boshlash</button>' +
+    '<button class="btn btn-primary btn-lg" data-act="to-register">' + ico('rocket', 'sm') + 'Hoziroq boshlash</button>' +
     '<button class="btn btn-soft btn-lg" data-act="to-auth">' + ico('lock', 'sm') + 'Tizimga kirish</button>' +
     '</div>' +
     '<div class="lchips rise" data-d="4">' +
@@ -167,9 +167,10 @@ function landProgram() {
 /* Savol-javob */
 function landFaq() {
   const qa = [
-    ['Tizimga kirish uchun nima kerak?', 'Klub adminingiz bergan <b>nick</b> va o‘zingiz o‘rnatgan parol. HEMIS ID kirishda ishlatilmaydi — u faqat ro‘yxatga olishda kerak.'],
-    ['Hali a’zo emasman — nima qilaman?', '«Ariza» formasini to‘ldiring: ism, telefon va maqsad. Klub admini siz bilan bog‘lanadi, HEMIS ID ingizni kiritib akkaunt ochadi va <b>nick</b> beradi.'],
-    ['Parolimni unutdim, nima qilaman?', 'Mentor yoki klub adminiga murojaat qiling — u parolni tiklab, qayta o‘rnatish imkonini beradi. Parollar bazada ochiq saqlanmaydi.'],
+    ['Tizimga kirish uchun nima kerak?', 'Ro‘yxatdan o‘tganingizda tizim bergan <b>nick</b> va o‘zingiz o‘rnatgan parol. HEMIS ID kirishda ishlatilmaydi — u ixtiyoriy, faqat klub hisoboti uchun.'],
+    ['Hali a’zo emasman — nima qilaman?', '«Ro‘yxatdan o‘tish» bo‘limini oching va 4 qadamni to‘ldiring: shaxsiy ma’lumot, telefon va email, yo‘nalish, parol. Emailga kelgan 6 xonali kodni tasdiqlagach akkaunt yaratiladi va sizga <b>unikal nick</b> beriladi.'],
+    ['Parolimni unutdim, nima qilaman?', '«Kirish» bo‘limidagi <b>Parolni tiklash</b> havolasini bosing. Nick, email yoki telefon raqamingizni kiritasiz — kod keladi, shu kod bilan yangi parol o‘rnatasiz. Adminga murojaat shart emas.'],
+    ['Xabarlar qayerga keladi?', 'Ro‘yxatdan o‘tish kodi, ariza holati, eslatmalar va sertifikat — hammasi <b>emailingizga</b> yuboriladi. Shu sabab email manzilni to‘g‘ri yozing.'],
     ['Qancha vaqt o‘qiyman?', 'Dastur 6 modul • 29 darsdan iborat. Har modulga alohida deadline bor, o‘qish tezligini o‘zingiz belgilaysiz.'],
     ['Sertifikat beriladimi?', 'Ha. Dasturni yakunlab, topshiriqlarni muvaffaqiyatli topshirganlarga chop etiladigan sertifikat beriladi.']
   ];
@@ -186,71 +187,67 @@ function landAuthSection() {
   const role = UI.authRole;
   const err = UI.authErr || '';
   /* Uzun yorliq telefonda ikki qatorga bo'linmasin: ikkinchi qismi kichik ekranda yashiriladi */
-  const tab = (r, l, ic) => {
+  const tab = (r, l, ic, wide) => {
     const sp = l.indexOf(' / ');
     const inner = sp > -1
       ? esc(l.slice(0, sp)) + '<span class="tt2">' + esc(l.slice(sp)) + '</span>'
       : esc(l);
-    return '<button class="auth-tab' + (role === r ? ' on' : '') + '" data-act="pick-role" data-r="' + r + '">' + ico(ic, 'sm') + inner + '</button>';
+    return '<button class="auth-tab' + (wide ? ' wide' : '') + (role === r ? ' on' : '') + '" data-act="pick-role" data-r="' + r + '"' +
+      (role === r ? ' aria-current="page"' : '') + '>' + ico(ic, 'sm') + inner + '</button>';
   };
   let body = '';
-  if (role === 'apply') {
-    body = UI.leadDone
-      ? '<div class="ldone">' + ico('check-c', 'big') +
-        '<h3>Ariza qabul qilindi!</h3>' +
-        '<p>Rahmat, <b>' + esc(UI.leadDone) + '</b>. Klub admini tez orada telefon orqali bog‘lanadi va ' +
-        'HEMIS ID ingizni kiritib akkaunt ochadi va sizga <b>nick</b> beradi. Shundan keyin shu yerdan faqat nick bilan kirishingiz mumkin bo‘ladi.</p>' +
-        '<button class="btn btn-soft" data-act="lead-reset">' + ico('plus', 'sm') + 'Yana ariza topshirish</button></div>'
-      : (() => { const d0 = UI.leadDraft || {}; return '<form data-form="lead" class="col" style="gap:11px">' +
-        '<div class="field"><label>Ism va familiya</label><input class="inp" name="name" required placeholder="Masalan: Dilnoza Karimova" value="' + esc(d0.name || '') + '"></div>' +
-        '<div class="grid g2" style="gap:11px">' +
-        '<div class="field"><label>Telefon</label><input class="inp" name="phone" inputmode="tel" required placeholder="+998 90 123 45 67" value="' + esc(d0.phone || '') + '"></div>' +
-        '<div class="field"><label>Telegram</label><input class="inp" name="tg" placeholder="@username" value="' + esc(d0.tg || '') + '"></div></div>' +
-        '<div class="field"><label>Maqsadingiz</label><textarea class="inp" name="goal" placeholder="Nima qilmoqchisiz? Masalan: AI yordamida mahsulot yasash">' + esc(d0.goal || '') + '</textarea></div>' +
-        (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
-        '<button class="btn btn-primary btn-block" type="submit">' + ico('send', 'sm') + 'Arizani yuborish</button>' +
-        '<div class="inp-hint">Ariza klub adminiga tushadi. Akkaunt ochilgach, «Kirish» bo‘limidan foydalanasiz.</div>' +
-        '</form>'; })();
+  if (role === 'register') {
+    body = regWizard();
   } else if (role === 'admin') {
     body = '<form data-form="login-admin" class="col" style="gap:12px">' +
       '<div class="field"><label>Email</label><input class="inp" name="login" required autocomplete="username" placeholder="ism@aileaders.uz"></div>' +
       '<div class="field"><label>Parol</label><div class="pwrap"><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Admin panelga kirish</button>' +
+      '<div class="inp-hint">Admin akkaunti faqat klub egasi tomonidan yaratiladi.</div>' +
       '</form>';
+  } else if (UI.reset) {
+    /* Parolni tiklash — talaba tabi ichida, alohida sahifa ochilmasdan */
+    body = resetWizard();
   } else {
     body = '<form data-form="login-student" class="col" style="gap:12px">' +
       '<div class="field"><label>Nick (kirish uchun)</label>' +
-      '<input class="inp" name="login" required autocomplete="username" inputmode="text" autofocus placeholder="Masalan: falcon">' +
-      '<div class="inp-hint">Nickni klub admini beradi. <b>HEMIS ID kirishda ishlatilmaydi</b> — u faqat ro‘yxatga olishda (adminga) topshiriladi.</div></div>' +
+      '<input class="inp" name="login" required autocomplete="username" inputmode="text" autofocus placeholder="Masalan: swift_falcon">' +
+      '<div class="inp-hint">Nickni ro‘yxatdan o‘tganingizda tizim bergan — u emailingizda ham saqlanadi.</div></div>' +
       '<div class="field"><label>Parol</label><div class="pwrap"><input class="inp" type="password" name="pass" autocomplete="current-password" placeholder="Parolingiz"><button type="button" class="eye" data-act="eye" aria-label="Parolni ko‘rsatish" title="Parolni ko‘rsatish">' + ico('eye', 'sm') + '</button></div></div>' +
-      '<div class="row between" style="gap:10px"><span class="xs muted">Nickni eslay olmadingizmi?</span>' +
-      '<button type="button" class="auth-help" data-act="auth-help">' + ico('help', 'sm') + 'Yordam olish</button></div>' +
+      '<div class="row between" style="gap:10px"><button type="button" class="auth-help" data-act="reset-open">' + ico('lock', 'sm') + 'Parolni tiklash</button>' +
+      '<button type="button" class="auth-help" data-act="auth-help" title="Kirish bo‘yicha yordam">' + ico('help', 'sm') + 'Yordam olish</button></div>' +
       (err ? '<div class="form-err">' + ico('alert', 'sm') + esc(err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('right', 'sm') + 'Talaba kabinetiga kirish</button>' +
+      '<div class="inp-hint" style="text-align:center">Hali akkauntingiz yo‘qmi? <button type="button" class="auth-link" data-act="to-register">Ro‘yxatdan o‘tish</button></div>' +
       '</form>';
   }
+  const lockNote = role === 'register'
+    ? '<div class="lauth-note xs muted">Ro‘yxatdan o‘tish bepul • Ariza 1 daqiqada • Xabarlar emailga</div>'
+    : '<div class="lauth-note xs muted">© 2026 AI Leaders Startup Club • Toshkent</div>';
   return '<section class="lauth" id="lkirish">' +
     '<div class="lauth-thread" aria-hidden="true"></div>' +
     '<div class="lauth-glow" aria-hidden="true"></div>' +
     '<div class="lauth-hero reveal" data-d="0">' +
     '<span class="ltag a">' + ico('lock', 'sm') + 'Kirish / Ro‘yxatdan o‘tish</span>' +
-    '<h2 class="lh2">Klubga kirish shu yerdan boshlanadi</h2>' +
-    '<p class="lsub">A’zo bo‘lsangiz — admingiz bergan <b>nick</b> bilan kirasiz. Hali a’zo emassizmi? Ariza qoldiring.</p>' +
+    '<h2 class="lh2">' + (role === 'register' ? 'Bir daqiqada klubga qo‘shiling' : 'Klubga kirish shu yerdan boshlanadi') + '</h2>' +
+    '<p class="lsub">' + (role === 'register'
+      ? 'To‘liq ma’lumotni o‘zingiz kiritasiz — tizim <b>unikal nick</b> beradi va hamma xabar emailingizga boradi.'
+      : 'A’zo bo‘lsangiz — o‘zingiz olgan <b>nick</b> bilan kirasiz. Hali a’zo emassizmi? Bir daqiqada ro‘yxatdan o‘ting.') + '</p>' +
     '</div>' +
     '<div class="lauth-wrap">' +
     '<div class="lauth-pitch reveal" data-d="1">' +
-    [['shield', 'Parolni faqat siz bilasiz', 'Parolni birinchi kirishda o‘zingiz o‘rnatasiz — admin ham ko‘ra olmaydi.'],
-     ['lock', 'Nick — yagona kalit', 'HEMIS ID ni adminga topshirasiz, u akkaunt ochib sizga nick beradi. Kirish faqat nick bilan.'],
-     ['user', 'Talaba kabineti', 'Darslar, vazifalar, deadline, jamoa, yutuqlar va sertifikat.'],
-     ['shield', 'Admin va mentor paneli', 'Talabalar, jamoalar, vazifalar, baholar, statistika va sozlamalar.']]
+    [['send', 'Ariza — saytdan, 1 daqiqada', 'Ism, telefon, email, yo‘nalish va parolni o‘zingiz kiritasiz. Admin bilan gaplashish shart emas.'],
+     ['check', 'Nick avtomatik beriladi', 'Emailga kelgan 6 xonali kodni tasdiqlagach tizim unikal nick yaratadi va uni emailga yuboradi.'],
+     ['lock', 'Parolni o‘zingiz tiklaysiz', 'Telefon yoki emailga kelgan kod bilan parolni o‘zingiz yangilaysiz — adminga bog‘liq emas.'],
+     ['mail', 'Barcha xabarlar emailda', 'Tasdiqlash kodi, ariza holati, eslatmalar va sertifikat — hammasi pochtangizda.']]
       .map(x => '<div class="lpitch-r"><span class="lpitch-ic">' + ico(x[0], 'sm') + '</span>' +
         '<div><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></div></div>').join('') +
     '</div>' +
     '<div class="lauth-card rev-card">' +
-    '<div class="auth-tabs">' + tab('student', 'Talaba', 'user') + tab('admin', 'Admin / Mentor', 'shield') + tab('apply', 'Ariza', 'send') + '</div>' +
+    '<div class="auth-tabs">' + tab('student', 'Kirish', 'lock') + tab('register', 'Ro‘yxatdan o‘tish', 'users-plus', true) + tab('admin', 'Admin', 'shield') + '</div>' +
     body +
-    '<div class="lauth-note xs muted">© 2026 AI Leaders Startup Club • Toshkent</div>' +
+    lockNote +
     '</div>' +
     '</div></section>';
 }
@@ -308,6 +305,13 @@ function landTick() {
   links.forEach(a => a.classList.toggle('on', a.dataset.sec === active));
 }
 /* Bo'limga yumshoq skrol */
+/* Kirish kartasi (sehrgar) ko'rinadigan joyga skroll — yopishqoq nav hisobga olinadi */
+function landScrollCard() {
+  const el = document.querySelector('.lauth-card');
+  if (!el) return;
+  const top = window.scrollY + el.getBoundingClientRect().top - 88;
+  try { window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); } catch (e) { try { window.scrollTo(0, top); } catch (e2) { } }
+}
 function landScrollTo(sel) {
   const el = document.querySelector(sel);
   if (!el) return;
@@ -433,9 +437,9 @@ function exportMyCSV() {
 
 /* ---------- Render ---------- */
 const ROUTES = { home: vHome, lessons: vLessons, tasks: vTasks, team: vTeam, deadlines: vDeadlines, friends: vFriends, info: vInfo,
-  admin: vAdmin, students: vStudents, adminTasks: vAdminTasks, adminLessons: vAdminLessons, adminGroups: vAdminGroups, adminDeadlines: vAdminDeadlines, stats: vStats, settings: vAdminSettings, adminAdmins: vAdminAdmins };
+  admin: vAdmin, registrations: vRegistrations, students: vStudents, adminTasks: vAdminTasks, adminLessons: vAdminLessons, adminGroups: vAdminGroups, adminDeadlines: vAdminDeadlines, stats: vStats, settings: vAdminSettings, adminAdmins: vAdminAdmins };
 const STUDENT_ONLY = ['home', 'lessons', 'tasks', 'team', 'deadlines', 'friends', 'info'];
-const ADMIN_ONLY = ['admin', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'adminAdmins', 'stats', 'settings'];
+const ADMIN_ONLY = ['admin', 'registrations', 'students', 'adminTasks', 'adminLessons', 'adminGroups', 'adminDeadlines', 'adminAdmins', 'stats', 'settings'];
 function currentView() {
   /* rol himoyasi: noto‘g‘ri bo‘limga kirilganda o‘z paneliga qaytarish */
   let route = UI.route;
@@ -526,7 +530,8 @@ const ACT_PERM = {
   'new-lesson': 'content', 'lesson-edit': 'content', 'del-lesson': 'content', 'new-module': 'content', 'del-module': 'content',
   'new-lesson-mod': 'content', 'new-gallery': 'content', 'del-gallery': 'content',
   'new-group': 'groups', 'group-add': 'groups', 'group-add-member': 'groups', 'group-remove': 'groups', 'del-group': 'groups', 'change-group': 'groups',
-  'export': 'stats', 'export-json': 'settings', 'reset-confirm': 'settings', 'reset-do': 'settings'
+  'export': 'stats', 'export-json': 'settings', 'reset-confirm': 'settings', 'reset-do': 'settings',
+  'reg-approve': 'students', 'reg-reject': 'students', 'reg-reject-do': 'students', 'mail-test': 'settings'
 };
 /* Amal ruxsati: ruxsat yo'q bo'lsa xabar beriladi va amal bajarilmaydi */
 function actAllowed(act) {
@@ -543,6 +548,8 @@ document.addEventListener('click', e => {
   if (!t) return;
   const a = t.dataset.act, id = t.dataset.id, st = () => me();
   if (!actAllowed(a)) return;
+  /* R17: ro'yxatdan o'tish, parolni tiklash, arizalar amallari */
+  if (regAct(a, id, t)) return;
   switch (a) {
     case 'go': e.preventDefault(); go(t.dataset.route); break;
     case 'go-team': go(isAdmin() ? 'adminGroups' : 'team'); break;
@@ -628,15 +635,18 @@ document.addEventListener('click', e => {
     case 'auth-back': UI.firstPass = null; UI.authErr = ''; paint(true); break;
     case 'auth-help': openModal(mhead('Kirish bo‘yicha yordam', 'Talaba va admin uchun') +
       '<div class="col" style="gap:11px">' +
-      [['user', 'Talaba qanday kiradi?', 'Faqat shaxsiy nick + parol. Nickni klub admini beradi (HEMIS ID ni admin ro‘yxatga olishda ishlatadi).'],
+      [['user', 'Talaba qanday kiradi?', 'Faqat o‘zingiz olgan nick + parol. Nickni ro‘yxatdan o‘tishda tizim avtomatik beradi.'],
        ['shield', 'Admin qanday kiradi?', 'Email + parol. Adminlar qo‘lda qo‘shiladi, parolni birinchi kirishda o‘zi o‘rnatadi.'],
-       ['alert', 'Parolni unutdim', 'Mentor yoki klub adminiga murojaat qiling — parolni noldan o‘rnatib beradi.'],
+       ['alert', 'Parolni unutdim', '«Kirish» → «Parolni tiklash»: nick, email yoki telefon bilan kod olasiz va parolni o‘zingiz yangilaysiz.'],
        ['check', 'Birinchi kirish', 'Akkaunt yangi ochilgan bo‘lsa, tizim parolni o‘zingiz o‘rnatishni taklif qiladi.']
       ].map(x => '<div class="lrow"><div class="lead">' + ico(x[0]) + '</div><div><div class="small" style="font-weight:750">' + esc(x[1]) + '</div><div class="xs muted">' + esc(x[2]) + '</div></div></div>').join('') +
       '</div>', 'narrow'); break;
     case 'reset': resetAll(); break;
     case 'notifs': notifModal(); paint(true); break;
-    case 'pick-role': UI.authRole = t.dataset.r; UI.authErr = ''; paint(true); break;
+    case 'pick-role':
+      UI.authRole = t.dataset.r; UI.authErr = ''; UI.reset = null;
+      if (UI.authRole === 'register' && UI.reg && UI.reg.done) { /* yakunlangan ariza kartasi saqlanadi */ }
+      paint(true); landScrollCard(); break;
     case 'eye': {
       /* Parolni ko'rsatish/yashirish — forma qayta chizilmaydi */
       const w = t.closest('.pwrap'), inp0 = w && w.querySelector('input');
@@ -652,7 +662,9 @@ document.addEventListener('click', e => {
     }
     /* --- Landing sahifasi: bo'limlarga skrol va ariza oqimi --- */
     case 'to-auth': UI.authRole = 'student'; UI.authErr = ''; UI.leadDone = null; paint(true); landScrollTo('#lkirish'); break;
-    case 'to-apply': UI.authRole = 'apply'; UI.authErr = ''; paint(true); landScrollTo('#lkirish'); break;
+    case 'to-register': UI.authRole = 'register'; UI.authErr = ''; UI.reset = null; paint(true); landScrollCard(); break;
+    case 'reset-open': UI.authRole = 'student'; UI.reset = { step: 1, login: '', recId: '', err: '' }; UI.authErr = ''; paint(true); landScrollCard(); break;
+    case 'to-apply': UI.authRole = 'register'; UI.authErr = ''; paint(true); landScrollTo('#lkirish'); break;
     case 'to-sec': landScrollTo(t.dataset.sec || ''); break;
     case 'faq': {
       const fq = t.closest('.fq');
@@ -910,6 +922,8 @@ document.addEventListener('submit', e => {
     const okPerm = need === null ? isFounder() : actionAllowed(need);
     if (!okPerm) { permDenied(need === null ? 'admins' : need); return; }
   }
+  /* R17: o'z-o'zini ro'yxatdan o'tkazish, parolni tiklash, email sozlamalari */
+  if (authFormSubmit(kind, fd, f, e)) return;
   /* Landing: ro'yxatdan o'tish arizasi */
   if (kind === 'lead') {
     const draft = { name: fd.get('name'), phone: fd.get('phone'), tg: fd.get('tg'), goal: fd.get('goal') };
