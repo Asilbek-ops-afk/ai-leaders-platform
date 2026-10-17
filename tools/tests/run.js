@@ -180,6 +180,17 @@ group('0. Bo‘sh platforma: birinchi ishga tushirish va Founder akkaunti');
   t('eski namuna rejimi tugmalari yo‘q (quick/sample-accounts)', !Z.d.querySelector('[data-act="quick"]') && !Z.d.querySelector('[data-act="sample-accounts"]') && !Z.has('Namuna rejimi'));
   t('o‘quv dasturi saqlanib qolgan (6 modul / 29 dars)', Z.w.AIL.S.modules.length === 6 && Z.w.AIL.S.lessons.length >= 29);
   t('needsSetup() rost (akkaunt yo‘q)', Z.w.AIL.needsSetup() === true);
+  t('birinchi ekrandan talaba o‘zi ro‘yxatdan o‘tishi mumkin (skip-setup)', (() => {
+    const btn = Z.d.querySelector('[data-act="skip-setup"]');
+    if (!btn) return false;
+    btn.dispatchEvent(new Z.w.MouseEvent('click', { bubbles: true }));
+    return !!Z.d.querySelector('form[data-form="reg-step"]') && Z.w.AIL.UI.authRole === 'register';
+  })());
+  t('landingda klub egasi uchun qaytish havolasi', (() => {
+    const back = Z.d.querySelector('[data-act="setup-back"]');
+    return !!back && /klub egasi/.test(back.textContent);
+  })());
+  Z.d.querySelector('[data-act="setup-back"]').dispatchEvent(new Z.w.MouseEvent('click', { bubbles: true }));
   const setF = o => {
     ['name', 'email', 'p1', 'p2'].forEach(k2 => { Z.d.querySelector('[data-form="setup-founder"] input[name="' + k2 + '"]').value = o[k2] || ''; });
     Z.submit('[data-form="setup-founder"]');

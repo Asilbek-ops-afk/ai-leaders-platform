@@ -27,8 +27,9 @@ function vAuth() {
       '<button class="btn btn-ghost btn-sm btn-block" style="margin-top:10px" data-act="auth-back">' + ico('left', 'sm') + 'Orqaga</button>' +
       '</div></div></div>';
   }
-  /* Birinchi ishga tushirish: hali hech qanday akkaunt yo'q — Founder o'zi yaratadi */
-  if (needsSetup()) {
+  /* Birinchi ishga tushirish: hali hech qanday akkaunt yo'q — Founder o'zi yaratadi.
+     Talaba esa «Ro'yxatdan o'tish» orqali kirishi mumkin (skipSetup). */
+  if (needsSetup() && !UI.skipSetup) {
     return '<div class="auth">' +
       '<div class="auth-art">' + authArt() + '</div>' +
       '<div class="auth-form"><div class="inner">' +
@@ -46,6 +47,9 @@ function vAuth() {
       '<button class="btn btn-primary btn-block" type="submit">' + ico('check', 'sm') + 'Akkauntni yaratish va kirish</button>' +
       '</form>' +
       '<div class="inp-hint" style="margin-top:12px">Parolni hech kimga aytmang. Keyinchalik «Adminlar» bo‘limidan boshqa admin va mentorlarni qo‘shasiz.</div>' +
+      '<div class="divider" style="margin:16px 0"></div>' +
+      '<div class="xs muted" style="text-align:center;margin-bottom:9px">Klubga talaba sifatida qo‘shilmoqchimisiz?</div>' +
+      '<button type="button" class="btn btn-soft btn-block" data-act="skip-setup">' + ico('users-plus', 'sm') + 'Talaba sifatida ro‘yxatdan o‘tish</button>' +
       '</div></div></div>';
   }
   /* Asosiy holat: LANDING sahifasi — kirish/ariza bo'limi skrolda ochiladi */
@@ -222,9 +226,10 @@ function landAuthSection() {
       '<div class="inp-hint" style="text-align:center">Hali akkauntingiz yo‘qmi? <button type="button" class="auth-link" data-act="to-register">Ro‘yxatdan o‘tish</button></div>' +
       '</form>';
   }
-  const lockNote = role === 'register'
+  const lockNote = (role === 'register'
     ? '<div class="lauth-note xs muted">Ro‘yxatdan o‘tish bepul • Ariza 1 daqiqada • Xabarlar emailga</div>'
-    : '<div class="lauth-note xs muted">© 2026 AI Leaders Startup Club • Toshkent</div>';
+    : '<div class="lauth-note xs muted">© 2026 AI Leaders Startup Club • Toshkent</div>') +
+    (needsSetup() ? '<div class="lauth-note xs muted">Bu qurilmada hali klub ochilmagan — <button type="button" class="auth-link" data-act="setup-back">klub egasi sifatida boshlash</button></div>' : '');
   return '<section class="lauth" id="lkirish">' +
     '<div class="lauth-thread" aria-hidden="true"></div>' +
     '<div class="lauth-glow" aria-hidden="true"></div>' +
@@ -662,9 +667,11 @@ document.addEventListener('click', e => {
     }
     /* --- Landing sahifasi: bo'limlarga skrol va ariza oqimi --- */
     case 'to-auth': UI.authRole = 'student'; UI.authErr = ''; UI.leadDone = null; paint(true); landScrollTo('#lkirish'); break;
-    case 'to-register': UI.authRole = 'register'; UI.authErr = ''; UI.reset = null; paint(true); landScrollCard(); break;
+    case 'to-register': UI.authRole = 'register'; UI.authErr = ''; UI.reset = null; UI.authShow = true; paint(true); landScrollCard(); break;
     case 'reset-open': UI.authRole = 'student'; UI.reset = { step: 1, login: '', recId: '', err: '' }; UI.authErr = ''; paint(true); landScrollCard(); break;
-    case 'to-apply': UI.authRole = 'register'; UI.authErr = ''; paint(true); landScrollTo('#lkirish'); break;
+    case 'to-apply': UI.authRole = 'register'; UI.authErr = ''; UI.authShow = true; paint(true); landScrollCard(); break;
+    case 'skip-setup': UI.skipSetup = true; UI.authShow = true; UI.authRole = 'register'; UI.authErr = ''; paint(true); landScrollCard(); break;
+    case 'setup-back': UI.skipSetup = false; UI.authShow = true; UI.authRole = 'student'; paint(true); break;
     case 'to-sec': landScrollTo(t.dataset.sec || ''); break;
     case 'faq': {
       const fq = t.closest('.fq');
