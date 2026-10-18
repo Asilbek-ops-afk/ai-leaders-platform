@@ -173,7 +173,7 @@ function landFaq() {
   const qa = [
     ['Tizimga kirish uchun nima kerak?', 'Ro‘yxatdan o‘tganingizda tizim bergan <b>nick</b> va o‘zingiz o‘rnatgan parol. HEMIS ID kirishda ishlatilmaydi — u ixtiyoriy, faqat klub hisoboti uchun.'],
     ['Hali a’zo emasman — nima qilaman?', '«Ro‘yxatdan o‘tish» bo‘limini oching va 4 qadamni to‘ldiring: shaxsiy ma’lumot, telefon va email, yo‘nalish, parol. Emailga kelgan 6 xonali kodni tasdiqlagach akkaunt yaratiladi va sizga <b>unikal nick</b> beriladi.'],
-    ['Parolimni unutdim, nima qilaman?', '«Kirish» bo‘limidagi <b>Parolni tiklash</b> havolasini bosing. Nick, email yoki telefon raqamingizni kiritasiz — kod keladi, shu kod bilan yangi parol o‘rnatasiz. Adminga murojaat shart emas.'],
+    ['Parolimni unutdim, nima qilaman?', '«Kirish» bo‘limidagi <b>Parolni tiklash</b> havolasini bosing. Nick, email yoki telefon raqamingizni kiritasiz — kod akkauntingizdagi Gmail manziliga boradi, shu kod bilan yangi parol o‘rnatasiz.'],
     ['Xabarlar qayerga keladi?', 'Ro‘yxatdan o‘tish kodi, ariza holati, eslatmalar va sertifikat — hammasi <b>emailingizga</b> yuboriladi. Shu sabab email manzilni to‘g‘ri yozing.'],
     ['Qancha vaqt o‘qiyman?', 'Dastur 6 modul • 29 darsdan iborat. Har modulga alohida deadline bor, o‘qish tezligini o‘zingiz belgilaysiz.'],
     ['Sertifikat beriladimi?', 'Ha. Dasturni yakunlab, topshiriqlarni muvaffaqiyatli topshirganlarga chop etiladigan sertifikat beriladi.']
@@ -369,12 +369,14 @@ function msgModal(id) {
     '<button class="btn btn-primary" type="submit">' + ico('send', 'sm') + 'Yuborish</button></div></form>', 'narrow');
 }
 function profileModal() {
-  const st = me();
-  openModal(mhead('Profilni tahrirlash', 'Ma’lumotlar mentor va reytingda ko‘rinadi') +
+  const st = me(), acc = meAcc();
+  const email = acc && acc.email ? acc.email : '';
+  openModal(mhead('Profilni tahrirlash', 'Profil o‘zgarishlari Gmail manzilingizga xabar qilinadi') +
     '<form data-form="profile" class="col" style="gap:13px">' +
     '<div class="field"><label>To‘liq ism</label><input class="inp" name="name" value="' + esc(st.name) + '" required></div>' +
     '<div class="grid g2" style="gap:12px"><div class="field"><label>Telegram</label><input class="inp" name="tg" value="' + esc(st.tg) + '"></div>' +
-    '<div class="field"><label>Telefon</label><input class="inp" name="phone" value="' + esc(st.phone) + '"></div></div>' +
+    '<div class="field"><label>Telefon</label><input class="inp" name="phone" inputmode="tel" placeholder="+998 90 123 45 67" value="' + esc(st.phone) + '" required><div class="inp-hint">Yangi raqam Gmail’ingizga kelgan kod bilan ulanadi.</div></div></div>' +
+    '<div class="field"><label>Gmail xabarnoma manzili</label><input class="inp" type="email" value="' + esc(email || 'Email biriktirilmagan') + '" readonly><div class="inp-hint">Kodni olish va profil xavfsizligi xabarlari shu manzilga boradi.</div></div>' +
     '<div class="field"><label>Maqsadim</label><input class="inp" name="goal" value="' + esc(st.goal) + '"></div>' +
     '<div class="field"><label>Men haqimda</label><textarea class="inp" name="bio">' + esc(st.bio) + '</textarea></div>' +
     '<div class="row" style="gap:10px"><button class="btn btn-primary grow" type="submit">' + ico('check', 'sm') + 'Saqlash</button>' +
@@ -642,7 +644,7 @@ document.addEventListener('click', e => {
       '<div class="col" style="gap:11px">' +
       [['user', 'Talaba qanday kiradi?', 'Faqat o‘zingiz olgan nick + parol. Nickni ro‘yxatdan o‘tishda tizim avtomatik beradi.'],
        ['shield', 'Admin qanday kiradi?', 'Email + parol. Adminlar qo‘lda qo‘shiladi, parolni birinchi kirishda o‘zi o‘rnatadi.'],
-       ['alert', 'Parolni unutdim', '«Kirish» → «Parolni tiklash»: nick, email yoki telefon bilan kod olasiz va parolni o‘zingiz yangilaysiz.'],
+       ['alert', 'Parolni unutdim', '«Kirish» → «Parolni tiklash»: nick, email yoki telefonni kiriting — kod Gmail manzilingizga keladi va parolni o‘zingiz yangilaysiz.'],
        ['check', 'Birinchi kirish', 'Akkaunt yangi ochilgan bo‘lsa, tizim parolni o‘zingiz o‘rnatishni taklif qiladi.']
       ].map(x => '<div class="lrow"><div class="lead">' + ico(x[0]) + '</div><div><div class="small" style="font-weight:750">' + esc(x[1]) + '</div><div class="xs muted">' + esc(x[2]) + '</div></div></div>').join('') +
       '</div>', 'narrow'); break;

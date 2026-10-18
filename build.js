@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* AI Leaders — build: src/*.js + src/style.css -> index.html (bitta mustaqil fayl) */
 const fs = require('fs'), path = require('path');
-const root = __dirname, src = path.join(root, 'src');
+const root = __dirname, src = path.join(root, 'src'), server = path.join(root, 'server');
 const order = ['app-1-core.js', 'app-2-student.js', 'app-3-admin.js', 'app-4-app.js', 'app-5-craft.js', 'app-6-auth.js'];
 /* style.css + premium.css — bitta uslublar to'plami (premium keyin qo'shiladi) */
 const css = ['style.css', 'premium.css', 'craft.css', 'reg.css'].map(f => fs.readFileSync(path.join(src, f), 'utf8')).join('\n');
@@ -16,6 +16,8 @@ fs.mkdirSync(dist, { recursive: true });
 fs.writeFileSync(path.join(dist, 'index.html'), out);
 fs.copyFileSync(path.join(root, 'manifest.webmanifest'), path.join(dist, 'manifest.webmanifest'));
 fs.copyFileSync(path.join(root, 'sw.js'), path.join(dist, 'sw.js'));
+/* Cloudflare Pages Advanced Mode: /api/email server worker (secrets faqat Cloudflare'da) */
+fs.copyFileSync(path.join(server, 'email-worker.js'), path.join(dist, '_worker.js'));
 fs.mkdirSync(path.join(dist, 'assets'), { recursive: true });
 for (const f of fs.readdirSync(path.join(root, 'assets'))) {
   fs.copyFileSync(path.join(root, 'assets', f), path.join(dist, 'assets', f));

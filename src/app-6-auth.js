@@ -1,10 +1,10 @@
 /* ==========================================================================
-   AI LEADERS — O'Z-O'ZINI RO'YXATDAN O'TKAZISH (v2.8.0)
+   AI LEADERS — O'Z-O'ZINI RO'YXATDAN O'TKAZISH + GMAIL XABARLARI (v2.9.0)
    Talaba veb-saytning o'zidan to'liq ma'lumot kiritib ro'yxatdan o'tadi:
      1) shaxsiy ma'lumot  2) telefon + email  3) yo'nalish va maqsad
      4) parol  5) emailga kelgan 6 xonali kod  6) avtomatik unikal NICK
-   Barcha xabarlar (tasdiqlash, ariza holati, parolni tiklash) emailga boradi.
-   Parolni tiklash: nick / email / telefon → kod → yangi parol.
+   Barcha xabarlar (tasdiqlash, ariza holati, parolni tiklash, profil o'zgarishi) Gmail'ga server orqali boradi.
+   Parolni tiklash: nick / email / telefon bilan qidirish → Gmail kodi → yangi parol.
    Admin panelida «Arizalar» bo'limi: tasdiqlash, rad etish, xabarlar jurnali.
    ========================================================================== */
 
@@ -39,44 +39,68 @@ const REG_STATUS = {
   rejected: { l: 'Rad etilgan', t: 'r' }
 };
 
-/* ---------- 2. Email qatlami (demo yoki haqiqiy) ---------- */
+/* ---------- 2. Email qatlami — serverdagi haqiqiy yuborish ---------- */
+/* API kaliti va jo'natuvchi manzil frontendga chiqmaydi. Cloudflare Pages worker
+   /api/email orqali Resend'ga yuboradi; bu yerda faqat qabul qiluvchi va matn bor. */
 function mailCfg() {
   if (!S.settings) S.settings = {};
-  if (!S.settings.mail || typeof S.settings.mail !== 'object') S.settings.mail = { mode: 'demo', email: '', webhook: '' };
+  if (!S.settings.mail || typeof S.settings.mail !== 'object') S.settings.mail = { mode: 'server', testEmail: '' };
   const m = S.settings.mail;
-  if (m.mode !== 'live') m.mode = 'demo';
-  m.email = String(m.email || '').trim();
-  m.webhook = String(m.webhook || '').trim();
+  /* v2.8'dagi demo/FormSubmit qiymatlari bilan mos migratsiya */
+  if (!m.testEmail && m.email) m.testEmail = String(m.email).trim();
+  m.mode = 'server';
+  m.testEmail = String(m.testEmail || '').trim().toLowerCase();
   return m;
 }
-function mailIsDemo() { const c = mailCfg(); return c.mode !== 'live' || !(c.email || c.webhook); }
+function mailIsDemo() { return false; }
 function mailLog() { if (!Array.isArray(S.mail)) S.mail = []; return S.mail; }
-/* Xabar yuborish: jurnalga yozadi; haqiqiy rejimda webhook/FormSubmit'ga POST qiladi.
-   Static saytda bu yagona yo'l — hech qanday maxfiy kalit sahifaga chiqmaydi. */
+function emailOk(v) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/i.test(String(v || '').trim()); }
+function mailStatusLabel(status) {
+  return ({ queued: 'navbatda', sent: 'yuborildi', setup: 'sozlanmagan', failed: 'xato' })[status] || status || 'navbatda';
+}
+/* Xabar avval jurnalga yoziladi, keyin faqat o'z Pages serverimizga yuboriladi.
+   `sent` — Resend API qabul qilganini bildiradi; email inboxga tushishi bir necha soniya olishi mumkin. */
 function sendMail(kind, to, subject, body, code) {
-  const cfg = mailCfg();
-  const live = cfg.mode === 'live' && (cfg.email || cfg.webhook);
-  const item = { id: uid('m'), at: Date.now(), kind: kind || 'info', to: String(to || ''), subject: String(subject || ''),
-    body: String(body || ''), code: code || '', status: live ? 'sent' : 'demo' };
+  const target = String(to || '').trim().toLowerCase();
+  const item = { id: uid('m'), at: Date.now(), kind: kind || 'info', to: target, subject: String(subject || ''),
+    body: String(body || ''), code: code || '', status: emailOk(target) ? 'queued' : 'failed', detail: '' };
   mailLog().unshift(item);
   if (S.mail.length > 40) S.mail.length = 40;
   save();
-  if (live && typeof fetch === 'function') {
-    const payload = { to: item.to, subject: subject, text: body, message: body, _subject: subject };
-    const url = cfg.webhook || ('https://formsubmit.co/ajax/' + encodeURIComponent(cfg.email));
-    try {
-      fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        .then(r => { item.status = r && r.ok ? 'sent' : 'failed'; save(); })
-        .catch(() => { item.status = 'failed'; save(); });
-    } catch (e) { item.status = 'failed'; save(); }
-  }
+  if (!emailOk(target)) { item.detail = 'Email manzil noto‘g‘ri'; save(); return item; }
+  if (typeof fetch !== 'function') return item;
+  try {
+    fetch('/api/email', {
+      method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: item.kind, to: item.to, subject: item.subject, text: item.body })
+    }).then(async r => {
+      let data = {};
+      try { data = await r.json(); } catch (e) { }
+      if (r && r.ok && data && data.ok) {
+        item.status = 'sent'; item.detail = data.id ? 'provider:' + data.id : '';
+      } else {
+        item.status = data && data.error === 'not_configured' ? 'setup' : 'failed';
+        item.detail = (data && data.error) || ('HTTP ' + (r ? r.status : 0));
+        if (typeof toast === 'function') {
+          const setup = item.status === 'setup';
+          toast('warn', setup ? 'Email server hali sozlanmagan' : 'Email yuborilmadi',
+            setup ? 'Admin: Resend kaliti va jo‘natuvchi manzilini Cloudflare Pages secrets’da qo‘shing.' : 'Internet yoki email server sozlamasini tekshiring.');
+        }
+      }
+      save();
+    }).catch(() => {
+      item.status = 'failed'; item.detail = 'network_error'; save();
+      if (typeof toast === 'function') toast('warn', 'Email yuborilmadi', 'Internet yoki email serverini tekshiring.');
+    });
+  } catch (e) { item.status = 'failed'; item.detail = 'request_error'; save(); }
   return item;
 }
 function mailTest() {
-  const cfg = mailCfg();
-  const to = cfg.email || 'klub@example.com';
-  sendMail('test', to, 'AI Leaders — sinov xabari', 'Bu sinov xabari. Agar uni ko‘rsangiz — email yo‘li ishlayapti.\n\nAI Leaders Startup Club');
-  return { ok: true, demo: mailIsDemo(), to };
+  const cfg = mailCfg(), to = cfg.testEmail;
+  if (!emailOk(to)) return { ok: false, msg: 'Avval sinov uchun Gmail manzilini kiriting.' };
+  const item = sendMail('test', to, 'AI Leaders — sinov xabari',
+    'Bu AI Leaders Startup Club email serverining sinov xabari. Uni ko‘rsangiz, Gmail xabarlari ishlayapti.');
+  return { ok: true, to, item };
 }
 
 /* ---------- 3. Yordamchi ---------- */
@@ -182,7 +206,6 @@ function regStart(d) {
   sendMail('reg-code', reg.email, 'AI Leaders — tasdiqlash kodi',
     'Salom, ' + reg.name + '!\n\nRo‘yxatdan o‘tishni yakunlash uchun kod: ' + reg.code +
     '\nKod 10 daqiqa amal qiladi.\n\nSizga beriladigan nick: ' + reg.nick + '\n\nAI Leaders Startup Club', reg.code);
-  if (reg.phone) sendMail('reg-code-sms', fmtPhone(reg.phone), 'AI Leaders — SMS kod', 'Tasdiqlash kodi: ' + reg.code + ' (10 daqiqa)', reg.code);
   save();
   return { ok: true, reg };
 }
@@ -282,11 +305,11 @@ function resetRequest(login) {
   const a = authLookupReset(login);
   if (!a) return { err: 'notfound', msg: 'Bunday nick, email yoki telefon topilmadi.' };
   if (a.role !== 'student') return { err: 'admin', msg: 'Admin akkauntlari uchun parolni klub egasi tiklaydi.' };
-  if (!a.email && !a.phone) return { err: 'contact', msg: 'Akkauntda email yoki telefon yo‘q — klub adminiga murojaat qiling.' };
-  const rec = { id: uid('rst'), accId: a.id, code: makeCode(), exp: Date.now() + 10 * 60 * 1000, used: false, at: Date.now(), channel: a.email ? 'email' : 'sms' };
+  if (!a.email) return { err: 'contact', msg: 'Bu akkauntda Gmail manzili yo‘q. Xavfsiz tiklash uchun klub adminiga murojaat qiling.' };
+  const rec = { id: uid('rst'), accId: a.id, code: makeCode(), exp: Date.now() + 10 * 60 * 1000, used: false, at: Date.now(), channel: 'email' };
   resetList().unshift(rec);
   if (S.reset.length > 30) S.reset.length = 30;
-  sendMail('reset', a.email || a.phone, 'Parolni tiklash kodi — AI Leaders',
+  sendMail('reset', a.email, 'Parolni tiklash kodi — AI Leaders',
     'Parolni tiklash kodi: ' + rec.code + '\nKod 10 daqiqa amal qiladi.\nAgar bu so‘rov sizdan bo‘lmasa — xatni e’tiborsiz qoldiring.', rec.code);
   save();
   return { ok: true, rec, acc: a };
@@ -304,10 +327,81 @@ function resetConfirm(recId, code, pass) {
   a.pass = hashPass(a.nick, p); a.mustSetPass = false;
   if (a.status === 'pending') a.status = 'pending';
   rec.used = true;
-  sendMail('reset-done', a.email || a.phone, 'Parolingiz yangilandi — AI Leaders',
+  sendMail('reset-done', a.email, 'Parolingiz yangilandi — AI Leaders',
     'Parol muvaffaqiyatli yangilandi.\nNick: ' + a.nick + '\nAgar bu siz bo‘lmasangiz, darhol admin bilan bog‘laning.');
   save();
   return { ok: true, acc: a };
+}
+
+/* ---------- 7. Profil va telefon raqamini Gmail orqali himoyalangan yangilash ---------- */
+function phoneChangeList() { if (!Array.isArray(S.contactChanges)) S.contactChanges = []; return S.contactChanges; }
+function samePhone(a, b) { return normPhone(a) === normPhone(b); }
+function profileSave(data) {
+  const a = meAcc();
+  if (!a || a.role !== 'student') return { err: 'auth', msg: 'Profilni yangilash uchun talaba akkaunti bilan kiring.' };
+  const st = get(S.students, a.studentId);
+  if (!st) return { err: 'profile', msg: 'Talaba profili topilmadi.' };
+  const name = String(data.name || '').trim();
+  if (name.length < 2) return { err: 'name', msg: 'To‘liq ismni kiriting.' };
+  const phone = normPhone(data.phone || '');
+  if (phone.length !== 12 || phone.slice(0, 3) !== '998') return { err: 'phone', msg: 'Yangi telefon raqamini +998 90 123 45 67 ko‘rinishida kiriting.' };
+  const before = { name: a.name || st.name, tg: st.tg || '', goal: st.goal || '', bio: st.bio || '', phone: normPhone(a.phone || st.phone || '') };
+  const changes = [];
+  if (name !== before.name) changes.push('ism');
+  if (String(data.tg || '').trim() !== before.tg) changes.push('Telegram');
+  if (String(data.goal || '').trim() !== before.goal) changes.push('maqsad');
+  if (String(data.bio || '').trim() !== before.bio) changes.push('bio');
+  /* Telefon darhol almashmaydi: email egasi 6 xonali kod bilan tasdiqlaydi. */
+  const phoneChanged = !samePhone(phone, before.phone);
+  if (phoneChanged) {
+    const used = accounts().some(x => x.id !== a.id && x.phone && samePhone(x.phone, phone)) ||
+      regList().some(r => r.status !== 'rejected' && r.accId !== a.id && r.phone && samePhone(r.phone, phone));
+    if (used) return { err: 'phone-dup', msg: 'Bu telefon raqami boshqa akkauntda ishlatilgan.' };
+    if (!emailOk(a.email)) return { err: 'email', msg: 'Telefonni xavfsiz almashtirish uchun akkauntga Gmail manzili bog‘langan bo‘lishi kerak.' };
+  }
+  a.name = name; st.name = name;
+  st.tg = String(data.tg || '').trim(); st.goal = String(data.goal || '').trim(); st.bio = String(data.bio || '').trim();
+  let pending = null;
+  if (phoneChanged) {
+    pending = { id: uid('pch'), accId: a.id, phone, code: makeCode(), exp: Date.now() + 10 * 60 * 1000, used: false, at: Date.now() };
+    phoneChangeList().unshift(pending);
+    if (S.contactChanges.length > 20) S.contactChanges.length = 20;
+    sendMail('phone-change-code', a.email, 'Telefon raqamini yangilash kodi — AI Leaders',
+      'Salom, ' + name + '.\n\nYangi telefon raqamini akkauntingizga ulash uchun kod: ' + pending.code +
+      '\nKod 10 daqiqa amal qiladi.\n\nYangi raqam: ' + fmtPhone(phone) +
+      '\nAgar bu so‘rov sizdan bo‘lmasa, kodni hech kimga bermang.', pending.code);
+  } else if (changes.length && emailOk(a.email)) {
+    sendMail('profile-updated', a.email, 'Profilingiz yangilandi — AI Leaders',
+      'Salom, ' + name + '.\n\nProfil ma’lumotlaringiz yangilandi: ' + changes.join(', ') +
+      '.\nAgar bu o‘zgarishni siz qilmagan bo‘lsangiz, darhol klub administratori bilan bog‘laning.');
+  }
+  save();
+  return { ok: true, pending, changes };
+}
+function phoneChangeConfirm(changeId, code) {
+  const c = phoneChangeList().find(x => x.id === changeId);
+  if (!c) return { err: 'notfound', msg: 'Telefon o‘zgartirish so‘rovi topilmadi. Profilga qayting.' };
+  if (c.used) return { err: 'used', msg: 'Bu kod allaqachon ishlatilgan.' };
+  if (Date.now() > c.exp) return { err: 'expired', msg: 'Kod muddati tugagan. Profilga qaytib qayta urinib ko‘ring.' };
+  if (digitsOnly(code) !== String(c.code)) return { err: 'code', msg: 'Kod xato.' };
+  const a = accById(c.accId), st = a && get(S.students, a.studentId);
+  if (!a || !st) return { err: 'account', msg: 'Akkaunt topilmadi.' };
+  a.phone = c.phone; st.phone = fmtPhone(c.phone); c.used = true;
+  sendMail('phone-changed', a.email, 'Telefon raqamingiz yangilandi — AI Leaders',
+    'Salom, ' + a.name + '.\n\nAkkauntingizdagi telefon raqami yangilandi: ' + fmtPhone(c.phone) +
+    '.\nParol tiklashda endi shu raqamdan qidirishingiz mumkin.\nAgar bu siz bo‘lmasangiz, darhol klub administratori bilan bog‘laning.');
+  save();
+  return { ok: true, account: a };
+}
+function phoneChangeModal(change) {
+  const a = meAcc();
+  if (!change || !a) return;
+  openModal(mhead('Yangi raqamni tasdiqlang', 'Kod ' + maskEmail(a.email) + ' Gmail manziliga yuborildi') +
+    '<form data-form="profile-phone-confirm" data-id="' + esc(change.id) + '" class="col" style="gap:12px">' +
+    '<div class="reg-hint">' + ico('phone', 'sm') + '<div>Ulanayotgan yangi raqam: <b>' + esc(fmtPhone(change.phone)) + '</b><br>Kod 10 daqiqa amal qiladi.</div></div>' +
+    '<div class="field"><label>6 xonali Gmail kodi</label><input class="inp code-inp" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="123456"></div>' +
+    '<div class="row" style="gap:9px"><button class="btn btn-primary grow" type="submit">' + ico('check', 'sm') + 'Raqamni ulash</button>' +
+    '<button type="button" class="btn btn-ghost" data-act="close-modal">Bekor qilish</button></div></form>', 'narrow');
 }
 
 /* ---------- 7. Landing: sehrgar holati ---------- */
@@ -405,8 +499,7 @@ function regCodeForm() {
   const reg = regOf(st.regId);
   const email = reg ? reg.email : '';
   return '<form data-form="reg-verify" class="col" style="gap:11px" novalidate>' +
-    '<div class="reg-hint">' + ico('mail', 'sm') + '<div>Kod <b>' + esc(maskEmail(email)) + '</b> manziliga va telefoningizga yuborildi. Xat kelmasa — spam papkasini tekshiring.</div></div>' +
-    (mailIsDemo() && reg && reg.code ? '<div class="reg-hint warn">' + ico('info', 'sm') + '<div>Demo rejim: kod <span class="reg-demo">' + esc(reg.code) + '</span> — email xizmati hali ulanmagan (Sozlamalar → Email).</div></div>' : '') +
+    '<div class="reg-hint">' + ico('mail', 'sm') + '<div>Kod <b>' + esc(maskEmail(email)) + '</b> Gmail manziliga yuborildi. Xat kelmasa — Spam / Promotions papkasini tekshiring.</div></div>' +
     '<div class="field"><label>Tasdiqlash kodi</label>' +
     '<input class="inp code-inp" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" autofocus></div>' +
     (st.err ? '<div class="form-err">' + ico('alert', 'sm') + esc(st.err) + '</div>' : '') +
@@ -447,18 +540,17 @@ function resetWizard() {
   let h = '<div class="reg"><div class="reset-top"><span class="xs up muted">Parolni tiklash</span>' +
     '<button type="button" class="auth-link" data-act="reset-cancel">' + ico('left', 'sm') + 'Kirishga qaytish</button></div>';
   if (r.step === 1) {
-    h += '<div class="reg-head"><h3>Parolni unutdingizmi?</h3><p>Nick, email yoki telefon raqamingizni kiriting — tasdiqlash kodini yuboramiz.</p></div>' +
+    h += '<div class="reg-head"><h3>Parolni unutdingizmi?</h3><p>Nick, email yoki telefon raqamingizni kiriting — tasdiqlash kodi Gmail manzilingizga yuboriladi.</p></div>' +
       '<form data-form="reset-request" class="col" style="gap:11px" novalidate>' +
       '<div class="field"><label>Nick / email / telefon</label><input class="inp" name="login" required autocomplete="username" placeholder="Masalan: falcon yoki ism@gmail.com" value="' + esc(r.login || '') + '"></div>' +
       (r.err ? '<div class="form-err">' + ico('alert', 'sm') + esc(r.err) + '</div>' : '') +
       '<button class="btn btn-primary btn-block" type="submit">' + ico('send', 'sm') + 'Kod yuborish</button>' +
-      '<div class="inp-hint">Kod emailga, agar email yo‘q bo‘lsa — telefonga yuboriladi.</div></form>';
+      '<div class="inp-hint">Kod xavfsizlik uchun akkauntingizdagi Gmail manziliga yuboriladi.</div></form>';
   } else if (r.step === 2) {
     const rec = resetList().find(x => x.id === r.recId);
     const a = rec ? accById(rec.accId) : null;
-    const where = a ? (a.email ? maskEmail(a.email) + ' manziliga' : maskPhone(a.phone) + ' raqamiga') : '';
+    const where = a && a.email ? maskEmail(a.email) + ' Gmail manziliga' : '';
     h += '<div class="reg-head"><h3>Kodni kiriting</h3><p>Kod ' + esc(where) + ' yuborildi.</p></div>' +
-      (mailIsDemo() && rec ? '<div class="reg-hint warn">' + ico('info', 'sm') + '<div>Demo rejim: kod <span class="reg-demo">' + esc(rec.code) + '</span></div></div>' : '') +
       '<form data-form="reset-confirm" class="col" style="gap:11px" novalidate>' +
       '<div class="field"><label>Tasdiqlash kodi</label><input class="inp code-inp" name="code" inputmode="numeric" maxlength="6" placeholder="000000" autofocus></div>' +
       '<div class="field"><label>Yangi parol</label><div class="pwrap"><input class="inp" type="password" name="pass" autocomplete="new-password" required placeholder="Kamida 6 belgi">' +
@@ -494,6 +586,25 @@ function formErrNow(msg) {
 
 /* ---------- 9. Forma va amallar (app-4 dan chaqiriladi) ---------- */
 function authFormSubmit(kind, fd, form, ev) {
+  /* --- talaba profili: telefon faqat Gmail kodi tasdiqlangach almashtiriladi --- */
+  if (kind === 'profile') {
+    const r = profileSave({ name: fd.get('name'), tg: fd.get('tg'), phone: fd.get('phone'), goal: fd.get('goal'), bio: fd.get('bio') });
+    if (r.err) { toast('warn', 'Profil saqlanmadi', r.msg); return true; }
+    if (r.pending) {
+      toast('ok', 'Gmail kodi yuborildi', 'Yangi telefon raqamini ulash uchun emailingizni tekshiring.');
+      phoneChangeModal(r.pending);
+    } else {
+      toast('ok', 'Profil saqlandi', r.changes.length ? 'O‘zgarish haqida Gmail’ingizga xabar yuborildi.' : 'O‘zgarish yo‘q.');
+      closeModal(); paint(true);
+    }
+    return true;
+  }
+  if (kind === 'profile-phone-confirm') {
+    const r = phoneChangeConfirm((form && form.dataset.id) || '', fd.get('code'));
+    if (r.err) { toast('warn', 'Raqam ulanmagan', r.msg); return true; }
+    closeModal(); toast('ok', 'Yangi raqam ulandi', 'Tasdiqlovchi xabar Gmail’ingizga yuborildi.'); paint(true);
+    return true;
+  }
   /* --- ro'yxatdan o'tish: qadam --- */
   if (kind === 'reg-step') {
     const st = regState();
@@ -534,7 +645,7 @@ function authFormSubmit(kind, fd, form, ev) {
     const res = resetRequest(r.login);
     if (res.err) { r.err = res.msg; formErrNow(res.msg); return true; }
     r.err = ''; r.recId = res.rec.id; r.step = 2;
-    toast('ok', 'Kod yuborildi', (res.acc.email ? 'Email: ' + maskEmail(res.acc.email) : 'Telefon: ' + maskPhone(res.acc.phone)));
+    toast('ok', 'Kod yuborildi', 'Gmail: ' + maskEmail(res.acc.email));
     paint(true); landScrollCard();
     return true;
   }
@@ -562,11 +673,9 @@ function authFormSubmit(kind, fd, form, ev) {
   /* --- email sozlamalari (admin) --- */
   if (kind === 'mail-settings') {
     const cfg = mailCfg();
-    cfg.email = String(fd.get('email') || '').trim();
-    cfg.mode = String(fd.get('mode') || 'demo') === 'live' ? 'live' : 'demo';
-    cfg.webhook = String(fd.get('webhook') || '').trim();
+    cfg.testEmail = String(fd.get('testEmail') || '').trim().toLowerCase();
     save();
-    toast('ok', 'Saqlandi', cfg.mode === 'live' ? 'Haqiqiy yuborish yoqildi' : 'Demo rejim');
+    toast('ok', 'Sinov manzili saqlandi', cfg.testEmail || 'Sinov xabari uchun Gmail manzilini kiriting.');
     paint(true);
     return true;
   }
@@ -635,7 +744,8 @@ function regAct(act, id, el) {
   if (act === 'reg-msg') { regMsgModal(id); return true; }
   if (act === 'mail-test') {
     const r = mailTest();
-    toast('ok', 'Sinov xabari', r.demo ? 'Demo rejim — xabar jurnalga yozildi' : ('Yuborildi: ' + r.to));
+    if (!r.ok) toast('warn', 'Sinov yuborilmadi', r.msg);
+    else toast('ok', 'Sinov navbatga qo‘yildi', 'Gmail: ' + r.to + ' — jurnal holatini tekshiring.');
     paint(true);
     return true;
   }
@@ -754,26 +864,23 @@ function regMailCard() {
   const cfg = mailCfg();
   const log = mailLog().slice(0, 6);
   return '<div class="card"><div class="card-h"><h2 class="h2">' + ico('mail') + 'Email va xabarlar</h2>' +
-    '<span class="tag ' + (mailIsDemo() ? 'o' : 'g') + '">' + (mailIsDemo() ? 'Demo rejim' : 'Haqiqiy yuborish') + '</span></div>' +
+    '<span class="tag p">Pages server</span></div>' +
+    '<div class="reg-hint" style="margin:0 0 12px">' + ico('shield', 'sm') + '<div><b>Haqiqiy email oqimi</b><br>Ro‘yxatdan o‘tish kodi, nick, parol tiklash, ariza holati va profil/telefon o‘zgarishlari Gmail’ga server orqali yuboriladi. API kalit bu sahifada saqlanmaydi.</div></div>' +
     '<form data-form="mail-settings" class="col" style="gap:10px">' +
-    '<div class="field"><label>Klub emaili</label><input class="inp" name="email" type="email" placeholder="klub@gmail.com" value="' + esc(cfg.email) + '">' +
-    '<div class="inp-hint">Tasdiqlash kodlari, ariza holati va eslatmalar shu manzil orqali yuboriladi.</div></div>' +
-    '<div class="field"><label>Yuborish usuli</label><select class="inp" name="mode">' +
-    '<option value="demo"' + (cfg.mode === 'demo' ? ' selected' : '') + '>Demo — kod ilovada ko‘rsatiladi</option>' +
-    '<option value="live"' + (cfg.mode === 'live' ? ' selected' : '') + '>Haqiqiy — FormSubmit orqali emailga</option></select></div>' +
-    '<div class="field"><label>Webhook (ixtiyoriy)</label><input class="inp" name="webhook" placeholder="https://… (Resend, SendGrid va h.k.)" value="' + esc(cfg.webhook) + '"></div>' +
+    '<div class="field"><label>Sinov uchun Gmail manzili</label><input class="inp" name="testEmail" type="email" placeholder="siz@gmail.com" value="' + esc(cfg.testEmail) + '">' +
+    '<div class="inp-hint">Bu jo‘natuvchi emas — faqat «Sinov xabari» qabul qiluvchisi.</div></div>' +
     '<div class="row" style="gap:8px"><button class="btn btn-primary btn-sm grow" type="submit">' + ico('check', 'sm') + 'Saqlash</button>' +
     '<button class="btn btn-soft btn-sm" type="button" data-act="mail-test">' + ico('send', 'sm') + 'Sinov xabari</button></div>' +
-    '<div class="inp-hint">Haqiqiy rejimda birinchi yuborishda FormSubmit klub emailiga tasdiqlash xatini yuboradi — havolani bir marta bosish kifoya.</div>' +
+    '<div class="inp-hint">Jo‘natuvchi email, Resend kaliti va Reply-To Cloudflare Pages secrets’da sozlanadi. Ular brauzerga chiqmaydi.</div>' +
     '</form><div class="divider"></div><div class="micro" style="margin-bottom:4px">Oxirgi xabarlar</div>' +
     (log.length ? log.map(m => {
-      const ic = m.kind === 'reset' || m.kind === 'reset-done' ? 'lock' : m.kind === 'approved' ? 'check-c' : m.kind === 'rejected' ? 'x' : 'send';
-      const tag = m.status === 'sent' ? 'g' : m.status === 'failed' ? 'r' : 'o';
+      const ic = m.kind === 'reset' || m.kind === 'reset-done' ? 'lock' : m.kind === 'approved' ? 'check-c' : m.kind === 'rejected' ? 'x' : m.kind.indexOf('phone') === 0 ? 'phone' : 'send';
+      const tag = m.status === 'sent' ? 'g' : m.status === 'failed' ? 'r' : m.status === 'setup' ? 'r' : 'o';
       return '<div class="mail-row"><div class="d">' + ico(ic, 'sm') + '</div>' +
         '<div class="grow" style="min-width:0"><div class="t">' + esc(m.subject) + '</div>' +
-        '<div class="m">' + esc(m.to) + ' · ' + fmtTime(m.at) + (m.code ? ' · kod <span class="mail-code">' + esc(m.code) + '</span>' : '') + '</div></div>' +
-        '<span class="tag ' + tag + '">' + (m.status === 'sent' ? 'yuborildi' : m.status === 'failed' ? 'xato' : 'demo') + '</span></div>';
-    }).join('') : '<div class="xs muted">Hozircha xabar yo‘q — sinov xabarini yuborib ko‘ring.</div>') + '</div>';
+        '<div class="m">' + esc(m.to) + ' · ' + fmtTime(m.at) + (m.detail ? ' · ' + esc(m.detail) : '') + '</div></div>' +
+        '<span class="tag ' + tag + '">' + esc(mailStatusLabel(m.status)) + '</span></div>';
+    }).join('') : '<div class="xs muted">Hozircha xabar yo‘q — Gmail manzilini kiritib sinov yuboring.</div>') + '</div>';
 }
 function fmtTime(ts) {
   try {

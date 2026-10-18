@@ -7,8 +7,8 @@
 |---|---|
 | 🌐 **Jonli sayt** | **https://ai-leaders-platform.pages.dev** |
 | 💻 **Kod** | https://github.com/Asilbek-ops-afk/ai-leaders-platform |
-| 🧪 **Testlar** | `npm test` → **507 ta tekshiruv, 0 xato** • `test:ui` (audit + kontrast) • `test:scale` (200 talaba) • `test:print` (PDF) • `test:standalone` (PWA) |
-| 🔐 **Kirish** | Talaba: **saytdan o'zi ro'yxatdan o'tadi** → unikal nick + parol • Admin: email + parol • Parolni tiklash: email/telefon kodi |
+| 🧪 **Testlar** | `npm test` → **523 ta tekshiruv, 0 xato** • `test:ui` (audit + kontrast) • `test:scale` (200 talaba) • `test:print` (PDF) • `test:standalone` (PWA) |
+| 🔐 **Kirish** | Talaba: **saytdan o'zi ro'yxatdan o'tadi** → unikal nick + parol • Admin: email + parol • Parolni tiklash: Gmail kodi |
 | 📱 **PWA** | Telefonda "Bosh ekranga qo'shish" — oflayn ham ishlaydi |
 | 🚀 **Birinchi kirish** | Platforma **bo'sh boshlanadi** — birinchi ochilishda **Founder akkaunti** yaratasiz |
 | 📦 **Hajm** | Bitta `index.html` (~330 KB), tashqi kutubxonasiz |
@@ -99,7 +99,7 @@ Yorliqlar oynasini sayt ichidan ko'rish: yuqori paneldagi `?` tugmasi yoki `Shif
 
 ---
 
-### 5. Ro'yxatdan o'tish, kirish va parolni tiklash (v2.8.0)
+### 5. Ro'yxatdan o'tish, kirish va Gmail xabarlari (v2.9.0)
 
 **Talabalar o'zi ro'yxatdan o'tadi** (21-school uslubida): saytdagi 4 qadamli formani to'ldiradi,
 emailiga kelgan 6 xonali kodni tasdiqlaydi — tizim **unikal nick** beradi va akkaunt darhol faollashadi.
@@ -108,18 +108,20 @@ Parolni talaba ro'yxatdan o'tishda **o'zi** o'rnatadi; admin parol tarqatmaydi.
 | Qadam | Kim | Nima bo'ladi |
 |---|---|---|
 | 1 | Talaba | Landing → **Ro'yxatdan o'tish**: ism, tug'ilgan sana, shahar, telefon, email, yo'nalish, parol |
-| 2 | Tizim | Email/telefon bandligini tekshiradi → emailga **6 xonali kod** yuboradi |
+| 2 | Tizim | Email/telefon bandligini tekshiradi → Gmail manziliga **6 xonali kod** yuboradi |
 | 3 | Talaba | Kodni kiritadi → akkaunt faollashadi, **unikal nick** (`swift_falcon`) beriladi |
-| 4 | Tizim | Nick, kirish yo'riqnomasi va keyingi xabarlar **emailga** yuboriladi |
+| 4 | Tizim | Nick, kirish yo'riqnomasi va keyingi xabarlar **Gmail manziliga** yuboriladi |
 | 5 | Keyingi kirishlar | **Faqat nick** + o'zi tanlagan parol |
-| 6 | Parol esdan chiqsa | «Parolni tiklash»: nick / email / telefon → kod → yangi parol (adminga murojaat shart emas) |
+| 6 | Parol esdan chiqsa | «Parolni tiklash»: nick / email / telefon bilan topish → kod Gmailga → yangi parol |
 
 HEMIS ID endi **ixtiyoriy** maydon (12 xona) — kirishda ishlatilmaydi, faqat klub hisoboti uchun.
 Bitta HEMIS ID = bitta akkaunt; telefon va email ham takrorlanmaydi.
 
-**Xabarlar:** tasdiqlash kodi, ariza holati, parol tiklash va admin xabarlari — hammasi
-**emailga** yuboriladi. Hozir backend yo'q, shuning uchun xabarlar **demo rejimda** ilova ichidagi
-jurnalga yoziladi (Sozlamalar → Email); haqiqiy yuborish uchun FormSubmit yoki webhook ulanadi.
+**Gmail xabarlari:** tasdiqlash kodi, nick, ariza holati, parol tiklash hamda profil yoki telefon
+raqami o'zgargani haqidagi xavfsizlik xabari server orqali Gmail'ga yuboriladi. Maxfiy email kaliti
+Cloudflare Pages secrets'da turadi; sozlash tartibi: [`docs/email-server.md`](docs/email-server.md).
+Telefon raqami yangilansa, eski raqam kerak emas: talaba Gmail'iga kelgan 6 xonali kod bilan yangi
+raqamni akkauntiga bog'laydi.
 
 **Admin va mentorlar** (7 kishi) email + parol bilan kiradi. Ular uchun alohida **Adminlar** bo'limi bor:
 rol (Founder, Bosh mentor, Mentor, Kontent menejer, Kurator), ruxsatlar, bloklash/o'chirish, kirish kartochkalari.

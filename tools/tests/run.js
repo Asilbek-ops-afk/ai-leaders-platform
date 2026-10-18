@@ -98,7 +98,10 @@ window.AIL = {
   passStrength: p2 => passStrength(p2),
   resetRequest: l => { const r = resetRequest(l); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', rec: r.rec ? { id: r.rec.id, code: r.rec.code } : null, nick: r.acc ? r.acc.nick : null }; },
   resetConfirm: (id, code, pass) => { const r = resetConfirm(id, code, pass); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '' }; },
-  mails: () => (S.mail || []).map(m => ({ kind: m.kind, to: m.to, subject: m.subject, code: m.code, status: m.status })),
+  mails: () => (S.mail || []).map(m => ({ kind: m.kind, to: m.to, subject: m.subject, code: m.code, status: m.status, detail: m.detail || '' })),
+  profileSave: d2 => { const r = profileSave(d2 || {}); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', pending: r.pending ? { id: r.pending.id, code: r.pending.code, phone: r.pending.phone } : null, changes: r.changes || [] }; },
+  phoneChangeConfirm: (id, code) => { const r = phoneChangeConfirm(id, code); return { ok: !!r.ok, err: r.err || null, msg: r.msg || '', phone: r.account ? r.account.phone : '' }; },
+  phoneChanges: () => (S.contactChanges || []).map(x => ({ id: x.id, phone: x.phone, code: x.code, used: !!x.used })),
   setSetting: (k, v) => { S.settings[k] = v; save(); }
 };`;
 
@@ -859,7 +862,7 @@ const ttop = B.d.getElementById('toTop');
 t('«yuqoriga» tugmasi mavjud va amali biriktirilgan', !!ttop && ttop.getAttribute('data-act') === 'to-top');
 
 /* — versiya va xatolar — */
-t('versiya 2.8.0', B.w.AIL.version() === '2.8.0');
+t('versiya 2.9.0', B.w.AIL.version() === '2.9.0');
 t('JS xatosi yo‘q (noutbuk rejimi)', B.errors.length === 0);
 
 /* ============ 17. LANDING SAHIFASI: HERO, BO'LIMLAR, KIRISH/ARIZA ============
@@ -944,7 +947,7 @@ t('ariza boshlanadi: kod emailga yuboriladi, nick zaxiralanadi', (() => {
   const mails = C.w.AIL.mails();
   return C.w.AIL.regs().length === 1 && /^\d{6}$/.test(r.reg.code) && !C.w.AIL.accounts().some(a => a.nick === r.reg.nick) &&
     mails.some(m => m.kind === 'reg-code' && m.to === 'sardor17@gmail.com' && m.code === r.reg.code) &&
-    mails.some(m => m.kind === 'reg-code-sms');
+    !mails.some(m => m.kind === 'reg-code-sms');
 })());
 t('xato kod qabul qilinmaydi', (() => {
   const bad = C.w.AIL.regVerify(REG17.id, '000000');
@@ -978,11 +981,11 @@ t('avtomatik tasdiqlash o‘chirilsa — ariza «pending» bo‘ladi va admin ta
   const after = C.w.AIL.accById(v.acc.id);
   return chk.err === 'pending' && /tasdiqlanmagan/.test(chk.msg) && ap.ok && after.status === 'active' && !!after.studentId;
 })());
-t('parolni tiklash: email yoki telefon bilan kod, eski kod qayta ishlamaydi', (() => {
+t('parolni tiklash: topish nick/email/telefon bilan, kod faqat Gmailga boradi', (() => {
   C.w.AIL.setSetting('autoApprove', true);
   const acc = C.w.AIL.check('falcon', 'x', 'student');
   const byMail = C.w.AIL.resetRequest('sardor17@gmail.com');
-  const byPhone = C.w.AIL.resetRequest('+998 90 111 22 33');
+  const byPhone = C.w.AIL.resetRequest('+998 90 555 44 33');
   const noOne = C.w.AIL.resetRequest('yoq_bunday');
   if (!byMail.ok || !byPhone.ok || noOne.err !== 'notfound') return false;
   const wrong = C.w.AIL.resetConfirm(byMail.rec.id, '000000', 'Yangi2026');
@@ -1045,6 +1048,27 @@ t('qayta kirilganda sehrgar holati xato bermaydi', (() => {
   return !!C.d.querySelector('form[data-form="reg-step"]') && C.d.querySelectorAll('.reg-dot').length === 5 && C.errors.length === 0;
 })());
 t('JS xatosi yo‘q (landing)', C.errors.length === 0);
+t('telefon yo‘qolganda yangi raqam Gmail kodi bilan akkauntga ulanadi', (() => {
+  const a = C.w.AIL.S.accounts.find(x => x.self && x.email === 'sardor17@gmail.com');
+  if (!a) return false;
+  C.w.AIL.loginAs(a.id);
+  const st = C.w.AIL.S.students.find(x => x.id === a.studentId);
+  const oldPhone = a.phone;
+  const req = C.w.AIL.profileSave({ name: st.name, tg: st.tg, phone: '+998 93 123 45 67', goal: st.goal, bio: st.bio });
+  if (!req.ok || !req.pending || a.phone !== oldPhone) return false;
+  const wrong = C.w.AIL.phoneChangeConfirm(req.pending.id, '000000');
+  const ok = C.w.AIL.phoneChangeConfirm(req.pending.id, req.pending.code);
+  const after = C.w.AIL.accById(a.id);
+  return wrong.err === 'code' && ok.ok && after.phone === '998931234567' &&
+    C.w.AIL.mails().some(m => m.kind === 'phone-change-code' && m.to === 'sardor17@gmail.com') &&
+    C.w.AIL.mails().some(m => m.kind === 'phone-changed' && m.to === 'sardor17@gmail.com');
+})());
+t('profil o‘zgarishi Gmail xabarnomasini navbatga qo‘yadi', (() => {
+  const a = C.w.AIL.S.accounts.find(x => x.self && x.email === 'sardor17@gmail.com');
+  const st = C.w.AIL.S.students.find(x => x.id === a.studentId);
+  const r = C.w.AIL.profileSave({ name: st.name, tg: st.tg, phone: '+998 93 123 45 67', goal: st.goal + '!', bio: st.bio });
+  return r.ok && !r.pending && C.w.AIL.mails().some(m => m.kind === 'profile-updated' && m.to === 'sardor17@gmail.com');
+})());
 
 /* ================= 19. MVP: AKKAUNTLAR, HEMIS, NICK, SESSIYA ================= */
 group('19. MVP akkaunt tizimi: HEMIS ID, unikal nick, birinchi kirish, sessiya');
@@ -1716,11 +1740,11 @@ group('21. Statik qo‘riqchi: namuna ma’lumot faqat testlar ichida');
   t('src fixtura faylini chaqirmaydi', !/fixtures/.test(srcAll) && !/require\(/.test(srcAll));
   t('tozalash funksiyasi mavjud (purgeDemoState)', /function purgeDemoState\(/.test(srcAll) && /needsSetup/.test(srcAll) && /function createFounderAccount\(/.test(srcAll));
   t('qurilgan index.html ham namuna ismlaridan xoli', stNames.every(x => !HTML.includes(x)) && adNames.every(x => !HTML.includes(x)));
-  t('versiya izchil (src = sw.js = package.json = 2.8.0)', (() => {
+  t('versiya izchil (src = sw.js = package.json = 2.9.0)', (() => {
     const ver = /const APP_VERSION = '([^']+)'/.exec(srcAll)[1];
     const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-    return ver === '2.8.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
+    return ver === '2.9.0' && sw.indexOf('ai-leaders-v' + ver) > -1 && pkg.version === ver;
   })());
 }
 

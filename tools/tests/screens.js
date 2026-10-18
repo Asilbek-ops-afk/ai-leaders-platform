@@ -107,7 +107,7 @@ function stateFor(name) {
     { name: '83-v22-landing-savollar', vp: { width: 1440, height: 950 }, steps: ['land-sec:#lsavol', 'faq-open'], data: 'landing' },
     { name: '84-v22-landing-kirish', vp: { width: 1568, height: 768 }, steps: ['land-sec:#lkirish'], data: 'landing' },
     { name: '85-v22-landing-ariza', vp: { width: 1568, height: 900 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing' },
-    /* --- v2.8.0: o'z-o'zini ro'yxatdan o'tkazish --- */
+    /* --- v2.9.0: o'z-o'zini ro'yxatdan o'tkazish va Gmail oqimi --- */
     { name: '107-ro-royxatdan-1-qadam', vp: { width: 1440, height: 1000 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing' },
     { name: '108-ro-royxatdan-noutbuk', vp: { width: 1568, height: 768 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing' },
     { name: '109-ro-royxatdan-mobil', vp: { width: 390, height: 844 }, steps: ['land-sec:#lkirish', 'lead-tab'], data: 'landing', mobile: true },

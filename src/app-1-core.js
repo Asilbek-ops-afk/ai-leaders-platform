@@ -7,7 +7,7 @@
 
 /* ---------- 1. Yordamchi funksiyalar ---------- */
 const VKEY = 'ai-leaders-platform-v1';
-const APP_VERSION = '2.8.0';
+const APP_VERSION = '2.9.0';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ico = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>';
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -116,11 +116,11 @@ function blankState() {
     badges: BADGES.map(b => JSON.parse(JSON.stringify(b))), quests: {}, quizDone: {},
     accounts: [], session: null,
     settings: { notif: true, weekly: true, publicProfile: true, friendBoard: false, autoApprove: true,
-      mail: { mode: 'demo', email: '', webhook: '' } },
+      mail: { mode: 'server', testEmail: '' } },
     meta: { version: APP_VERSION, created: todayISO(), demoPurged: true },
     groups: [], modules: MODULES.map(m => JSON.parse(JSON.stringify(m))),
     lessons: LESSONS.map(l => JSON.parse(JSON.stringify(l))),
-    tasks: [], mentors: [], notifs: [], leads: [], registrations: [], reset: [], mail: [],
+    tasks: [], mentors: [], notifs: [], leads: [], registrations: [], reset: [], contactChanges: [], mail: [],
     friends: {}, incoming: {}, sent: {}, activity: [], weekly: [], monthGrowth: []
   };
 }
@@ -182,6 +182,10 @@ function loadState() {
     if (!p.settings || typeof p.settings !== 'object') p.settings = base.settings;
     if (p.settings.autoApprove === undefined) p.settings.autoApprove = true;
     if (!p.settings.mail || typeof p.settings.mail !== 'object') p.settings.mail = base.settings.mail;
+    /* v2.9.0: email kaliti browserda emas, Pages serverida; eski demo sozlamasi server oqimiga ko'chadi */
+    p.settings.mail.mode = 'server';
+    if (!p.settings.mail.testEmail && p.settings.mail.email) p.settings.mail.testEmail = p.settings.mail.email;
+    if (!Array.isArray(p.contactChanges)) p.contactChanges = [];
     if (!Array.isArray(p.accounts)) p.accounts = [];
     if (p.session && !p.accounts.some(a => a.id === p.session.acc)) p.session = null;
     if (!p.session) p.session = null;

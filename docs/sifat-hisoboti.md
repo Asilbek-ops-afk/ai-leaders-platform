@@ -2,9 +2,9 @@
 
 Bu hujjat platformani qayta ko'rikdan o'tkazishda **topilgan va tuzatilgan** barcha kamchiliklarni,
 tekshiruv usullarini va natijalarni qayd etadi. Har bir versiya bo'limi o'sha paytdagi holatni saqlaydi;
-**eng yangi holat — oxirgi bo'lim (v2.8.0)**.
+**eng yangi holat — oxirgi bo'lim (v2.9.0)**.
 
-**Oxirgi versiya:** v2.8.0 · **Holat:** ✅ barcha tekshiruvlar o'tdi (519 test + sahifa auditi, 175 joylashuv, skrinshotlar, 5 ta ixtisoslashgan vosita)
+**Oxirgi versiya:** v2.9.0 · **Holat:** ✅ 523 funksional test o'tdi (email server integratsiyasi va Gmail orqali telefon almashtirish qo'shildi)
 
 | Bo'lim | Versiya | Mazmuni |
 |---|---|---|
@@ -887,3 +887,36 @@ uchun keyingi qadam: Supabase Edge Function + Resend/SMTP.
 | Joylashuv · katta klub · chop etish · o'rnatilgan ilova | ✔ 175/0 · 0 · 0 · 0 |
 | Jonli oqim sinovi (Chromium) | ✔ 4 qadam → kod → faol akkaunt → kirish; parolni tiklash (email va telefon) |
 | Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.8.0** |
+
+
+---
+
+## v2.9.0 — Haqiqiy Gmail xabarlari va telefonni Gmail bilan almashtirish
+
+**Foydalanuvchi talabi:** ro'yxatdan o'tish kodi Gmail'ga haqiqatan yetib borsin; talaba telefonini yo'qotsa,
+yangi raqamni o'z akkauntiga xavfsiz ulay olsin; profil bilan bog'liq xabarlar ham emailga borsin.
+
+| Bo'lak | Amalga oshirilgan yechim |
+|---|---|
+| **Server email qatlami** | Cloudflare Pages Advanced Mode worker: `POST /api/email` → Resend transactional email API. API key browserga yoki Git'ga chiqmaydi. |
+| **Ro'yxatdan o'tish** | 6 xonali tasdiqlash kodi bevosita ro'yxatdan o'tishda berilgan Gmail manziliga yuboriladi; demo kod ekranda ko'rsatilmaydi. |
+| **Barcha asosiy xabarlar** | Nick/Welcome, tasdiqlash yoki rad etish, parol tiklash, adminning ariza xabari, profil va telefon o'zgarishi email qatlamidan o'tadi. |
+| **Telefonni tiklash** | Talaba nick+parol yoki Gmail parol-tiklash bilan kiradi → Profil → yangi raqam → Gmail kodi → akkauntdagi parol-tiklash raqami ham yangilanadi. Eski telefon talab qilinmaydi. |
+| **Xavfsizlik xabari** | Telefon ulanganidan keyin ham Gmail'ga alohida tasdiqlovchi xat yuboriladi. |
+| **Admin ko'rinishi** | Sozlamalar → Email va xabarlar jurnalida `navbatda / yuborildi / sozlanmagan / xato` holati, xavfsiz sinov-Gmail maydoni. |
+| **Hujjat** | `docs/email-server.md`: Resend domeni va Cloudflare secrets (`RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO`) sozlanishi. |
+
+### Muhim ishga tushirish sharti
+
+Worker kodi deploy bilan birga chiqadi, lekin haqiqiy Gmail yuborilishi uchun Resend API key va tasdiqlangan
+jo'natuvchi email Cloudflare Pages secrets sifatida kiritilishi **shart**. Ushbu maxfiy qiymatlar qasddan
+repoga kiritilmaydi. Secrets kiritilmaguncha jurnal holati `sozlanmagan` bo'ladi va foydalanuvchiga soxta
+«yuborildi» ko'rsatilmaydi.
+
+### Tekshiruv (v2.9.0)
+
+| Daraja | Natija |
+|---|---|
+| Funksional testlar | ✔ **523 ta**, 0 xato — Gmail kodi oqimi, email-only reset, telefonni Gmail kodi bilan almashtirish, profil xabarnomasi |
+| Sintaksis + build | ✔ barcha `src` fayllari, Pages worker va bitta-faylli build |
+| Versiya izchilligi | ✔ `src` = `sw.js` = `package.json` = **2.9.0** |
